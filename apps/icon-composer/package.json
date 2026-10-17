@@ -1,0 +1,10 @@
+{
+  "name": "@icon-studio/icon-composer",
+  "version": "1.5.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  }
+}

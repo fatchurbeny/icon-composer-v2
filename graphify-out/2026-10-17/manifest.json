@@ -1,0 +1,146 @@
+{
+  ".codex/hooks.json": {
+    "mtime": 1792252112.2519543,
+    "seen": 1792252120.894075,
+    "ast_hash": "005ac71c84af2cae38e255e2b9de2411",
+    "semantic_hash": "005ac71c84af2cae38e255e2b9de2411"
+  },
+  "apps/icon-composer/package.json": {
+    "mtime": 1792251945.0650027,
+    "seen": 1792252120.8940759,
+    "ast_hash": "ab5f5a7eedbe1a51fafcc7b140955b13",
+    "semantic_hash": "ab5f5a7eedbe1a51fafcc7b140955b13"
+  },
+  "apps/icon-composer/vite.config.js": {
+    "mtime": 1792252002.8489397,
+    "seen": 1792252120.8940768,
+    "ast_hash": "64bed38761d2bd67984e72d350eaafd0",
+    "semantic_hash": "64bed38761d2bd67984e72d350eaafd0"
+  },
+  "apps/template-icon-builder/package.json": {
+    "mtime": 1792251945.1305335,
+    "seen": 1792252120.894078,
+    "ast_hash": "80bb933a2d2cf8cce8920552e4f4adef",
+    "semantic_hash": "80bb933a2d2cf8cce8920552e4f4adef"
+  },
+  "apps/template-icon-builder/vite.config.js": {
+    "mtime": 1792252002.8711865,
+    "seen": 1792252120.894079,
+    "ast_hash": "c5dc502f5e63e0efe9e86416e996a66d",
+    "semantic_hash": "c5dc502f5e63e0efe9e86416e996a66d"
+  },
+  "eslint.config.js": {
+    "mtime": 1792251944.9568717,
+    "seen": 1792252120.89408,
+    "ast_hash": "214e1af82a775fb97efc2b113fd1fe75",
+    "semantic_hash": "214e1af82a775fb97efc2b113fd1fe75"
+  },
+  "package.json": {
+    "mtime": 1792252067.9368782,
+    "seen": 1792252120.894081,
+    "ast_hash": "71861746ac961e2b7224aa3a38bbfb8d",
+    "semantic_hash": "71861746ac961e2b7224aa3a38bbfb8d"
+  },
+  "packages/icon-sources/data/custom-icons.json": {
+    "mtime": 1792251917.7799885,
+    "seen": 1792252120.894082,
+    "ast_hash": "da81d1b75166d251df9833c27615b3ed",
+    "semantic_hash": "da81d1b75166d251df9833c27615b3ed"
+  },
+  "packages/icon-sources/sources.json": {
+    "mtime": 1792251186.0,
+    "seen": 1792252120.894083,
+    "ast_hash": "ab8b02bb63698ee733344f16ff6eaaf4",
+    "semantic_hash": "ab8b02bb63698ee733344f16ff6eaaf4"
+  },
+  "packages/ui/components.js": {
+    "mtime": 1792249984.0,
+    "seen": 1792252120.8940842,
+    "ast_hash": "cac99d3e8bb537d6f4788f61f163ab66",
+    "semantic_hash": "cac99d3e8bb537d6f4788f61f163ab66"
+  },
+  "packages/ui/package.json": {
+    "mtime": 1792250470.0,
+    "seen": 1792252120.8940852,
+    "ast_hash": "e6314d6c33feb9194282ae5ba7d1c2a0",
+    "semantic_hash": "e6314d6c33feb9194282ae5ba7d1c2a0"
+  },
+  "playwright.config.js": {
+    "mtime": 1792251945.0017965,
+    "seen": 1792252120.894086,
+    "ast_hash": "bf32d8881c5dacd9bd933719fb347ccd",
+    "semantic_hash": "bf32d8881c5dacd9bd933719fb347ccd"
+  },
+  "scripts/build-ui-icons.mjs": {
+    "mtime": 1792250014.0,
+    "seen": 1792252120.8940868,
+    "ast_hash": "646eadbaf758083b876d6e78e4f857f3",
+    "semantic_hash": "646eadbaf758083b876d6e78e4f857f3"
+  },
+  "scripts/collect-builds.mjs": {
+    "mtime": 1792252030.5645201,
+    "seen": 1792252120.8940868,
+    "ast_hash": "64cbb02e496220793ec6acaf1a6839e4",
+    "semantic_hash": "64cbb02e496220793ec6acaf1a6839e4"
+  },
+  "scripts/fetch-fixtures.mjs": {
+    "mtime": 1792251961.7573726,
+    "seen": 1792252120.894088,
+    "ast_hash": "3e681cb7f645248e49219aa2d30f5fce",
+    "semantic_hash": "3e681cb7f645248e49219aa2d30f5fce"
+  },
+  "scripts/lint-ui.mjs": {
+    "mtime": 1792250465.0,
+    "seen": 1792252120.894089,
+    "ast_hash": "f3dd70b640bc8493c429e66e140937d8",
+    "semantic_hash": "f3dd70b640bc8493c429e66e140937d8"
+  },
+  "scripts/render-artboards.py": {
+    "mtime": 1792251165.0,
+    "seen": 1792252120.89409,
+    "ast_hash": "189372aa973494941595c5def19ddd92",
+    "semantic_hash": "189372aa973494941595c5def19ddd92"
+  },
+  "tests/e2e/foundation.spec.js": {
+    "mtime": 1792251945.0443172,
+    "seen": 1792252120.894091,
+    "ast_hash": "8e0a06028e551e0bb573f644fbd26256",
+    "semantic_hash": "8e0a06028e551e0bb573f644fbd26256"
+  },
+  "tests/fixtures/manifests/creative-workshop-planner.json": {
+    "mtime": 1792251917.7825289,
+    "seen": 1792252120.894092,
+    "ast_hash": "2dbbae1daf7feabaf450501c616f002c",
+    "semantic_hash": "2dbbae1daf7feabaf450501c616f002c"
+  },
+  "tests/fixtures/manifests/series-a-icon-manifest.json": {
+    "mtime": 1792251917.782187,
+    "seen": 1792252120.894092,
+    "ast_hash": "0acec64971b745ea1224bbfd44a490fb",
+    "semantic_hash": "0acec64971b745ea1224bbfd44a490fb"
+  },
+  "tests/fixtures/outline-mask/manifest-final.json": {
+    "mtime": 1792251917.7844856,
+    "seen": 1792252120.894093,
+    "ast_hash": "1f16167b583fb89ce02e52777a36c265",
+    "semantic_hash": "1f16167b583fb89ce02e52777a36c265"
+  },
+  "tests/fixtures/outline-mask/submission-profile.json": {
+    "mtime": 1792251917.7863245,
+    "seen": 1792252120.894094,
+    "ast_hash": "1060acc923293f60a985c907f8f25fd0",
+    "semantic_hash": "1060acc923293f60a985c907f8f25fd0"
+  },
+  "tests/unit/foundation.test.js": {
+    "mtime": 1792251945.0225935,
+    "seen": 1792252120.8940952,
+    "ast_hash": "096051f918bc2338b5b686b8f216e88f",
+    "semantic_hash": "096051f918bc2338b5b686b8f216e88f"
+  },
+  "vitest.config.js": {
+    "mtime": 1792252002.697232,
+    "seen": 1792252120.894096,
+    "ast_hash": "c6b92549211fdd0729da296f7aa3d8b5",
+    "semantic_hash": "c6b92549211fdd0729da296f7aa3d8b5"
+  }
+}

@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Icon Studio · Kombinasi massal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#1B1B1B}
+a{color:#7FB2FF}a:hover{color:#A9CBFF}
+.app{font-family:'Instrument Sans',system-ui,sans-serif;font-size:13px;color:#E4E4E4;background:#1B1B1B;-webkit-font-smoothing:antialiased}
+.mono{font-family:'Geist Mono',ui-monospace,monospace}
+.ib{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;background:transparent;color:#B9B9B9;cursor:pointer;padding:0}
+.pill{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border:0;border-radius:9px;background:transparent;color:#C9C9C9;font:inherit;font-size:14px;cursor:pointer;text-decoration:none}
+.pill.on{background:#B9E04C;color:#18200A;font-weight:600}
+.gbtn{height:24px;padding:0 12px;border:0;border-radius:5px;background:#4A4A4A;color:#EDEDED;font:inherit;font-size:12px;font-weight:500;cursor:pointer}
+.seg{display:flex;gap:2px;padding:2px;border-radius:6px;background:#1C1C1C;border:1px solid #3A3A3A}
+.seg button{height:20px;padding:0 8px;border:0;border-radius:4px;background:transparent;color:#A8A8A8;font:inherit;font-size:11.5px;cursor:pointer;white-space:nowrap}
+.seg button.on{background:#4A4A4A;color:#FFFFFF}
+.tool{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;color:#BDBDBD;cursor:pointer;padding:0}
+.tool.on{background:#3A3A3A;color:#FFFFFF;box-shadow:inset 0 0 0 1px #555}
+.tabh{display:flex;align-items:center;gap:2px;height:34px;padding:0 6px 0 8px;background:#262626;border-bottom:1px solid #1E1E1E}
+.tab{height:24px;padding:0 9px;border:0;border-radius:5px;background:transparent;color:#A8A8A8;font:inherit;font-size:12.5px;cursor:pointer}
+.tab.on{background:#3C3C3C;color:#FFFFFF}
+.chev{margin-left:auto;width:22px;height:22px;border-radius:5px;border:1px solid #555;display:flex;align-items:center;justify-content:center;color:#CFCFCF;background:transparent;padding:0}
+.lbl{color:#9A9A9A;font-size:12px}
+.field{height:24px;border-radius:5px;background:#1C1C1C;border:1px solid #3A3A3A;color:#EDEDED;display:flex;align-items:center;padding:0 8px;font-size:12px;min-width:0}
+.row{display:flex;align-items:center;gap:10px}
+.src{height:16px;padding:0 5px;border-radius:4px;font-size:10px;display:inline-flex;align-items:center;font-family:'Geist Mono',ui-monospace,monospace}
+.libh{display:flex;align-items:center;gap:8px;margin:12px 0 7px;font-size:12px;color:#CFCFCF}
+.tile{position:relative;aspect-ratio:1;border-radius:7px;background:#222;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #333}
+.prow{display:flex;align-items:center;gap:9px;height:36px;padding:0 12px;border-bottom:1px solid #2E2E2E;font-size:12px}
+</style>
+</helmet>
+<div class="app" style="width: 100%; min-width: 360px; height: 1000px; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="height: 56px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 16px 0 14px; background: #1B1B1B; border-bottom: 1px solid #111">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="6" width="18" height="18" rx="5" fill="none" stroke="#F2F2F2" stroke-width="2.6"></rect><circle cx="22" cy="8" r="6" fill="#B9E04C" stroke="#1B1B1B" stroke-width="2.4"></circle></svg>
+    <div style="display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 12px; background: #2A2A2A">
+      <a class="pill" href="Main.dc.html"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><circle cx="11" cy="11" r="2"></circle></svg>Composer</a>
+      <a class="pill" href="Builder.dc.html"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 9 5-9 5-9-5 9-5z"></path><path d="m3 12 9 5 9-5"></path><path d="m3 17 9 5 9-5"></path></svg>Builder</a>
+      <a class="pill" href="Tinjau.dc.html"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Tinjau</a>
+      <button class="pill on" aria-pressed="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.8 1.2 5.4 6 6-4.8.6-5.4 1.2-6 6-.6-4.8-1.2-5.4-6-6 4.8-.6 5.4-1.2 6-6z"></path><path d="M19 15v4"></path><path d="M17 17h4"></path></svg>Kombinasi</button>
+    </div>
+    <button class="ib" aria-label="Menu lain"><svg width="16" height="16" viewBox="0 0 24 24" fill="#BDBDBD" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg></button>
+    <div style="flex: 1"></div>
+    <span style="font-size: 12.5px; color: #D6D6D6">Travel Set · Sticker</span>
+    <span style="width: 1px; height: 22px; background: #333"></span>
+    <span class="mono" style="font-size: 12px; color: #D6D6D6">6 objek × 5 pengubah = 30 kombinasi</span>
+    <span style="width: 1px; height: 22px; background: #333"></span>
+    <button style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 12px 0 0; border: 0; border-radius: 8px; background: #333; color: #F0F0F0; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer">
+      <span style="width: 4px; height: 22px; border-radius: 2px; background: #B9E04C; margin-left: 8px"></span>Tambahkan 19 ke set
+    </button>
+    <button class="ib" aria-label="Bantuan" style="color: #7FB2FF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.8"></path><circle cx="12" cy="17" r=".6" fill="currentColor"></circle></svg></button>
+  </div>
+
+  <div style="height: 42px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 12px; background: #2B2B2B; border-bottom: 1px solid #1E1E1E; font-size: 12.5px">
+    <span class="lbl">Gaya</span>
+    <div class="field" style="width: 104px; justify-content: space-between">Sticker <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#AAA" stroke-width="3" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></div>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <span class="lbl">Posisi pengubah</span>
+    <div class="seg"><button class="on">Bawaan pengubah</button><button>Paksa TR</button><button>Paksa BR</button></div>
+    <span class="lbl">Warna pengubah</span>
+    <div class="seg"><button class="on">Dari pengubah</button><button>Ikut objek</button></div>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <button class="gbtn">Pilih semua</button>
+    <button class="gbtn">Lewati semua</button>
+    <div style="flex: 1"></div>
+    <label style="display: flex; align-items: center; gap: 8px"><input type="checkbox" checked style="width: 16px; height: 16px; accent-color: #2F80ED; margin: 0">Lewati yang sudah ada</label>
+    <label style="display: flex; align-items: center; gap: 8px"><input type="checkbox" checked style="width: 16px; height: 16px; accent-color: #2F80ED; margin: 0">Lewati yang mirip</label>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+    <!-- Studio kiri: pustaka lintas library -->
+    <div style="flex: 1 1 300px; max-width: 310px; min-width: 280px; display: flex; flex-direction: column; background: #2B2B2B; border-right: 1px solid #161616">
+      <div class="tabh"><button class="tab on">Pustaka</button><button class="tab">Kustom</button><button class="tab">Riwayat</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div style="padding: 12px 12px 0; display: flex; flex-direction: column; gap: 9px">
+        <div class="seg"><button class="on" style="flex: 1">Semua</button><button style="flex: 1">Lucide</button><button style="flex: 1">Tabler</button><button style="flex: 1">Huge</button><button style="flex: 1">Kustom</button></div>
+        <label class="row" style="height: 30px; padding: 0 10px; border-radius: 6px; background: #1C1C1C; border: 1px solid #3A3A3A; gap: 8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input type="text" value="camera" aria-label="Cari ikon di semua pustaka" style="flex: 1; min-width: 0; border: 0; background: transparent; color: #FFFFFF; font: inherit; font-size: 12.5px; outline: none">
+          <span class="mono" style="font-size: 10.5px; color: #8C8C8C">{{ total }} hasil</span>
+        </label>
+        <div class="row" style="gap: 8px"><span class="lbl">Klik menambah ke</span><div class="seg" style="flex: 1"><button class="on" style="flex: 1">Objek</button><button style="flex: 1">Pengubah</button></div></div>
+        <div class="row" style="gap: 8px"><span class="lbl" style="width: 44px">Bentuk</span>
+          <div class="seg" style="flex: 1">
+            <sc-for list="{{ shapes }}" as="s" hint-placeholder-count="3">
+              <button style="{{ s.style }}" aria-pressed="{{ s.on }}" onClick="{{ s.pick }}">
+                <span style="{{ s.glyph }}"></span>{{ s.label }} <span class="mono" style="opacity: .6">{{ s.n }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <span style="font-size: 10.5px; color: #7A7A7A; line-height: 1.4">Isi = punya bentuk tertutup yang bisa diberi warna (Sticker, Offset, Aksen, Hand-writing). Garis = hanya garis terbuka.</span>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow: hidden; padding: 0 12px">
+        <sc-for list="{{ libs }}" as="g" hint-placeholder-count="3">
+          <div class="libh"><span style="{{ g.badge }}" class="src">{{ g.prefix }}</span><span style="font-weight: 500">{{ g.name }}</span><span class="mono" style="color: #7A7A7A; font-size: 10.5px">{{ g.ver }}</span><span style="flex: 1; height: 1px; background: #383838"></span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">{{ g.count }}</span></div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ g.tiles }}" as="t" hint-placeholder-count="4">
+              <div class="tile" title="{{ t.key }}" style="{{ t.style }}">
+                <img src="{{ t.src }}" alt="{{ t.key }}" style="width: 34px; height: 34px">
+                <span title="{{ t.kind }}" style="{{ t.kindStyle }}"></span>
+                <sc-if value="{{ t.inPool }}" hint-placeholder-val="{{ false }}">
+                  <span style="position: absolute; top: 3px; right: 3px; width: 15px; height: 15px; border-radius: 50%; background: #B9E04C; color: #18200A; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">✓</span>
+                </sc-if>
+                <sc-if value="{{ t.twin }}" hint-placeholder-val="{{ false }}">
+                  <span style="position: absolute; bottom: 3px; left: 3px; right: 3px; height: 14px; border-radius: 3px; background: #F2B13A; color: #2A1800; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">≈ tb:camera</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div class="libh"><span class="src" style="background: #3B2E4A; color: #D6B8F5">cu</span><span style="font-weight: 500">Kustom</span><span class="mono" style="color: #7A7A7A; font-size: 10.5px">12 ikon</span><span style="flex: 1; height: 1px; background: #383838"></span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">0</span></div>
+        <div style="padding: 10px; border-radius: 7px; border: 1px dashed #4A4A4A; color: #9A9A9A; font-size: 11.5px; display: flex; flex-direction: column; gap: 8px">
+          Belum ada ikon kustom untuk "camera".
+          <button class="gbtn" style="align-self: flex-start">Impor dari Figma…</button>
+        </div>
+      </div>
+      <div class="mono" style="height: 30px; display: flex; align-items: center; padding: 0 12px; border-top: 1px solid #1E1E1E; background: #262626; font-size: 10.5px; color: #7A7A7A">Lucide ISC · Tabler MIT · Hugeicons Free MIT</div>
+    </div>
+
+    <!-- Kanvas: matriks -->
+    <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; background: #232323">
+      <div style="height: 30px; display: flex; background: #1F1F1F; border-bottom: 1px solid #161616; font-size: 12.5px">
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: #2A2A2A; border-right: 1px solid #161616">Travel Set.icset · Matriks kombinasi</div>
+        <a href="Builder.dc.html" style="flex: 1; display: flex; align-items: center; justify-content: center; color: #8C8C8C; text-decoration: none">Marketing Process.manifest @ 100%</a>
+      </div>
+      <div style="flex: 1; overflow: hidden; padding: 22px 26px">
+        <div style="display: grid; grid-template-columns: 150px repeat(5, minmax(0, 1fr)); gap: 8px">
+          <div></div>
+          <sc-for list="{{ cols }}" as="c" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 6px">
+              <img src="{{ c.src }}" alt="" style="width: 24px; height: 24px">
+              <span class="mono" style="font-size: 10.5px; color: #CFCFCF; white-space: nowrap">{{ c.key }}</span>
+              <span class="mono" style="font-size: 10px; color: #7A7A7A">{{ c.slot }}</span>
+            </div>
+          </sc-for>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+            <div style="{{ r.headStyle }}">
+              <img src="{{ r.src }}" alt="" style="width: 24px; height: 24px">
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+                <span class="mono" style="font-size: 10.5px; color: #E6E6E6; white-space: nowrap">{{ r.key }}</span>
+                <span style="{{ r.dot }}"></span>
+              </div>
+            </div>
+            <sc-for list="{{ r.cells }}" as="x" hint-placeholder-count="5">
+              <div style="{{ x.style }}">
+                <img src="{{ x.src }}" alt="{{ x.label }}" style="{{ x.imgStyle }}">
+                <sc-if value="{{ x.on }}" hint-placeholder-val="{{ true }}">
+                  <span style="position: absolute; top: 5px; right: 5px; width: 18px; height: 18px; border-radius: 5px; background: #2F80ED; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">✓</span>
+                </sc-if>
+                <sc-if value="{{ x.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="{{ x.tagStyle }}">{{ x.tag }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- Studio kanan: pool + hasil -->
+    <div style="flex: 1 1 300px; max-width: 320px; min-width: 280px; display: flex; flex-direction: column; background: #2B2B2B; border-left: 1px solid #161616">
+      <div class="tabh"><button class="tab on">Pool</button><button class="tab">Aturan</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div class="row" style="height: 30px; padding: 0 12px; justify-content: space-between; background: #262626; border-bottom: 1px solid #2E2E2E"><span class="lbl">Objek utama</span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">5 dari 6 aktif</span></div>
+      <sc-for list="{{ poolMain }}" as="p" hint-placeholder-count="6">
+        <div class="prow">
+          <input type="checkbox" checked="{{ p.on }}" aria-label="Pakai {{ p.key }}" style="width: 15px; height: 15px; accent-color: #2F80ED; margin: 0">
+          <img src="{{ p.src }}" alt="" style="width: 20px; height: 20px">
+          <span class="mono" style="flex: 1; color: #E6E6E6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.key }}</span>
+          <span style="{{ p.note }}">{{ p.noteText }}</span>
+          <span style="{{ p.dot }}"></span>
+        </div>
+      </sc-for>
+      <div class="row" style="height: 30px; padding: 0 12px; justify-content: space-between; background: #262626; border-bottom: 1px solid #2E2E2E"><span class="lbl">Pengubah</span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">5 aktif</span></div>
+      <sc-for list="{{ poolMod }}" as="p" hint-placeholder-count="5">
+        <div class="prow">
+          <input type="checkbox" checked aria-label="Pakai {{ p.key }}" style="width: 15px; height: 15px; accent-color: #2F80ED; margin: 0">
+          <img src="{{ p.src }}" alt="" style="width: 20px; height: 20px">
+          <span class="mono" style="flex: 1; color: #E6E6E6">{{ p.key }}</span>
+          <span class="mono" style="font-size: 10.5px; color: #8C8C8C">{{ p.slot }}</span>
+          <span style="{{ p.dot }}"></span>
+        </div>
+      </sc-for>
+
+      <div class="tabh" style="border-top: 1px solid #1E1E1E; margin-top: auto"><button class="tab on">Hasil</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 7px; font-size: 12.5px">
+        <div class="row" style="justify-content: space-between"><span><span style="display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: #2F80ED; margin-right: 7px"></span>Dipilih</span><span class="mono">19</span></div>
+        <div class="row" style="justify-content: space-between"><span><span style="display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: #7A7A7A; margin-right: 7px"></span>Sudah ada di set</span><span class="mono">3</span></div>
+        <div class="row" style="justify-content: space-between"><span><span style="display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: #F2B13A; margin-right: 7px"></span>Mirip di gaya ini</span><span class="mono">5</span></div>
+        <div class="row" style="justify-content: space-between"><span><span style="display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: #E5484D; margin-right: 7px"></span>Sama dengan ikon pustaka</span><span class="mono">1</span></div>
+        <div class="row" style="justify-content: space-between"><span><span style="display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: transparent; box-shadow: inset 0 0 0 1.5px #7A7A7A; margin-right: 7px"></span>Dilewati manual</span><span class="mono">2</span></div>
+        <label style="display: flex; align-items: center; gap: 8px; margin-top: 4px"><input type="checkbox" checked style="width: 15px; height: 15px; accent-color: #2F80ED; margin: 0">Ratakan variasi setelah ditambah</label>
+        <button style="height: 34px; margin-top: 4px; border: 0; border-radius: 7px; background: #2F80ED; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Tambahkan 19 ke set</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 28px; display: flex; align-items: center; gap: 12px; padding: 0 12px; background: #1F1F1F; border-top: 1px solid #111; font-size: 12px; color: #A8A8A8">
+    <span class="mono" style="color: #CFCFCF">19 / 30 dipilih</span>
+    <span style="width: 1px; height: 16px; background: #333"></span>
+    <span><b style="color: #E6E6E6; font-weight: 600">Klik</b> sel untuk memilih atau melewati. <b style="color: #E6E6E6; font-weight: 600">Klik</b> kepala baris/kolom untuk semua di baris/kolom itu. <b style="color: #E6E6E6; font-weight: 600">Seret</b> ikon dari pustaka ke pool.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const B = (id) => '/_blob/' + id;
+    const C = [
+      ['tb:circle-check','TR','#6BD88A','312235a48e4630b85efb2328c7af9e34'],
+      ['tb:heart','TR','#E5484D','6e84bdc0f9fd4d7fb7e14aae98858002'],
+      ['tb:star','TR','#F9D84A','f1340cd9358c2be6863edb4ac1eb2612'],
+      ['lu:map-pin','BL','#E5484D','90b61549ad21d5f14ff530348c92e402'],
+      ['tb:sun','TR','#F9D84A','daac8e7711d729cc80c9f764d6e391bf']
+    ];
+    const R = [
+      ['lu:luggage','#E5484D','368d1bc090151b332a81fe18e58e0976',['abd171a964bd9bb1b21c2b3f3aedf9e2','a6e189bbfb5b8617a8304dbb265fe0b4','eb29788c6ad8fb52832c735650cf983c','e1faabfc97d43e3e7b54b30aad45f391','e35cff8af1311036427ad7a620063baa']],
+      ['tb:camera','#5AA9F8','5c3a7349e57963a1786aa8a79def4d53',['b8f5fad3d3c4dfb0bb3e778ccccd52c8','cd7822541b404947945895cc20b84f78','6960b5e871c9ccf5cb057a52419d29a3','c8bb3c89d28564dac764c9fb9d4301f7','630946ec3ffb1c720dfcb13de7657f2a']],
+      ['hg:camera-01','#B58BEA','fda644babec8dc6d8f2b001955cb8b09',['c60a66467e4948857d76403878a027d5','91f5ab204deb52e39056bc3ae365a346','4a686c68aeacc56e94285c9c7836d93f','fc62745ef0a07a7c855cb2edab7ff9ca','cb288b4993825744d3a0f40c0b2599f5']],
+      ['lu:map','#6BD88A','fff8162b55dec9756eb89ab30201d0f7',['f0c99193606f28296aad0679edf294dd','8be3c462d4788168256ff4130c33e5e9','e29ff63f2be9b95bde0994d663357595','79c09803599bdc4d9a50c24132b12e6b','d61e9a908738fde2a9122aabd8768480']],
+      ['tb:sailboat','#F09A3E','53001184e542a07fc5f3eaa412b423ec',['6b87e086495db0d003b2595bd637cfba','85e3041cf6a3324d2ff26f212c8f1764','f2bc82cd8d3e4a3f6c7ac7e30dd06b93','138149eefb73f2cbc9e5976cbee1aedd','7658a1c064d673fcc3c91cf6736f4db1']],
+      ['hg:tent','#4A9A78','ac165d3a5669d4a36e493164611f459b',['48cf0b89388e00c7cfa605ee080ff1a7','e121dd0c35e7d9185bfc423183b996b7','864c98c456dc2e02d987fca8d1a83a7a','aaf11d7d4861224853c9fb3373da4bd0','a83ffe5ebad469410b875138d9eb9ab8']]
+    ];
+    // status sel: 'on' | 'set' | 'twin' | 'lib' | 'skip'
+    const S = {
+      '0,0': 'set', '1,1': 'set', '4,4': 'set', '3,3': 'lib', '0,3': 'skip', '5,2': 'skip',
+      '2,0': 'twin', '2,1': 'twin', '2,2': 'twin', '2,3': 'twin', '2,4': 'twin'
+    };
+    const dot = (c) => 'display: block; width: 10px; height: 10px; border-radius: 50%; background: ' + c;
+    const tagBase = 'position: absolute; left: 6px; right: 6px; bottom: 6px; height: 17px; border-radius: 4px; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; white-space: nowrap; overflow: hidden;';
+    const cellBase = 'position: relative; height: 108px; border-radius: 8px; display: flex; align-items: center; justify-content: center;';
+    const cols = C.map(([key, slot, c, s]) => ({ key, slot, src: B(s) }));
+    const rows = R.map(([key, color, s, cells], i) => ({
+      key, src: B(s), dot: dot(color),
+      headStyle: 'display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; background: #2B2B2B;' + (i === 2 ? ' box-shadow: inset 0 0 0 1px #6B5222' : ''),
+      cells: cells.map((cid, j) => {
+        const st = S[i + ',' + j] || 'on';
+        const look = {
+          on:   [' background: #FFFFFF; box-shadow: 0 0 0 2px #2F80ED', 1, '', ''],
+          set:  [' background: #FFFFFF; box-shadow: inset 0 0 0 1px #CFCFCF', .35, 'di set', ' background: #4A4A4A; color: #FFFFFF'],
+          twin: [' background: #FFFFFF; box-shadow: 0 0 0 2px #F2B13A', .35, '≈ tb:camera', ' background: #F2B13A; color: #2A1800'],
+          lib:  [' background: #FFFFFF; box-shadow: 0 0 0 2px #E5484D', .35, '= Lucide map-pin', ' background: #E5484D; color: #FFFFFF'],
+          skip: [' background: #3A3A3A', .3, 'dilewati', ' background: #2B2B2B; color: #BDBDBD']
+        }[st];
+        return {
+          src: B(cid), label: key + ' + ' + C[j][0], on: st === 'on', hasTag: st !== 'on', tag: look[2],
+          style: cellBase + look[0], imgStyle: 'width: 92px; height: 92px; opacity: ' + look[1],
+          tagStyle: tagBase + look[3]
+        };
+      })
+    }));
+    const badge = (bg, fg) => 'background: ' + bg + '; color: ' + fg;
+    const tileBase = '';
+    const libs = [
+      { prefix: 'lu', name: 'Lucide', ver: '1.52.0', count: '2', badge: badge('#3A2A22', '#F2B8A0'), tiles: [
+        { key: 'lu:camera', src: B('214f6a6025adcde082719e294f6a1af9'), inPool: false, twin: true, style: 'box-shadow: inset 0 0 0 1px #6B5222' },
+        { key: 'lu:camera-off', src: B('813fd2f669e64bd67cd262fa5e33dd97'), inPool: false, twin: false, style: tileBase } ] },
+      { prefix: 'tb', name: 'Tabler', ver: '3.49.0', count: '4', badge: badge('#1E3048', '#9CC4F5'), tiles: [
+        { key: 'tb:camera', src: B('75d5b026d84109f310bb0f82265d4d1b'), inPool: true, twin: false, style: 'box-shadow: inset 0 0 0 1.5px #B9E04C' },
+        { key: 'tb:camera-plus', src: B('a67565fe3f3df423e7e33018d70386d6'), inPool: false, twin: false, style: tileBase },
+        { key: 'tb:camera-heart', src: B('f8c9fa62c46db94e7aa81dc4e41c2136'), inPool: false, twin: false, style: tileBase },
+        { key: 'tb:camera-star', src: B('62ec5d6f0ec9e337c59ce9262cb8b28f'), inPool: false, twin: false, style: tileBase } ] },
+      { prefix: 'hg', name: 'Hugeicons', ver: '4.3.5', count: '2', badge: badge('#20382C', '#9EDDB8'), tiles: [
+        { key: 'hg:camera-01', src: B('505055c75cf53f66d5538026a5c49e81'), inPool: true, twin: false, style: 'box-shadow: inset 0 0 0 1.5px #B9E04C' },
+        { key: 'hg:camera-02', src: B('030123938eb0627daa5cfbbfb22fbe20'), inPool: false, twin: false, style: tileBase } ] }
+    ];
+    const noteBase = 'font-size: 10px; padding: 1px 5px; border-radius: 4px;';
+    const poolMain = R.map(([key, color, s], i) => ({
+      key, src: B(s), dot: dot(color), on: i !== 2,
+      noteText: i === 2 ? '≈ tb:camera' : '', note: i === 2 ? noteBase + ' background: #4A3A16; color: #F2B13A' : 'display: none'
+    }));
+    const poolMod = C.map(([key, slot, c, s]) => ({ key, slot, src: B(s), dot: dot(c) }));
+    // Filter bentuk: semua | garis | isi. Isi = ada bentuk tertutup (body) yang bisa diwarnai.
+    const FILLABLE = { 'lu:camera': true, 'lu:camera-off': false, 'tb:camera': true, 'tb:camera-plus': false, 'tb:camera-heart': false, 'tb:camera-star': false, 'hg:camera-01': true, 'hg:camera-02': true };
+    const mode = (this.state && this.state.shape) || 'semua';
+    const all = libs.flatMap((g) => g.tiles);
+    const nIsi = all.filter((t) => FILLABLE[t.key]).length;
+    const shapes = [['semua', 'Semua', all.length, ''], ['garis', 'Garis', all.length - nIsi, 'garis'], ['isi', 'Isi', nIsi, 'isi']].map(([id, label, n, g]) => ({
+      label, n, on: mode === id ? 'true' : 'false', pick: () => this.setState({ shape: id }),
+      style: 'flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;' + (mode === id ? ' background: #4A4A4A; color: #FFFFFF' : ''),
+      glyph: g === 'isi' ? 'width: 9px; height: 9px; border-radius: 2px; background: currentColor' : g === 'garis' ? 'width: 9px; height: 9px; border-radius: 2px; box-shadow: inset 0 0 0 1.5px currentColor' : 'display: none'
+    }));
+    const kindIsi = 'position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border-radius: 2px; background: #CFCFCF';
+    const kindGaris = 'position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border-radius: 2px; box-shadow: inset 0 0 0 1.5px #8C8C8C';
+    libs.forEach((g) => {
+      g.tiles = g.tiles
+        .map((t) => ({ ...t, kind: FILLABLE[t.key] ? 'Punya bidang isi' : 'Garis saja', kindStyle: FILLABLE[t.key] ? kindIsi : kindGaris }))
+        .filter((t) => mode === 'semua' || (mode === 'isi') === !!FILLABLE[t.key]);
+      g.count = String(g.tiles.length);
+    });
+    const total = libs.reduce((a, g) => a + g.tiles.length, 0);
+    return { cols, rows, libs, poolMain, poolMod, shapes, total };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1787 @@
+{
+  "format": "tib-manifest",
+  "version": 1,
+  "skill_version": "1.0.0",
+  "deck": {
+    "title": "Series A Pitch",
+    "slides": 13,
+    "resource_slide": 13
+  },
+  "style": {
+    "mode": "A",
+    "ink": "#101828",
+    "accent": "#3B5BFD"
+  },
+  "resource": {
+    "description": "Use these icons to add clarity and visual impact to your pitch."
+  },
+  "icons": [
+    {
+      "id": "problem-alert",
+      "name": {
+        "en": "The problem",
+        "id": "Masalah"
+      },
+      "main": "lu:route",
+      "mod": "lu:triangle-alert",
+      "anchor": "BR",
+      "slides": [
+        2,
+        3
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "problem",
+          "pain point",
+          "challenge",
+          "issue",
+          "risk"
+        ],
+        "id": [
+          "masalah",
+          "kendala",
+          "tantangan",
+          "isu",
+          "risiko"
+        ]
+      }
+    },
+    {
+      "id": "product-overview",
+      "name": {
+        "en": "Our product",
+        "id": "Produk kami"
+      },
+      "main": "lu:layout-dashboard",
+      "mod": "lu:zap",
+      "anchor": "BR",
+      "slides": [
+        2,
+        4
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "product",
+          "software",
+          "platform",
+          "app",
+          "solution"
+        ],
+        "id": [
+          "produk",
+          "perangkat lunak",
+          "platform",
+          "aplikasi",
+          "solusi"
+        ]
+      }
+    },
+    {
+      "id": "company-history",
+      "name": {
+        "en": "Company history",
+        "id": "Sejarah perusahaan"
+      },
+      "main": "lu:flag",
+      "mod": "lu:hourglass",
+      "anchor": "BR",
+      "slides": [
+        2,
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "history",
+          "story",
+          "timeline",
+          "founding",
+          "milestones"
+        ],
+        "id": [
+          "sejarah",
+          "cerita",
+          "linimasa",
+          "pendirian",
+          "tonggak"
+        ]
+      }
+    },
+    {
+      "id": "key-metrics",
+      "name": {
+        "en": "Key metrics",
+        "id": "Metrik utama"
+      },
+      "main": "lu:chart-column",
+      "mod": "lu:target",
+      "anchor": "BR",
+      "slides": [
+        2,
+        6
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "metrics",
+          "kpi",
+          "dashboard",
+          "traction",
+          "results"
+        ],
+        "id": [
+          "metrik",
+          "kpi",
+          "dasbor",
+          "traksi",
+          "hasil"
+        ]
+      }
+    },
+    {
+      "id": "market-size",
+      "name": {
+        "en": "Market size",
+        "id": "Ukuran pasar"
+      },
+      "main": "lu:globe",
+      "mod": "lu:target",
+      "anchor": "BR",
+      "slides": [
+        2,
+        7
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "market",
+          "tam",
+          "sam",
+          "som",
+          "opportunity"
+        ],
+        "id": [
+          "pasar",
+          "tam",
+          "sam",
+          "som",
+          "peluang"
+        ]
+      }
+    },
+    {
+      "id": "competitive-map",
+      "name": {
+        "en": "Competition",
+        "id": "Kompetisi"
+      },
+      "main": "lu:compass",
+      "mod": "lu:users",
+      "anchor": "BR",
+      "slides": [
+        2,
+        8
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "competition",
+          "positioning",
+          "rivals",
+          "comparison",
+          "map"
+        ],
+        "id": [
+          "kompetisi",
+          "posisi",
+          "pesaing",
+          "perbandingan",
+          "peta"
+        ]
+      }
+    },
+    {
+      "id": "use-of-funds",
+      "name": {
+        "en": "Use of funds",
+        "id": "Penggunaan dana"
+      },
+      "main": "lu:wallet",
+      "mod": "lu:rocket",
+      "anchor": "BR",
+      "slides": [
+        2,
+        9
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "funds",
+          "investment",
+          "allocation",
+          "budget",
+          "raise"
+        ],
+        "id": [
+          "dana",
+          "investasi",
+          "alokasi",
+          "anggaran",
+          "pendanaan"
+        ]
+      }
+    },
+    {
+      "id": "missed-appointments",
+      "name": {
+        "en": "Missed appointments",
+        "id": "Janji terlewat"
+      },
+      "main": "calendar",
+      "mod": "lu:triangle-alert",
+      "anchor": "BR",
+      "slides": [
+        3
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "missed",
+          "appointment",
+          "no show",
+          "booking",
+          "delay"
+        ],
+        "id": [
+          "terlewat",
+          "janji",
+          "tidak datang",
+          "pemesanan",
+          "terlambat"
+        ]
+      }
+    },
+    {
+      "id": "paper-job-sheets",
+      "name": {
+        "en": "Paper job sheets",
+        "id": "Lembar kerja kertas"
+      },
+      "main": "doc",
+      "mod": "lu:hourglass",
+      "anchor": "BR",
+      "slides": [
+        3
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "paperwork",
+          "job sheet",
+          "manual",
+          "forms",
+          "admin"
+        ],
+        "id": [
+          "dokumen",
+          "lembar kerja",
+          "manual",
+          "formulir",
+          "administrasi"
+        ]
+      }
+    },
+    {
+      "id": "idle-drive-time",
+      "name": {
+        "en": "Idle drive time",
+        "id": "Waktu jalan terbuang"
+      },
+      "main": "truck",
+      "mod": "lu:timer",
+      "anchor": "BR",
+      "slides": [
+        3
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "driving",
+          "travel time",
+          "route",
+          "fleet",
+          "waste"
+        ],
+        "id": [
+          "berkendara",
+          "waktu tempuh",
+          "rute",
+          "armada",
+          "pemborosan"
+        ]
+      }
+    },
+    {
+      "id": "smart-scheduling",
+      "name": {
+        "en": "Smart scheduling",
+        "id": "Penjadwalan pintar"
+      },
+      "main": "calendar",
+      "mod": "lu:sparkles",
+      "anchor": "BR",
+      "slides": [
+        4
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "scheduling",
+          "calendar",
+          "automation",
+          "booking",
+          "planning"
+        ],
+        "id": [
+          "penjadwalan",
+          "kalender",
+          "otomatis",
+          "pemesanan",
+          "perencanaan"
+        ]
+      }
+    },
+    {
+      "id": "live-dispatch-map",
+      "name": {
+        "en": "Live dispatch map",
+        "id": "Peta pengiriman langsung"
+      },
+      "main": "lu:map",
+      "mod": "lu:zap",
+      "anchor": "BR",
+      "slides": [
+        4
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "dispatch",
+          "live map",
+          "tracking",
+          "location",
+          "routing"
+        ],
+        "id": [
+          "pengiriman",
+          "peta langsung",
+          "pelacakan",
+          "lokasi",
+          "rute"
+        ]
+      }
+    },
+    {
+      "id": "mobile-job-app",
+      "name": {
+        "en": "Mobile job app",
+        "id": "Aplikasi kerja seluler"
+      },
+      "main": "phone",
+      "mod": "lu:wrench",
+      "anchor": "BR",
+      "slides": [
+        4
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "mobile",
+          "technician",
+          "job app",
+          "field work",
+          "tasks"
+        ],
+        "id": [
+          "seluler",
+          "teknisi",
+          "aplikasi kerja",
+          "kerja lapangan",
+          "tugas"
+        ]
+      }
+    },
+    {
+      "id": "company-founded",
+      "name": {
+        "en": "Company founded",
+        "id": "Perusahaan berdiri"
+      },
+      "main": "lu:lightbulb",
+      "mod": "lu:flag",
+      "anchor": "BR",
+      "slides": [
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "founded",
+          "idea",
+          "startup",
+          "beginning",
+          "launch"
+        ],
+        "id": [
+          "berdiri",
+          "ide",
+          "rintisan",
+          "awal",
+          "peluncuran"
+        ]
+      }
+    },
+    {
+      "id": "first-customer",
+      "name": {
+        "en": "First customer",
+        "id": "Pelanggan pertama"
+      },
+      "main": "lu:building-2",
+      "mod": "lu:check",
+      "anchor": "BR",
+      "slides": [
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "first customer",
+          "client",
+          "deal",
+          "contract",
+          "signed"
+        ],
+        "id": [
+          "pelanggan pertama",
+          "klien",
+          "kesepakatan",
+          "kontrak",
+          "tanda tangan"
+        ]
+      }
+    },
+    {
+      "id": "seed-round",
+      "name": {
+        "en": "Seed round",
+        "id": "Putaran benih"
+      },
+      "main": "lu:sprout",
+      "mod": "lu:plus",
+      "anchor": "BR",
+      "slides": [
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "seed",
+          "funding",
+          "investors",
+          "early stage",
+          "capital"
+        ],
+        "id": [
+          "benih",
+          "pendanaan",
+          "investor",
+          "tahap awal",
+          "modal"
+        ]
+      }
+    },
+    {
+      "id": "product-launch",
+      "name": {
+        "en": "Product launch",
+        "id": "Peluncuran produk"
+      },
+      "main": "lu:rocket",
+      "mod": "lu:sparkles",
+      "anchor": "BR",
+      "slides": [
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "launch",
+          "release",
+          "go live",
+          "product",
+          "announcement"
+        ],
+        "id": [
+          "peluncuran",
+          "rilis",
+          "tayang",
+          "produk",
+          "pengumuman"
+        ]
+      }
+    },
+    {
+      "id": "hundred-customers",
+      "name": {
+        "en": "100 customers",
+        "id": "100 pelanggan"
+      },
+      "main": "lu:users",
+      "mod": "lu:trophy",
+      "anchor": "BR",
+      "slides": [
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "customers",
+          "milestone",
+          "growth",
+          "adoption",
+          "achievement"
+        ],
+        "id": [
+          "pelanggan",
+          "tonggak",
+          "pertumbuhan",
+          "adopsi",
+          "pencapaian"
+        ]
+      }
+    },
+    {
+      "id": "series-a-raise",
+      "name": {
+        "en": "Series A raise",
+        "id": "Pendanaan seri A"
+      },
+      "main": "lu:banknote",
+      "mod": "lu:rocket",
+      "anchor": "BR",
+      "slides": [
+        5
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "series a",
+          "fundraise",
+          "venture",
+          "investment",
+          "round"
+        ],
+        "id": [
+          "seri a",
+          "penggalangan dana",
+          "modal ventura",
+          "investasi",
+          "putaran"
+        ]
+      }
+    },
+    {
+      "id": "annual-recurring-revenue",
+      "name": {
+        "en": "Annual recurring revenue",
+        "id": "Pendapatan berulang tahunan"
+      },
+      "main": "lu:circle-dollar-sign",
+      "mod": "lu:refresh-cw",
+      "anchor": "BR",
+      "slides": [
+        6
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "arr",
+          "revenue",
+          "recurring",
+          "subscription",
+          "income"
+        ],
+        "id": [
+          "arr",
+          "pendapatan",
+          "berulang",
+          "langganan",
+          "penghasilan"
+        ]
+      }
+    },
+    {
+      "id": "customer-count",
+      "name": {
+        "en": "Customer count",
+        "id": "Jumlah pelanggan"
+      },
+      "main": "lu:building-2",
+      "mod": "lu:users",
+      "anchor": "BR",
+      "slides": [
+        6
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "customers",
+          "accounts",
+          "clients",
+          "companies",
+          "count"
+        ],
+        "id": [
+          "pelanggan",
+          "akun",
+          "klien",
+          "perusahaan",
+          "jumlah"
+        ]
+      }
+    },
+    {
+      "id": "net-revenue-retention",
+      "name": {
+        "en": "Net revenue retention",
+        "id": "Retensi pendapatan bersih"
+      },
+      "main": "lu:piggy-bank",
+      "mod": "lu:heart",
+      "anchor": "BR",
+      "slides": [
+        6
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "retention",
+          "nrr",
+          "loyalty",
+          "expansion",
+          "revenue"
+        ],
+        "id": [
+          "retensi",
+          "nrr",
+          "loyalitas",
+          "ekspansi",
+          "pendapatan"
+        ]
+      }
+    },
+    {
+      "id": "payback-period",
+      "name": {
+        "en": "Payback period",
+        "id": "Periode balik modal"
+      },
+      "main": "clock",
+      "mod": "lu:tag",
+      "anchor": "BR",
+      "slides": [
+        6
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "payback",
+          "cac",
+          "months",
+          "efficiency",
+          "cost"
+        ],
+        "id": [
+          "balik modal",
+          "cac",
+          "bulan",
+          "efisiensi",
+          "biaya"
+        ]
+      }
+    },
+    {
+      "id": "total-market",
+      "name": {
+        "en": "Total market",
+        "id": "Pasar total"
+      },
+      "main": "lu:globe",
+      "mod": "lu:layers",
+      "anchor": "BR",
+      "slides": [
+        7
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "tam",
+          "total market",
+          "global",
+          "size",
+          "demand"
+        ],
+        "id": [
+          "tam",
+          "pasar total",
+          "global",
+          "ukuran",
+          "permintaan"
+        ]
+      }
+    },
+    {
+      "id": "serviceable-market",
+      "name": {
+        "en": "Serviceable market",
+        "id": "Pasar terlayani"
+      },
+      "main": "lu:map",
+      "mod": "lu:target",
+      "anchor": "BR",
+      "slides": [
+        7
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "sam",
+          "serviceable",
+          "segment",
+          "region",
+          "reach"
+        ],
+        "id": [
+          "sam",
+          "terlayani",
+          "segmen",
+          "wilayah",
+          "jangkauan"
+        ]
+      }
+    },
+    {
+      "id": "obtainable-market",
+      "name": {
+        "en": "Obtainable market",
+        "id": "Pasar yang bisa diraih"
+      },
+      "main": "lu:map-pinned",
+      "mod": "lu:star",
+      "anchor": "BR",
+      "slides": [
+        7
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "som",
+          "obtainable",
+          "share",
+          "focus",
+          "target"
+        ],
+        "id": [
+          "som",
+          "bisa diraih",
+          "pangsa",
+          "fokus",
+          "sasaran"
+        ]
+      }
+    },
+    {
+      "id": "faster-setup",
+      "name": {
+        "en": "Faster setup",
+        "id": "Pemasangan lebih cepat"
+      },
+      "main": "lu:timer",
+      "mod": "lu:zap",
+      "anchor": "BR",
+      "slides": [
+        8
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "setup",
+          "onboarding",
+          "fast",
+          "quick start",
+          "time"
+        ],
+        "id": [
+          "pemasangan",
+          "orientasi",
+          "cepat",
+          "mulai cepat",
+          "waktu"
+        ]
+      }
+    },
+    {
+      "id": "field-first-design",
+      "name": {
+        "en": "Field first design",
+        "id": "Desain untuk lapangan"
+      },
+      "main": "phone",
+      "mod": "lu:map-pin",
+      "anchor": "BR",
+      "slides": [
+        8
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "field",
+          "mobile first",
+          "technician",
+          "design",
+          "location"
+        ],
+        "id": [
+          "lapangan",
+          "seluler",
+          "teknisi",
+          "desain",
+          "lokasi"
+        ]
+      }
+    },
+    {
+      "id": "fair-pricing",
+      "name": {
+        "en": "Fair pricing",
+        "id": "Harga adil"
+      },
+      "main": "lu:tag",
+      "mod": "lu:heart",
+      "anchor": "BR",
+      "slides": [
+        8
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "pricing",
+          "price",
+          "fair",
+          "plan",
+          "value"
+        ],
+        "id": [
+          "harga",
+          "tarif",
+          "adil",
+          "paket",
+          "nilai"
+        ]
+      }
+    },
+    {
+      "id": "product-engineering",
+      "name": {
+        "en": "Product and engineering",
+        "id": "Produk dan rekayasa"
+      },
+      "main": "laptop",
+      "mod": "lu:settings",
+      "anchor": "BR",
+      "slides": [
+        9
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "engineering",
+          "product",
+          "development",
+          "code",
+          "build"
+        ],
+        "id": [
+          "rekayasa",
+          "produk",
+          "pengembangan",
+          "kode",
+          "membangun"
+        ]
+      }
+    },
+    {
+      "id": "sales-team",
+      "name": {
+        "en": "Sales team",
+        "id": "Tim penjualan"
+      },
+      "main": "lu:handshake",
+      "mod": "lu:user",
+      "anchor": "BR",
+      "slides": [
+        9
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "sales",
+          "deals",
+          "team",
+          "account",
+          "revenue"
+        ],
+        "id": [
+          "penjualan",
+          "kesepakatan",
+          "tim",
+          "akun",
+          "pendapatan"
+        ]
+      }
+    },
+    {
+      "id": "marketing-reach",
+      "name": {
+        "en": "Marketing reach",
+        "id": "Jangkauan pemasaran"
+      },
+      "main": "lu:megaphone",
+      "mod": "lu:sparkles",
+      "anchor": "BR",
+      "slides": [
+        9
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "marketing",
+          "campaign",
+          "brand",
+          "awareness",
+          "reach"
+        ],
+        "id": [
+          "pemasaran",
+          "kampanye",
+          "merek",
+          "kesadaran",
+          "jangkauan"
+        ]
+      }
+    },
+    {
+      "id": "operations-support",
+      "name": {
+        "en": "Operations and support",
+        "id": "Operasional dan dukungan"
+      },
+      "main": "lu:headset",
+      "mod": "lu:shield",
+      "anchor": "BR",
+      "slides": [
+        9
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "operations",
+          "support",
+          "service",
+          "help desk",
+          "customer care"
+        ],
+        "id": [
+          "operasional",
+          "dukungan",
+          "layanan",
+          "meja bantuan",
+          "layanan pelanggan"
+        ]
+      }
+    },
+    {
+      "id": "hire-engineers",
+      "name": {
+        "en": "Hire engineers",
+        "id": "Rekrut insinyur"
+      },
+      "main": "lu:briefcase",
+      "mod": "lu:user",
+      "anchor": "BR",
+      "slides": [
+        10
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "hiring",
+          "recruit",
+          "engineers",
+          "jobs",
+          "team growth"
+        ],
+        "id": [
+          "rekrutmen",
+          "merekrut",
+          "insinyur",
+          "lowongan",
+          "pertumbuhan tim"
+        ]
+      }
+    },
+    {
+      "id": "enterprise-tier",
+      "name": {
+        "en": "Enterprise tier",
+        "id": "Paket perusahaan"
+      },
+      "main": "lu:building-2",
+      "mod": "lu:star",
+      "anchor": "BR",
+      "slides": [
+        10
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "enterprise",
+          "premium",
+          "plan",
+          "large accounts",
+          "tier"
+        ],
+        "id": [
+          "perusahaan",
+          "premium",
+          "paket",
+          "akun besar",
+          "tingkat"
+        ]
+      }
+    },
+    {
+      "id": "new-regions",
+      "name": {
+        "en": "New regions",
+        "id": "Wilayah baru"
+      },
+      "main": "lu:globe",
+      "mod": "lu:map-pin",
+      "anchor": "BR",
+      "slides": [
+        10
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "expansion",
+          "regions",
+          "new markets",
+          "growth",
+          "location"
+        ],
+        "id": [
+          "ekspansi",
+          "wilayah",
+          "pasar baru",
+          "pertumbuhan",
+          "lokasi"
+        ]
+      }
+    },
+    {
+      "id": "break-even",
+      "name": {
+        "en": "Break even",
+        "id": "Titik impas"
+      },
+      "main": "lu:chart-line",
+      "mod": "lu:flag",
+      "anchor": "BR",
+      "slides": [
+        10
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "break even",
+          "profit",
+          "goal",
+          "finance",
+          "target"
+        ],
+        "id": [
+          "titik impas",
+          "laba",
+          "tujuan",
+          "keuangan",
+          "sasaran"
+        ]
+      }
+    },
+    {
+      "id": "contact-email",
+      "name": {
+        "en": "Email",
+        "id": "Email"
+      },
+      "main": "lu:at-sign",
+      "mod": "lu:send",
+      "anchor": "BR",
+      "slides": [
+        12
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "email",
+          "contact",
+          "message",
+          "inbox",
+          "address"
+        ],
+        "id": [
+          "email",
+          "kontak",
+          "pesan",
+          "kotak masuk",
+          "alamat"
+        ]
+      }
+    },
+    {
+      "id": "contact-website",
+      "name": {
+        "en": "Website",
+        "id": "Situs web"
+      },
+      "main": "lu:globe",
+      "mod": "lu:mouse-pointer-2",
+      "anchor": "BR",
+      "slides": [
+        12
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "website",
+          "web",
+          "online",
+          "internet",
+          "link"
+        ],
+        "id": [
+          "situs web",
+          "web",
+          "daring",
+          "internet",
+          "tautan"
+        ]
+      }
+    },
+    {
+      "id": "contact-phone",
+      "name": {
+        "en": "Phone",
+        "id": "Telepon"
+      },
+      "main": "phone",
+      "mod": "lu:message-circle",
+      "anchor": "BR",
+      "slides": [
+        12
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "phone",
+          "call",
+          "contact",
+          "mobile",
+          "hotline"
+        ],
+        "id": [
+          "telepon",
+          "panggilan",
+          "kontak",
+          "ponsel",
+          "layanan"
+        ]
+      }
+    },
+    {
+      "id": "job-reschedule",
+      "name": {
+        "en": "Job reschedule",
+        "id": "Jadwal ulang pekerjaan"
+      },
+      "main": "calendar",
+      "mod": "lu:refresh-cw",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "reschedule",
+          "booking",
+          "change",
+          "calendar",
+          "job"
+        ],
+        "id": [
+          "jadwal ulang",
+          "pemesanan",
+          "perubahan",
+          "kalender",
+          "pekerjaan"
+        ]
+      }
+    },
+    {
+      "id": "route-planning",
+      "name": {
+        "en": "Route planning",
+        "id": "Perencanaan rute"
+      },
+      "main": "lu:route",
+      "mod": "lu:map-pin",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "route",
+          "planning",
+          "navigation",
+          "travel",
+          "stops"
+        ],
+        "id": [
+          "rute",
+          "perencanaan",
+          "navigasi",
+          "perjalanan",
+          "perhentian"
+        ]
+      }
+    },
+    {
+      "id": "technician-profile",
+      "name": {
+        "en": "Technician profile",
+        "id": "Profil teknisi"
+      },
+      "main": "user",
+      "mod": "lu:wrench",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "technician",
+          "profile",
+          "worker",
+          "skills",
+          "staff"
+        ],
+        "id": [
+          "teknisi",
+          "profil",
+          "pekerja",
+          "keahlian",
+          "staf"
+        ]
+      }
+    },
+    {
+      "id": "invoice-paid",
+      "name": {
+        "en": "Invoice paid",
+        "id": "Tagihan lunas"
+      },
+      "main": "doc",
+      "mod": "lu:circle-dollar-sign",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "invoice",
+          "payment",
+          "paid",
+          "billing",
+          "receipt"
+        ],
+        "id": [
+          "tagihan",
+          "pembayaran",
+          "lunas",
+          "penagihan",
+          "kuitansi"
+        ]
+      }
+    },
+    {
+      "id": "customer-rating",
+      "name": {
+        "en": "Customer rating",
+        "id": "Penilaian pelanggan"
+      },
+      "main": "face",
+      "mod": "star",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "rating",
+          "review",
+          "feedback",
+          "satisfaction",
+          "customer"
+        ],
+        "id": [
+          "penilaian",
+          "ulasan",
+          "umpan balik",
+          "kepuasan",
+          "pelanggan"
+        ]
+      }
+    },
+    {
+      "id": "team-chat",
+      "name": {
+        "en": "Team chat",
+        "id": "Obrolan tim"
+      },
+      "main": "chat",
+      "mod": "lu:users",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "chat",
+          "team",
+          "messages",
+          "collaboration",
+          "talk"
+        ],
+        "id": [
+          "obrolan",
+          "tim",
+          "pesan",
+          "kolaborasi",
+          "bicara"
+        ]
+      }
+    },
+    {
+      "id": "van-fleet",
+      "name": {
+        "en": "Van fleet",
+        "id": "Armada van"
+      },
+      "main": "truck",
+      "mod": "lu:map-pin",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "fleet",
+          "van",
+          "vehicles",
+          "tracking",
+          "delivery"
+        ],
+        "id": [
+          "armada",
+          "van",
+          "kendaraan",
+          "pelacakan",
+          "pengiriman"
+        ]
+      }
+    },
+    {
+      "id": "work-order",
+      "name": {
+        "en": "Work order",
+        "id": "Perintah kerja"
+      },
+      "main": "lu:clipboard",
+      "mod": "lu:wrench",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "work order",
+          "job",
+          "task",
+          "maintenance",
+          "repair"
+        ],
+        "id": [
+          "perintah kerja",
+          "pekerjaan",
+          "tugas",
+          "perawatan",
+          "perbaikan"
+        ]
+      }
+    },
+    {
+      "id": "parts-stock",
+      "name": {
+        "en": "Parts stock",
+        "id": "Stok suku cadang"
+      },
+      "main": "box",
+      "mod": "lu:wrench",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "parts",
+          "stock",
+          "inventory",
+          "supplies",
+          "warehouse"
+        ],
+        "id": [
+          "suku cadang",
+          "stok",
+          "inventaris",
+          "persediaan",
+          "gudang"
+        ]
+      }
+    },
+    {
+      "id": "revenue-growth",
+      "name": {
+        "en": "Revenue growth",
+        "id": "Pertumbuhan pendapatan"
+      },
+      "main": "lu:chart-line",
+      "mod": "lu:sparkles",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "growth",
+          "revenue",
+          "trend",
+          "increase",
+          "sales"
+        ],
+        "id": [
+          "pertumbuhan",
+          "pendapatan",
+          "tren",
+          "kenaikan",
+          "penjualan"
+        ]
+      }
+    },
+    {
+      "id": "churn-alert",
+      "name": {
+        "en": "Churn alert",
+        "id": "Peringatan churn"
+      },
+      "main": "lu:users",
+      "mod": "lu:triangle-alert",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "churn",
+          "alert",
+          "retention",
+          "risk",
+          "customers"
+        ],
+        "id": [
+          "churn",
+          "peringatan",
+          "retensi",
+          "risiko",
+          "pelanggan"
+        ]
+      }
+    },
+    {
+      "id": "investor-update",
+      "name": {
+        "en": "Investor update",
+        "id": "Laporan investor"
+      },
+      "main": "doc",
+      "mod": "lu:send",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "investor",
+          "update",
+          "report",
+          "newsletter",
+          "board"
+        ],
+        "id": [
+          "investor",
+          "laporan",
+          "pembaruan",
+          "buletin",
+          "dewan"
+        ]
+      }
+    },
+    {
+      "id": "board-meeting",
+      "name": {
+        "en": "Board meeting",
+        "id": "Rapat dewan"
+      },
+      "main": "lu:presentation",
+      "mod": "lu:users",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "board",
+          "meeting",
+          "directors",
+          "governance",
+          "review"
+        ],
+        "id": [
+          "dewan",
+          "rapat",
+          "direksi",
+          "tata kelola",
+          "tinjauan"
+        ]
+      }
+    },
+    {
+      "id": "pitch-deck",
+      "name": {
+        "en": "Pitch deck",
+        "id": "Dek presentasi"
+      },
+      "main": "lu:presentation",
+      "mod": "lu:rocket",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "pitch",
+          "deck",
+          "presentation",
+          "fundraising",
+          "slides"
+        ],
+        "id": [
+          "presentasi",
+          "dek",
+          "paparan",
+          "penggalangan dana",
+          "slide"
+        ]
+      }
+    },
+    {
+      "id": "term-sheet",
+      "name": {
+        "en": "Term sheet",
+        "id": "Lembar ketentuan"
+      },
+      "main": "lu:scroll-text",
+      "mod": "lu:shield",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "term sheet",
+          "agreement",
+          "deal",
+          "legal",
+          "investment"
+        ],
+        "id": [
+          "lembar ketentuan",
+          "perjanjian",
+          "kesepakatan",
+          "hukum",
+          "investasi"
+        ]
+      }
+    },
+    {
+      "id": "cap-table",
+      "name": {
+        "en": "Cap table",
+        "id": "Tabel kepemilikan"
+      },
+      "main": "lu:chart-pie",
+      "mod": "lu:users",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "cap table",
+          "ownership",
+          "equity",
+          "shares",
+          "founders"
+        ],
+        "id": [
+          "tabel kepemilikan",
+          "kepemilikan",
+          "ekuitas",
+          "saham",
+          "pendiri"
+        ]
+      }
+    },
+    {
+      "id": "hiring-plan",
+      "name": {
+        "en": "Hiring plan",
+        "id": "Rencana rekrutmen"
+      },
+      "main": "lu:briefcase",
+      "mod": "lu:calendar",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "hiring",
+          "plan",
+          "recruitment",
+          "headcount",
+          "schedule"
+        ],
+        "id": [
+          "rekrutmen",
+          "rencana",
+          "perekrutan",
+          "jumlah staf",
+          "jadwal"
+        ]
+      }
+    },
+    {
+      "id": "office-expansion",
+      "name": {
+        "en": "Office expansion",
+        "id": "Ekspansi kantor"
+      },
+      "main": "lu:building-2",
+      "mod": "lu:rocket",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "office",
+          "expansion",
+          "growth",
+          "workspace",
+          "location"
+        ],
+        "id": [
+          "kantor",
+          "ekspansi",
+          "pertumbuhan",
+          "ruang kerja",
+          "lokasi"
+        ]
+      }
+    },
+    {
+      "id": "data-security",
+      "name": {
+        "en": "Data security",
+        "id": "Keamanan data"
+      },
+      "main": "lu:server",
+      "mod": "lu:lock",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "security",
+          "data",
+          "privacy",
+          "server",
+          "protection"
+        ],
+        "id": [
+          "keamanan",
+          "data",
+          "privasi",
+          "server",
+          "perlindungan"
+        ]
+      }
+    },
+    {
+      "id": "customer-support",
+      "name": {
+        "en": "Customer support",
+        "id": "Dukungan pelanggan"
+      },
+      "main": "lu:headset",
+      "mod": "lu:heart",
+      "anchor": "BR",
+      "slides": [],
+      "role": "extra",
+      "keywords": {
+        "en": [
+          "support",
+          "customer care",
+          "help",
+          "service",
+          "care"
+        ],
+        "id": [
+          "dukungan",
+          "layanan pelanggan",
+          "bantuan",
+          "layanan",
+          "kepedulian"
+        ]
+      }
+    }
+  ]
+}

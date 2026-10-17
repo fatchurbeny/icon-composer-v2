@@ -1,0 +1,17 @@
+dist/
+legacy/
+releases/
+graphify-out/
+docs/design/artboards/
+packages/ui/icons.js
+packages/export/vendor/
+.codex/
+docs/
+tests/fixtures/
+packages/ui/
+packages/icon-sources/data/
+graphify-out/
+AGENTS.md
+README.md
+CHANGELOG.md
+

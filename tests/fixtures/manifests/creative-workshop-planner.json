@@ -1,0 +1,895 @@
+{
+ "format": "tib-manifest",
+ "version": 2,
+ "skill_version": "1.4.0",
+ "deck": {
+  "title": "Creative Workshop Planner",
+  "slides": 13,
+  "resource_slide": 13,
+  "file": "creative-workshop-planner-icon-manifest.json"
+ },
+ "pack": {
+  "en": "Creative Workshop",
+  "id": "Lokakarya Kreatif"
+ },
+ "style": {
+  "family": "accent",
+  "ink": "#141414",
+  "accent": "#FECC33",
+  "mode": "A"
+ },
+ "resource": {
+  "description": "Use these icons to add clarity and visual impact to your presentation."
+ },
+ "icons": [
+  {
+   "id": "workshop-objectives",
+   "name": {
+    "en": "Workshop objectives",
+    "id": "Tujuan lokakarya"
+   },
+   "main": "lu:target",
+   "mod": "lu:check",
+   "anchor": "BR",
+   "slides": [
+    1,
+    2
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "objectives",
+     "goals",
+     "workshop",
+     "aim",
+     "outcome"
+    ],
+    "id": [
+     "tujuan",
+     "sasaran",
+     "lokakarya",
+     "target",
+     "hasil"
+    ]
+   },
+   "accent": {
+    "spark": "star4"
+   }
+  },
+  {
+   "id": "participant-personas",
+   "name": {
+    "en": "Participant personas",
+    "id": "Persona peserta"
+   },
+   "main": "lu:users",
+   "mod": "lu:heart",
+   "anchor": "BR",
+   "slides": [
+    1,
+    4
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "personas",
+     "participants",
+     "audience",
+     "people",
+     "empathy"
+    ],
+    "id": [
+     "persona",
+     "peserta",
+     "audiens",
+     "orang",
+     "empati"
+    ]
+   }
+  },
+  {
+   "id": "session-schedule",
+   "name": {
+    "en": "Session schedule",
+    "id": "Jadwal sesi"
+   },
+   "main": "calendar",
+   "mod": "lu:hourglass",
+   "anchor": "BR",
+   "slides": [
+    1,
+    6
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "schedule",
+     "agenda",
+     "session",
+     "timeline",
+     "plan"
+    ],
+    "id": [
+     "jadwal",
+     "agenda",
+     "sesi",
+     "linimasa",
+     "rencana"
+    ]
+   },
+   "accent": {
+    "fill": "half"
+   }
+  },
+  {
+   "id": "material-kit",
+   "name": {
+    "en": "Material kit",
+    "id": "Perlengkapan bahan"
+   },
+   "main": "box",
+   "mod": "lu:scissors",
+   "anchor": "TR",
+   "slides": [
+    1,
+    9
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "materials",
+     "supplies",
+     "kit",
+     "craft",
+     "checklist"
+    ],
+    "id": [
+     "bahan",
+     "perlengkapan",
+     "kit",
+     "kerajinan",
+     "daftar"
+    ]
+   },
+   "accent": {
+    "fill": "offset"
+   }
+  },
+  {
+   "id": "session-feedback",
+   "name": {
+    "en": "Session feedback",
+    "id": "Umpan balik sesi"
+   },
+   "main": "chat",
+   "mod": "lu:thumbs-up",
+   "anchor": "BR",
+   "slides": [
+    1,
+    11
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "feedback",
+     "review",
+     "opinion",
+     "survey",
+     "evaluation"
+    ],
+    "id": [
+     "umpan balik",
+     "ulasan",
+     "pendapat",
+     "survei",
+     "evaluasi"
+    ]
+   }
+  },
+  {
+   "id": "idea-sprint",
+   "name": {
+    "en": "Idea sprint",
+    "id": "Sprint ide"
+   },
+   "main": "lu:lightbulb",
+   "mod": "lu:timer",
+   "anchor": "BR",
+   "slides": [
+    2,
+    6,
+    7
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "idea",
+     "brainstorm",
+     "sprint",
+     "creativity",
+     "fast"
+    ],
+    "id": [
+     "ide",
+     "curah gagasan",
+     "sprint",
+     "kreativitas",
+     "cepat"
+    ]
+   },
+   "accent": {
+    "fill": "full"
+   }
+  },
+  {
+   "id": "build-session",
+   "name": {
+    "en": "Build session",
+    "id": "Sesi membuat"
+   },
+   "main": "box",
+   "mod": "lu:hammer",
+   "anchor": "TR",
+   "slides": [
+    2,
+    6,
+    7
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "build",
+     "prototype",
+     "make",
+     "model",
+     "craft"
+    ],
+    "id": [
+     "membangun",
+     "purwarupa",
+     "membuat",
+     "model",
+     "kerajinan"
+    ]
+   }
+  },
+  {
+   "id": "share-and-improve",
+   "name": {
+    "en": "Share and improve",
+    "id": "Bagikan dan perbaiki"
+   },
+   "main": "chat",
+   "mod": "pencil",
+   "anchor": "BR",
+   "slides": [
+    2,
+    6,
+    7
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "share",
+     "improve",
+     "presentation",
+     "iterate",
+     "comment"
+    ],
+    "id": [
+     "bagikan",
+     "perbaiki",
+     "presentasi",
+     "iterasi",
+     "komentar"
+    ]
+   }
+  },
+  {
+   "id": "participant-count",
+   "name": {
+    "en": "Participants",
+    "id": "Jumlah peserta"
+   },
+   "main": "lu:users",
+   "mod": "lu:hash",
+   "anchor": "BR",
+   "slides": [
+    3
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "participants",
+     "attendees",
+     "headcount",
+     "group",
+     "people"
+    ],
+    "id": [
+     "peserta",
+     "hadirin",
+     "jumlah orang",
+     "grup",
+     "orang"
+    ]
+   }
+  },
+  {
+   "id": "session-duration",
+   "name": {
+    "en": "Duration",
+    "id": "Durasi"
+   },
+   "main": "lu:hourglass",
+   "mod": "lu:sun",
+   "anchor": "BR",
+   "slides": [
+    3
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "duration",
+     "hours",
+     "morning",
+     "time",
+     "length"
+    ],
+    "id": [
+     "durasi",
+     "jam",
+     "pagi",
+     "waktu",
+     "lama"
+    ]
+   }
+  },
+  {
+   "id": "exercise-count",
+   "name": {
+    "en": "Exercises",
+    "id": "Jumlah latihan"
+   },
+   "main": "lu:sticky-note",
+   "mod": "lu:list-checks",
+   "anchor": "BR",
+   "slides": [
+    3
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "exercises",
+     "activities",
+     "blocks",
+     "tasks",
+     "program"
+    ],
+    "id": [
+     "latihan",
+     "kegiatan",
+     "blok",
+     "tugas",
+     "program"
+    ]
+   }
+  },
+  {
+   "id": "facilitator",
+   "name": {
+    "en": "Facilitator",
+    "id": "Fasilitator"
+   },
+   "main": "user",
+   "mod": "lu:flag",
+   "anchor": "BR",
+   "slides": [
+    3
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "facilitator",
+     "host",
+     "lead",
+     "moderator",
+     "guide"
+    ],
+    "id": [
+     "fasilitator",
+     "tuan rumah",
+     "pemimpin",
+     "moderator",
+     "pemandu"
+    ]
+   }
+  },
+  {
+   "id": "marketing-lead",
+   "name": {
+    "en": "Marketing lead",
+    "id": "Pimpinan pemasaran"
+   },
+   "main": "lu:megaphone",
+   "mod": "lu:user",
+   "anchor": "BR",
+   "slides": [
+    4
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "marketing",
+     "lead",
+     "promotion",
+     "campaign",
+     "brand"
+    ],
+    "id": [
+     "pemasaran",
+     "pimpinan",
+     "promosi",
+     "kampanye",
+     "merek"
+    ]
+   }
+  },
+  {
+   "id": "software-engineer",
+   "name": {
+    "en": "Software engineer",
+    "id": "Insinyur perangkat lunak"
+   },
+   "main": "laptop",
+   "mod": "lu:wrench",
+   "anchor": "BR",
+   "slides": [
+    4
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "engineer",
+     "developer",
+     "software",
+     "code",
+     "technology"
+    ],
+    "id": [
+     "insinyur",
+     "pengembang",
+     "perangkat lunak",
+     "kode",
+     "teknologi"
+    ]
+   }
+  },
+  {
+   "id": "teacher",
+   "name": {
+    "en": "Teacher",
+    "id": "Guru"
+   },
+   "main": "book",
+   "mod": "lu:graduation-cap",
+   "anchor": "TR",
+   "slides": [
+    4
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "teacher",
+     "education",
+     "class",
+     "school",
+     "learning"
+    ],
+    "id": [
+     "guru",
+     "pendidikan",
+     "kelas",
+     "sekolah",
+     "belajar"
+    ]
+   }
+  },
+  {
+   "id": "welcome",
+   "name": {
+    "en": "Welcome",
+    "id": "Sambutan"
+   },
+   "main": "door",
+   "mod": "lu:hand",
+   "anchor": "BR",
+   "slides": [
+    6
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "welcome",
+     "opening",
+     "greeting",
+     "arrival",
+     "start"
+    ],
+    "id": [
+     "sambutan",
+     "pembukaan",
+     "salam",
+     "kedatangan",
+     "mulai"
+    ]
+   }
+  },
+  {
+   "id": "warm-up",
+   "name": {
+    "en": "Warm up",
+    "id": "Pemanasan"
+   },
+   "main": "lu:pen-tool",
+   "mod": "lu:timer",
+   "anchor": "BR",
+   "slides": [
+    6
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "warm up",
+     "drawing",
+     "icebreaker",
+     "sketch",
+     "activity"
+    ],
+    "id": [
+     "pemanasan",
+     "menggambar",
+     "pencair suasana",
+     "sketsa",
+     "kegiatan"
+    ]
+   }
+  },
+  {
+   "id": "tea-break",
+   "name": {
+    "en": "Break",
+    "id": "Istirahat"
+   },
+   "main": "lu:coffee",
+   "mod": "lu:clock",
+   "anchor": "BR",
+   "slides": [
+    6
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "break",
+     "tea",
+     "coffee",
+     "rest",
+     "pause"
+    ],
+    "id": [
+     "istirahat",
+     "teh",
+     "kopi",
+     "rehat",
+     "jeda"
+    ]
+   }
+  },
+  {
+   "id": "group-tables",
+   "name": {
+    "en": "Group tables",
+    "id": "Meja kelompok"
+   },
+   "main": "lu:users",
+   "mod": "tb:armchair",
+   "anchor": "BR",
+   "slides": [
+    8
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "tables",
+     "groups",
+     "seating",
+     "room setup",
+     "teams"
+    ],
+    "id": [
+     "meja",
+     "kelompok",
+     "tempat duduk",
+     "tata ruang",
+     "tim"
+    ]
+   }
+  },
+  {
+   "id": "idea-wall",
+   "name": {
+    "en": "Idea wall",
+    "id": "Dinding ide"
+   },
+   "main": "tb:presentation",
+   "mod": "lu:sticky-note",
+   "anchor": "BR",
+   "slides": [
+    8
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "idea wall",
+     "board",
+     "sticky notes",
+     "display",
+     "pin up"
+    ],
+    "id": [
+     "dinding ide",
+     "papan",
+     "catatan tempel",
+     "pajangan",
+     "tempel"
+    ]
+   }
+  },
+  {
+   "id": "supply-station",
+   "name": {
+    "en": "Supply station",
+    "id": "Meja perlengkapan"
+   },
+   "main": "box",
+   "mod": "lu:map-pin",
+   "anchor": "TR",
+   "slides": [
+    8
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "supplies",
+     "station",
+     "materials",
+     "table",
+     "setup"
+    ],
+    "id": [
+     "perlengkapan",
+     "pos",
+     "bahan",
+     "meja",
+     "persiapan"
+    ]
+   }
+  },
+  {
+   "id": "visible-timer",
+   "name": {
+    "en": "Timer in view",
+    "id": "Penanda waktu"
+   },
+   "main": "clock",
+   "mod": "lu:eye",
+   "anchor": "BR",
+   "slides": [
+    8
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "timer",
+     "clock",
+     "visible",
+     "time keeping",
+     "countdown"
+    ],
+    "id": [
+     "pengatur waktu",
+     "jam",
+     "terlihat",
+     "penjaga waktu",
+     "hitung mundur"
+    ]
+   },
+   "accent": {
+    "marker": "fill"
+   }
+  },
+  {
+   "id": "confirm-group",
+   "name": {
+    "en": "Confirm the group",
+    "id": "Konfirmasi peserta"
+   },
+   "main": "lu:users",
+   "mod": "lu:send",
+   "anchor": "BR",
+   "slides": [
+    10
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "confirm",
+     "invite",
+     "rsvp",
+     "group",
+     "registration"
+    ],
+    "id": [
+     "konfirmasi",
+     "undangan",
+     "rsvp",
+     "grup",
+     "pendaftaran"
+    ]
+   }
+  },
+  {
+   "id": "order-and-print",
+   "name": {
+    "en": "Order and print",
+    "id": "Pesan dan cetak"
+   },
+   "main": "lu:printer",
+   "mod": "lu:shopping-cart",
+   "anchor": "BR",
+   "slides": [
+    10
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "order",
+     "print",
+     "purchase",
+     "handouts",
+     "prepare"
+    ],
+    "id": [
+     "pesan",
+     "cetak",
+     "beli",
+     "lembar bagi",
+     "persiapan"
+    ]
+   }
+  },
+  {
+   "id": "thank-you-note",
+   "name": {
+    "en": "Thank you note",
+    "id": "Ucapan terima kasih"
+   },
+   "main": "lu:mail",
+   "mod": "lu:smile",
+   "anchor": "BR",
+   "slides": [
+    10
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "thank you",
+     "appreciation",
+     "follow up",
+     "email",
+     "gratitude"
+    ],
+    "id": [
+     "terima kasih",
+     "apresiasi",
+     "tindak lanjut",
+     "email",
+     "syukur"
+    ]
+   },
+   "accent": {
+    "fill": "full"
+   }
+  },
+  {
+   "id": "contact-email",
+   "name": {
+    "en": "Email",
+    "id": "Email"
+   },
+   "main": "lu:at-sign",
+   "mod": "lu:send",
+   "anchor": "BR",
+   "slides": [
+    12
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "email",
+     "contact",
+     "address",
+     "message",
+     "inbox"
+    ],
+    "id": [
+     "email",
+     "kontak",
+     "alamat",
+     "pesan",
+     "kotak masuk"
+    ]
+   }
+  },
+  {
+   "id": "contact-website",
+   "name": {
+    "en": "Website",
+    "id": "Situs web"
+   },
+   "main": "lu:globe",
+   "mod": "lu:mouse-pointer-2",
+   "anchor": "BR",
+   "slides": [
+    12
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "website",
+     "web",
+     "online",
+     "internet",
+     "link"
+    ],
+    "id": [
+     "situs web",
+     "web",
+     "daring",
+     "internet",
+     "tautan"
+    ]
+   }
+  },
+  {
+   "id": "contact-phone",
+   "name": {
+    "en": "Phone",
+    "id": "Telepon"
+   },
+   "main": "phone",
+   "mod": "lu:message-circle",
+   "anchor": "BR",
+   "slides": [
+    12
+   ],
+   "role": "slot",
+   "keywords": {
+    "en": [
+     "phone",
+     "call",
+     "contact",
+     "mobile",
+     "hotline"
+    ],
+    "id": [
+     "telepon",
+     "panggilan",
+     "kontak",
+     "ponsel",
+     "layanan"
+    ]
+   }
+  }
+ ]
+}

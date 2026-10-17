@@ -1,0 +1,36 @@
+{
+  "name": "icon-composer-v2",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present && node scripts/collect-builds.mjs",
+    "fixtures:fetch": "node scripts/fetch-fixtures.mjs",
+    "legacy:verify": "shasum -a 256 -c docs/legacy/legacy.sha256",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:golden": "playwright test --grep @golden --pass-with-no-tests",
+    "lint": "eslint . && npm run lint:ui",
+    "lint:ui": "node scripts/lint-ui.mjs",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "9.37.0",
+    "@playwright/test": "1.55.1",
+    "eslint": "9.37.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "16.4.0",
+    "prettier": "3.6.2",
+    "vite": "6.4.4",
+    "vite-plugin-singlefile": "2.3.3",
+    "vitest": "4.1.11"
+  }
+}

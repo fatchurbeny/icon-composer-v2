@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Icon Studio · Composer · Set</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#1B1B1B}
+a{color:#7FB2FF}a:hover{color:#A9CBFF}
+.app{font-family:'Instrument Sans',system-ui,sans-serif;font-size:13px;color:#E4E4E4;background:#1B1B1B;-webkit-font-smoothing:antialiased}
+.mono{font-family:'Geist Mono',ui-monospace,monospace}
+.ib{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;background:transparent;color:#B9B9B9;cursor:pointer;padding:0}
+.ib:hover{background:#333}
+.pill{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border:0;border-radius:9px;background:transparent;color:#C9C9C9;font:inherit;font-size:14px;cursor:pointer}
+.pill.on{background:#E27AF2;color:#1A1A1A;font-weight:600}
+.gbtn{height:24px;padding:0 14px;border:0;border-radius:5px;background:#4A4A4A;color:#EDEDED;font:inherit;font-size:12px;font-weight:500;cursor:pointer}
+.tool{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;color:#BDBDBD;cursor:pointer;padding:0}
+.tool.on{background:#3A3A3A;color:#FFFFFF;box-shadow:inset 0 0 0 1px #555}
+.tabh{display:flex;align-items:center;gap:2px;height:34px;padding:0 6px 0 8px;background:#262626;border-bottom:1px solid #1E1E1E}
+.tab{height:24px;padding:0 9px;border:0;border-radius:5px;background:transparent;color:#A8A8A8;font:inherit;font-size:12.5px;cursor:pointer}
+.tab.on{background:#3C3C3C;color:#FFFFFF}
+.chev{margin-left:auto;width:22px;height:22px;border-radius:5px;border:1px solid #555;display:flex;align-items:center;justify-content:center;color:#CFCFCF;background:transparent;padding:0}
+.lbl{color:#9A9A9A;font-size:12px}
+.field{height:24px;border-radius:5px;background:#1C1C1C;border:1px solid #3A3A3A;color:#EDEDED;display:flex;align-items:center;padding:0 8px;font-size:12px}
+.row{display:flex;align-items:center;gap:10px}
+.page{display:flex;flex-direction:column;gap:6px}
+.pcard{width:116px;height:116px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;position:relative}
+.hrow{display:flex;align-items:center;gap:10px;height:42px;padding:0 10px 0 6px;border-bottom:1px solid #2E2E2E}
+.hrow.on{background:#2F3F5C}
+</style>
+</helmet>
+<div class="app" style="width: 100%; min-width: 360px; height: 1000px; display: flex; flex-direction: column; overflow: hidden">
+
+  <!-- Bilah atas: logo, persona, info dokumen, ekspor -->
+  <div style="height: 56px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 16px 0 14px; background: #1B1B1B; border-bottom: 1px solid #111">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="6" width="18" height="18" rx="5" fill="none" stroke="#F2F2F2" stroke-width="2.6"></rect><circle cx="22" cy="8" r="6" fill="#E27AF2" stroke="#1B1B1B" stroke-width="2.4"></circle></svg>
+    <div style="display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 12px; background: #2A2A2A">
+      <button class="pill on" aria-pressed="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><circle cx="11" cy="11" r="2"></circle></svg>Composer</button>
+      <a class="pill" href="Builder.dc.html" style="text-decoration: none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 9 5-9 5-9-5 9-5z"></path><path d="m3 12 9 5 9-5"></path><path d="m3 17 9 5 9-5"></path></svg>Builder</a>
+      <a class="pill" href="Tinjau.dc.html" style="text-decoration: none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Tinjau</a>
+      <a class="pill" href="Kombinasi.dc.html" style="text-decoration: none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.8 1.2 5.4 6 6-4.8.6-5.4 1.2-6 6-.6-4.8-1.2-5.4-6-6 4.8-.6 5.4-1.2 6-6z"></path><path d="M19 15v4"></path><path d="M17 17h4"></path></svg>Kombinasi</a>
+    </div>
+    <button class="ib" aria-label="Menu lain"><svg width="16" height="16" viewBox="0 0 24 24" fill="#BDBDBD" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg></button>
+    <div style="display: flex; gap: 2px; padding: 4px; border-radius: 12px; background: #2A2A2A">
+      <button class="ib" aria-label="Mode satu ikon" style="width: 36px; height: 32px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"></rect></svg></button>
+      <button class="ib" aria-label="Mode ikhtisar halaman" style="width: 36px; height: 32px; background: #3C3C3C; color: #fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="5" height="5" rx="1"></rect><rect x="9.5" y="3" width="5" height="5" rx="1"></rect><rect x="16" y="3" width="5" height="5" rx="1"></rect><rect x="3" y="9.5" width="5" height="5" rx="1"></rect><rect x="9.5" y="9.5" width="5" height="5" rx="1"></rect><rect x="16" y="9.5" width="5" height="5" rx="1"></rect><rect x="3" y="16" width="5" height="5" rx="1"></rect><rect x="9.5" y="16" width="5" height="5" rx="1"></rect><rect x="16" y="16" width="5" height="5" rx="1"></rect></svg></button>
+    </div>
+    <div style="flex: 1"></div>
+    <span style="font-size: 12.5px; color: #D6D6D6">Sticker 1.1.0</span>
+    <span style="width: 1px; height: 22px; background: #333"></span>
+    <span class="mono" style="font-size: 12px; color: #D6D6D6">11 ikon · 48 × 48 · 4 warna · Lucide 1.52.0</span>
+    <span style="width: 1px; height: 22px; background: #333"></span>
+    <button class="ib" aria-label="Urungkan"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg></button>
+    <button style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px 0 0; border: 0; border-radius: 8px; background: #333; color: #F0F0F0; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; overflow: hidden">
+      <span style="width: 4px; height: 22px; border-radius: 2px; background: #2FD0E0; margin-left: 8px"></span>Ekspor Canva
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+    </button>
+    <button class="ib" aria-label="Bantuan" style="color: #7FB2FF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.8"></path><circle cx="12" cy="17" r=".6" fill="currentColor"></circle></svg></button>
+  </div>
+
+  <!-- Bilah konteks -->
+  <div style="height: 42px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 12px; background: #2B2B2B; border-bottom: 1px solid #1E1E1E; font-size: 12.5px">
+    <span style="color: #E6E6E6">1 dipilih</span>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <label style="display: flex; align-items: center; gap: 8px; color: #E6E6E6"><input type="checkbox" checked="" style="width: 16px; height: 16px; accent-color: #2F80ED; margin: 0">Snap ke grid</label>
+    <div style="display: flex; gap: 2px">
+      <button class="ib" aria-label="Pilih" style="width: 30px; height: 26px; background: #1F1F1F; box-shadow: inset 0 0 0 1px #4A4A4A"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#EDEDED" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m4 4 7 17 2.5-7.5L21 11z"></path></svg></button>
+      <button class="ib" aria-label="Pilih lapisan" style="width: 30px; height: 26px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="7" width="12" height="12" rx="2"></rect><path d="M9 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2"></path></svg></button>
+    </div>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <button class="gbtn">Patokan set…</button>
+    <button class="gbtn">Pengaturan app…</button>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <span class="lbl">Urut</span>
+    <div class="field" style="width: 120px; justify-content: space-between">Urutan set <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#AAA" stroke-width="3" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></div>
+    <span class="lbl">Kolom</span>
+    <div class="field mono" style="width: 44px">8</div>
+    <div style="flex: 1"></div>
+    <button class="ib" aria-label="Tampilan grid"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"></path><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg></button>
+    <button class="ib" aria-label="Pengaturan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"></path></svg></button>
+  </div>
+
+  <!-- Area kerja -->
+  
+
+  <!-- Bilah status -->
+  <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+    <!-- Tool rail -->
+    <div style="width: 56px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0; background: #2B2B2B; border-right: 1px solid #1E1E1E">
+      <button class="tool on" aria-label="Pilih"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m4 4 7 17 2.5-7.5L21 11z"></path></svg></button>
+      <button class="tool" aria-label="Geser dan skala"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"></path></svg></button>
+      <span style="width: 26px; height: 1px; background: #3C3C3C; margin: 4px 0"></span>
+      <button class="tool" aria-label="Objek utama"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M12 9v6M9 12h6"></path></svg></button>
+      <button class="tool" aria-label="Pengubah"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="13" r="6"></circle><circle cx="18" cy="6" r="3.5"></circle></svg></button>
+      <button class="tool" aria-label="Dekorasi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.8 1.2 5.4 6 6-4.8.6-5.4 1.2-6 6-.6-4.8-1.2-5.4-6-6 4.8-.6 5.4-1.2 6-6z"></path></svg></button>
+      <button class="tool" aria-label="Kombinasi massal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><path d="M17.5 14v7M14 17.5h7"></path></svg></button>
+      <span style="width: 26px; height: 1px; background: #3C3C3C; margin: 4px 0"></span>
+      <button class="tool" aria-label="Ambil warna"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 22 1-1h3l9-9"></path><path d="M3 21v-3l9-9"></path><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4z"></path></svg></button>
+      <button class="tool" aria-label="Geser tampilan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-4 0v1M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"></path></svg></button>
+      <button class="tool" aria-label="Perbesar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg></button>
+      <div style="flex: 1"></div>
+      <div style="position: relative; width: 40px; height: 44px; margin-bottom: 8px" aria-label="Warna tinta dan isi" role="img">
+        <span style="position: absolute; left: 12px; top: 14px; width: 24px; height: 24px; border-radius: 50%; background: #E5484D; box-shadow: 0 0 0 2px #2B2B2B"></span>
+        <span style="position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #17171B; box-shadow: 0 0 0 2px #2B2B2B, 0 0 0 3px #666"></span>
+      </div>
+    </div>
+
+    <!-- Kolom tengah: tab dokumen + kanvas -->
+    <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; background: #232323">
+      <div style="height: 30px; display: flex; background: #1F1F1F; border-bottom: 1px solid #161616; font-size: 12.5px">
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: #2A2A2A; border-right: 1px solid #161616">Travel Set.icset @ 100%</div>
+        <a href="Builder.dc.html" style="flex: 1; display: flex; align-items: center; justify-content: center; color: #8C8C8C; text-decoration: none">Marketing Process.manifest @ 100%</a>
+      </div>
+      <div style="flex: 1; position: relative; overflow: hidden; padding: 44px 40px 40px 56px">
+        <div style="display: grid; grid-template-columns: repeat(8, 116px); gap: 34px 22px; align-content: start">
+          <sc-for list="{{ pages }}" as="p" hint-placeholder-count="11">
+            <div class="page">
+              <span style="font-size: 12.5px; color: #E2E2E2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</span>
+              <div class="pcard" style="{{ p.cardStyle }}">
+                <img src="{{ p.src }}" alt="{{ p.name }}" style="width: 100px; height: 100px">
+                <sc-if value="{{ p.flag }}" hint-placeholder-val="{{ false }}">
+                  <span style="position: absolute; top: 6px; right: 6px; height: 18px; padding: 0 6px; border-radius: 5px; background: #F2B13A; color: #2A1800; font-size: 10.5px; font-weight: 600; display: flex; align-items: center">Mirip</span>
+                </sc-if>
+                <sc-if value="{{ p.sel }}" hint-placeholder-val="{{ false }}">
+                  <span style="position: absolute; left: -5px; top: -5px; width: 8px; height: 8px; background: #fff; border: 1.5px solid #2F80ED"></span>
+                  <span style="position: absolute; right: -5px; top: -5px; width: 8px; height: 8px; background: #fff; border: 1.5px solid #2F80ED"></span>
+                  <span style="position: absolute; left: -5px; bottom: -5px; width: 8px; height: 8px; background: #fff; border: 1.5px solid #2F80ED"></span>
+                  <span style="position: absolute; right: -5px; bottom: -5px; width: 8px; height: 8px; background: #fff; border: 1.5px solid #2F80ED"></span>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <div class="page">
+            <span style="font-size: 12.5px; color: #8C8C8C">Ikon baru</span>
+            <button style="width: 116px; height: 116px; border: 1.5px dashed #555; background: transparent; color: #9A9A9A; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0" aria-label="Tambah ikon baru"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+          </div>
+          <sc-for list="{{ ghosts }}" as="g" hint-placeholder-count="12">
+            <div class="page" style="opacity: .5">
+              <span style="font-size: 12.5px; color: #8C8C8C; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ g.name }}</span>
+              <div style="width: 116px; height: 116px; background: #3A3A3A; display: flex; align-items: center; justify-content: center; color: #8C8C8C; font-size: 11px">saran</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="position: absolute; right: 18px; bottom: 16px; display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 8px; background: #2B2B2B; box-shadow: 0 0 0 1px #3A3A3A; color: #CFCFCF; font-size: 12px">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #F2B13A"></span>Saran kombinasi dari pool objek × pengubah, belum masuk set
+        </div>
+      </div>
+    </div>
+
+    <!-- Studio kanan -->
+    <div style="flex: 1 1 330px; max-width: 340px; min-width: 300px; display: flex; flex-direction: column; background: #2B2B2B; border-left: 1px solid #161616">
+
+      <!-- Panel: Gaya | Warna -->
+      <div class="tabh"><button class="tab on">Gaya</button><button class="tab">Warna</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div style="padding: 12px 12px 14px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #1E1E1E">
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{ engines }}" as="e" hint-placeholder-count="5">
+            <button style="{{ e.style }}" aria-label="Gaya {{ e.name }}">
+              <span style="width: 100%; aspect-ratio: 1; background: #F4F3EF; border-radius: 5px; display: flex; align-items: center; justify-content: center"><img src="{{ e.src }}" alt="" style="width: 44px; height: 44px"></span>
+              <span style="font-size: 10.5px; white-space: nowrap">{{ e.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div class="row"><span class="lbl" style="width: 86px">Tebal garis</span><input type="range" min="1.4" max="3.2" step="0.1" value="2.4" aria-label="Tebal garis" style="flex: 1; accent-color: #2F80ED"><span class="field mono" style="width: 46px">2.4</span></div>
+        <div class="row"><span class="lbl" style="width: 86px">Halo</span><input type="range" min="0" max="5" step="0.25" value="3.25" aria-label="Halo" style="flex: 1; accent-color: #2F80ED"><span class="field mono" style="width: 46px">3.25</span></div>
+        <div class="row"><span class="lbl" style="width: 86px">Geser isi</span><input type="range" min="0" max="3" step="0.25" value="1" aria-label="Geser isi" style="flex: 1; accent-color: #2F80ED"><span class="field mono" style="width: 46px">1.0</span></div>
+      </div>
+
+      <!-- Panel: Halaman | Lapisan | Pustaka | Stok -->
+      <div class="tabh"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button class="{{ t.cls }}" aria-pressed="{{ t.on }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <sc-if value="{{ tabHalaman }}" hint-placeholder-val="{{ true }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+      <div class="row" style="height: 34px; padding: 0 10px; border-bottom: 1px solid #1E1E1E; font-size: 12px">
+        <span class="lbl">Gaya:</span><span>Sticker</span>
+        <div style="flex: 1"></div>
+        <div class="field" style="width: 112px; justify-content: space-between">Semua 11 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#AAA" stroke-width="3" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></div>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow: hidden">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+          <div class="hrow" style="{{ r.rowStyle }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2" aria-hidden="true"><path d="M4 9h16M4 15h16M9 4v16M15 4v16"></path></svg>
+            <span style="width: 32px; height: 32px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><img src="{{ r.src }}" alt="" style="width: 30px; height: 30px"></span>
+            <span style="flex: 1; font-size: 13px; color: #EDEDED">{{ r.name }}</span>
+            <span class="mono" style="font-size: 10.5px; color: #8C8C8C">{{ r.meta }}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+        </sc-for>
+      </div>
+      <div class="row" style="height: 38px; padding: 0 8px; gap: 4px; border-top: 1px solid #1E1E1E; background: #262626">
+        <button class="ib" aria-label="Ikon baru"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8M8 12h8"></path></svg></button>
+        <button class="ib" aria-label="Duplikat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button>
+        <button class="ib" aria-label="Acak ulang variasi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"></circle><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"></circle><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor"></circle><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor"></circle></svg></button>
+        <button class="ib" aria-label="Kunci variasi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></button>
+        <div style="flex: 1"></div>
+        <button class="ib" aria-label="Hapus dari set"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"></path></svg></button>
+      </div>
+      </div>
+      </sc-if>
+
+      <!-- Tab Lapisan: lapisan ikon terpilih -->
+      <sc-if value="{{ tabLapisan }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+        <div class="row" style="height: 34px; padding: 0 10px; border-bottom: 1px solid #1E1E1E; font-size: 12px">
+          <span class="lbl">Ikon:</span><span>koper-siap</span>
+          <div style="flex: 1"></div>
+          <span class="lbl">Opasitas</span><span class="field mono" style="width: 54px">100 %</span>
+        </div>
+        <div class="hrow" style="background: #2F3F5C">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          <span style="width: 32px; height: 32px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17171B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m16 9-5.5 5.5L8 12"></path></svg></span>
+          <div style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px">Pengubah</span><span class="mono" style="font-size: 10.5px; color: #B9C6DE">tb:circle-check · TR · 0.90</span></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" stroke-width="1.8" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.5-2"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </div>
+        <div class="hrow">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          <span style="width: 32px; height: 32px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17171B" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.8 1.2 5.4 6 6-4.8.6-5.4 1.2-6 6-.6-4.8-1.2-5.4-6-6 4.8-.6 5.4-1.2 6-6z"></path></svg></span>
+          <div style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px">Dekorasi</span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">sinar 135° · sparkle S·S·O · ikal</span></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" stroke-width="1.8" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.5-2"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </div>
+        <div class="hrow">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          <span style="width: 32px; height: 32px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17171B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2"></path><path d="M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14"></path><path d="M10 20h4"></path><circle cx="16" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg></span>
+          <div style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 13px">Objek utama</span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">lu:luggage · isi #E5484D · 1.80</span></div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" stroke-width="1.8" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.5-2"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </div>
+        <div style="flex: 1; padding: 14px 12px; color: #8C8C8C; font-size: 11.5px; line-height: 1.5">Urutan gambar sticker tetap: objek utama di belakang, dekorasi di tengah, pengubah di depan. Klik dua kali halaman untuk menyunting lapisan di kanvas.</div>
+        <div class="row" style="height: 38px; padding: 0 8px; gap: 4px; border-top: 1px solid #1E1E1E; background: #262626">
+          <a class="ib" href="Edit.dc.html" aria-label="Buka di mode edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></a>
+          <button class="ib" aria-label="Ganti isi lapisan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h13l-3-3M20 17H7l3 3"></path></svg></button>
+          <div style="flex: 1"></div>
+          <button class="ib" aria-label="Hapus pengubah"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"></path></svg></button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Tab Pustaka: lintas library -->
+      <sc-if value="{{ tabPustaka }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 10px 0; gap: 8px">
+        <div class="row" style="gap: 2px; padding: 2px; border-radius: 6px; background: #1C1C1C; border: 1px solid #3A3A3A">
+          <sc-for list="{{ srcs }}" as="s" hint-placeholder-count="5"><button style="{{ s.style }}" onClick="{{ s.pick }}">{{ s.label }}</button></sc-for>
+        </div>
+        <label class="row" style="height: 28px; padding: 0 9px; border-radius: 6px; background: #1C1C1C; border: 1px solid #3A3A3A; gap: 8px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input type="text" placeholder="Cari ikon di pustaka" aria-label="Cari ikon" style="flex: 1; min-width: 0; border: 0; background: transparent; color: #FFFFFF; font: inherit; font-size: 12px; outline: none">
+        </label>
+        <div class="row" style="justify-content: space-between"><span class="lbl">Klik mengganti: <span style="color: #EDEDED">Objek utama</span></span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">{{ libCount }}</span></div>
+        <div style="flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; align-content: start">
+          <sc-for list="{{ libTiles }}" as="t" hint-placeholder-count="15">
+            <div title="{{ t.key }}" style="position: relative; aspect-ratio: 1; border-radius: 6px; background: #222222; box-shadow: inset 0 0 0 1px #333333; display: flex; align-items: center; justify-content: center">
+              <img src="{{ t.src }}" alt="{{ t.key }}" style="width: 28px; height: 28px">
+              <span class="mono" style="{{ t.badge }}">{{ t.prefix }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div class="mono" style="height: 28px; display: flex; align-items: center; font-size: 10px; color: #7A7A7A; border-top: 1px solid #1E1E1E; margin: 0 -10px; padding: 0 10px; background: #262626">Lucide ISC · Tabler MIT · Hugeicons Free MIT</div>
+      </div>
+      </sc-if>
+
+      <!-- Tab Pool: bahan Kombinasi massal -->
+      <sc-if value="{{ tabPool }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+        <div class="row" style="height: 28px; padding: 0 12px; justify-content: space-between; background: #262626; border-bottom: 1px solid #2E2E2E"><span class="lbl">Objek utama</span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">6</span></div>
+        <sc-for list="{{ poolMain }}" as="p" hint-placeholder-count="6">
+          <div class="row" style="height: 32px; padding: 0 12px; gap: 9px; border-bottom: 1px solid #2E2E2E; font-size: 12px">
+            <input type="checkbox" checked="{{ p.on }}" aria-label="Pakai {{ p.key }}" style="width: 14px; height: 14px; accent-color: #2F80ED; margin: 0">
+            <img src="{{ p.src }}" alt="" style="width: 18px; height: 18px">
+            <span class="mono" style="flex: 1; color: #E6E6E6">{{ p.key }}</span>
+            <span style="{{ p.dot }}"></span>
+          </div>
+        </sc-for>
+        <div class="row" style="height: 28px; padding: 0 12px; justify-content: space-between; background: #262626; border-bottom: 1px solid #2E2E2E"><span class="lbl">Pengubah</span><span class="mono" style="font-size: 10.5px; color: #8C8C8C">5</span></div>
+        <sc-for list="{{ poolMod }}" as="p" hint-placeholder-count="5">
+          <div class="row" style="height: 32px; padding: 0 12px; gap: 9px; border-bottom: 1px solid #2E2E2E; font-size: 12px">
+            <input type="checkbox" checked aria-label="Pakai {{ p.key }}" style="width: 14px; height: 14px; accent-color: #2F80ED; margin: 0">
+            <img src="{{ p.src }}" alt="" style="width: 18px; height: 18px">
+            <span class="mono" style="flex: 1; color: #E6E6E6">{{ p.key }}</span>
+            <span class="mono" style="font-size: 10.5px; color: #8C8C8C">{{ p.slot }}</span>
+            <span style="{{ p.dot }}"></span>
+          </div>
+        </sc-for>
+        <div style="flex: 1"></div>
+        <div style="padding: 10px 12px; border-top: 1px solid #1E1E1E; background: #262626">
+          <a href="Kombinasi.dc.html" style="height: 30px; border-radius: 6px; background: #B9E04C; color: #18200A; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Buka matriks Kombinasi · 30</a>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Panel: Repetisi | Navigator | Riwayat -->
+      <div class="tabh" style="border-top: 1px solid #1E1E1E"><button class="tab on">Repetisi</button><button class="tab">Navigator</button><button class="tab">Riwayat</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+          <div style="padding: 8px 9px; border-radius: 7px; background: #222; box-shadow: inset 0 0 0 1px #383838"><div class="mono" style="font-size: 20px; color: #4CC38A">0</div><div class="lbl" style="font-size: 11px">Rakitan dobel</div></div>
+          <div style="padding: 8px 9px; border-radius: 7px; background: #222; box-shadow: inset 0 0 0 1px #383838"><div class="mono" style="font-size: 20px; color: #F2B13A">1</div><div class="lbl" style="font-size: 11px">Mirip</div></div>
+          <div style="padding: 8px 9px; border-radius: 7px; background: #222; box-shadow: inset 0 0 0 1px #383838"><div class="mono" style="font-size: 20px; color: #EDEDED">4</div><div class="lbl" style="font-size: 11px">Warna maks</div></div>
+        </div>
+        <div class="row" style="padding: 8px; border-radius: 7px; background: #3A2F1A; box-shadow: inset 0 0 0 1px #6B5222; gap: 8px">
+          <span style="width: 30px; height: 30px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="/_blob/26b6f50711d14446a25f542de9bba41b" alt="kamera-liburan" style="width: 28px; height: 28px"></span>
+          <span style="width: 30px; height: 30px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="/_blob/89a15ee992d8908928a99d807d5f9d72" alt="kamera-foto" style="width: 28px; height: 28px"></span>
+          <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0"><span style="font-size: 12px; color: #F3DDAE">kamera-foto ≈ kamera-liburan</span><span class="mono" style="font-size: 10.5px; color: #BFA474">inti · Hamming 4 · IoU 0.93</span></div>
+        </div>
+        <div style="display: flex; gap: 6px">
+          <button style="flex: 1; height: 30px; border: 0; border-radius: 6px; background: #2F80ED; color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Ratakan variasi</button>
+          <button style="flex: 1; height: 30px; border: 0; border-radius: 6px; background: #4A4A4A; color: #EDEDED; font: inherit; font-size: 12.5px; cursor: pointer">Tinjau pasangan</button>
+        </div>
+      </div>
+    </div>
+  </div><div style="height: 28px; display: flex; align-items: center; gap: 12px; padding: 0 12px; background: #1F1F1F; border-top: 1px solid #111; font-size: 12px; color: #A8A8A8">
+    <span style="color: #6E6E6E">⟨</span>
+    <span class="field mono" style="height: 20px; width: 92px; justify-content: center; background: #1A1A1A">1 dari 11</span>
+    <span style="color: #CFCFCF">▸</span>
+    <span style="width: 1px; height: 16px; background: #333"></span>
+    <span><b style="color: #E6E6E6; font-weight: 600">Klik</b> halaman untuk memilih. <b style="color: #E6E6E6; font-weight: 600">Klik dua kali</b> untuk mengedit ikon. <b style="color: #E6E6E6; font-weight: 600">Seret</b> untuk mengubah urutan set.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const set = [
+      ['koper-siap','/_blob/64c23fcb8bacfb86fc5c1c8e5b6a49f2','TR · 135°'],
+      ['peta-tujuan','/_blob/d428de17fd6f8b57858eba8b7f3f062a','TR · -135°'],
+      ['kamera-liburan','/_blob/26b6f50711d14446a25f542de9bba41b','TR · 45°'],
+      ['kemah-malam','/_blob/53b165cf1bd3d7783148ce4de155ebb5','BR · -45°'],
+      ['berlayar','/_blob/7cc501e5168dec732f4852d704ec6fb0','TR · 135°'],
+      ['road-trip','/_blob/293e9c7f4403fdb3e5182527ef1a7ae6','TR · -135°'],
+      ['mendaki','/_blob/e7be2018693dcca43bda38fd95a47b9d','BL · -45°'],
+      ['bus-wisata','/_blob/2bb19a015465d93113b2c260fc4f0844','BL · 45°'],
+      ['pantai','/_blob/8dc9fd4343a7852872efb2698a85db70','TR · 135°'],
+      ['tiket-pesawat','/_blob/f1a37a4dfca6525ce2f15b9d5a82f208','TR · -135°'],
+      ['kamera-foto','/_blob/89a15ee992d8908928a99d807d5f9d72','BR · -45°']
+    ];
+    const pages = set.map(([name, src], i) => ({
+      name, src, sel: i === 0, flag: name === 'kamera-foto',
+      cardStyle: i === 0 ? 'box-shadow: 0 0 0 2px #2F80ED' : ''
+    }));
+    const rows = set.slice(0, 7).map(([name, src, meta], i) => ({
+      name, src, meta, rowStyle: i === 0 ? 'background: #2F3F5C' : ''
+    }));
+    const ghosts = ['koper-bintang','peta-hati','kamera-jam','kemah-matahari','perahu-pin','karavan-kompas','gunung-tiket','bus-hati','payung-jam','tiket-kompas','ransel-pin','kamera-pin']
+      .map((name) => ({ name }));
+    const E = [
+      ['Klasik','/_blob/9b120f5a30de9b3ec25771b92b82797c'],
+      ['Aksen','/_blob/ed71d36724d911e74a1816a711bfeec6'],
+      ['Offset','/_blob/2c8b3114eb2a1941209fbda4c3b9c7d4'],
+      ['Hand-writing','/_blob/65938bfbacd819ebbb025c5654c8a1cb'],
+      ['Sticker','/_blob/9c57379d69a381aa97e1caa7bfcc07c6']
+    ];
+    const base = 'display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 4px 5px; border: 0; border-radius: 7px; cursor: pointer; font: inherit; min-width: 0; overflow: hidden;';
+    const engines = E.map(([name, src]) => ({
+      name: name === 'Hand-writing' ? 'Hand-wr.' : name, src,
+      style: base + (name === 'Sticker' ? ' background: #2F3F5C; color: #FFFFFF; box-shadow: inset 0 0 0 1.5px #2F80ED' : ' background: #222222; color: #A8A8A8; box-shadow: inset 0 0 0 1px #383838')
+    }));
+    const tab = (this.state && this.state.tab) || 'halaman';
+    const tabs = [['halaman','Halaman'],['lapisan','Lapisan'],['pustaka','Pustaka'],['pool','Pool']].map(([id, label]) => ({
+      label, on: tab === id ? 'true' : 'false', cls: tab === id ? 'tab on' : 'tab',
+      pick: () => this.setState({ tab: id })
+    }));
+    const B = (id) => '/_blob/' + id;
+    const LIB = {
+      lu: [['lu:luggage','368d1bc090151b332a81fe18e58e0976'],['lu:map','fff8162b55dec9756eb89ab30201d0f7'],['lu:map-pin','90b61549ad21d5f14ff530348c92e402'],['lu:camera','214f6a6025adcde082719e294f6a1af9'],['lu:camera-off','813fd2f669e64bd67cd262fa5e33dd97']],
+      tb: [['tb:camera','75d5b026d84109f310bb0f82265d4d1b'],['tb:camera-plus','a67565fe3f3df423e7e33018d70386d6'],['tb:camera-heart','f8c9fa62c46db94e7aa81dc4e41c2136'],['tb:camera-star','62ec5d6f0ec9e337c59ce9262cb8b28f'],['tb:sailboat','53001184e542a07fc5f3eaa412b423ec'],['tb:circle-check','312235a48e4630b85efb2328c7af9e34'],['tb:heart','6e84bdc0f9fd4d7fb7e14aae98858002'],['tb:star','f1340cd9358c2be6863edb4ac1eb2612'],['tb:sun','daac8e7711d729cc80c9f764d6e391bf']],
+      hg: [['hg:camera-01','505055c75cf53f66d5538026a5c49e81'],['hg:camera-02','030123938eb0627daa5cfbbfb22fbe20'],['hg:tent','ac165d3a5669d4a36e493164611f459b']],
+      cu: []
+    };
+    const BADGE = { lu: ['#3A2A22','#F2B8A0'], tb: ['#1E3048','#9CC4F5'], hg: ['#20382C','#9EDDB8'], cu: ['#3B2E4A','#D6B8F5'] };
+    const src = (this.state && this.state.src) || 'semua';
+    const srcs = [['semua','Semua'],['lu','Lucide'],['tb','Tabler'],['hg','Huge'],['cu','Kustom']].map(([id, label]) => ({
+      label, pick: () => this.setState({ src: id }),
+      style: 'flex: 1; height: 22px; border: 0; border-radius: 4px; font: inherit; font-size: 11px; cursor: pointer; padding: 0;' + (src === id ? ' background: #4A4A4A; color: #FFFFFF' : ' background: transparent; color: #A8A8A8')
+    }));
+    const keys = src === 'semua' ? ['lu','tb','hg'] : [src];
+    const libTiles = keys.flatMap((k) => LIB[k].map(([key, id]) => ({
+      key, prefix: k, src: B(id),
+      badge: 'position: absolute; top: 2px; left: 2px; height: 12px; padding: 0 3px; border-radius: 3px; font-size: 8.5px; line-height: 12px; background: ' + BADGE[k][0] + '; color: ' + BADGE[k][1]
+    })));
+    const libCount = src === 'cu' ? '0 ikon kustom' : libTiles.length + ' ikon';
+    const dot = (c) => 'display: block; width: 10px; height: 10px; border-radius: 50%; background: ' + c;
+    const poolMain = [['lu:luggage','#E5484D','368d1bc090151b332a81fe18e58e0976'],['tb:camera','#5AA9F8','5c3a7349e57963a1786aa8a79def4d53'],['hg:camera-01','#B58BEA','fda644babec8dc6d8f2b001955cb8b09'],['lu:map','#6BD88A','fff8162b55dec9756eb89ab30201d0f7'],['tb:sailboat','#F09A3E','53001184e542a07fc5f3eaa412b423ec'],['hg:tent','#4A9A78','ac165d3a5669d4a36e493164611f459b']]
+      .map(([key, c, id], i) => ({ key, src: B(id), dot: dot(c), on: i !== 2 }));
+    const poolMod = [['tb:circle-check','TR','#6BD88A','312235a48e4630b85efb2328c7af9e34'],['tb:heart','TR','#E5484D','6e84bdc0f9fd4d7fb7e14aae98858002'],['tb:star','TR','#F9D84A','f1340cd9358c2be6863edb4ac1eb2612'],['lu:map-pin','BL','#E5484D','90b61549ad21d5f14ff530348c92e402'],['tb:sun','TR','#F9D84A','daac8e7711d729cc80c9f764d6e391bf']]
+      .map(([key, slot, c, id]) => ({ key, slot, src: B(id), dot: dot(c) }));
+    return { pages, rows, ghosts, engines, tabs, tabHalaman: tab === 'halaman', tabLapisan: tab === 'lapisan', tabPustaka: tab === 'pustaka', tabPool: tab === 'pool', srcs, libTiles, libCount, poolMain, poolMod };
+  }
+}
+</script>
+</body>
+</html>

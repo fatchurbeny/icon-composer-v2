@@ -1,0 +1,75 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Builder.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Builder · Periksa pack",
+      "w": 1600,
+      "x": 0,
+      "y": 1120
+    },
+    "Edit.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Composer · Edit ikon",
+      "w": 1600,
+      "x": 1680,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Composer · Set (ikhtisar halaman)",
+      "is_interactive": true,
+      "w": 1600,
+      "x": 0,
+      "y": 0
+    },
+    "Tinjau.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Tinjau · Lembar kontak & ekspor",
+      "w": 1600,
+      "x": 1680,
+      "y": 1120
+    },
+    "Kombinasi.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Kombinasi · Matriks + pustaka lintas library",
+      "is_interactive": true,
+      "w": 1600,
+      "x": 0,
+      "y": 2240
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-17T14:30:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 3280,
+      "text": "Icon Studio: Composer + Builder dalam satu jendela",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Edit.dc.html",
+    "Builder.dc.html",
+    "Tinjau.dc.html",
+    "Kombinasi.dc.html"
+  ],
+  "pages": [],
+  "title": "Icon Studio · Affinity Redesign"
+}

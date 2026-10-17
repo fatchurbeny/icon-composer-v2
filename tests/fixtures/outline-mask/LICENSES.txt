@@ -1,0 +1,10 @@
+Ikon dalam pack ini dirakit dengan Template Icon Builder.
+Sebagian bentuk dasar berasal dari:
+- Lucide (https://lucide.dev) — ISC License, © Lucide Contributors
+- Tabler Icons (https://tabler.io/icons) — MIT License, © Paweł Kuna
+Konversi stroke ke shape menggunakan:
+- unstroke — MIT License, © Paweł Kuna
+- clipper-lib — Boost Software License
+Setiap ikon adalah gabungan objek + pengubah, digambar ulang dengan gaya Icon Composer:
+- aksen/: garis 3,5 ujung bulat, celah knockout 1,25, wadah tinta + bagian aksen, penanda di depan
+- garis-solid/ dan solid-garis/: garis 2, celah knockout 2, dua warna

@@ -1,0 +1,27 @@
+# Rujukan monolit lama: perilakunya didokumentasikan di docs/engines dan docs/legacy
+legacy/
+
+# Hasil build
+dist/
+releases/
+
+# Data pustaka pihak ketiga dan data turunan besar
+tests/fixtures/vendor/
+**/*.min.js
+**/fill-shapes.json
+**/icon-data*.json
+packages/export/vendor/
+
+# Golden SVG (ribuan file kecil, tanpa makna struktural)
+tests/golden/
+
+# Lain-lain
+node_modules/
+graphify-out/
+.DS_Store
+
+# Aset contoh desain dan ikon UI hasil generate
+docs/design/assets/
+docs/design/reference/
+packages/ui/icons.js
+docs/design/artboards/

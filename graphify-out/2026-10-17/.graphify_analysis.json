@@ -1,0 +1,233 @@
+{
+  "communities": {
+    "0": [
+      "apps_icon_composer_vite_config",
+      "apps_template_icon_builder_vite_config",
+      "eslint_config",
+      "package",
+      "package_engines",
+      "package_engines_node",
+      "package_engines_npm",
+      "package_name",
+      "package_private",
+      "package_type",
+      "package_version",
+      "package_workspaces",
+      "playwright_config",
+      "ref_eslint",
+      "ref_eslint_config_prettier",
+      "ref_eslint_js",
+      "ref_globals",
+      "ref_playwright_test",
+      "ref_prettier",
+      "ref_vite",
+      "ref_vite_plugin_singlefile",
+      "ref_vitest",
+      "tests_e2e_foundation_spec",
+      "tests_unit_foundation_test",
+      "vitest_config"
+    ],
+    "1": [
+      "ref_node_fs",
+      "ref_node_path",
+      "ref_node_url",
+      "scripts_build_ui_icons",
+      "scripts_build_ui_icons_names",
+      "scripts_build_ui_icons_out",
+      "scripts_collect_builds",
+      "scripts_collect_builds_builds",
+      "scripts_collect_builds_dist",
+      "scripts_collect_builds_root",
+      "scripts_fetch_fixtures",
+      "scripts_fetch_fixtures_files",
+      "scripts_fetch_fixtures_outputdir",
+      "scripts_fetch_fixtures_root",
+      "scripts_fetch_fixtures_sources"
+    ],
+    "2": [
+      "asyncio",
+      "functools",
+      "http_server",
+      "json",
+      "os",
+      "playwright_async_api",
+      "re",
+      "scripts_render_artboards",
+      "scripts_render_artboards_main",
+      "scripts_render_artboards_main_blob",
+      "scripts_render_artboards_rationale_2",
+      "sys",
+      "threading"
+    ],
+    "3": [
+      "scripts_lint_ui",
+      "scripts_lint_ui_components",
+      "scripts_lint_ui_data_color_ok",
+      "scripts_lint_ui_defined",
+      "scripts_lint_ui_ext",
+      "scripts_lint_ui_generated",
+      "scripts_lint_ui_problems",
+      "scripts_lint_ui_report",
+      "scripts_lint_ui_root",
+      "scripts_lint_ui_rules",
+      "scripts_lint_ui_skip_dir",
+      "scripts_lint_ui_tokens",
+      "scripts_lint_ui_walk"
+    ],
+    "4": [
+      "packages_ui_package",
+      "packages_ui_package_description",
+      "packages_ui_package_exports",
+      "packages_ui_package_exports_components_css",
+      "packages_ui_package_exports_components_js",
+      "packages_ui_package_exports_icons_js",
+      "packages_ui_package_exports_tokens_css",
+      "packages_ui_package_files",
+      "packages_ui_package_name",
+      "packages_ui_package_private",
+      "packages_ui_package_version"
+    ],
+    "5": [
+      "package_devdependencies",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_config_prettier",
+      "package_devdependencies_eslint_js",
+      "package_devdependencies_globals",
+      "package_devdependencies_playwright_test",
+      "package_devdependencies_prettier",
+      "package_devdependencies_vite",
+      "package_devdependencies_vite_plugin_singlefile",
+      "package_devdependencies_vitest"
+    ],
+    "6": [
+      "packages_ui_components",
+      "packages_ui_components_collapse",
+      "packages_ui_components_initui",
+      "packages_ui_components_number",
+      "packages_ui_components_press",
+      "packages_ui_components_select",
+      "packages_ui_components_single",
+      "packages_ui_components_slider",
+      "packages_ui_components_switcher",
+      "packages_ui_components_tabs"
+    ],
+    "7": [
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_fixtures_fetch",
+      "package_scripts_format_check",
+      "package_scripts_lint",
+      "package_scripts_lint_ui",
+      "package_scripts_test",
+      "package_scripts_test_e2e",
+      "package_scripts_test_golden"
+    ],
+    "8": [
+      "apps_icon_composer_package",
+      "apps_icon_composer_package_name",
+      "apps_icon_composer_package_private",
+      "apps_icon_composer_package_scripts",
+      "apps_icon_composer_package_scripts_build",
+      "apps_icon_composer_package_scripts_dev",
+      "apps_icon_composer_package_type",
+      "apps_icon_composer_package_version"
+    ],
+    "9": [
+      "apps_template_icon_builder_package",
+      "apps_template_icon_builder_package_name",
+      "apps_template_icon_builder_package_private",
+      "apps_template_icon_builder_package_scripts",
+      "apps_template_icon_builder_package_scripts_build",
+      "apps_template_icon_builder_package_scripts_dev",
+      "apps_template_icon_builder_package_type",
+      "apps_template_icon_builder_package_version"
+    ]
+  },
+  "cohesion": {
+    "0": 0.09333333333333334,
+    "1": 0.1619047619047619,
+    "2": 0.20512820512820512,
+    "3": 0.15384615384615385,
+    "4": 0.18181818181818182,
+    "5": 0.2,
+    "6": 0.2222222222222222,
+    "7": 0.2222222222222222,
+    "8": 0.25,
+    "9": 0.25
+  },
+  "gods": [
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 9
+    },
+    {
+      "id": "scripts_render_artboards_main",
+      "label": "main()",
+      "degree": 6
+    },
+    {
+      "id": "packages_ui_package_exports",
+      "label": "exports",
+      "degree": 5
+    },
+    {
+      "id": "scripts_lint_ui_walk",
+      "label": "walk()",
+      "degree": 3
+    },
+    {
+      "id": "package_engines",
+      "label": "engines",
+      "degree": 3
+    },
+    {
+      "id": "ref_playwright_test",
+      "label": "@playwright/test",
+      "degree": 3
+    },
+    {
+      "id": "ref_vite",
+      "label": "vite",
+      "degree": 3
+    },
+    {
+      "id": "ref_vite_plugin_singlefile",
+      "label": "vite-plugin-singlefile",
+      "degree": 3
+    },
+    {
+      "id": "ref_vitest",
+      "label": "vitest",
+      "degree": 3
+    },
+    {
+      "id": "apps_icon_composer_package_scripts",
+      "label": "scripts",
+      "degree": 3
+    }
+  ],
+  "surprises": [],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `devDependencies` to `package.json`?",
+      "why": "High betweenness centrality (0.047) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `eslint`, `prettier` to the rest of the system?",
+      "why": "2 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `package.json` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09333333333333334 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `scripts` connect `scripts` to `package.json`?",
+      "why": "High betweenness centrality (0.042) - this node is a cross-community bridge."
+    }
+  ]
+}

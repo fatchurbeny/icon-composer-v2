@@ -1,0 +1,47 @@
+{
+  "$comment": "Versi pustaka ikon terkunci. Mengubah versi wajib lewat ADR baru di docs/DECISIONS.md dan pembaruan golden test (ADR-006).",
+  "lucide": {
+    "version": "1.52.0",
+    "prefix": "lu",
+    "license": "ISC",
+    "npm": "lucide",
+    "cdn": {
+      "umd": "https://cdn.jsdelivr.net/npm/lucide@1.52.0/dist/umd/lucide.min.js",
+      "tags": "https://cdn.jsdelivr.net/npm/lucide-static@1.52.0/tags.json"
+    }
+  },
+  "tabler": {
+    "version": "3.49.0",
+    "prefix": "tb",
+    "license": "MIT",
+    "npm": "@tabler/icons",
+    "exclude": ["brand-*"],
+    "cdn": {
+      "nodes": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/tabler-nodes-outline.json",
+      "meta": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/icons.json"
+    }
+  },
+  "hugeicons": {
+    "version": "4.3.5",
+    "prefix": "hg",
+    "license": "MIT (Hugeicons Free; paket Pro tidak dipakai)",
+    "npm": "@hugeicons/core-free-icons",
+    "cdn": {
+      "esm": "https://cdn.jsdelivr.net/npm/@hugeicons/core-free-icons@4.3.5/+esm"
+    }
+  },
+  "custom": {
+    "version": "local",
+    "prefix": "cu",
+    "license": "milik pemilik",
+    "file": "packages/icon-sources/data/custom-icons.json"
+  },
+  "ui": {
+    "lucide-static": "1.52.0",
+    "$comment": "Ikon UI di packages/ui/icons.js dibuat dari versi ini lewat scripts/build-ui-icons.mjs."
+  },
+  "jszip": {
+    "version": "3.10.1",
+    "cdn": "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+  }
+}

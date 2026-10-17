@@ -1,0 +1,13 @@
+{
+  "name": "@icon-studio/ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Token, komponen baku, perilaku, dan ikon UI Icon Studio. Satu-satunya sumber gaya UI.",
+  "files": ["tokens.css", "components.css", "components.js", "icons.js"],
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./components.css": "./components.css",
+    "./components.js": "./components.js",
+    "./icons.js": "./icons.js"
+  }
+}

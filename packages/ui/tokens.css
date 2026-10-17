@@ -1,0 +1,136 @@
+/* @module ui/tokens
+ * Satu-satunya sumber warna, tipografi, ukuran, dan radius untuk UI Icon Studio.
+ * Aturan: file lain DILARANG menulis warna hex/rgb langsung. Pakai var(--…) dari sini.
+ * Nilai diambil dari desain "Icon Studio · Affinity Redesign" (Claude Design), dengan
+ * teks sekunder dinaikkan agar lolos kontras WCAG AA 4.5:1 di atas panel.
+ */
+:root {
+  color-scheme: dark;
+
+  /* ---------- Permukaan (gelap → terang) ---------- */
+  --ic-bg-app: #1B1B1B;        /* bilah atas, latar jendela */
+  --ic-bg-status: #1F1F1F;     /* bilah status, strip tab dokumen */
+  --ic-bg-canvas: #232323;     /* area kanvas */
+  --ic-bg-panel-head: #262626; /* kepala panel bertab, footer panel */
+  --ic-bg-doctab-on: #2A2A2A;  /* tab dokumen aktif, wadah persona */
+  --ic-bg-panel: #2B2B2B;      /* bilah konteks, tool rail, studio */
+  --ic-bg-input: #1C1C1C;      /* field, select, segmented */
+  --ic-bg-card: #222222;       /* kartu/tile di dalam panel */
+  --ic-bg-raised: #3A3A3A;     /* tool aktif, sel dilewati */
+  --ic-bg-tab-on: #3C3C3C;     /* tab panel aktif, chip aktif */
+  --ic-bg-button: #4A4A4A;     /* tombol abu (gbtn), segmen aktif */
+  --ic-bg-selected: #2F3F5C;   /* baris/kartu terpilih */
+  --ic-bg-hover: #333333;      /* hover tombol ikon/tool, tombol aksi bilah atas */
+  --ic-bg-artboard: #FFFFFF;   /* halaman ikon di kanvas */
+  --ic-bg-artboard-alt: #F4F3EF; /* pratinjau ikon kecil di panel */
+
+  /* ---------- Garis ---------- */
+  --ic-line-strong: #111111;   /* bawah bilah atas */
+  --ic-line-1: #161616;        /* pemisah kolom utama */
+  --ic-line-2: #1E1E1E;        /* pemisah di dalam panel */
+  --ic-line-3: #2E2E2E;        /* pemisah baris daftar */
+  --ic-line-4: #3A3A3A;        /* border field, separator vertikal */
+  --ic-line-5: #555555;        /* border tombol chevron, garis putus */
+  --ic-line-swatch: #FFFFFF26; /* tepi tipis swatch warna gelap */
+
+  /* ---------- Teks ---------- */
+  --ic-text-strong: #FFFFFF;
+  --ic-text-1: #E6E6E6;        /* teks utama */
+  --ic-text-2: #CFCFCF;        /* ikon UI, teks sekunder kuat */
+  --ic-text-3: #A8A8A8;        /* label tab tidak aktif */
+  --ic-text-4: #9A9A9A;        /* label field, meta (minimum AA di --ic-bg-panel) */
+  --ic-text-on-accent: #FFFFFF;
+  --ic-text-on-light: #141414; /* teks di atas artboard putih */
+  --ic-text-selected-sub: #B9C6DE; /* meta di baris terpilih */
+
+  /* ---------- Aksen fungsional ---------- */
+  --ic-accent: #2F80ED;        /* seleksi, tombol primer, checkbox, slider */
+  --ic-accent-soft: #2F80ED26;
+  --ic-link: #7FB2FF;
+  --ic-export: #2FD0E0;        /* garis penanda tombol ekspor */
+
+  /* ---------- Persona (hanya untuk pill aktif, logo, dan garis tombol aksi persona) ---------- */
+  --ic-persona-composer: #E27AF2;
+  --ic-persona-builder: #F5B84B;
+  --ic-persona-tinjau: #45D1B8;
+  --ic-persona-kombinasi: #B9E04C;
+  --ic-persona-ink: #1A1A1A;   /* teks di atas pill persona */
+
+  /* ---------- Status ---------- */
+  --ic-ok: #4CC38A;
+  --ic-ok-text: #8FD6A4;
+  --ic-ok-bg: #24452F;
+  --ic-warn: #F2B13A;
+  --ic-warn-text: #F3DDAE;
+  --ic-warn-meta: #C9AE7C;
+  --ic-warn-bg: #3A2F1A;
+  --ic-warn-line: #6B5222;
+  --ic-warn-ink: #2A1800;      /* teks di atas --ic-warn */
+  --ic-err: #E5484D;
+  --ic-err-text: #F4B6B8;
+  --ic-err-meta: #D6969A;
+  --ic-err-bg: #3A1F20;
+  --ic-err-line: #6E3033;
+
+  /* ---------- Lencana sumber pustaka ---------- */
+  --ic-src-lu-bg: #3A2A22; --ic-src-lu-fg: #F2B8A0;
+  --ic-src-tb-bg: #1E3048; --ic-src-tb-fg: #9CC4F5;
+  --ic-src-hg-bg: #20382C; --ic-src-hg-fg: #9EDDB8;
+  --ic-src-cu-bg: #3B2E4A; --ic-src-cu-fg: #D6B8F5;
+
+  /* ---------- Tipografi ---------- */
+  --ic-font: 'Instrument Sans', system-ui, sans-serif;
+  --ic-font-mono: 'Geist Mono', ui-monospace, monospace;
+  --ic-fs-xs: 10.5px;   /* meta mono, lencana */
+  --ic-fs-sm: 12px;     /* label, field, tombol abu */
+  --ic-fs-md: 12.5px;   /* tab panel, bilah konteks, isi baris */
+  --ic-fs-base: 13px;   /* teks dasar */
+  --ic-fs-lg: 14px;     /* pill persona */
+  --ic-fs-xl: 20px;     /* angka statistik */
+  --ic-fw-regular: 400;
+  --ic-fw-medium: 500;
+  --ic-fw-semibold: 600;
+
+  /* ---------- Ukuran tetap kerangka ---------- */
+  --ic-h-topbar: 56px;
+  --ic-h-context: 42px;
+  --ic-h-doctabs: 30px;
+  --ic-h-panelhead: 34px;
+  --ic-h-status: 28px;
+  --ic-w-toolrail: 56px;
+  --ic-w-studio: 330px;       /* min 300, max 340 */
+  --ic-w-studio-left: 300px;  /* panel pustaka kiri (Kombinasi) */
+
+  /* ---------- Ukuran kontrol ---------- */
+  --ic-h-control: 24px;   /* field, select, gbtn */
+  --ic-h-seg: 20px;       /* tombol di dalam segmented */
+  --ic-h-button: 30px;    /* tombol panel */
+  --ic-h-button-lg: 34px; /* tombol aksi utama */
+  --ic-h-pill: 32px;
+  --ic-h-row: 42px;       /* baris halaman/lapisan */
+  --ic-h-row-sm: 34px;    /* baris checklist/pool */
+  --ic-size-tool: 38px;
+  --ic-size-iconbtn: 30px;
+
+  /* ---------- Spasi (kelipatan 2) ---------- */
+  --ic-sp-1: 2px; --ic-sp-2: 4px; --ic-sp-3: 6px; --ic-sp-4: 8px;
+  --ic-sp-5: 10px; --ic-sp-6: 12px; --ic-sp-7: 14px; --ic-sp-8: 16px;
+  --ic-sp-10: 20px; --ic-sp-12: 24px;
+
+  /* ---------- Radius ---------- */
+  --ic-r-xs: 4px;   /* segmen dalam, lencana */
+  --ic-r-sm: 5px;   /* field, gbtn, tab panel */
+  --ic-r-md: 6px;   /* segmented, tombol panel */
+  --ic-r-lg: 7px;   /* tile, stat, peringatan */
+  --ic-r-xl: 8px;   /* tool, tombol ekspor, sel matriks */
+  --ic-r-pill: 9px;
+  --ic-r-group: 12px; /* wadah persona */
+  --ic-r-round: 999px;
+
+  /* ---------- Efek ---------- */
+  --ic-focus: 0 0 0 2px var(--ic-bg-panel), 0 0 0 4px var(--ic-accent);
+  --ic-select-ring: 0 0 0 2px var(--ic-accent);
+  --ic-shadow-thumb: 0 1px 3px #00000080;
+  --ic-shadow-menu: 0 12px 32px -8px #000000B3, 0 0 0 1px var(--ic-line-4);
+  --ic-duration: 120ms;
+}

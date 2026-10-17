@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Offset Composer v1.0.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.52.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#151517;--p:#1e1e21;--b:#2c2c31;--t:#ececef;--m:#8d8d96;--a:#B8405A}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font:13px Geist,system-ui,sans-serif}
+.app{display:grid;grid-template-columns:260px 1fr 280px;grid-template-rows:1fr 150px;height:100vh}
+.pan{background:var(--p);border-right:1px solid var(--b);padding:12px;overflow:auto}
+.right{border-right:0;border-left:1px solid var(--b);grid-row:1/3;grid-column:3}
+.left{grid-row:1/3}
+h3{font-size:11px;color:var(--m);font-weight:500;margin:14px 0 6px;text-transform:none}
+input,select,button{font:inherit;color:var(--t);background:#111113;border:1px solid var(--b);border-radius:6px;padding:6px 8px}
+button{cursor:pointer}button:hover{border-color:#555}.pri{background:var(--a);border-color:var(--a)}
+.tabs{display:flex;gap:4px}.tabs button{flex:1}.tabs .on{background:#333}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+.grid button{padding:4px;aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.grid button.on{border-color:var(--a)}
+.stage{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#view{width:min(60vh,440px);aspect-ratio:1;background:#F2F2F2;border-radius:12px}
+#view svg{width:100%;height:100%}
+.row{display:flex;gap:6px;align-items:center;margin:6px 0}.row label{flex:1;color:var(--m)}
+.row input[type=range]{flex:1.4}.row input[type=number]{width:60px}
+.set{grid-column:2;border-top:1px solid var(--b);background:var(--p);padding:10px;display:flex;gap:8px;overflow-x:auto;align-items:flex-start}
+.thumb{flex:none;width:96px;text-align:center;cursor:pointer}
+.thumb div{width:96px;height:96px;background:#F2F2F2;border-radius:8px;border:2px solid transparent}
+.thumb.on div{border-color:var(--a)}.thumb span{display:block;font:11px 'Geist Mono',monospace;color:var(--m);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg{color:var(--m);font-size:12px}.chk{display:flex;gap:6px;align-items:center;margin:4px 0;color:var(--t)}
+</style></head><body>
+<div class="app">
+<div class="pan left">
+ <div class="tabs"><button id="tLu" class="on">Lucide</button><button id="tTb">Tabler</button></div>
+ <input id="q" placeholder="Cari ikon (inggris)…" style="width:100%;margin-top:8px">
+ <div id="libMsg" class="msg" style="margin-top:6px"></div>
+ <div id="lib" class="grid"></div>
+</div>
+<div class="stage">
+ <div id="view"></div>
+ <div class="row"><input id="name" placeholder="nama-file" style="width:220px">
+ <button id="add" class="pri">Tambahkan ke set</button><button id="dl">Unduh SVG</button></div>
+</div>
+<div class="pan right">
+ <h3>Isi warna</h3>
+ <div class="row"><label>Mode</label><select id="mode"><option value="solid">Bidang aksen</option><option value="white">Putih + aksen dalam</option><option value="line">Garis saja</option></select></div>
+ <div class="row"><label>Warna aksen</label><input id="acc" type="color" value="#B8405A"></div>
+ <div class="row"><label>Geser X</label><input id="dx" type="range" min="-8" max="8" step="0.5"><input id="dxN" type="number" step="0.5"></div>
+ <div class="row"><label>Geser Y</label><input id="dy" type="range" min="-8" max="8" step="0.5"><input id="dyN" type="number" step="0.5"></div>
+ <h3>Garis</h3>
+ <div class="row"><label>Tebal</label><input id="sw" type="range" min="1.5" max="4" step="0.1"><input id="swN" type="number" step="0.1"></div>
+ <div class="row"><label>Tinta</label><input id="ink" type="color" value="#1A1A1A"></div>
+ <h3>Objek</h3>
+ <div class="row"><label>Ukuran</label><input id="size" type="range" min="50" max="96" step="2"><input id="sizeN" type="number" step="2"></div>
+ <h3>Dekorasi</h3>
+ <label class="chk"><input type="checkbox" id="dTick">Garis kilat</label>
+ <div class="row"><label>Posisi kilat</label><select id="tickPos"><option value="TR">Kanan atas</option><option value="TL">Kiri atas</option></select></div>
+ <label class="chk"><input type="checkbox" id="dGround">Garis tanah</label>
+ <label class="chk"><input type="checkbox" id="dCloud">Awan kecil</label>
+ <label class="chk"><input type="checkbox" id="dGrass">Rumput</label>
+ <h3>Set (<span id="cnt">0</span>)</h3>
+ <div class="row"><button id="zip" class="pri" style="flex:1">Unduh semua (ZIP)</button></div>
+ <div class="row"><button id="del" style="flex:1">Hapus dari set</button><button id="reset" style="flex:1">Ikon baru</button></div>
+ <div class="row"><label>Ukuran ekspor</label><select id="px"><option>240</option><option selected>480</option><option>1000</option></select></div>
+ <p class="msg">Patokan gaya: offset 4, garis 2,6, warna langsung di atribut SVG.</p>
+</div>
+<div class="set" id="set"></div>
+</div>
+<svg id="meas" width="0" height="0" style="position:absolute;visibility:hidden"></svg>
+<script>
+const KEEP=["d","cx","cy","r","rx","ry","x","y","width","height","points","x1","y1","x2","y2"];
+let LU=null,TB=null,src="lu";
+function kebab(s){return s.replace(/([a-z0-9])([A-Z])/g,"$1-$2").replace(/([A-Z])([A-Z][a-z])/g,"$1-$2").replace(/([a-zA-Z])([0-9])/g,"$1-$2").toLowerCase()}
+function luIndex(){if(LU)return LU;LU=new Map();const ic=(window.lucide&&lucide.icons)||{};for(const k in ic){let n=ic[k];if(Array.isArray(n)&&n[0]==="svg")n=n[2];if(!Array.isArray(n))continue;const kb=kebab(k);if(!LU.has(kb))LU.set(kb,n)}return LU}
+async function loadTabler(){if(TB)return TB;const r=await fetch("https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/tabler-nodes-outline.json");const j=await r.json();TB=new Map();for(const k in j)if(!k.startsWith("brand-"))TB.set(k,j[k]);return TB}
+function nodeOf(key){const[s,n]=key.split(":");return s==="lu"?luIndex().get(n):TB&&TB.get(n)}
+function partStr(t,a){const at=KEEP.filter(k=>a[k]!=null).map(k=>`${k}="${a[k]}"`).join(" ");return`<${t} ${at}/>`}
+const closedCache={};
+function closed(t,a){if(a.d==="M0 0h24v24H0z")return false;if(["circle","rect","ellipse","polygon"].includes(t))return true;if(t!=="path")return false;const d=a.d||"";if(/[zZ]\s*$/.test(d))return true;
+ if(closedCache[d]!=null)return closedCache[d];let c=false;try{const m=document.getElementById("meas");m.innerHTML=`<path d="${d}"/>`;const el=m.firstChild,L=el.getTotalLength();if(L>1){const p0=el.getPointAtLength(0),p1=el.getPointAtLength(L);c=Math.hypot(p0.x-p1.x,p0.y-p1.y)<0.6}}catch(e){}return closedCache[d]=c}
+function splitParts(node){const out=[];for(const [t,a] of node){if(a.d==="M0 0h24v24H0z")continue;if(t==="path"&&a.d){const segs=a.d.trim().split(/(?=M)/);if(segs.length>1&&segs.every(x=>/^M/.test(x))){segs.forEach(x=>out.push(["path",Object.assign({},a,{d:x.trim()})]));continue}}out.push([t,a])}return out}
+const areaCache={};
+function areaOf(t,a){const s=partStr(t,a);if(areaCache[s]!=null)return areaCache[s];const m=document.getElementById("meas");m.innerHTML=s;let v=0;try{const b=m.firstChild.getBBox();v=b.width*b.height}catch(e){}return areaCache[s]=v}
+const DEF={key:"lu:luggage",name:"luggage",mode:"solid",acc:"#B8405A",ink:"#1A1A1A",dx:4,dy:4,sw:2.6,size:72,dTick:true,tickPos:"TR",dGround:true,dCloud:false,dGrass:false};
+let cur=Object.assign({},DEF),set=[],selIdx=-1;
+function compose(it,px){const node=nodeOf(it.key);if(!node)return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"></svg>`;
+ const parts=splitParts(node);const k=it.size/24,ox=(120-it.size)/2,oy=ox-6;const sw=(it.sw/k).toFixed(3);
+ const cl=parts.filter(([t,a])=>closed(t,a));let body=null,inner=[];
+ if(cl.length){body=cl.reduce((m,p)=>areaOf(...p)>areaOf(...m)?p:m);inner=cl.filter(p=>p!==body)}
+ const T=(x,y)=>`translate(${x} ${y}) scale(${k.toFixed(4)})`;let out="";
+ if(it.mode==="solid"&&cl.length)out+=`<g transform="${T(ox+it.dx,oy+it.dy)}" fill="${it.acc}">${cl.map(p=>partStr(...p)).join("")}</g>`;
+ if(it.mode==="white"&&body){out+=`<g transform="${T(ox+it.dx,oy+it.dy)}" fill="${it.acc}">${partStr(...body)}</g><g transform="${T(ox,oy)}" fill="#FFFFFF">${partStr(...body)}</g>`;if(inner.length)out+=`<g transform="${T(ox+it.dx*.6,oy+it.dy*.6)}" fill="${it.acc}">${inner.map(p=>partStr(...p)).join("")}</g>`}
+ if(it.mode==="line"&&body)out+=`<g transform="${T(ox+it.dx,oy+it.dy)}" fill="${it.acc}">${partStr(...body)}</g>`;
+ out+=`<g transform="${T(ox,oy)}" fill="none" stroke="${it.ink}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${parts.map(p=>partStr(...p)).join("")}</g>`;
+ const L=`fill="none" stroke="${it.ink}" stroke-width="${it.sw}" stroke-linecap="round" stroke-linejoin="round"`;const gy=oy+it.size+6;
+ if(it.dTick){const r=it.tickPos==="TR";const x=r?ox+it.size+2:ox-2,s=r?1:-1;out+=`<path ${L} d="M${x} ${oy+6}l${6*s} -6M${x+3*s} ${oy+16}l${8*s} -2"/>`}
+ if(it.dGround)out+=`<path ${L} d="M${ox-10} ${gy}H${ox+it.size+10}"/>`;
+ if(it.dGrass)out+=`<path ${L} d="M${ox-6} ${gy}l3 -6 2 6M${ox+it.size+2} ${gy}l2 -5 2 5"/>`;
+ if(it.dCloud){const cx=it.tickPos==="TR"?ox-4:ox+it.size-14;out+=`<path ${L} stroke-width="${(it.sw*.8).toFixed(2)}" d="M${cx} ${oy+4}c0-6 8-6 9-2 3-4 10-2 9 3h-18z"/>`}
+ const sz=px?` width="${px}" height="${px}"`:"";return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"${sz}>${out}</svg>`}
+const $=id=>document.getElementById(id);
+const nums=["dx","dy","sw","size"];
+function syncUI(){["mode","acc","ink","tickPos"].forEach(k=>$(k).value=cur[k]);nums.forEach(k=>{$(k).value=cur[k];$(k+"N").value=cur[k]});["dTick","dGround","dCloud","dGrass"].forEach(k=>$(k).checked=cur[k]);$("name").value=cur.name}
+function render(){$("view").innerHTML=compose(cur);renderSet();persist()}
+function renderSet(){$("cnt").textContent=set.length;$("set").innerHTML=set.length?set.map((it,i)=>`<div class="thumb${i===selIdx?" on":""}" data-i="${i}"><div>${compose(it)}</div><span>${it.name}</span></div>`).join(""):'<span class="msg">Belum ada ikon di set. Atur ikon lalu klik "Tambahkan ke set".</span>'}
+function persist(){try{localStorage.setItem("offset-composer-v1",JSON.stringify({cur,set}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("offset-composer-v1")||"null");if(d){cur=Object.assign({},DEF,d.cur);set=(d.set||[]).map(x=>Object.assign({},DEF,x))}}catch(e){}}
+function slug(s){return(s||"ikon").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"ikon"}
+function libRender(){const q=$("q").value.trim().toLowerCase();const idx=src==="lu"?luIndex():TB;if(!idx){$("lib").innerHTML="";return}
+ let names=[...idx.keys()];if(q)names=names.filter(n=>n.includes(q)).sort((a,b)=>(b.startsWith(q)-a.startsWith(q))||a.localeCompare(b));names=names.slice(0,160);
+ $("libMsg").textContent=`${idx.size} ikon${q?` · ${names.length} cocok`:""}`;
+ $("lib").innerHTML=names.map(n=>{const nd=idx.get(n);const k=src+":"+n;return`<button title="${n}" data-k="${k}" class="${k===cur.key?"on":""}"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ececef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${nd.map(p=>partStr(...p)).join("")}</svg></button>`}).join("")}
+function download(name,data,type){const b=new Blob([data],{type});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+async function ensureSrc(key){if(key.startsWith("tb:")&&!TB){try{await loadTabler()}catch(e){}}}
+$("lib").onclick=e=>{const b=e.target.closest("button");if(!b)return;cur.key=b.dataset.k;cur.name=slug(b.dataset.k.split(":")[1]);$("name").value=cur.name;libRender();render()};
+$("q").oninput=libRender;
+$("tLu").onclick=()=>{src="lu";$("tLu").className="on";$("tTb").className="";libRender()};
+$("tTb").onclick=async()=>{src="tb";$("tTb").className="on";$("tLu").className="";$("libMsg").textContent="Memuat Tabler…";try{await loadTabler()}catch(e){$("libMsg").textContent="Gagal memuat Tabler (cek koneksi).";return}libRender()};
+["mode","acc","ink","tickPos"].forEach(k=>$(k).oninput=()=>{cur[k]=$(k).value;render()});
+nums.forEach(k=>{$(k).oninput=()=>{cur[k]=+$(k).value;$(k+"N").value=cur[k];render()};$(k+"N").oninput=()=>{const v=+$(k+"N").value;if(!isNaN(v)){cur[k]=v;$(k).value=v;render()}}});
+["dTick","dGround","dCloud","dGrass"].forEach(k=>$(k).onchange=()=>{cur[k]=$(k).checked;render()});
+$("name").oninput=()=>{cur.name=slug($("name").value)};
+$("add").onclick=()=>{cur.name=slug($("name").value);const c=Object.assign({},cur);if(selIdx>=0)set[selIdx]=c;else{set.push(c);selIdx=set.length-1}render()};
+$("set").onclick=async e=>{const t=e.target.closest(".thumb");if(!t)return;selIdx=+t.dataset.i;cur=Object.assign({},set[selIdx]);await ensureSrc(cur.key);syncUI();libRender();render();$("add").textContent="Perbarui di set"};
+$("reset").onclick=()=>{selIdx=-1;cur=Object.assign({},cur,{name:cur.name+"-baru"});$("add").textContent="Tambahkan ke set";syncUI();render()};
+$("del").onclick=()=>{if(selIdx<0)return;set.splice(selIdx,1);selIdx=-1;$("add").textContent="Tambahkan ke set";render()};
+$("dl").onclick=()=>download(slug($("name").value)+".svg",compose(cur,+$("px").value),"image/svg+xml");
+$("zip").onclick=async()=>{if(!set.length){alert("Set masih kosong.");return}if(!window.JSZip){alert("JSZip belum termuat (cek koneksi).");return}
+ for(const it of set)await ensureSrc(it.key);const z=new JSZip(),used={};
+ for(const it of set){let n=it.name;used[n]=(used[n]||0)+1;if(used[n]>1)n+="-"+used[n];z.file(n+".svg",compose(it,+$("px").value))}
+ z.file("gaya.json",JSON.stringify({format:"offset-composer",version:"1.0.1",icons:set},null,2));
+ download("offset-icons.zip",await z.generateAsync({type:"blob"}),"application/zip")};
+(async function(){load();if(!window.lucide){$("libMsg").textContent="Lucide gagal dimuat. Buka file ini dengan koneksi internet."}await ensureSrc(cur.key);for(const it of set)await ensureSrc(it.key);syncUI();libRender();render()})();
+</script></body></html>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coret Composer v1.0.0</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#16131A;--p:#1F1B24;--p2:#28232E;--line:#3A3340;--fg:#F1EDF3;--mut:#9C93A3;--hi:#FDBF57;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:13px Geist,system-ui,sans-serif}
+.app{display:grid;grid-template-columns:300px 1fr 300px;height:100vh}
+@media(max-width:1000px){.app{grid-template-columns:1fr;height:auto}}
+aside,main{min-width:0;overflow:auto}
+aside{background:var(--p);border-right:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:12px}
+aside.r{border-right:0;border-left:1px solid var(--line)}
+h1{font-size:15px;margin:0;font-weight:600}h1 small{color:var(--mut);font-weight:400;font-family:"Geist Mono"}
+h2{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:0;font-weight:500}
+.seg{display:flex;background:var(--p2);border-radius:8px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;color:var(--mut);padding:6px;border-radius:6px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--bg);color:var(--fg)}
+input[type=text]{width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.lib{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;overflow:auto;flex:1;min-height:200px;align-content:start}
+.lib button{aspect-ratio:1;background:var(--p2);border:1px solid transparent;border-radius:6px;color:var(--fg);cursor:pointer;padding:6px}
+.lib button:hover{border-color:var(--hi)}
+.lib svg{width:100%;height:100%}
+.msg{color:var(--mut);font-size:12px}
+main{display:flex;flex-direction:column}
+.stage{flex:1;display:grid;place-items:center;padding:24px;min-height:360px}
+.board{width:min(440px,80vw);aspect-ratio:1;background:#FBF8F2;border-radius:16px;display:grid;place-items:center;background-image:linear-gradient(#0000000a 1px,transparent 1px),linear-gradient(90deg,#0000000a 1px,transparent 1px);background-size:10% 10%}
+.board svg{width:86%;height:86%}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--line);align-items:center}
+.btn{font:inherit;padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:var(--p2);color:var(--fg);cursor:pointer}
+.btn.pri{background:var(--hi);color:#2B1D2E;border-color:var(--hi);font-weight:600}
+.btn:focus-visible,button:focus-visible{outline:2px solid var(--hi);outline-offset:1px}
+.set{display:flex;gap:8px;overflow-x:auto;padding:12px 14px;border-top:1px solid var(--line);background:var(--p)}
+.set .t{flex:none;width:76px;display:grid;gap:4px;justify-items:center;cursor:pointer;border-radius:8px;padding:6px;border:1px solid transparent}
+.set .t.on{border-color:var(--hi)}
+.set .t div{width:60px;height:60px;background:#FBF8F2;border-radius:8px;display:grid;place-items:center}
+.set .t svg{width:52px;height:52px}
+.set .t span{font-size:10px;color:var(--mut);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:var(--p2);border:1px solid transparent;cursor:pointer}
+.layer.on{border-color:var(--hi)}
+.layer code{font-family:"Geist Mono";font-size:11px;color:var(--mut);margin-left:auto;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer .x{background:none;border:0;color:var(--mut);cursor:pointer}
+label.f{display:grid;gap:4px;font-size:12px;color:var(--mut)}label.f b{color:var(--fg);font-weight:500;font-family:"Geist Mono"}
+input[type=range]{width:100%;accent-color:var(--hi)}
+.sw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sw button{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.sw button.on{border-color:var(--fg)}
+.sw input[type=color]{width:28px;height:28px;border:0;background:none;padding:0}
+.grid4{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:120px}
+.grid4 button{aspect-ratio:1;border-radius:6px;border:1px solid var(--line);background:var(--p2);cursor:pointer;color:var(--fg);font-size:10px}
+.grid4 button.on{background:var(--hi);color:#2B1D2E}
+.grid4 span{visibility:hidden}
+hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h1>Coret Composer <small>v1.0.0</small></h1>
+    <div class="seg" id="src"><button data-s="lu" class="on">Lucide</button><button data-s="tb">Tabler</button><button data-s="hg">Huge</button></div>
+    <div class="seg" id="tgt"><button data-t="main" class="on">Objek utama</button><button data-t="mod">Pengubah</button></div>
+    <input type="text" id="q" placeholder="Cari ikon, mis. pizza, wallet">
+    <div class="msg" id="libMsg"></div>
+    <div class="lib" id="lib"></div>
+  </aside>
+
+  <main>
+    <div class="stage"><div class="board" id="board"></div></div>
+    <div class="bar">
+      <input type="text" id="name" style="max-width:220px" aria-label="Nama ikon">
+      <button class="btn" id="reroll">Acak coretan</button>
+      <button class="btn" id="new">Ikon baru</button>
+      <button class="btn" id="dup">Duplikat</button>
+      <button class="btn" id="del">Hapus</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="dlOne">Unduh SVG</button>
+      <button class="btn pri" id="dlZip">Unduh set (ZIP)</button>
+    </div>
+    <div class="set" id="set"></div>
+  </main>
+
+  <aside class="r">
+    <h2>Lapisan</h2>
+    <div id="layers" style="display:grid;gap:6px"></div>
+    <label class="f">Posisi pengubah<div class="grid4" id="anc"></div></label>
+    <label class="f">Ukuran pengubah <b id="vMs"></b><input type="range" id="ms" min="0.36" max="0.7" step="0.02"></label>
+    <label class="f">Blob objek
+      <div class="seg" id="blobM"><button data-b="auto">Otomatis</button><button data-b="circle">Lingkaran</button><button data-b="none">Tanpa</button></div></label>
+    <hr>
+    <h2>Gaya set (semua ikon)</h2>
+    <label class="f">Warna aksen<div class="sw" id="acc"></div></label>
+    <label class="f">Warna tinta<div class="sw" id="ink"></div></label>
+    <label class="f">Tebal garis <b id="vSw"></b><input type="range" id="sw" min="1.4" max="3.2" step="0.1"></label>
+    <label class="f">Gemuk blob <b id="vPuff"></b><input type="range" id="puff" min="0" max="4" step="0.25"></label>
+    <label class="f">Geser blob <b id="vOff"></b><input type="range" id="off" min="0" max="3" step="0.25"></label>
+    <label class="f">Celah coretan <b id="vGap"></b><input type="range" id="gap" min="0" max="20" step="1"></label>
+    <label class="f">Miring acak <b id="vRot"></b><input type="range" id="rot" min="0" max="10" step="1"></label>
+    <label class="f">Celah knockout pengubah <b id="vKo"></b><input type="range" id="ko" min="0.5" max="3" step="0.25"></label>
+  </aside>
+</div>
+<div id="toast" hidden></div>
+
+<script>
+/* ---------- sumber ikon ---------- */
+const KEEP=["d","cx","cy","r","rx","ry","x","y","width","height","points","x1","y1","x2","y2"];
+const SRC={lu:null,tb:null,hg:null},LOADING={};
+const kebab=s=>s.replace(/([a-z0-9])([A-Z])/g,"$1-$2").replace(/([a-zA-Z])(\d)/g,"$1-$2").toLowerCase();
+function clean(nodes){return(nodes||[]).filter(n=>Array.isArray(n)&&typeof n[0]==="string").map(([t,a])=>{const o={};for(const k of KEEP)if(a&&a[k]!=null)o[k]=a[k];return[t,o]}).filter(([t,a])=>a.d!=="M0 0h24v24H0z")}
+function ensure(s){
+  if(SRC[s])return Promise.resolve(SRC[s]);
+  if(LOADING[s])return LOADING[s];
+  if(s==="lu"){const m={},I=(window.lucide&&lucide.icons)||{};for(const k in I){let v=I[k];if(v[0]==="svg")v=v[2];m[kebab(k)]=clean(v)}SRC.lu=m;return Promise.resolve(m)}
+  if(s==="tb")LOADING.tb=fetch("https://cdn.jsdelivr.net/npm/@tabler/icons@3.31.0/tabler-nodes-outline.json").then(r=>r.json()).then(j=>{const m={};for(const k in j)if(!k.startsWith("brand-"))m[k]=clean(j[k]);return SRC.tb=m});
+  if(s==="hg")LOADING.hg=import("https://cdn.jsdelivr.net/npm/@hugeicons/core-free-icons@1/+esm").then(mod=>{const m={};for(const k in mod){if(!k.endsWith("Icon")||!Array.isArray(mod[k]))continue;m[kebab(k.slice(0,-4))]=clean(mod[k])}return SRC.hg=m});
+  return LOADING[s].catch(e=>{delete LOADING[s];throw e});
+}
+const nodeOf=key=>{if(!key)return null;const[s,n]=key.split(":");return SRC[s]&&SRC[s][n]||null};
+
+/* ---------- mesin gaya Coret ---------- */
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const hash=s=>{let h=2166136261;for(const c of s)h=Math.imul(h^c.charCodeAt(0),16777619);return h};
+const isClosed=(t,a)=>t==="circle"||t==="rect"||t==="ellipse"||t==="polygon"||(t==="path"&&/z\s*$/i.test(a.d||""));
+const el=(t,a,ex)=>{let s="<"+t;for(const k in a)s+=` ${k}="${a[k]}"`;return s+ex+"/>"};
+const f=n=>+n.toFixed(2);
+/* menghasilkan blob, tinta, dan siluet untuk knockout; sc = skala grup (untuk menjaga tebal garis visual) */
+function coret(nodes,r,S,sc,blobMode){
+  const closed=nodes.filter(([t,a])=>isClosed(t,a));
+  const bw=f((S.sw+S.puff*2)/sc),sw=f(S.sw/sc);
+  let blobShapes=[];
+  if(blobMode!=="none"){
+    if(blobMode==="auto"&&closed.length)blobShapes=closed.map(([t,a])=>[t,a,bw]);
+    else blobShapes=[["circle",{cx:12,cy:12,r:f(8+S.puff*0.6)},0]];
+  }
+  const blob=c=>blobShapes.map(([t,a,w])=>el(t,a,` fill="${c}" stroke="${c}" stroke-width="${w}" stroke-linejoin="round"`)).join("");
+  const dash=nodes.map(([t,a])=>{const big=isClosed(t,a)||(t==="path"&&(a.d||"").length>18);
+    if(big&&S.gap>0&&r()<0.75){const g=S.gap*(0.6+r()*0.8);return` stroke-dasharray="${f(100-g)} ${f(g)}" stroke-dashoffset="${f(r()*100)}"`}return""});
+  const ink=c=>nodes.map(([t,a],i)=>el(t,a,` pathLength="100" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"${dash[i]}`)).join("");
+  const ko=f(S.ko/sc),sil=c=>blobShapes.map(([t,a,w])=>el(t,a,` fill="${c}" stroke="${c}" stroke-width="${f(w+ko*2)}" stroke-linejoin="round"`)).join("")+nodes.map(([t,a])=>el(t,a,` fill="none" stroke="${c}" stroke-width="${f(sw+ko*2)}" stroke-linecap="round" stroke-linejoin="round"`)).join("");
+  return{blob,ink,sil};
+}
+const ANC={TL:[5.5,5.5],TC:[12,4.5],TR:[18.5,5.5],ML:[4.5,12],MR:[19.5,12],BL:[5.5,18.5],BC:[12,19.5],BR:[18.5,18.5]};
+let uidN=0;
+function compose(it,S,px){
+  const mn=nodeOf(it.main);if(!mn)return null;
+  const mdn=it.mod?nodeOf(it.mod):null;
+  const r=rng((it.seed||1)+hash(it.main+(it.mod||"")));
+  const rot=f((r()*2-1)*S.rot),ox=f(-S.off),oy=f(S.off*0.8);
+  const msc=mdn?0.84:1;
+  let mT="";
+  if(mdn){const[ax,ay]=ANC[it.anchor||"BR"];const dx=f((12-ax)*0.12),dy=f((12-ay)*0.12);mT=`translate(${dx} ${dy}) translate(12 12) scale(${msc}) translate(-12 -12)`}
+  const M=coret(mn,r,S,msc,it.blob||"auto");
+  let out="",defs="",maskAttr="";
+  if(mdn){
+    const ms=it.ms||0.5,[ax,ay]=ANC[it.anchor||"BR"];
+    const D=coret(mdn,r,S,ms,"circle");
+    const T=`translate(${ax} ${ay}) scale(${ms}) translate(-12 -12)`;
+    const id="ko"+(++uidN);
+    defs=`<defs><mask id="${id}" maskUnits="userSpaceOnUse" x="-6" y="-6" width="36" height="36"><rect x="-6" y="-6" width="36" height="36" fill="#fff"/><g transform="${T}">${D.sil("#000")}</g></mask></defs>`;
+    maskAttr=` mask="url(#${id})"`;
+    out=`<g transform="${T}"><g transform="translate(${f(ox/ms)} ${f(oy/ms)})">${D.blob(S.acc)}</g>${D.ink(S.ink)}</g>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 30 30"${px?` width="${px}" height="${px}"`:""}>${defs}<g transform="rotate(${rot} 12 12)"><g${maskAttr}><g transform="${mT}"><g transform="translate(${ox} ${oy})">${M.blob(S.acc)}</g>${M.ink(S.ink)}</g></g>${out}</g></svg>`;
+}
+
+/* ---------- state ---------- */
+const KEY="coret-composer-v1";
+const ACC=["#FDBF57","#7FC4BE","#F28B82","#A7C7F2","#C3A6E8","#9DCB86"],INKS=["#2B1D2E","#141414","#1F2A37","#3B2418"];
+let S={acc:ACC[0],ink:INKS[0],sw:2.3,puff:2,off:1.25,gap:9,rot:5,ko:1.25};
+let set=[],cur=0,src="lu",tgt="main",sel="main";
+const mk=(main,mod,name)=>({id:Date.now()+Math.random(),name:name||main.split(":")[1],main,mod:mod||null,anchor:"BR",ms:0.5,blob:"auto",seed:Math.floor(Math.random()*1e6)});
+function defaults(){return[mk("lu:pizza",null,"pizza"),mk("lu:wallet","lu:plus","wallet-plus-coret"),mk("tb:backpack",null,"backpack"),mk("lu:piggy-bank","lu:sparkle","piggy-bank-sparkle"),mk("hg:coffee-02",null,"coffee"),mk("lu:alarm-clock",null,"alarm-clock")]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({S,set,cur}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.set&&d.set.length){S={...S,...d.S};set=d.set;cur=Math.min(d.cur||0,set.length-1);return}}catch(e){}set=defaults()}
+const it=()=>set[cur];
+
+/* ---------- UI ---------- */
+const $=id=>document.getElementById(id);
+let tt;const toast=m=>{const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,1800)};
+const thumbS=()=>({...S,acc:S.acc});
+function libPreview(nodes){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${nodes.map(([t,a])=>el(t,a,"")).join("")}</svg>`}
+async function renderLib(){
+  $("libMsg").textContent="Memuat pustaka...";$("lib").innerHTML="";
+  let m;try{m=await ensure(src)}catch(e){$("libMsg").textContent="Gagal memuat pustaka. Periksa koneksi internet.";return}
+  const q=$("q").value.trim().toLowerCase().replace(/\s+/g,"-");
+  let keys=Object.keys(m);
+  if(q){keys=keys.filter(k=>k.includes(q)).sort((a,b)=>(b.startsWith(q))-(a.startsWith(q))||a.length-b.length)}
+  const total=keys.length;keys=keys.slice(0,200);
+  $("libMsg").textContent=`${total} ikon${total>200?", tampil 200":""} · klik untuk jadi ${tgt==="main"?"objek utama":"pengubah"}`;
+  $("lib").innerHTML=keys.map(k=>`<button title="${k}" data-k="${src}:${k}">${libPreview(m[k])}</button>`).join("");
+}
+function renderBoard(){const s=compose(it(),S);$("board").innerHTML=s||'<p class="msg">Memuat ikon...</p>'}
+function renderSet(){$("set").innerHTML=set.map((x,i)=>`<div class="t${i===cur?" on":""}" data-i="${i}"><div>${compose(x,S)||""}</div><span>${x.name}</span></div>`).join("")}
+function renderLayers(){
+  const x=it();
+  $("layers").innerHTML=`<div class="layer${sel==="main"?" on":""}" data-l="main">Objek utama<code>${x.main}</code></div>
+  <div class="layer${sel==="mod"?" on":""}" data-l="mod">Pengubah<code>${x.mod||"kosong"}</code>${x.mod?'<button class="x" data-rm="1" title="Hapus pengubah">✕</button>':""}</div>`;
+  $("anc").innerHTML=["TL","TC","TR","ML","",  "MR","BL","BC","BR"].map(a=>a?`<button data-a="${a}" class="${x.anchor===a?"on":""}">${a}</button>`:"<span></span>").join("");
+  $("ms").value=x.ms;$("vMs").textContent=x.ms;
+  [...$("blobM").children].forEach(b=>b.classList.toggle("on",b.dataset.b===(x.blob||"auto")));
+  $("name").value=x.name;
+}
+function renderStyle(){
+  $("acc").innerHTML=ACC.map(c=>`<button style="background:${c}" data-c="${c}" class="${S.acc===c?"on":""}"></button>`).join("")+`<input type="color" id="accC" value="${S.acc}" aria-label="Warna aksen bebas">`;
+  $("ink").innerHTML=INKS.map(c=>`<button style="background:${c};box-shadow:0 0 0 1px #fff3 inset" data-c="${c}" class="${S.ink===c?"on":""}"></button>`).join("")+`<input type="color" id="inkC" value="${S.ink}" aria-label="Warna tinta bebas">`;
+  for(const k of["sw","puff","off","gap","rot","ko"]){$(k).value=S[k];$("v"+k[0].toUpperCase()+k.slice(1)).textContent=k==="gap"?S[k]+"%":k==="rot"?S[k]+"°":S[k]}
+}
+function all(){renderBoard();renderSet();renderLayers();renderStyle();save()}
+const light=()=>{renderBoard();renderSet();save()};
+
+/* events */
+$("src").onclick=e=>{const s=e.target.dataset.s;if(!s)return;src=s;[...$("src").children].forEach(b=>b.classList.toggle("on",b===e.target));renderLib()};
+$("tgt").onclick=e=>{const t=e.target.dataset.t;if(!t)return;tgt=sel=t;[...$("tgt").children].forEach(b=>b.classList.toggle("on",b===e.target));renderLayers();renderLib()};
+let qT;$("q").oninput=()=>{clearTimeout(qT);qT=setTimeout(renderLib,150)};
+$("lib").onclick=e=>{const b=e.target.closest("button");if(!b)return;const x=it(),k=b.dataset.k;
+  if(tgt==="main"){if(k===x.mod)return toast("Objek utama dan pengubah tidak boleh sama");x.main=k;if(!x.nameEdited)x.name=k.split(":")[1]+(x.mod?"-"+x.mod.split(":")[1]:"")}
+  else{if(k===x.main)return toast("Objek utama dan pengubah tidak boleh sama");x.mod=k;if(!x.nameEdited)x.name=x.main.split(":")[1]+"-"+k.split(":")[1]}
+  all()};
+$("layers").onclick=e=>{if(e.target.dataset.rm){it().mod=null;all();return}const l=e.target.closest(".layer");if(!l)return;sel=tgt=l.dataset.l;[...$("tgt").children].forEach(b=>b.classList.toggle("on",b.dataset.t===tgt));renderLayers();renderLib()};
+$("anc").onclick=e=>{const a=e.target.dataset.a;if(!a)return;it().anchor=a;all()};
+$("ms").oninput=e=>{it().ms=+e.target.value;$("vMs").textContent=it().ms;light()};
+$("blobM").onclick=e=>{const b=e.target.dataset.b;if(!b)return;it().blob=b;all()};
+$("acc").onclick=e=>{const c=e.target.dataset.c;if(c){S.acc=c;all()}};
+$("ink").onclick=e=>{const c=e.target.dataset.c;if(c){S.ink=c;all()}};
+document.addEventListener("change",e=>{if(e.target.id==="accC"){S.acc=e.target.value.toUpperCase();all()}if(e.target.id==="inkC"){S.ink=e.target.value.toUpperCase();all()}});
+for(const k of["sw","puff","off","gap","rot","ko"])$(k).oninput=e=>{S[k]=+e.target.value;$("v"+k[0].toUpperCase()+k.slice(1)).textContent=k==="gap"?S[k]+"%":k==="rot"?S[k]+"°":S[k];light()};
+$("set").onclick=e=>{const t=e.target.closest(".t");if(!t)return;cur=+t.dataset.i;all()};
+$("name").oninput=e=>{it().name=e.target.value.trim()||"ikon";it().nameEdited=true;renderSet();save()};
+$("reroll").onclick=()=>{it().seed=Math.floor(Math.random()*1e6);light()};
+$("new").onclick=()=>{set.push(mk(it().main));cur=set.length-1;all()};
+$("dup").onclick=()=>{const c={...it(),id:Date.now(),name:it().name+"-2"};set.splice(cur+1,0,c);cur++;all()};
+$("del").onclick=()=>{if(set.length<2)return toast("Set minimal berisi satu ikon");set.splice(cur,1);cur=Math.max(0,cur-1);all()};
+
+/* ekspor */
+const slug=s=>(s||"ikon").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"ikon";
+function saveBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+$("dlOne").onclick=()=>{const s=compose(it(),S,480);if(!s)return;saveBlob(new Blob([s],{type:"image/svg+xml"}),slug(it().name)+"-coret.svg")};
+$("dlZip").onclick=async()=>{
+  if(!window.JSZip)return toast("JSZip belum termuat");
+  const z=new JSZip(),used={};
+  for(const x of set){const s=compose(x,S,480);if(!s)continue;let n=slug(x.name);if(used[n])n+="-"+(++used[n]);else used[n]=1;z.file("coret/"+n+"-coret.svg",s)}
+  z.file("gaya.json",JSON.stringify({family:"coret",version:"1.0.0",style:S,icons:set.map(({name,main,mod,anchor,ms,blob,seed})=>({name,main,mod,anchor,ms,blob,seed}))},null,2));
+  z.file("LICENSES.txt","Lucide: ISC License\nTabler Icons: MIT License\nHugeicons Free: lihat lisensi Hugeicons Free Icons\n");
+  saveBlob(await z.generateAsync({type:"blob"}),"coret-set.zip");toast("ZIP diunduh")};
+
+/* boot */
+(async()=>{
+  load();renderStyle();renderLayers();
+  const need=[...new Set(set.flatMap(x=>[x.main,x.mod]).filter(Boolean).map(k=>k.split(":")[0]))];
+  await Promise.all(need.map(s=>ensure(s).catch(()=>toast("Gagal memuat pustaka "+s))));
+  all();renderLib();
+})();
+</script>
+</body>
+</html>

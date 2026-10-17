@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Icon Studio · Tinjau · Lembar kontak</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#1B1B1B}
+a{color:#7FB2FF}a:hover{color:#A9CBFF}
+.app{font-family:'Instrument Sans',system-ui,sans-serif;font-size:13px;color:#E4E4E4;background:#1B1B1B;-webkit-font-smoothing:antialiased}
+.mono{font-family:'Geist Mono',ui-monospace,monospace}
+.ib{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;background:transparent;color:#B9B9B9;cursor:pointer;padding:0}
+.pill{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border:0;border-radius:9px;background:transparent;color:#C9C9C9;font:inherit;font-size:14px;cursor:pointer;text-decoration:none}
+.pill.on{background:#45D1B8;color:#0F1F1C;font-weight:600}
+.seg{display:flex;gap:2px;padding:2px;border-radius:6px;background:#1C1C1C;border:1px solid #3A3A3A}
+.seg button{height:20px;padding:0 9px;border:0;border-radius:4px;background:transparent;color:#A8A8A8;font:inherit;font-size:11.5px;cursor:pointer}
+.seg button.on{background:#4A4A4A;color:#FFFFFF}
+.tool{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;color:#BDBDBD;cursor:pointer;padding:0}
+.tool.on{background:#3A3A3A;color:#FFFFFF;box-shadow:inset 0 0 0 1px #555}
+.tabh{display:flex;align-items:center;gap:2px;height:34px;padding:0 6px 0 8px;background:#262626;border-bottom:1px solid #1E1E1E}
+.tab{height:24px;padding:0 9px;border:0;border-radius:5px;background:transparent;color:#A8A8A8;font:inherit;font-size:12.5px;cursor:pointer}
+.tab.on{background:#3C3C3C;color:#FFFFFF}
+.chev{margin-left:auto;width:22px;height:22px;border-radius:5px;border:1px solid #555;display:flex;align-items:center;justify-content:center;color:#CFCFCF;background:transparent;padding:0}
+.lbl{color:#9A9A9A;font-size:12px}
+.field{height:24px;border-radius:5px;background:#1C1C1C;border:1px solid #3A3A3A;color:#EDEDED;display:flex;align-items:center;padding:0 8px;font-size:12px;min-width:0}
+.row{display:flex;align-items:center;gap:10px}
+.ck{display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-bottom:1px solid #2E2E2E;font-size:12.5px}
+.sw{width:22px;height:22px;border-radius:5px;border:0;padding:0;cursor:pointer}
+</style>
+</helmet>
+<div class="app" style="width: 100%; min-width: 360px; height: 1000px; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="height: 56px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 16px 0 14px; background: #1B1B1B; border-bottom: 1px solid #111">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="6" width="18" height="18" rx="5" fill="none" stroke="#F2F2F2" stroke-width="2.6"></rect><circle cx="22" cy="8" r="6" fill="#45D1B8" stroke="#1B1B1B" stroke-width="2.4"></circle></svg>
+    <div style="display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 12px; background: #2A2A2A">
+      <a class="pill" href="Main.dc.html"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><circle cx="11" cy="11" r="2"></circle></svg>Composer</a>
+      <a class="pill" href="Builder.dc.html"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 9 5-9 5-9-5 9-5z"></path><path d="m3 12 9 5 9-5"></path><path d="m3 17 9 5 9-5"></path></svg>Builder</a>
+      <button class="pill on" aria-pressed="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Tinjau</button>
+      <a class="pill" href="Kombinasi.dc.html"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.8 1.2 5.4 6 6-4.8.6-5.4 1.2-6 6-.6-4.8-1.2-5.4-6-6 4.8-.6 5.4-1.2 6-6z"></path><path d="M19 15v4"></path><path d="M17 17h4"></path></svg>Kombinasi</a>
+    </div>
+    <button class="ib" aria-label="Menu lain"><svg width="16" height="16" viewBox="0 0 24 24" fill="#BDBDBD" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg></button>
+    <div style="flex: 1"></div>
+    <span style="font-size: 12.5px; color: #D6D6D6">Travel Set · Sticker</span>
+    <span style="width: 1px; height: 22px; background: #333"></span>
+    <span class="mono" style="font-size: 12px; color: #D6D6D6">10 diunduh · 1 dikeluarkan · 4 warna</span>
+    <span style="width: 1px; height: 22px; background: #333"></span>
+    <button style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px 0 0; border: 0; border-radius: 8px; background: #333; color: #F0F0F0; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer">
+      <span style="width: 4px; height: 22px; border-radius: 2px; background: #2FD0E0; margin-left: 8px"></span>Ekspor Canva
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+    </button>
+    <button class="ib" aria-label="Bantuan" style="color: #7FB2FF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.8"></path><circle cx="12" cy="17" r=".6" fill="currentColor"></circle></svg></button>
+  </div>
+
+  <!-- Bilah konteks: latar, ukuran, label -->
+  <div style="height: 42px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 0 12px; background: #2B2B2B; border-bottom: 1px solid #1E1E1E; font-size: 12.5px">
+    <span class="lbl">Latar</span>
+    <div class="row" style="gap: 5px">
+      <button class="sw" aria-label="Latar putih" style="background: #FFFFFF; box-shadow: 0 0 0 2px #2B2B2B, 0 0 0 3.5px #2F80ED"></button>
+      <button class="sw" aria-label="Latar abu" style="background: #ECEBE7"></button>
+      <button class="sw" aria-label="Latar gelap" style="background: #141414; box-shadow: inset 0 0 0 1px #555"></button>
+      <button class="sw" aria-label="Latar kuning" style="background: #F7E7A6"></button>
+      <button class="sw" aria-label="Latar transparan" style="background: repeating-conic-gradient(#BDBDBD 0 25%, #FFFFFF 0 50%) 0 0 / 8px 8px"></button>
+    </div>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <span class="lbl">Ukuran</span>
+    <div class="seg"><button class="on">128</button><button>64</button><button>32</button></div>
+    <span style="width: 1px; height: 20px; background: #3C3C3C"></span>
+    <label style="display: flex; align-items: center; gap: 8px"><input type="checkbox" checked style="width: 16px; height: 16px; accent-color: #2F80ED; margin: 0">Nama file</label>
+    <label style="display: flex; align-items: center; gap: 8px"><input type="checkbox" checked style="width: 16px; height: 16px; accent-color: #2F80ED; margin: 0">Tanda flag</label>
+    <div style="flex: 1"></div>
+    <span class="lbl">Bandingkan</span>
+    <div class="seg"><button>SVG asli</button><button class="on">Direct fill</button></div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+    <div style="width: 56px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0; background: #2B2B2B; border-right: 1px solid #1E1E1E">
+      <button class="tool on" aria-label="Pilih atau keluarkan ikon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m4 4 7 17 2.5-7.5L21 11z"></path></svg></button>
+      <button class="tool" aria-label="Lup piksel"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3M8 11h6M11 8v6"></path></svg></button>
+      <button class="tool" aria-label="Bandingkan berdampingan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5"></rect><rect x="13" y="4" width="8" height="16" rx="1.5"></rect></svg></button>
+      <span style="width: 26px; height: 1px; background: #3C3C3C; margin: 4px 0"></span>
+      <button class="tool" aria-label="Geser tampilan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-4 0v1M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"></path></svg></button>
+    </div>
+
+    <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; background: #232323">
+      <div style="height: 30px; display: flex; background: #1F1F1F; border-bottom: 1px solid #161616; font-size: 12.5px">
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: #2A2A2A; border-right: 1px solid #161616">Travel Set.icset · Lembar kontak</div>
+        <a href="Builder.dc.html" style="flex: 1; display: flex; align-items: center; justify-content: center; color: #8C8C8C; text-decoration: none">Marketing Process.manifest @ 100%</a>
+      </div>
+      <div style="flex: 1; overflow: hidden; padding: 30px 36px; display: flex; flex-direction: column; gap: 24px">
+
+        <!-- Lembar kontak -->
+        <div style="background: #FFFFFF; padding: 26px 30px 22px; display: flex; flex-direction: column; gap: 18px">
+          <div class="row" style="justify-content: space-between">
+            <span style="font-size: 20px; font-weight: 600; color: #141414">Travel Set</span>
+            <span class="mono" style="font-size: 11px; color: #6A6C74">sticker 1.1.0 · 11 ikon · 128 px</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px 14px">
+            <sc-for list="{{ sheet }}" as="s" hint-placeholder-count="11">
+              <div style="{{ s.cellStyle }}">
+                <img src="{{ s.src }}" alt="{{ s.name }}" style="width: 104px; height: 104px">
+                <span class="mono" style="font-size: 10.5px; color: #5E6068; white-space: nowrap">{{ s.file }}</span>
+                <sc-if value="{{ s.out }}" hint-placeholder-val="{{ false }}">
+                  <span style="position: absolute; top: 4px; left: 4px; height: 18px; padding: 0 6px; border-radius: 5px; background: #141414; color: #FFFFFF; font-size: 10.5px; display: flex; align-items: center">dikeluarkan</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Uji ukuran kecil -->
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+          <div style="background: #2B2B2B; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+            <span class="lbl">Uji 32 px di latar terang</span>
+            <div class="row" style="gap: 12px; padding: 10px; background: #ECEBE7; flex-wrap: wrap">
+              <sc-for list="{{ small }}" as="m" hint-placeholder-count="10"><img src="{{ m.src }}" alt="{{ m.name }}" style="width: 32px; height: 32px"></sc-for>
+            </div>
+          </div>
+          <div style="background: #2B2B2B; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+            <span class="lbl">Uji 32 px di latar gelap (halo putih tetap terlihat)</span>
+            <div class="row" style="gap: 12px; padding: 10px; background: #141414; flex-wrap: wrap">
+              <sc-for list="{{ small }}" as="m" hint-placeholder-count="10"><img src="{{ m.src }}" alt="{{ m.name }}" style="width: 32px; height: 32px"></sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex: 1 1 330px; max-width: 340px; min-width: 300px; display: flex; flex-direction: column; background: #2B2B2B; border-left: 1px solid #161616">
+      <div class="tabh"><button class="tab on">Pemeriksaan</button><button class="tab">Riwayat</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <sc-for list="{{ checks }}" as="c" hint-placeholder-count="7">
+        <div class="ck">
+          <span style="{{ c.dot }}">{{ c.mark }}</span>
+          <span style="flex: 1">{{ c.text }}</span>
+          <span class="mono" style="font-size: 11px; color: #8C8C8C">{{ c.val }}</span>
+        </div>
+      </sc-for>
+
+      <div class="tabh" style="border-top: 1px solid #1E1E1E"><button class="tab on">Metadata Canva</button><button class="tab">Kata kunci</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 9px; border-bottom: 1px solid #1E1E1E">
+        <div class="row"><span class="lbl" style="width: 76px">Artist</span><div class="seg" style="flex: 1"><button class="on" style="flex: 1">hashtagben</button><button style="flex: 1">chital</button></div></div>
+        <div class="row"><span class="lbl" style="width: 76px">Bahasa</span><div class="seg" style="flex: 1"><button class="on" style="flex: 1">EN</button><button style="flex: 1">ID</button></div></div>
+        <div class="row"><span class="lbl" style="width: 76px">Tema pack</span><span class="field" style="flex: 1">Travel Set</span></div>
+        <div class="row"><span class="lbl" style="width: 76px">Kata kunci</span><span class="field mono" style="width: 50px">15</span><span class="lbl">per ikon</span></div>
+        <div style="padding: 9px 10px; border-radius: 6px; background: #1F1F1F; box-shadow: inset 0 0 0 1px #3A3A3A; display: flex; flex-direction: column; gap: 3px">
+          <span class="lbl" style="font-size: 11px">Contoh judul</span>
+          <span style="font-size: 12.5px; color: #FFFFFF">Koper Siap Travel Set Sticker Style Icon</span>
+        </div>
+      </div>
+
+      <div class="tabh"><button class="tab on">Isi ZIP</button><button class="chev" aria-label="Ciutkan panel"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+      <div class="mono" style="flex: 1; min-height: 0; padding: 10px 14px; font-size: 11.5px; line-height: 1.75; color: #CFCFCF; overflow: hidden">
+        <div>travel-set.zip</div>
+        <div style="color: #8C8C8C">├─ <span style="color: #CFCFCF">sticker/</span> <span style="color: #6E6E6E">10 svg · direct fill</span></div>
+        <div style="color: #8C8C8C">├─ <span style="color: #CFCFCF">svg-asli/</span> <span style="color: #6E6E6E">opsional · stroke</span></div>
+        <div style="color: #8C8C8C">├─ <span style="color: #CFCFCF">metadata.csv</span></div>
+        <div style="color: #8C8C8C">├─ <span style="color: #CFCFCF">gaya.json</span> <span style="color: #6E6E6E">seed + variasi</span></div>
+        <div style="color: #8C8C8C">└─ <span style="color: #CFCFCF">pratinjau.html</span></div>
+      </div>
+      <div style="padding: 12px; border-top: 1px solid #1E1E1E; display: flex; gap: 6px">
+        <button style="flex: 1; height: 34px; border: 0; border-radius: 7px; background: #2F80ED; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Unduh ZIP Canva</button>
+        <button style="height: 34px; padding: 0 12px; border: 0; border-radius: 7px; background: #4A4A4A; color: #EDEDED; font: inherit; font-size: 12.5px; cursor: pointer">Sprite SVG</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 28px; display: flex; align-items: center; gap: 12px; padding: 0 12px; background: #1F1F1F; border-top: 1px solid #111; font-size: 12px; color: #A8A8A8">
+    <span class="mono" style="color: #CFCFCF">10 / 11 diunduh</span>
+    <span style="width: 1px; height: 16px; background: #333"></span>
+    <span><b style="color: #E6E6E6; font-weight: 600">Klik</b> ikon untuk mengeluarkan atau memasukkan kembali ke unduhan. <b style="color: #E6E6E6; font-weight: 600">Klik dua kali</b> untuk mengedit di Composer.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = [
+      ['koper-siap','64c23fcb8bacfb86fc5c1c8e5b6a49f2'],['peta-tujuan','d428de17fd6f8b57858eba8b7f3f062a'],
+      ['kamera-liburan','26b6f50711d14446a25f542de9bba41b'],['kemah-malam','53b165cf1bd3d7783148ce4de155ebb5'],
+      ['berlayar','7cc501e5168dec732f4852d704ec6fb0'],['road-trip','293e9c7f4403fdb3e5182527ef1a7ae6'],
+      ['mendaki','e7be2018693dcca43bda38fd95a47b9d'],['bus-wisata','2bb19a015465d93113b2c260fc4f0844'],
+      ['pantai','8dc9fd4343a7852872efb2698a85db70'],['tiket-pesawat','f1a37a4dfca6525ce2f15b9d5a82f208'],
+      ['kamera-foto','89a15ee992d8908928a99d807d5f9d72']
+    ];
+    const cell = 'position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 0 6px; border-radius: 6px;';
+    const sheet = S.map(([name, b]) => {
+      const out = name === 'kamera-foto';
+      return { name, src: '/_blob/' + b, file: name + '-sticker.svg', out,
+        cellStyle: cell + (out ? ' opacity: .35; box-shadow: inset 0 0 0 1.5px #C9C9C9' : '') };
+    });
+    const small = S.filter(([n]) => n !== 'kamera-foto').map(([name, b]) => ({ name, src: '/_blob/' + b }));
+    const ok = 'width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: #24452F; color: #6FD38F';
+    const warn = 'width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: #4A3A16; color: #F2B13A';
+    const checks = [
+      ['Maksimal 5 warna per SVG', '4', true],
+      ['Semua stroke jadi outline', '0 stroke', true],
+      ['Elemen di dalam viewBox 0–48', '10/10', true],
+      ['Nama file unik', '10/10', true],
+      ['Rakitan dobel dalam gaya ini', '0', true],
+      ['Mirip dalam gaya ini', 'dikeluarkan', false],
+      ['Setiap ikon punya pengubah', '10/10', true]
+    ].map(([text, val, good]) => ({ text, val, mark: good ? '✓' : '!', dot: good ? ok : warn }));
+    return { sheet, small, checks };
+  }
+}
+</script>
+</body>
+</html>

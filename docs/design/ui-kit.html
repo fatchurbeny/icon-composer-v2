@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Icon Studio · UI Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../packages/ui/tokens.css">
+<link rel="stylesheet" href="../../packages/ui/components.css">
+<style>
+  /* Gaya halaman dokumentasi ini saja (bukan bagian kit). Tetap memakai token. */
+  body { margin: 0; background: var(--ic-bg-app); }
+  .kit { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+  .kit-nav { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 24px 16px; border-right: 1px solid var(--ic-line-1); background: var(--ic-bg-status); }
+  .kit-nav h1 { font-size: 15px; margin: 0 0 4px; color: var(--ic-text-strong); }
+  .kit-nav p { margin: 0 0 18px; }
+  .kit-nav a { display: block; padding: 5px 8px; border-radius: var(--ic-r-sm); color: var(--ic-text-3); text-decoration: none; font-size: var(--ic-fs-md); }
+  .kit-nav a:hover { background: var(--ic-bg-hover); color: var(--ic-text-1); }
+  .kit-main { padding: 32px 40px 80px; min-width: 0; }
+  .kit-sec { margin-bottom: 44px; }
+  .kit-sec > h2 { font-size: 18px; font-weight: 600; margin: 0 0 4px; color: var(--ic-text-strong); }
+  .kit-sec > p { margin: 0 0 16px; color: var(--ic-text-3); max-width: 760px; }
+  .kit-demo { padding: 20px; border-radius: var(--ic-r-xl); background: var(--ic-bg-panel); box-shadow: inset 0 0 0 1px var(--ic-line-4); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .kit-demo--col { flex-direction: column; align-items: stretch; }
+  .kit-demo--canvas { background: var(--ic-bg-canvas); }
+  .kit-cap { display: flex; flex-direction: column; gap: 8px; }
+  .kit-cap > code { font-family: var(--ic-font-mono); font-size: var(--ic-fs-xs); color: var(--ic-text-4); }
+  .kit-tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .kit-token { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--ic-r-lg); background: var(--ic-bg-card); }
+  .kit-token i { width: 30px; height: 30px; border-radius: var(--ic-r-sm); box-shadow: inset 0 0 0 1px var(--ic-line-swatch); flex: none; }
+  .kit-token code { font-family: var(--ic-font-mono); font-size: 11px; color: var(--ic-text-1); display: block; }
+  .kit-token span { font-family: var(--ic-font-mono); font-size: 10.5px; color: var(--ic-text-4); }
+  .kit-frame { width: 1440px; height: 900px; overflow: hidden; border-radius: var(--ic-r-xl); box-shadow: 0 0 0 1px var(--ic-line-4); }
+  .kit-frame .ic-shell { height: 900px; min-height: 0; }
+  .kit-scroll { overflow-x: auto; padding-bottom: 8px; }
+  .kit-type div { display: flex; align-items: baseline; gap: 16px; padding: 6px 0; border-bottom: 1px solid var(--ic-line-3); }
+  .kit-type code { width: 200px; font-family: var(--ic-font-mono); font-size: 11px; color: var(--ic-text-4); flex: none; }
+</style>
+</head>
+<body>
+<div class="kit ic-app" data-persona="composer">
+  <nav class="kit-nav" aria-label="Isi UI kit">
+    <h1>Icon Studio UI Kit</h1>
+    <p class="ic-meta">v1.0 · tokens.css + components.css + components.js + icons.js</p>
+    <a href="#tokens">Token warna</a><a href="#type">Tipografi</a><a href="#persona">Persona &amp; bilah atas</a><a href="#buttons">Tombol</a>
+    <a href="#tools">Tool &amp; tombol ikon</a><a href="#tabs">Panel bertab</a><a href="#seg">Segmented</a><a href="#select">Dropdown</a>
+    <a href="#slider">Slider &amp; angka</a><a href="#check">Checkbox &amp; toggle</a><a href="#field">Field &amp; pencarian</a><a href="#chips">Chip, tag, stepper</a>
+    <a href="#flags">Lencana, flag, peringatan</a><a href="#stats">Statistik</a><a href="#rows">Baris daftar</a><a href="#tiles">Tile pustaka</a>
+    <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a>
+    <a href="#misc">Kosong, tooltip, toast</a><a href="#shell">Contoh kerangka penuh</a>
+  </nav>
+
+  <main class="kit-main">
+
+    <section class="kit-sec" id="tokens">
+      <h2>Token warna</h2>
+      <p>Satu-satunya sumber warna. Kode lain menulis <code class="ic-mono">var(--ic-…)</code>, tidak pernah hex. Daftar di bawah dibaca langsung dari tokens.css, jadi selalu sinkron.</p>
+      <div class="kit-tokens" id="tokenList"></div>
+    </section>
+
+    <section class="kit-sec" id="type">
+      <h2>Tipografi</h2>
+      <p>Instrument Sans untuk UI, Geist Mono untuk kunci ikon, angka, dan meta. Bahasa UI Indonesia, kalimat biasa, tanpa huruf kapital semua.</p>
+      <div class="kit-demo kit-demo--col kit-type">
+        <div><code>--ic-fs-xl 20 / mono</code><span class="ic-mono" style="font-size: var(--ic-fs-xl)">19</span></div>
+        <div><code>--ic-fs-lg 14 / 600</code><span style="font-size: var(--ic-fs-lg); font-weight: 600">Composer</span></div>
+        <div><code>--ic-fs-base 13</code><span>Teks dasar panel dan baris</span></div>
+        <div><code>--ic-fs-md 12.5</code><span style="font-size: var(--ic-fs-md)">Tab panel, bilah konteks, isi daftar</span></div>
+        <div><code>--ic-fs-sm 12 / text-4</code><span class="ic-label">Label field</span></div>
+        <div><code>--ic-fs-xs 10.5 / mono</code><span class="ic-meta">tb:circle-check · TR · 0.90</span></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="persona">
+      <h2>Persona &amp; bilah atas</h2>
+      <p>Persona adalah tab tingkat aplikasi. Warna persona hanya dipakai di pill aktif, titik logo, nomor langkah aktif, dan garis tombol aksi persona. Set <code class="ic-mono">data-persona</code> di elemen <code class="ic-mono">.ic-app</code>.</p>
+      <div class="kit-demo">
+        <div class="kit-cap">
+          <nav class="ic-persona-group" aria-label="Persona">
+            <a class="ic-persona" href="#" aria-current="page"><i data-icon="composer"></i>Composer</a>
+            <a class="ic-persona" href="#"><i data-icon="builder"></i>Builder</a>
+            <a class="ic-persona" href="#"><i data-icon="tinjau"></i>Tinjau</a>
+            <a class="ic-persona" href="#"><i data-icon="kombinasi"></i>Kombinasi</a>
+          </nav>
+          <code>.ic-persona-group &gt; .ic-persona[aria-current=page]</code>
+        </div>
+        <div class="kit-cap" data-persona="builder"><nav class="ic-persona-group" aria-label="Persona Builder"><a class="ic-persona" href="#" aria-current="page"><i data-icon="builder"></i>Builder</a></nav><code>data-persona="builder"</code></div>
+        <div class="kit-cap" data-persona="tinjau"><nav class="ic-persona-group" aria-label="Persona Tinjau"><a class="ic-persona" href="#" aria-current="page"><i data-icon="tinjau"></i>Tinjau</a></nav><code>data-persona="tinjau"</code></div>
+        <div class="kit-cap" data-persona="kombinasi"><nav class="ic-persona-group" aria-label="Persona Kombinasi"><a class="ic-persona" href="#" aria-current="page"><i data-icon="kombinasi"></i>Kombinasi</a></nav><code>data-persona="kombinasi"</code></div>
+      </div>
+      <div class="kit-demo" style="margin-top: 12px">
+        <div class="kit-cap"><button class="ic-actionbtn">Ekspor Canva <i data-icon="chevron-down" data-size="13"></i></button><code>.ic-actionbtn (garis cyan = ekspor)</code></div>
+        <div class="kit-cap" data-persona="kombinasi"><button class="ic-actionbtn ic-actionbtn--persona">Tambahkan 19 ke set</button><code>.ic-actionbtn--persona</code></div>
+        <div class="kit-cap"><div class="ic-doctabs" style="width: 520px"><button class="ic-doctab" aria-selected="true">Travel Set.icset @ 100%</button><button class="ic-doctab" aria-selected="false">Marketing Process.manifest @ 100%</button></div><code>.ic-doctabs &gt; .ic-doctab[aria-selected]</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="buttons">
+      <h2>Tombol</h2>
+      <p>Tiga tinggi: 24 (bilah konteks), 30 (panel), 34 (aksi utama). Satu tombol primer biru per panel.</p>
+      <div class="kit-demo">
+        <div class="kit-cap"><button class="ic-btn ic-btn--primary">Ratakan variasi</button><code>.ic-btn--primary</code></div>
+        <div class="kit-cap"><button class="ic-btn">Tinjau pasangan</button><code>.ic-btn</code></div>
+        <div class="kit-cap"><button class="ic-btn ic-btn--sm">Patokan set…</button><code>.ic-btn--sm</code></div>
+        <div class="kit-cap"><button class="ic-btn ic-btn--primary ic-btn--lg">Unduh ZIP Canva</button><code>.ic-btn--lg</code></div>
+        <div class="kit-cap"><button class="ic-btn" disabled>Nonaktif</button><code>:disabled</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="tools">
+      <h2>Tool &amp; tombol ikon</h2>
+      <p>Tool rail 56 px, tombol tool 38 px, ikon 20 px. Tombol ikon 30 px, ikon 16 px. Setiap tombol ikon wajib punya <code class="ic-mono">aria-label</code>.</p>
+      <div class="kit-demo">
+        <div class="kit-cap"><div class="ic-toolrail" style="flex-direction: row; padding: 6px; border: 0; border-radius: var(--ic-r-lg)" data-ic="single">
+          <button class="ic-tool" aria-pressed="true" aria-label="Pilih"><i data-icon="select" data-size="20"></i></button>
+          <button class="ic-tool" aria-pressed="false" aria-label="Geser"><i data-icon="move" data-size="20"></i></button>
+          <button class="ic-tool" aria-pressed="false" aria-label="Objek utama"><i data-icon="add-main" data-size="20"></i></button>
+          <button class="ic-tool" aria-pressed="false" aria-label="Pengubah"><i data-icon="add-mod" data-size="20"></i></button>
+          <button class="ic-tool" aria-pressed="false" aria-label="Dekorasi"><i data-icon="deco" data-size="20"></i></button>
+          <button class="ic-tool" aria-pressed="false" aria-label="Ambil warna"><i data-icon="eyedropper" data-size="20"></i></button>
+        </div><code>.ic-tool[aria-pressed] · data-ic="single"</code></div>
+        <div class="kit-cap"><div style="display: flex; gap: 4px">
+          <button class="ic-iconbtn" aria-label="Urungkan"><i data-icon="undo"></i></button>
+          <button class="ic-iconbtn" aria-label="Duplikat"><i data-icon="duplicate"></i></button>
+          <button class="ic-iconbtn" aria-label="Kunci variasi" aria-pressed="true"><i data-icon="lock"></i></button>
+          <button class="ic-iconbtn ic-iconbtn--help" aria-label="Bantuan"><i data-icon="help" data-size="20"></i></button>
+        </div><code>.ic-iconbtn · --help · [aria-pressed]</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="tabs">
+      <h2>Panel bertab</h2>
+      <p>Studio kanan disusun dari panel bertab yang bisa dilipat. Tab memakai <code class="ic-mono">role="tab"</code> dan panel isinya <code class="ic-mono">role="tabpanel"</code>. Panah kiri/kanan berpindah tab.</p>
+      <div class="kit-demo" style="padding: 0; overflow: hidden; width: 330px">
+        <section class="ic-panel" style="width: 330px" data-ic="tabs">
+          <div class="ic-panel__head" role="tablist" aria-label="Panel halaman">
+            <button class="ic-tab" role="tab" aria-selected="true" aria-controls="kt-a" id="kt-a-t">Halaman</button>
+            <button class="ic-tab" role="tab" aria-selected="false" aria-controls="kt-b" tabindex="-1">Lapisan</button>
+            <button class="ic-tab" role="tab" aria-selected="false" aria-controls="kt-c" tabindex="-1">Pustaka</button>
+            <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="kt-body" aria-label="Lipat panel"><i data-icon="chevron-down" data-size="13"></i></button>
+          </div>
+          <div id="kt-body">
+            <div class="ic-tabpanel ic-panel__body ic-panel__body--flush" role="tabpanel" id="kt-a">
+              <div class="ic-row" aria-selected="true"><span class="ic-row__thumb"><img src="assets/s01-koper-siap.svg" alt=""></span><span class="ic-row__name">koper-siap</span><span class="ic-meta">TR · 135°</span><i data-icon="eye"></i></div>
+              <div class="ic-row"><span class="ic-row__thumb"><img src="assets/s02-peta-tujuan.svg" alt=""></span><span class="ic-row__name">peta-tujuan</span><span class="ic-meta">TR · -135°</span><i data-icon="eye"></i></div>
+            </div>
+            <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="kt-b" hidden><span class="ic-label">Isi tab Lapisan</span></div>
+            <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="kt-c" hidden><span class="ic-label">Isi tab Pustaka</span></div>
+          </div>
+          <div class="ic-panel__foot"><button class="ic-iconbtn" aria-label="Ikon baru"><i data-icon="plus"></i></button><button class="ic-iconbtn" aria-label="Duplikat"><i data-icon="duplicate"></i></button><span class="ic-spacer"></span><button class="ic-iconbtn" aria-label="Hapus"><i data-icon="trash"></i></button></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="seg">
+      <h2>Segmented</h2>
+      <p>Pilihan tunggal 2–5 opsi pendek. Lebih dari 5 opsi atau label panjang: pakai dropdown.</p>
+      <div class="kit-demo">
+        <div class="kit-cap" style="width: 280px"><div class="ic-seg" data-ic="single"><button aria-pressed="true">Semua</button><button aria-pressed="false">Lucide</button><button aria-pressed="false">Tabler</button><button aria-pressed="false">Huge</button><button aria-pressed="false">Kustom</button></div><code>.ic-seg · data-ic="single"</code></div>
+        <div class="kit-cap"><div class="ic-seg ic-seg--inline" data-ic="single"><button aria-pressed="true">128</button><button aria-pressed="false">64</button><button aria-pressed="false">32</button></div><code>.ic-seg--inline</code></div>
+        <div class="kit-cap" style="width: 240px"><div class="ic-seg" data-ic="single"><button aria-pressed="true">Semua <span class="ic-meta">8</span></button><button aria-pressed="false"><span class="ic-tile__kind" data-kind="line" style="position: static"></span>Garis</button><button aria-pressed="false"><span class="ic-tile__kind" data-kind="fill" style="position: static"></span>Isi</button></div><code>filter Bentuk</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="select">
+      <h2>Dropdown</h2>
+      <p>Select kustom dengan <code class="ic-mono">role="listbox"</code>. Keyboard: ↓/↑ memilih, Enter memilih, Esc menutup. Untuk daftar panjang (pustaka, gaya) atau opsi berlabel panjang.</p>
+      <div class="kit-demo" style="align-items: flex-start; min-height: 190px">
+        <div class="kit-cap" style="width: 150px">
+          <div class="ic-select" data-ic="select" style="width: 100%">
+            <button class="ic-select__trigger" aria-haspopup="listbox" aria-expanded="false"><span data-label>Sticker</span></button>
+            <ul class="ic-menu" role="listbox" hidden>
+              <li class="ic-menu__item" role="option" aria-selected="false" data-value="classic">Klasik</li>
+              <li class="ic-menu__item" role="option" aria-selected="false" data-value="accent">Aksen</li>
+              <li class="ic-menu__item" role="option" aria-selected="false" data-value="offset">Offset</li>
+              <li class="ic-menu__item" role="option" aria-selected="false" data-value="hand-writing">Hand-writing</li>
+              <li class="ic-menu__item" role="option" aria-selected="true" data-value="sticker">Sticker</li>
+            </ul>
+          </div>
+          <code>.ic-select · data-ic="select"</code>
+        </div>
+        <div class="kit-cap" style="width: 180px">
+          <div class="ic-select" style="width: 100%; flex-direction: column">
+            <button class="ic-select__trigger" aria-haspopup="listbox" aria-expanded="true"><span data-label>Urutan set</span></button>
+            <ul class="ic-menu" role="listbox" style="position: static; margin-top: 4px">
+              <li class="ic-menu__item" role="option" aria-selected="true">Urutan set</li>
+              <li class="ic-menu__item" role="option" aria-selected="false" data-active="true">Nama A–Z</li>
+              <li class="ic-menu__sep" role="separator"></li>
+              <li class="ic-menu__item" role="option" aria-disabled="true">Per flag (kosong)</li>
+            </ul>
+          </div>
+          <code>keadaan terbuka</code>
+        </div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="slider">
+      <h2>Slider &amp; angka</h2>
+      <p>Slider selalu berpasangan dengan field angka yang bisa diketik. Lebar label 86 px agar baris sejajar di panel.</p>
+      <div class="kit-demo kit-demo--col" style="width: 330px">
+        <div class="ic-slider" data-ic="slider"><span class="ic-label">Tebal garis</span><input type="range" min="1.4" max="3.2" step="0.1" value="2.4" aria-label="Tebal garis"><label class="ic-field"><input value="2.4" aria-label="Tebal garis, angka"></label></div>
+        <div class="ic-slider" data-ic="slider"><span class="ic-label">Halo</span><input type="range" min="0" max="5" step="0.25" value="3.25" aria-label="Halo"><label class="ic-field"><input value="3.25" aria-label="Halo, angka"></label></div>
+        <div class="ic-formrow"><span class="ic-label">Skala</span><div class="ic-number" data-ic="number"><input type="text" inputmode="decimal" value="0.90" step="0.05" min="0.5" max="1.4" aria-label="Skala pengubah"><button data-step="-1" aria-label="Kurangi">−</button><button data-step="1" aria-label="Tambah">+</button></div><code class="ic-meta">.ic-number</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="check">
+      <h2>Checkbox &amp; toggle</h2>
+      <p>Checkbox untuk opsi yang disimpan dengan tombol lain (ekspor, filter). Toggle untuk pengaturan yang langsung berlaku.</p>
+      <div class="kit-demo">
+        <label class="ic-check"><input type="checkbox" checked>Snap ke grid</label>
+        <label class="ic-check"><input type="checkbox">Lewati yang mirip</label>
+        <span class="ic-toggle"><button class="ic-toggle__track" role="switch" aria-checked="true" data-ic="switch" aria-labelledby="tg1"></button><span id="tg1">Celah knockout</span></span>
+        <span class="ic-toggle"><button class="ic-toggle__track" role="switch" aria-checked="false" data-ic="switch" aria-labelledby="tg2"></button><span id="tg2">Latar gelap</span></span>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="field">
+      <h2>Field &amp; pencarian</h2>
+      <div class="kit-demo kit-demo--col" style="width: 330px">
+        <label class="ic-field ic-field--search"><i data-icon="search" data-size="13"></i><input value="camera" aria-label="Cari ikon"><span class="ic-meta">8 hasil</span></label>
+        <div class="ic-formrow"><span class="ic-label">id</span><label class="ic-field ic-field--mono" style="flex: 1"><input value="scan-market" aria-label="id ikon"></label></div>
+        <div class="ic-formrow"><span class="ic-label">Nama EN</span><label class="ic-field" style="flex: 1"><input value="Scan the market" aria-label="Nama EN"></label></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="chips">
+      <h2>Chip, tag, stepper</h2>
+      <div class="kit-demo">
+        <div class="kit-cap"><div style="display: flex; gap: 6px" data-ic="single"><button class="ic-chip" aria-pressed="true">Semua <span class="ic-meta">24</span></button><button class="ic-chip" aria-pressed="false">Bermasalah <span class="ic-meta">3</span></button><button class="ic-chip" aria-pressed="false">Ekstra <span class="ic-meta">0</span></button></div><code>.ic-chip</code></div>
+        <div class="kit-cap"><div style="display: flex; gap: 4px"><span class="ic-tag">market</span><span class="ic-tag">scan</span><span class="ic-tag">research</span></div><code>.ic-tag</code></div>
+        <div class="kit-cap" data-persona="builder"><ol class="ic-steps"><li class="ic-step" data-state="done"><span class="ic-step__n">✓</span>Impor</li><li class="ic-steps__line" aria-hidden="true"></li><li class="ic-step" aria-current="step"><span class="ic-step__n">2</span>Periksa</li><li class="ic-steps__line" aria-hidden="true"></li><li class="ic-step"><span class="ic-step__n">3</span>Ekspor</li></ol><code>.ic-steps (warna langkah aktif = persona)</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="flags">
+      <h2>Lencana sumber, flag, peringatan</h2>
+      <p>Warna status tetap: merah = err (memblokir ekspor), kuning = warn (mirip), hijau = ok, abu = info. Teks flag selalu kata, bukan hanya warna.</p>
+      <div class="kit-demo">
+        <div class="kit-cap"><div style="display: flex; gap: 6px"><span class="ic-src" data-src="lu">lu</span><span class="ic-src" data-src="tb">tb</span><span class="ic-src" data-src="hg">hg</span><span class="ic-src" data-src="cu">cu</span></div><code>.ic-src[data-src]</code></div>
+        <div class="kit-cap"><div style="display: flex; gap: 6px"><span class="ic-flag" data-level="err">dobel</span><span class="ic-flag" data-level="warn">Mirip</span><span class="ic-flag" data-level="ok">siap</span><span class="ic-flag" data-level="info">di set</span></div><code>.ic-flag[data-level]</code></div>
+      </div>
+      <div class="kit-demo kit-demo--col" style="margin-top: 12px; width: 330px">
+        <div class="ic-alert" data-level="err"><span class="ic-dot" data-level="err"></span>write-brief = client-brief<span class="ic-alert__meta">dobel</span></div>
+        <div class="ic-alert" data-level="warn"><span class="ic-dot" data-level="warn"></span>set-goals ≈ find-audience<span class="ic-alert__meta">IoU 0.84</span></div>
+        <div class="ic-alert" data-level="ok"><i data-icon="check" data-size="13"></i>Direct fill: semua stroke jadi outline, ≤5 warna</div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="stats">
+      <h2>Statistik</h2>
+      <div class="kit-demo" style="width: 330px; display: block"><div class="ic-stats"><div class="ic-stat" data-level="ok"><div class="ic-stat__n">0</div><div class="ic-stat__l">Rakitan dobel</div></div><div class="ic-stat" data-level="warn"><div class="ic-stat__n">1</div><div class="ic-stat__l">Mirip</div></div><div class="ic-stat"><div class="ic-stat__n">4</div><div class="ic-stat__l">Warna maks</div></div></div></div>
+    </section>
+
+    <section class="kit-sec" id="rows">
+      <h2>Baris daftar</h2>
+      <p>Baris halaman dan lapisan 42 px. Baris checklist dan pool 34 px. Baris terpilih memakai <code class="ic-mono">aria-selected="true"</code>.</p>
+      <div class="kit-demo" style="padding: 0; width: 330px; display: block; overflow: hidden">
+        <div class="ic-list" role="listbox" aria-label="Lapisan">
+          <div class="ic-row" role="option" aria-selected="true"><i data-icon="chevron-right" data-size="13"></i><span class="ic-row__thumb"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ic-text-on-light)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m16 9-5.5 5.5L8 12"></path></svg></span><span class="ic-row__name">Pengubah<span class="ic-row__sub">tb:circle-check · TR · 0.90</span></span><i data-icon="unlock"></i><i data-icon="eye"></i></div>
+          <div class="ic-row" role="option" aria-selected="false"><i data-icon="chevron-right" data-size="13"></i><span class="ic-row__thumb"><img src="assets/s01-koper-siap.svg" alt=""></span><span class="ic-row__name">Objek utama<span class="ic-row__sub">lu:luggage · 1.80</span></span><i data-icon="unlock"></i><i data-icon="eye"></i></div>
+        </div>
+        <div class="ic-row ic-row--sm"><label class="ic-check"><input type="checkbox" checked></label><span class="ic-src" data-src="tb">tb</span><span class="ic-row__name ic-mono">tb:camera</span><span class="ic-dot" style="background: #5AA9F8" aria-hidden="true"></span></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="tiles">
+      <h2>Tile pustaka</h2>
+      <p>Kotak kiri atas: bentuk ikon (penuh = punya bidang isi, garis = garis saja). Lingkaran kanan atas: sudah di pool. Pita bawah: mirip ikon lain.</p>
+      <div class="kit-demo" style="width: 300px; display: block"><div class="ic-tilegrid">
+        <button class="ic-tile" data-similar="true" aria-label="lu:camera"><img src="assets/l-lu-camera.svg" alt=""><span class="ic-tile__kind" data-kind="fill"></span><span class="ic-tile__note">≈ tb:camera</span></button>
+        <button class="ic-tile" aria-label="lu:camera-off"><img src="assets/l-lu-camera-off.svg" alt=""><span class="ic-tile__kind" data-kind="line"></span></button>
+        <button class="ic-tile" data-in-pool="true" aria-label="tb:camera"><img src="assets/l-tb-camera.svg" alt=""><span class="ic-tile__kind" data-kind="fill"></span><span class="ic-tile__check">✓</span></button>
+        <button class="ic-tile" data-ic="press" aria-pressed="false" aria-label="tb:camera-plus"><img src="assets/l-tb-camera-plus.svg" alt=""><span class="ic-tile__kind" data-kind="line"></span></button>
+      </div></div>
+    </section>
+
+    <section class="kit-sec" id="pages">
+      <h2>Halaman ikon</h2>
+      <p>Satu ikon = satu halaman di kanvas. Kartu 116 px, ikon 100 px, label di atas. Terpilih: cincin biru 2 px + handle sudut.</p>
+      <div class="kit-demo kit-demo--canvas"><div class="ic-pagegrid" style="grid-template-columns: repeat(5, 116px)">
+        <div class="ic-page"><span class="ic-page__label">koper-siap</span><button class="ic-page__card" aria-selected="true" aria-label="koper-siap"><img src="assets/s01-koper-siap.svg" alt=""></button></div>
+        <div class="ic-page"><span class="ic-page__label">peta-tujuan</span><button class="ic-page__card" aria-selected="false" aria-label="peta-tujuan"><img src="assets/s02-peta-tujuan.svg" alt=""></button></div>
+        <div class="ic-page"><span class="ic-page__label">kamera-foto</span><button class="ic-page__card" aria-selected="false" aria-label="kamera-foto, mirip"><img src="assets/s11-kamera-foto.svg" alt=""><span class="ic-flag" data-level="warn">Mirip</span></button></div>
+        <div class="ic-page ic-page--new"><span class="ic-page__label">Ikon baru</span><button class="ic-page__card" aria-label="Tambah ikon baru"><i data-icon="plus" data-size="20"></i></button></div>
+        <div class="ic-page ic-page--ghost"><span class="ic-page__label">koper-bintang</span><div class="ic-page__card">saran</div></div>
+      </div></div>
+    </section>
+
+    <section class="kit-sec" id="engines">
+      <h2>Kartu gaya</h2>
+      <p>Lima mesin selalu tampil dalam urutan ini: Klasik, Aksen, Offset, Hand-writing, Sticker.</p>
+      <div class="kit-demo" style="width: 330px; display: block"><div class="ic-engines" data-ic="single">
+        <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-classic.svg" alt=""></span>Klasik</button>
+        <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-accent.svg" alt=""></span>Aksen</button>
+        <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-offset.svg" alt=""></span>Offset</button>
+        <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-hand.svg" alt=""></span>Hand-wr.</button>
+        <button class="ic-engine" aria-pressed="true"><span class="ic-engine__pv"><img src="assets/e-sticker.svg" alt=""></span>Sticker</button>
+      </div></div>
+    </section>
+
+    <section class="kit-sec" id="matrix">
+      <h2>Sel matriks kombinasi</h2>
+      <p>Lima keadaan: <code class="ic-mono">on</code>, <code class="ic-mono">exists</code>, <code class="ic-mono">similar</code>, <code class="ic-mono">library</code>, <code class="ic-mono">skipped</code>.</p>
+      <div class="kit-demo kit-demo--canvas"><div style="display: grid; grid-template-columns: repeat(5, 130px); gap: 8px">
+        <button class="ic-cell" data-state="on" aria-label="Dipilih"><img src="assets/c01.svg" alt=""></button>
+        <button class="ic-cell" data-state="exists" aria-label="Sudah di set"><img src="assets/c00.svg" alt=""><span class="ic-flag">di set</span></button>
+        <button class="ic-cell" data-state="similar" aria-label="Mirip"><img src="assets/c20.svg" alt=""><span class="ic-flag" data-level="warn">≈ tb:camera</span></button>
+        <button class="ic-cell" data-state="library" aria-label="Sama dengan ikon pustaka"><img src="assets/c33.svg" alt=""><span class="ic-flag" data-level="err">= Lucide map-pin</span></button>
+        <button class="ic-cell" data-state="skipped" aria-label="Dilewati"><img src="assets/c02.svg" alt=""><span class="ic-flag">dilewati</span></button>
+      </div></div>
+    </section>
+
+    <section class="kit-sec" id="pickers">
+      <h2>Swatch &amp; posisi pengubah</h2>
+      <div class="kit-demo">
+        <div class="kit-cap"><div class="ic-swatches" data-ic="single"><button class="ic-swatch ic-swatch--round" aria-pressed="true" style="background: #17171B" aria-label="Tinta hitam"></button><button class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #2B3A67" aria-label="Tinta biru tua"></button><button class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #5A2E1F" aria-label="Tinta cokelat"></button></div><code>.ic-swatch (warna isi = data, boleh inline)</code></div>
+        <div class="kit-cap"><div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah"><button aria-pressed="false" aria-label="TL"></button><button aria-pressed="false" aria-label="TC"></button><button aria-pressed="true" aria-label="TR"></button><button aria-pressed="false" aria-label="ML"></button><button disabled aria-label="Tengah"></button><button aria-pressed="false" aria-label="MR"></button><button aria-pressed="false" aria-label="BL"></button><button aria-pressed="false" aria-label="BC"></button><button aria-pressed="false" aria-label="BR"></button></div><code>.ic-anchor 3×3 (classic, accent, hand-writing)</code></div>
+        <div class="kit-cap"><div class="ic-anchor" style="--ic-anchor-cols: 2" data-ic="single" role="group" aria-label="Posisi pengubah sticker"><button aria-pressed="false" aria-label="TL"></button><button aria-pressed="true" aria-label="TR"></button><button aria-pressed="false" aria-label="BL"></button><button aria-pressed="false" aria-label="BR"></button></div><code>2×2 (sticker)</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="misc">
+      <h2>Kosong, tooltip, toast</h2>
+      <div class="kit-demo" style="align-items: flex-start">
+        <div class="kit-cap" style="width: 260px"><div class="ic-empty">Belum ada ikon kustom untuk "camera".<button class="ic-btn ic-btn--sm" style="align-self: flex-start">Impor dari Figma…</button></div><code>.ic-empty</code></div>
+        <div class="kit-cap"><span class="ic-tooltip" style="position: static">X 35.25  Y 12.75</span><code>.ic-tooltip (koordinat kanvas)</code></div>
+        <div class="kit-cap"><span class="ic-toast" style="position: static; transform: none">ZIP diunduh</span><code>.ic-toast</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="shell">
+      <h2>Contoh kerangka penuh · Composer · Set</h2>
+      <p>Dibangun hanya dari kelas kit. Gunakan sebagai acuan presisi ukuran: bilah atas 56, konteks 42, tab dokumen 30, kepala panel 34, status 28, tool rail 56, studio 330.</p>
+      <div class="kit-scroll"><div class="kit-frame">
+        <div class="ic-shell ic-app" data-persona="composer">
+          <header class="ic-topbar">
+            <svg class="ic-logo" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="6" width="18" height="18" rx="5" fill="none" stroke="var(--ic-text-strong)" stroke-width="2.6"></rect><circle class="ic-logo__dot" cx="22" cy="8" r="6" stroke="var(--ic-bg-app)" stroke-width="2.4"></circle></svg>
+            <nav class="ic-persona-group" aria-label="Persona"><a class="ic-persona" href="#" aria-current="page"><i data-icon="composer"></i>Composer</a><a class="ic-persona" href="#"><i data-icon="builder"></i>Builder</a><a class="ic-persona" href="#"><i data-icon="tinjau"></i>Tinjau</a><a class="ic-persona" href="#"><i data-icon="kombinasi"></i>Kombinasi</a></nav>
+            <button class="ic-iconbtn" aria-label="Menu lain"><i data-icon="more"></i></button>
+            <div class="ic-persona-group" data-ic="single"><button class="ic-iconbtn" aria-pressed="false" aria-label="Mode satu ikon"><i data-icon="view-single"></i></button><button class="ic-iconbtn" aria-pressed="true" aria-label="Mode ikhtisar halaman"><i data-icon="view-pages"></i></button></div>
+            <span class="ic-spacer"></span>
+            <span class="ic-topbar__info">Sticker 1.1.0</span><span class="ic-sep"></span><span class="ic-topbar__info ic-mono" style="font-size: var(--ic-fs-sm)">11 ikon · 48 × 48 · 4 warna</span><span class="ic-sep"></span>
+            <button class="ic-iconbtn" aria-label="Urungkan"><i data-icon="undo"></i></button>
+            <button class="ic-actionbtn">Ekspor Canva <i data-icon="chevron-down" data-size="13"></i></button>
+            <button class="ic-iconbtn ic-iconbtn--help" aria-label="Bantuan"><i data-icon="help" data-size="20"></i></button>
+          </header>
+          <div class="ic-context">
+            <span>1 dipilih</span><span class="ic-sep"></span>
+            <label class="ic-check"><input type="checkbox" checked>Snap ke grid</label><span class="ic-sep"></span>
+            <button class="ic-btn ic-btn--sm">Patokan set…</button><button class="ic-btn ic-btn--sm">Pengaturan app…</button><span class="ic-sep"></span>
+            <span class="ic-label">Urut</span>
+            <div class="ic-select" data-ic="select" style="width: 124px"><button class="ic-select__trigger" aria-haspopup="listbox" aria-expanded="false"><span data-label>Urutan set</span></button><ul class="ic-menu" role="listbox" hidden><li class="ic-menu__item" role="option" aria-selected="true">Urutan set</li><li class="ic-menu__item" role="option" aria-selected="false">Nama A–Z</li></ul></div>
+            <span class="ic-spacer"></span>
+            <button class="ic-iconbtn" aria-label="Pengaturan"><i data-icon="settings"></i></button>
+          </div>
+          <aside class="ic-toolrail" aria-label="Alat" data-ic="single">
+            <button class="ic-tool" aria-pressed="true" aria-label="Pilih"><i data-icon="select" data-size="20"></i></button>
+            <button class="ic-tool" aria-pressed="false" aria-label="Geser"><i data-icon="move" data-size="20"></i></button>
+            <span class="ic-toolrail__sep"></span>
+            <button class="ic-tool" aria-pressed="false" aria-label="Objek utama"><i data-icon="add-main" data-size="20"></i></button>
+            <button class="ic-tool" aria-pressed="false" aria-label="Pengubah"><i data-icon="add-mod" data-size="20"></i></button>
+            <button class="ic-tool" aria-pressed="false" aria-label="Dekorasi"><i data-icon="deco" data-size="20"></i></button>
+            <button class="ic-tool" aria-pressed="false" aria-label="Kombinasi massal"><i data-icon="combine" data-size="20"></i></button>
+            <span class="ic-toolrail__sep"></span>
+            <button class="ic-tool" aria-pressed="false" aria-label="Ambil warna"><i data-icon="eyedropper" data-size="20"></i></button>
+            <button class="ic-tool" aria-pressed="false" aria-label="Geser tampilan"><i data-icon="hand" data-size="20"></i></button>
+            <button class="ic-tool" aria-pressed="false" aria-label="Perbesar"><i data-icon="zoom" data-size="20"></i></button>
+          </aside>
+          <main class="ic-workspace">
+            <div class="ic-doctabs" role="tablist"><button class="ic-doctab" role="tab" aria-selected="true">Travel Set.icset @ 100%</button><button class="ic-doctab" role="tab" aria-selected="false">Marketing Process.manifest @ 100%</button></div>
+            <div class="ic-canvas">
+              <div class="ic-pagegrid">
+                <div class="ic-page"><span class="ic-page__label">koper-siap</span><button class="ic-page__card" aria-selected="true"><img src="assets/s01-koper-siap.svg" alt="koper-siap"></button></div>
+                <div class="ic-page"><span class="ic-page__label">peta-tujuan</span><button class="ic-page__card" aria-selected="false"><img src="assets/s02-peta-tujuan.svg" alt="peta-tujuan"></button></div>
+                <div class="ic-page"><span class="ic-page__label">kamera-liburan</span><button class="ic-page__card" aria-selected="false"><img src="assets/s03-kamera-liburan.svg" alt="kamera-liburan"></button></div>
+                <div class="ic-page"><span class="ic-page__label">kemah-malam</span><button class="ic-page__card" aria-selected="false"><img src="assets/s04-kemah-malam.svg" alt="kemah-malam"></button></div>
+                <div class="ic-page"><span class="ic-page__label">berlayar</span><button class="ic-page__card" aria-selected="false"><img src="assets/s05-berlayar.svg" alt="berlayar"></button></div>
+                <div class="ic-page"><span class="ic-page__label">road-trip</span><button class="ic-page__card" aria-selected="false"><img src="assets/s06-road-trip.svg" alt="road-trip"></button></div>
+                <div class="ic-page"><span class="ic-page__label">kamera-foto</span><button class="ic-page__card" aria-selected="false"><img src="assets/s11-kamera-foto.svg" alt="kamera-foto"><span class="ic-flag" data-level="warn">Mirip</span></button></div>
+                <div class="ic-page ic-page--new"><span class="ic-page__label">Ikon baru</span><button class="ic-page__card" aria-label="Tambah ikon baru"><i data-icon="plus" data-size="20"></i></button></div>
+              </div>
+            </div>
+          </main>
+          <aside class="ic-studio" aria-label="Studio">
+            <section class="ic-panel">
+              <div class="ic-panel__head" role="tablist"><button class="ic-tab" role="tab" aria-selected="true">Gaya</button><button class="ic-tab" role="tab" aria-selected="false">Warna</button><button class="ic-panel__collapse" aria-expanded="true" aria-label="Lipat panel"><i data-icon="chevron-down" data-size="13"></i></button></div>
+              <div class="ic-panel__body">
+                <div class="ic-engines" data-ic="single">
+                  <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-classic.svg" alt=""></span>Klasik</button>
+                  <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-accent.svg" alt=""></span>Aksen</button>
+                  <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-offset.svg" alt=""></span>Offset</button>
+                  <button class="ic-engine" aria-pressed="false"><span class="ic-engine__pv"><img src="assets/e-hand.svg" alt=""></span>Hand-wr.</button>
+                  <button class="ic-engine" aria-pressed="true"><span class="ic-engine__pv"><img src="assets/e-sticker.svg" alt=""></span>Sticker</button>
+                </div>
+                <div class="ic-slider" data-ic="slider"><span class="ic-label">Tebal garis</span><input type="range" min="1.4" max="3.2" step="0.1" value="2.4" aria-label="Tebal garis"><label class="ic-field"><input value="2.4" aria-label="Tebal garis, angka"></label></div>
+                <div class="ic-slider" data-ic="slider"><span class="ic-label">Halo</span><input type="range" min="0" max="5" step="0.25" value="3.25" aria-label="Halo"><label class="ic-field"><input value="3.25" aria-label="Halo, angka"></label></div>
+              </div>
+            </section>
+            <section class="ic-panel ic-panel--grow">
+              <div class="ic-panel__head" role="tablist"><button class="ic-tab" role="tab" aria-selected="true">Halaman</button><button class="ic-tab" role="tab" aria-selected="false">Lapisan</button><button class="ic-tab" role="tab" aria-selected="false">Pustaka</button><button class="ic-tab" role="tab" aria-selected="false">Pool</button><button class="ic-panel__collapse" aria-expanded="true" aria-label="Lipat panel"><i data-icon="chevron-down" data-size="13"></i></button></div>
+              <div class="ic-panel__body ic-panel__body--flush">
+                <div class="ic-row" aria-selected="true"><span class="ic-row__thumb"><img src="assets/s01-koper-siap.svg" alt=""></span><span class="ic-row__name">koper-siap</span><span class="ic-meta">TR · 135°</span><i data-icon="eye"></i></div>
+                <div class="ic-row"><span class="ic-row__thumb"><img src="assets/s02-peta-tujuan.svg" alt=""></span><span class="ic-row__name">peta-tujuan</span><span class="ic-meta">TR · -135°</span><i data-icon="eye"></i></div>
+                <div class="ic-row"><span class="ic-row__thumb"><img src="assets/s03-kamera-liburan.svg" alt=""></span><span class="ic-row__name">kamera-liburan</span><span class="ic-meta">TR · 45°</span><i data-icon="eye"></i></div>
+              </div>
+              <div class="ic-panel__foot"><button class="ic-iconbtn" aria-label="Ikon baru"><i data-icon="plus"></i></button><button class="ic-iconbtn" aria-label="Duplikat"><i data-icon="duplicate"></i></button><button class="ic-iconbtn" aria-label="Acak ulang"><i data-icon="dice"></i></button><span class="ic-spacer"></span><button class="ic-iconbtn" aria-label="Hapus"><i data-icon="trash"></i></button></div>
+            </section>
+            <section class="ic-panel">
+              <div class="ic-panel__head" role="tablist"><button class="ic-tab" role="tab" aria-selected="true">Repetisi</button><button class="ic-tab" role="tab" aria-selected="false">Riwayat</button><button class="ic-panel__collapse" aria-expanded="true" aria-label="Lipat panel"><i data-icon="chevron-down" data-size="13"></i></button></div>
+              <div class="ic-panel__body">
+                <div class="ic-stats"><div class="ic-stat" data-level="ok"><div class="ic-stat__n">0</div><div class="ic-stat__l">Rakitan dobel</div></div><div class="ic-stat" data-level="warn"><div class="ic-stat__n">1</div><div class="ic-stat__l">Mirip</div></div><div class="ic-stat"><div class="ic-stat__n">4</div><div class="ic-stat__l">Warna maks</div></div></div>
+                <div class="ic-alert" data-level="warn"><span class="ic-dot" data-level="warn"></span>kamera-foto ≈ kamera-liburan<span class="ic-alert__meta">IoU 0.93</span></div>
+                <div style="display: flex; gap: 6px"><button class="ic-btn ic-btn--primary" style="flex: 1">Ratakan variasi</button><button class="ic-btn" style="flex: 1">Tinjau pasangan</button></div>
+              </div>
+            </section>
+          </aside>
+          <footer class="ic-statusbar"><span class="ic-field ic-mono" style="height: 20px">1 dari 11</span><span class="ic-sep" style="height: 16px"></span><span><b>Klik</b> halaman untuk memilih. <b>Klik dua kali</b> untuk mengedit ikon. <b>Seret</b> untuk mengubah urutan set.</span></footer>
+        </div>
+      </div></div>
+    </section>
+  </main>
+</div>
+<script src="../../packages/ui/icons.js"></script>
+<script src="../../packages/ui/components.js"></script>
+<script>
+  // Daftar token warna dibaca langsung dari tokens.css.
+  (function () {
+    // getComputedStyle dipakai karena cssRules tidak bisa dibaca dari file:// di Chrome.
+    const cs = getComputedStyle(document.documentElement), names = [];
+    for (const p of cs) { const v = cs.getPropertyValue(p).trim(); if (p.startsWith('--ic-') && v.startsWith('#')) names.push([p, v]); }
+    names.sort((a, b) => a[0].localeCompare(b[0]));
+    const list = document.getElementById('tokenList');
+    list.innerHTML = names.map(([n, v]) => '<div class="kit-token"><i style="background: var(' + n + ')"></i><div><code>' + n + '</code><span>' + v + '</span></div></div>').join('');
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Template Icon Builder · v1.5.0</title>
+<link rel="icon" type="image/svg+xml" href="template-icon-builder-favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Template Icon Builder: manifest in, Canva-ready icon pack out. Three steps, style from Icon Composer (3 color modes). */
+:root{
+  --bg:#0C0D0F; --bar:#101114; --panel:#121316; --raised:#17181C; --hover:#1D1E22;
+  --line:#23252A; --line2:#2A2C32; --line3:#3A3C44;
+  --fg:#EDEDEF; --fg2:#B4B6BE; --muted:#8B8D96; --dim:#4A4C54;
+  --sel:#3A57E8; --paper:#FFFFFF; --paper2:#F4F4F1;
+  --ok:#9FD36B; --ok-bg:#17240F; --warn:#F2D58A; --warn-bg:#2A2312; --err:#FF9A8A; --err-bg:#2C1512;
+  --f:"Geist","Helvetica Neue",Arial,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f);font-size:13px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
+input[type=checkbox]{accent-color:#fff;width:16px;height:16px;margin:0}
+.app{min-height:100vh;display:flex;flex-direction:column}
+header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bar);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand b{font-weight:600;font-size:14px;display:block}
+.sub{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+.steps{display:flex;gap:4px;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:3px}
+.steps button{height:30px;border:0;border-radius:7px;background:transparent;color:var(--fg2);padding:0 12px;font-weight:500;display:flex;align-items:center;gap:8px}
+.steps button i{font-style:normal;font-family:var(--mono);font-size:11px;width:18px;height:18px;border-radius:50%;border:1px solid var(--line3);display:grid;place-items:center}
+.steps button[aria-pressed="true"]{background:var(--fg);color:var(--bg)} .steps button[aria-pressed="true"] i{border-color:var(--bg)}
+.steps button:disabled{opacity:.4;cursor:default}
+.btn{height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--line2);background:var(--raised);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.btn:hover{border-color:var(--line3)} .btn:disabled{opacity:.45;cursor:default}
+.btn.pri{background:#fff;color:var(--bg);border-color:#fff;font-weight:600}
+.btn.sm{height:28px;padding:0 10px;font-size:12px;border-radius:8px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{height:28px;border:0;border-radius:7px;background:transparent;color:var(--fg2);font-weight:500;padding:0 10px;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.cap{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.view{flex:1;display:flex;flex-wrap:wrap;align-items:stretch;min-height:0}
+.main{flex:999 1 560px;min-width:0;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.side.l{border-left:0;border-right:1px solid var(--line)}
+.center{flex:999 1 520px;min-width:0;display:flex;flex-direction:column}
+.stage{display:flex;justify-content:center;padding:20px 20px 16px;background-image:radial-gradient(#1C1D21 1px,transparent 1px);background-size:18px 18px}
+.bwrap{width:100%;max-width:360px;display:flex;flex-direction:column;gap:8px}
+.board{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#fff;background-image:linear-gradient(rgba(26,26,26,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,26,26,.06) 1px,transparent 1px);background-size:2.0833% 2.0833%;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.board .keyline{position:absolute;inset:4.17%;border:1px dashed rgba(26,26,26,.16);pointer-events:none}
+.bart,.board>svg{position:absolute;inset:0;width:100%;height:100%}
+.bart svg{width:100%;height:100%}
+.ov{touch-action:none}
+.setpane{border-top:1px solid var(--line);background:var(--bar);padding:12px 16px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:220px}
+.one{aspect-ratio:1;border-radius:8px;background:var(--paper);display:grid;place-items:center}
+.one svg{width:70%;height:70%}
+.rng{display:flex;flex-direction:column;gap:6px}
+input[type=range]{accent-color:#fff;width:100%;margin:0}
+.nudge{display:flex;gap:6px}
+.nudge button{width:36px;height:32px;border-radius:8px;border:1px solid var(--line2);background:var(--raised);color:var(--fg2)}
+.side{flex:1 1 320px;min-width:0;background:var(--panel);border-left:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:16px;position:relative}
+h1{font-size:22px;font-weight:600;letter-spacing:-.01em;margin:0}
+h2{font-size:15px;font-weight:600;margin:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+textarea.code{width:100%;min-height:300px;resize:vertical;background:var(--bar);border:1px solid var(--line2);border-radius:10px;padding:12px;font-family:var(--mono);font-size:12px;line-height:1.5}
+.drop{border:1.5px dashed var(--line3);border-radius:12px;padding:18px;text-align:center;color:var(--fg2);cursor:pointer;background:var(--bar)}
+.drop.on{border-color:#fff;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.stat{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.issues{display:flex;flex-direction:column;gap:6px}
+.iss{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--raised)}
+.iss .dot{flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;margin-top:1px}
+.dot.err{background:var(--err-bg);color:var(--err)} .dot.warn{background:var(--warn-bg);color:var(--warn)} .dot.ok{background:var(--ok-bg);color:var(--ok)}
+.iss .t{flex:1;min-width:0} .iss .t b{font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.chipb{height:28px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--fg2);padding:0 12px;font-size:12px}
+.chipb[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.ic{position:relative;display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--panel);text-align:left;min-width:0}
+.ic[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 1px #fff}
+.ic.off{opacity:.45}
+.pair{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.pair span{aspect-ratio:1;border-radius:8px;background:var(--paper);display:grid;place-items:center}
+.pair svg{width:76%;height:76%}
+.ic .id{font-family:var(--mono);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic .nm{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badges{display:flex;flex-wrap:wrap;gap:4px}
+.bdg{font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:999px;border:1px solid var(--line2);color:var(--fg2)}
+.bdg.err{border-color:transparent;background:var(--err-bg);color:var(--err)} .bdg.warn{border-color:transparent;background:var(--warn-bg);color:var(--warn)} .bdg.ok{border-color:transparent;background:var(--ok-bg);color:var(--ok)}
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.prow{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:9px;border:1px solid var(--line);background:var(--raised)}
+.prow .pt2{width:34px;height:34px;flex:none;border-radius:7px;background:var(--paper);display:grid;place-items:center}
+.prow .seg{flex:1}
+.prow .seg button{font-size:10.5px;padding:0 2px;height:26px}
+.plist{display:flex;flex-direction:column;gap:4px;max-height:236px;overflow:auto}
+.accbox{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bar)}
+.seg.sm button{font-size:12px;padding:0 4px}
+#bOv .hp{cursor:pointer}
+#bOv .hp:hover{stroke:rgba(58,87,232,.55)!important}
+#bOv .hp.cl:hover{fill:rgba(58,87,232,.12)!important}
+.big figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.big .pv{aspect-ratio:1;border-radius:12px;background:var(--paper);display:grid;place-items:center;background-image:linear-gradient(rgba(26,26,26,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(26,26,26,.05) 1px,transparent 1px);background-size:4.1667% 4.1667%}
+.big .pv svg{width:82%;height:82%}
+.big figcaption{font-size:12px;color:var(--muted)}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--fg2)}
+.inp{height:34px;border:1px solid var(--line2);border-radius:9px;background:var(--bar);padding:0 10px;width:100%;min-width:0}
+.creator-select{position:relative;width:100%}.creator-trigger{height:38px;width:100%;border:1px solid var(--line2);border-radius:9px;background:var(--bar);color:var(--fg);padding:0 38px 0 11px;text-align:left;position:relative}.creator-trigger i{position:absolute;right:14px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);transition:transform .16s}.creator-select.open .creator-trigger{border-color:#777982;box-shadow:0 0 0 3px rgba(255,255,255,.08)}.creator-select.open .creator-trigger i{transform:translateY(-25%) rotate(225deg)}.creator-menu{position:absolute;z-index:50;top:calc(100% + 6px);left:0;right:0;padding:5px;background:var(--raised);border:1px solid var(--line2);border-radius:10px;box-shadow:0 18px 45px rgba(0,0,0,.45)}.creator-menu button{width:100%;min-height:48px;border:0;border-radius:7px;background:transparent;color:var(--fg);padding:8px 10px;display:flex;align-items:center;justify-content:space-between;text-align:left}.creator-menu button:hover,.creator-menu button:focus-visible{background:var(--bar);outline:none}.creator-menu button[aria-selected="true"]{background:var(--fg);color:var(--bg)}.creator-menu span{display:flex;flex-direction:column;gap:2px}.creator-menu b{font-size:13px}.creator-menu small{font-size:11px;color:var(--muted)}.creator-menu button[aria-selected="true"] small{color:#5e6068}.creator-menu em{font-style:normal;font-weight:800;opacity:0}.creator-menu button[aria-selected="true"] em{opacity:1}#exKwSelect{width:88px;flex:0 0 88px}#exKwSelect .creator-menu button{min-height:38px;padding:7px 10px}#exKwSelect .creator-menu b{font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.slots{display:grid;grid-template-columns:repeat(3,36px);gap:4px}
+.slots button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line2);background:var(--raised);color:var(--fg2)}
+.slots button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.slots button:disabled{opacity:.2}
+.part{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--raised)}
+.part .th{width:40px;height:40px;flex:none;border-radius:8px;background:var(--paper);display:grid;place-items:center}
+.part .th svg{width:70%;height:70%}
+.part .tx{flex:1;min-width:0} .part .tx b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick{display:flex;flex-direction:column;gap:8px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;padding:2px;align-content:start}
+.psources{grid-template-columns:repeat(3,minmax(0,1fr))}
+.psources button{min-width:0;padding-left:5px;padding-right:5px;overflow:hidden;text-overflow:ellipsis}
+.pbody{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pbody button{font-size:11px;padding:0 5px}
+.pt{aspect-ratio:1;border-radius:9px;border:1px solid var(--line2);background:var(--paper2);color:#2A2C32;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;min-width:0}
+.pt svg{width:52%;height:52%} .pt span{font-size:9.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt.hit{outline:2px solid var(--err);outline-offset:-2px}
+.sheet{background:#fff;border-radius:14px;padding:28px;color:#141414}
+.sheet .rg{display:grid;gap:18px 12px}
+.sheet .cell{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.sheet .cell svg{width:100%;max-width:72px;height:auto;aspect-ratio:1}
+.sheet .cell span{font-family:var(--mono);font-size:10px;color:#5E6068;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--fg2);background:var(--bar);border:1px solid var(--line);border-radius:10px;padding:10px 12px;white-space:pre;overflow:auto;max-height:220px}
+.optrow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#fff;color:var(--bg);font-weight:500;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.empty{padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line2);border-radius:12px}
+@media (min-width:1100px){
+  html,body{height:100%;overflow:hidden}
+  .app{height:100vh}
+  .view{flex-wrap:nowrap;min-height:0}
+  .main,.side{overflow:auto;min-height:0}
+  .center{min-height:0}
+  .setpane{overflow:auto;min-height:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 48 48" fill="none" stroke="#EDEDEF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="26" height="26" rx="4"/><circle cx="35" cy="35" r="9" fill="#EDEDEF" stroke="none"/><path d="M31 35h8M35 31v8" stroke="#0C0D0F"/></svg>
+      <div><b>Template Icon Builder · Aksen v1.5.0</b><span class="sub" id="crumb">manifest → pack Canva</span></div>
+    </div>
+    <nav class="steps" aria-label="Langkah">
+      <button data-view="import"><i>1</i>Impor</button>
+      <button data-view="review"><i>2</i>Periksa</button>
+      <button data-view="export"><i>3</i>Ekspor</button>
+    </nav>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div class="seg" role="group" aria-label="Pratinjau gaya"><button data-pv="X" title="Wadah tinta, isi aksen, penanda di depan dengan celah">Aksen</button><button data-pv="A" title="Utama garis · pengubah solid">Garis·solid</button><button data-pv="B" title="Utama solid · pengubah garis">Solid·garis</button></div>
+      <button class="btn" id="skillBtn">Ekspor skill</button>
+    </div>
+  </header>
+
+  <!-- 1 · IMPOR -->
+  <div class="view" id="vImport">
+    <section class="main">
+      <div><h1>Impor manifest dari Claude Design</h1><p class="hint" style="margin-top:4px">Tempel isi <span class="mono">icon-manifest.json</span> atau unggah filenya. Ikon langsung dirakit dengan gaya Aksen bagian, plus Garis·solid dan Solid·garis.</p></div>
+      <label class="drop" id="drop" tabindex="0"><input type="file" id="file" accept=".json,application/json" hidden>Letakkan <b>icon-manifest.json</b> di sini atau klik untuk memilih file</label>
+      <textarea class="code" id="src" spellcheck="false" placeholder='{ "format": "tib-manifest", "version": 1, "icons": [ … ] }' aria-label="Isi manifest"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="doImport">Impor manifest</button><button class="btn" id="loadSample">Coba data contoh</button></div>
+      <p class="hint">Data contoh hanya untuk mencoba Builder. Untuk deck Anda, tempel atau unggah manifest dari Claude Design lalu tekan Impor manifest.</p>
+    </section>
+    <aside class="side" aria-label="Ringkasan impor">
+      <span class="cap">Ringkasan</span>
+      <div id="impSum"><p class="hint">Belum ada manifest.</p></div>
+      <span class="cap">Pemeriksaan</span>
+      <div class="issues" id="impIssues"></div>
+      <button class="btn" id="goReview" hidden>Lanjut ke Periksa</button>
+    </aside>
+  </div>
+
+  <!-- 2 · PERIKSA -->
+  <div class="view" id="vReview" hidden>
+    <aside class="side l" aria-label="Pustaka ikon" id="lib"></aside>
+    <section class="center" aria-label="Editor ikon">
+      <div class="stage">
+        <div class="bwrap">
+          <div class="hd sub"><span id="bName"></span><span>48 × 48 · seret lapisan untuk menggeser</span></div>
+          <div class="board" id="board"><div class="keyline"></div><div class="bart" id="bArt"></div><svg class="ov" id="bOv" viewBox="0 0 48 48" aria-hidden="true"></svg></div>
+          <div class="hd sub"><span id="bMeta"></span><span id="bMode"></span></div>
+        </div>
+      </div>
+      <div class="setpane">
+        <div class="hd"><div style="display:flex;gap:10px;align-items:baseline"><b>Pack</b><span class="sub" id="rvSub"></span></div><div class="filters" id="filters"></div></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+    <aside class="side" aria-label="Detail ikon" id="detail"></aside>
+  </div>
+
+  <!-- 3 · EKSPOR -->
+  <div class="view" id="vExport" hidden>
+    <section class="main">
+      <div class="hd"><div><h1>Resource Page</h1><p class="hint">Pratinjau isi slide pustaka ikon. Nama di bawah ikon sama dengan nama file dan id di deck.</p></div>
+        <div class="seg" role="group" aria-label="Kolom"><button data-cols="auto">Otomatis</button><button data-cols="6">6</button><button data-cols="8">8</button><button data-cols="10">10</button><button data-cols="12">12</button><button data-cols="14">14</button></div></div>
+      <div class="sheet" id="sheet"></div>
+    </section>
+    <aside class="side" aria-label="Ekspor">
+      <span class="cap">Isi pack</span>
+      <div class="stats"><div class="stat"><b id="exIcons">0</b><span>ikon</span></div><div class="stat"><b id="exFiles">0</b><span>file SVG</span></div><div class="stat"><b id="exFlags">0</b><span>perlu dicek</span></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label class="optrow"><span>Aksen bagian (Cara 3 + 4)</span><input type="checkbox" id="exX" checked></label>
+        <label class="optrow"><span>Utama garis · pengubah solid</span><input type="checkbox" id="exA"></label>
+        <label class="optrow"><span>Utama solid · pengubah garis</span><input type="checkbox" id="exB"></label>
+        <label class="optrow"><span>SVG fill langsung untuk Canva</span><input type="checkbox" id="exOutline" checked disabled></label>
+        <p class="hint" style="margin:-2px 0 4px">Seluruh stroke dan mask diratakan menjadi path fill. Outline Stroke di Figma tidak diperlukan.</p>
+        <span class="cap" style="margin-top:6px">Isi ekspor</span>
+        <label class="optrow"><span>Ikon slot deck <span class="sub" id="exSlotN"></span></span><input type="checkbox" id="exSlot" checked></label>
+        <label class="optrow"><span>Ikon ekstra <span class="sub" id="exExtraN"></span></span><input type="checkbox" id="exExtra" checked></label>
+        <label class="optrow"><span>Pisahkan folder slot deck dan ekstra</span><input type="checkbox" id="exSplit" checked></label>
+        <label class="optrow"><span>Lewati ikon yang masih bermasalah</span><input type="checkbox" id="exSkipBad" checked></label>
+        <div class="optrow"><span>Kata kunci per bahasa</span><div class="creator-select" id="exKwSelect"><input type="hidden" id="exKw" value="15"><button type="button" class="creator-trigger" data-kw-toggle aria-haspopup="listbox" aria-expanded="false"><span id="exKwLabel">15</span><i aria-hidden="true"></i></button><div class="creator-menu" id="exKwMenu" role="listbox" aria-label="Kata kunci per bahasa" hidden><button type="button" role="option" data-kw="10" aria-selected="false"><span><b>10</b></span><em>✓</em></button><button type="button" role="option" data-kw="15" aria-selected="true"><span><b>15</b></span><em>✓</em></button><button type="button" role="option" data-kw="20" aria-selected="false"><span><b>20</b></span><em>✓</em></button><button type="button" role="option" data-kw="25" aria-selected="false"><span><b>25</b></span><em>✓</em></button></div></div></div>
+        <label class="f">Nama pack (nama file ZIP)<input class="inp" id="exName" maxlength="60"></label>
+        <div class="two"><label class="f">Tema pack (EN)<input class="inp" id="exPackEn" maxlength="40" placeholder="Startup Pitch"></label><label class="f">Tema pack (ID)<input class="inp" id="exPackId" maxlength="40" placeholder="Pitch Startup"></label></div>
+        <label class="f">ID brand Canva <span class="hint">· hanya untuk metadata, disimpan di browser ini</span><input class="inp mono" id="exBrand" maxlength="40" placeholder="BA…"></label>
+        <p class="hint" id="exSearchEx"></p>
+        <span class="cap">Metadata Canva · output 1.5.0</span>
+        <p class="hint"><b>Log output 1.5.0:</b> menambahkan Hugeicons Free; overlap bentuk satu warna tetap memakai winding nonzero.</p>
+        <div class="f"><span>Brand / profil Creator</span><div class="creator-select" id="exCreatorSelect"><input type="hidden" id="exCreator" value="hashtagben"><button type="button" class="creator-trigger" data-creator-toggle aria-haspopup="listbox" aria-expanded="false"><span id="exCreatorLabel">hashtagben</span><i aria-hidden="true"></i></button><div class="creator-menu" id="exCreatorMenu" role="listbox" aria-label="Brand / profil Creator" hidden><button type="button" role="option" data-creator="hashtagben" aria-selected="true"><span><b>hashtagben</b><small>Artist · hashtagben</small></span><em>✓</em></button><button type="button" role="option" data-creator="chital" aria-selected="false"><span><b>Chital</b><small>Artist · chital</small></span><em>✓</em></button></div></div></div>
+        <label class="f">Artist<input class="inp" id="exArtist" value="hashtagben" readonly></label>
+        <p class="hint">Profil tujuan disertakan dalam ZIP untuk pemeriksaan akun SFTP. ID brand Canva (BA…) terpisah dari nama Artist.</p>
+        <div class="f"><span>Bahasa metadata</span><div class="creator-select" id="exLocaleSelect"><input type="hidden" id="exLocale" value="en"><button type="button" class="creator-trigger" data-locale-toggle aria-haspopup="listbox" aria-expanded="false"><span id="exLocaleLabel">English (en)</span><i aria-hidden="true"></i></button><div class="creator-menu" id="exLocaleMenu" role="listbox" aria-label="Bahasa metadata" hidden><button type="button" role="option" data-locale="en" aria-selected="true"><span><b>English (en)</b><small>Metadata berbahasa Inggris</small></span><em>✓</em></button><button type="button" role="option" data-locale="id" aria-selected="false"><span><b>Indonesia (id)</b><small>Metadata berbahasa Indonesia</small></span><em>✓</em></button></div></div></div>
+        <label class="f">Deskripsi pack (opsional)<textarea class="inp" id="exDescription" rows="3" placeholder="Deskripsi dalam bahasa yang dipilih, diterapkan ke semua ikon."></textarea></label>
+        <p class="hint">metadata.csv siap untuk Canva; metadata-internal.csv menyimpan data lengkap. Pilih semua SVG dalam folder gaya bersama metadata.csv saat upload. Periksa relevansi keyword sebelum submit.</p>
+      </div>
+      <span class="cap">Struktur ZIP</span>
+      <div class="tree" id="exTree"></div>
+      <button class="btn pri" id="exGo" style="height:42px">Unduh pack</button>
+      <p class="hint" id="exStatus"></p>
+      <p class="hint">Celah knockout sudah dipotong langsung dari path fill. Uji satu file di Canva: SVG harus menampilkan pilihan warna tanpa proses Outline Stroke di Figma.</p>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<svg id="meas" aria-hidden="true" viewBox="0 0 24 24" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.52.0/dist/umd/lucide.min.js"></script>
+<script>/*@OUTLINE@*/</script>
+<script>
+"use strict";
+/*@ENGINE@*/
+
+/* =================== Template Icon Builder =================== */
+const TIB_VERSION = "1.5.1";
+const OUTPUT_VERSION = "1.5.0"; // Lucide + Tabler + Hugeicons Free.
+const STORE = "template-icon-builder-aksen-v1";
+const LU_TAGS_URL = "https://cdn.jsdelivr.net/npm/lucide-static@1.52.0/tags.json";
+const TB_TAGS_URL = "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/icons.json";
+/* gaya terkunci: satu keluarga, dua varian */
+/* gaya = patokan Icon Composer: garis 2, celah 2, ujung rata, tinta + aksen, 3 mode warna */
+let style = {ink:"#1A1A1A", accent:"#C3DC1E", sw:2, gap:2, cap:"butt", join:"miter", pref:"A",
+  colors:{main:{line:null, fill:null}, mod:{line:null, fill:null}, deco:{line:null, fill:null}},
+  scale:{main:84, mod:100, deco:100}, fx:{mode:"none"}};
+let customs = [];
+const MODES = ["X", "A", "B"];
+/* patokan tiap keluarga gaya; keduanya sama dengan Icon Composer */
+const STY = {X:{sw:3.5, gap:1.25, cap:"round", join:"round", scale:{main:88, mod:80, deco:100}}, C:{sw:2, gap:2, cap:"butt", join:"miter", scale:{main:84, mod:100, deco:100}}};
+function useStyle(kind){ const s = STY[kind === "X" ? "X" : "C"]; Object.assign(style, s, {scale:{...s.scale}}); }
+function includePreviewStyleInExport(kind){
+  MODES.forEach(mode => { const checkbox = $("ex" + mode); if (checkbox) checkbox.checked = mode === kind; });
+}
+const FILLS = ["none","full","offset","half"], SPARKS = ["none","star4","star4x2"];
+function sparkHome(slot, type){ const h = (DECOS[type] || {home:[9, 9]}).home; return slot === "TL" || slot === "ML" ? [48 - h[0], h[1]] : [h[0], h[1]]; }
+function normAcc(it, a){
+  a = a || {};
+  it.under = FILLS.includes(a.fill) ? a.fill : (FILLS.includes(it.under) ? it.under : "none");
+  it.mstyle = a.marker === "fill" || a.marker === "line" ? a.marker : (it.mstyle === "fill" ? "fill" : "line");
+  const pr = a.parts !== undefined ? a.parts : it.parts;
+  if (pr && typeof pr === "object"){ const p = {}; for (const [k, v] of Object.entries(pr)) if (/^\d+$/.test(k) && ROLES.includes(v)) p[k] = v; it.parts = Object.keys(p).length ? p : null; } else it.parts = null;
+  const sp = a.spark !== undefined ? a.spark : (it.deco && it.deco.type);
+  if (SPARKS.includes(sp) && sp !== "none"){
+    const pos = Array.isArray(a.spark_pos) && a.spark_pos.length === 2 && a.spark_pos.every(v => Number.isFinite(+v)) ? a.spark_pos.map(v => Math.max(0, Math.min(48, +v))) : (it.deco && it.deco.type === sp && Number.isFinite(it.deco.x) ? [it.deco.x, it.deco.y] : sparkHome(it.slot, sp));
+    it.deco = {type:sp, x:pos[0], y:pos[1], r:0, color:"accent"};
+  } else it.deco = {type:"none", x:9, y:9, r:0, color:"accent"};
+  it.vis = {main:true, mod:true, deco:true};
+  return it;
+}
+const MODE_INFO = {
+  X:{label:"Aksen bagian · penanda di depan", short:"Aksen", dir:"aksen", en:["two tone icon", "accent icon", "line icon", "rounded icon"], id:["ikon dua warna", "ikon aksen", "ikon garis"], ten:"accent line icon", tid:"garis aksen"},
+  A:{label:"Utama garis · pengubah solid", short:"Garis·solid", dir:"garis-solid", en:["two tone icon", "outline icon", "accent icon"], id:["ikon dua warna", "ikon garis", "ikon aksen"], ten:"two-tone icon", tid:"dua warna"},
+  B:{label:"Utama solid · pengubah garis", short:"Solid·garis", dir:"solid-garis", en:["two tone icon", "solid icon", "filled icon"], id:["ikon dua warna", "ikon solid", "ikon isi"], ten:"solid two-tone icon", tid:"solid dua warna"},
+  C:{label:"Keduanya garis", short:"Garis·garis", dir:"garis-garis", en:["outline icon", "line icon", "monoline icon"], id:["ikon garis", "ikon outline"], ten:"outline icon", tid:"garis"}
+};
+function applyManStyle(){
+  const st = (man && man.style) || {};
+  if (/^#[0-9a-f]{6}$/i.test(st.ink || "")) style.ink = st.ink.toUpperCase();
+  if (/^#[0-9a-f]{6}$/i.test(st.accent || "")) style.accent = st.accent.toUpperCase();
+  const fam = st.family === "classic" ? "classic" : "accent";
+  pv = fam === "classic" ? (["A", "B"].includes(st.mode) ? st.mode : "A") : "X";
+  $("exX").checked = fam === "accent"; $("exA").checked = pv === "A"; $("exB").checked = pv === "B";
+}
+const ANCHORS = ["TL","TC","TR","ML","C","MR","BL","BC","BR"];
+
+/* nama pustaka untuk objek bawaan, dipakai untuk cek kemiripan & tag */
+const MAIN_ALIAS = {face:"mood-smile", doc:"file", clock:"clock", bell:"bell", cart:"shopping-cart", box:"box", truck:"truck", door:"door", heart:"heart", ticket:"ticket", laptop:"laptop", chat:"message", home:"home", pot:"cooking-pot", book:"book", pin:"map-pin", user:"user", calendar:"calendar", phone:"phone", store:"store"};
+const MOD_ALIAS = {bubble:"message", card:"credit-card", doc:"file", lock:"lock", mail:"mail", plus:"plus", check:"check", cross:"x", parcel:"package", pinm:"map-pin", pencil:"pencil", cone:"cone", clockm:"clock", star:"star", heartm:"heart", bulb:"bulb"};
+const MOD_SYN = {pencil:["edit","pencil","pen"], x:["x","off","cancel"], check:["check","checked","ok"], plus:["plus","add"], minus:["minus"], "credit-card":["credit-card","card"], message:["message","message-circle","chat"], clock:["clock","time","timer"], search:["search"], heart:["heart","love"], "map-pin":["pin","map-pin","location"], settings:["settings","cog","gear"], "share-2":["share"], "message-circle":["message","chat"]};
+const MOD_POOL = ["plus","minus","check","x","star","search","clock","timer","bell","lock","shield","heart","pencil","settings","cloud","share-2","download","upload","refresh-cw","triangle-alert","info","zap","eye","flag","bookmark","link","user","message-circle","gift","trophy","target","rocket","hourglass","thumbs-up","send","tag","map-pin","sun","leaf","music","coffee"];
+
+/* kamus EN → ID untuk kata kunci (sebagian dari ID_EN dibalik + kosakata umum ikon) */
+const EN_ID = (() => {
+  const d = {}; for (const [id, en] of Object.entries(ID_EN)) if (!d[en]) d[en] = id;
+  return Object.assign(d, {plus:"tambah", add:"tambah", minus:"kurang", check:"centang", done:"selesai", x:"silang", close:"tutup", star:"bintang", favorite:"favorit", search:"cari", find:"temukan", clock:"jam", time:"waktu", timer:"pengatur waktu", hourglass:"jam pasir", bell:"lonceng", notification:"notifikasi", alert:"peringatan", lock:"gembok", security:"keamanan", secure:"aman", shield:"perisai", protection:"perlindungan", heart:"hati", love:"cinta", like:"suka", pencil:"pensil", edit:"sunting", write:"tulis", settings:"pengaturan", cloud:"awan", share:"bagikan", download:"unduh", upload:"unggah", refresh:"muat ulang", info:"informasi", sparkles:"kilau", magic:"ajaib", zap:"kilat", energy:"energi", eye:"mata", view:"lihat", flag:"bendera", goal:"tujuan", bookmark:"penanda", link:"tautan", user:"pengguna", users:"pengguna", person:"orang", people:"orang", team:"tim", group:"grup", message:"pesan", chat:"obrolan", comment:"komentar", gift:"hadiah", trophy:"piala", award:"penghargaan", target:"target", rocket:"roket", launch:"peluncuran", lightbulb:"bola lampu", idea:"ide", creative:"kreatif", calendar:"kalender", schedule:"jadwal", date:"tanggal", event:"acara", money:"uang", payment:"pembayaran", tag:"label", location:"lokasi", map:"peta", send:"kirim", mail:"surat", email:"email", file:"berkas", document:"dokumen", paper:"kertas", box:"kotak", package:"paket", cart:"troli", shopping:"belanja", home:"rumah", house:"rumah", phone:"telepon", book:"buku", read:"baca", learning:"belajar", education:"pendidikan", school:"sekolah", teacher:"guru", student:"siswa", presentation:"presentasi", meeting:"rapat", workshop:"lokakarya", work:"kerja", office:"kantor", tool:"alat", tools:"peralatan", build:"membangun", hammer:"palu", coffee:"kopi", break:"istirahat", sun:"matahari", morning:"pagi", leaf:"daun", nature:"alam", music:"musik", thumbs:"jempol", feedback:"umpan balik", rating:"penilaian", list:"daftar", task:"tugas", note:"catatan", sticky:"tempel", wall:"dinding", table:"meja", chair:"kursi", door:"pintu", welcome:"selamat datang", hand:"tangan", wave:"lambaian", cut:"potong", scissors:"gunting", tape:"selotip", print:"cetak", printer:"printer", outline:"garis", icon:"ikon", line:"garis", filled:"solid", solid:"solid", glyph:"glif"});
+})();
+
+/* ---------- state ---------- */
+let man = null;          /* manifest asli (diperbarui saat ekspor) */
+let items = [];          /* ikon kerja */
+let issuesG = [];        /* masalah tingkat manifest */
+let layer = "main", drag = null;
+let view = "import", pv = "A", sel = null, filter = "all", pickTarget = "main", pickSrc = "lu", pickQ = "", pickBodyFilter = "all", sheetCols = "auto";
+let LU_TAGS = null, TB_TAGS = null;
+let isSample = false;
+function persist(){ try { localStorage.setItem(STORE, JSON.stringify({man, items, pv, sheetCols, isSample, v151:true})); } catch {} }
+
+/* ---------- vocabulary ---------- */
+function keyLabel(k){ if (LIB_RE.test(k)) return k.slice(3); return (MAINS[k] || MODS[k] || {n:k}).n; }
+function srcOf(k){ return /^lu:/.test(k) ? "Lucide" : /^tb:/.test(k) ? "Tabler" : /^hg:/.test(k) ? "Hugeicons" : "Bawaan"; }
+const TB_NAMES = new Set(Object.values(TB_CATS).join(" ").split(" "));
+function luNames(){ const i = luIndex(); return i ? new Set(i.keys()) : new Set(); }
+function hgNames(){ const i = hgIndex(); return i ? new Set(i.keys()) : new Set(); }
+function exists(k, kind){
+  if (k === "none") return kind === "mod";
+  if (/^lu:/.test(k)) return luNames().has(k.slice(3));
+  if (/^tb:/.test(k)) return TB_NAMES.has(k.slice(3));
+  if (/^hg:/.test(k)) return hgNames().has(k.slice(3));
+  return kind === "main" ? !!MAINS[k] && !String(k).includes(":") : !!MODS[k];
+}
+function lev(a, b){ const m = a.length, n = b.length; if (!m) return n; if (!n) return m; let p = Array.from({length:n+1}, (_, j) => j); for (let i = 1; i <= m; i++){ const c = [i]; for (let j = 1; j <= n; j++) c[j] = Math.min(p[j] + 1, c[j-1] + 1, p[j-1] + (a[i-1] === b[j-1] ? 0 : 1)); p = c; } return p[n]; }
+function suggest(k, kind){
+  const name = LIB_RE.test(k) ? k.slice(3) : k;
+  const al = MAIN_ALIAS[name] || MOD_ALIAS[name];
+  if (al && luNames().has(al)) return "lu:" + al;
+  const pools = [["lu:", [...luNames()]], ["tb:", [...TB_NAMES]], ["hg:", [...hgNames()]], ["", Object.keys(kind === "main" ? MAINS : MODS).filter(x => !x.includes(":"))]];
+  let best = null;
+  for (const [pre, list] of pools) for (const n of list){
+    let s = lev(name, n); if (n.startsWith(name) || name.startsWith(n)) s -= 1.5; if (n.includes(name)) s -= 1;
+    if (!best || s < best.s) best = {k: pre + n, s};
+  }
+  return best && best.s <= Math.max(3, name.length * 0.45) ? best.k : null;
+}
+
+/* ---------- normalisasi manifest ---------- */
+const ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+function kebab2(s){ return String(s || "").toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-").slice(0, 48); }
+function toItem(o, i){
+  const slot = ANCHORS.includes(o.anchor) && o.anchor !== "C" ? o.anchor : "BR";
+  const mod = o.mod ? String(o.mod) : "none";
+  const off = o.offset || {}, num = v => Number.isFinite(+v) ? Math.max(-12, Math.min(12, +v)) : null;
+  const sh0 = mod !== "none" ? (SHIFT[slot] || [0, 0]) : [0, 0];
+  const sh = Array.isArray(off.main) && off.main.length === 2 && num(off.main[0]) != null ? [num(off.main[0]), num(off.main[1]) || 0] : sh0;
+  const mo = Array.isArray(off.mod) && off.mod.length === 2 && num(off.mod[0]) != null ? [num(off.mod[0]), num(off.mod[1]) || 0] : [0, 0];
+  const name = typeof o.name === "string" ? {en:o.name, id:o.name} : (o.name || {});
+  const kw = o.keywords || {};
+  return {
+    uid: "i" + i + "-" + Math.random().toString(36).slice(2, 6),
+    id: ID_RE.test(o.id || "") ? o.id : kebab2(o.id || name.en || ("icon-" + (i + 1))),
+    idRaw: o.id || "",
+    name: {en: String(name.en || name.id || o.id || "").slice(0, 60), id: String(name.id || name.en || o.id || "").slice(0, 60)},
+    main: String(o.main || ""), mod, slot, nx:mo[0], ny:mo[1], mx:sh[0], my:sh[1],
+    slides: Array.isArray(o.slides) ? o.slides.filter(n => Number.isFinite(+n)).map(Number) : [],
+    role: o.role === "extra" ? "extra" : "slot",
+    keywords: {en: (kw.en || []).map(String).slice(0, 20), id: (kw.id || []).map(String).slice(0, 20)},
+    on: true, vis:{main:true, mod:true, deco:true}, deco:{type:"none"}, _acc:o.accent
+  };
+}
+function ensureItem(it){
+  if (LIB_RE.test(it.main)) ensureLucide(it.main, "main");
+  if (it.mod !== "none" && LIB_RE.test(it.mod)) ensureLucide(it.mod, "mod");
+}
+function importManifest(text){
+  let j;
+  try { j = JSON.parse(text); } catch (e){ return {fatal:"JSON tidak valid: " + e.message}; }
+  if (!j || !Array.isArray(j.icons)) return {fatal:"Manifest harus punya daftar \"icons\"."};
+  man = j;
+  applyManStyle();
+  items = j.icons.map(toItem).map(it => { const a = it._acc; delete it._acc; return normAcc(it, a); });
+  /* hanya ikon yang dipakai di slide: ekstra dikeluarkan otomatis, bisa dimasukkan lagi per ikon */
+  /* v1.5.1: ekstra tidak dikeluarkan otomatis; dipilih di langkah Ekspor */
+  const needTb = items.some(it => /^tb:/.test(it.main) || /^tb:/.test(it.mod));
+  const needHg = items.some(it => /^hg:/.test(it.main) || /^hg:/.test(it.mod));
+  return {needTb, needHg};
+}
+function validateManifest(){
+  const out = [];
+  if (!man) return out;
+  if (man.format !== "tib-manifest") out.push(["warn", "Kolom format bukan \"tib-manifest\". Tetap dibaca."]);
+  if (!packOf().en) out.push(["warn", "Manifest tanpa \"pack\" (tema pack). Isi Tema pack di langkah Ekspor agar judul dan pencarian unik."]);
+  const seen = {};
+  items.forEach(it => {
+    if (it.idRaw && it.idRaw !== it.id) out.push(["warn", `id "${it.idRaw}" diubah menjadi "${it.id}" (huruf kecil, tanda hubung).`]);
+    if (seen[it.id]){ let n = 2; while (seen[it.id + "-" + n]) n++; out.push(["warn", `id "${it.id}" dobel. Yang kedua menjadi "${it.id}-${n}".`]); it.id = it.id + "-" + n; }
+    seen[it.id] = true;
+    for (const kind of ["main", "mod"]){
+      const k = it[kind];
+      if (kind === "main" && !k){ out.push(["err", `${it.id}: objek utama kosong.`]); continue; }
+      if (!exists(k, kind)){
+        const s = suggest(k, kind);
+        out.push(["err", `${it.id}: ${kind === "main" ? "objek utama" : "pengubah"} "${k}" tidak dikenal.${s ? ` Saran: ${s}` : ""}`, s ? {uid:it.uid, kind, to:s} : null]);
+      }
+    }
+  });
+  return out;
+}
+
+/* ---------- pemeriksaan keunikan ---------- */
+function libName(k, kind){ if (LIB_RE.test(k)) return k.slice(3); return (kind === "main" ? MAIN_ALIAS : MOD_ALIAS)[k] || k; }
+function variantsOf(n, kind){
+  const base = n.replace(/-\d+$/, "");
+  const out = new Set([n, base]);
+  if (kind === "mod"){
+    const first = base.split("-").filter(w => !["circle","square","badge"].includes(w)).join("-");
+    out.add(first);
+    (MOD_SYN[base] || MOD_SYN[first] || []).forEach(s => out.add(s));
+  }
+  return [...out].filter(Boolean);
+}
+function collisions(it){
+  if (it.mod === "none") return [];
+  const L = luNames(), hits = [];
+  for (const a of variantsOf(libName(it.main, "main"), "main")) for (const b of variantsOf(libName(it.mod, "mod"), "mod")){
+    for (const nm of [`${a}-${b}`, `${b}-${a}`]){
+      if (L.has(nm)) hits.push("Lucide " + nm);
+      if (TB_NAMES.has(nm)) hits.push("Tabler " + nm);
+      if (hgNames().has(nm)) hits.push("Hugeicons " + nm);
+    }
+  }
+  return [...new Set(hits)];
+}
+function flagsOf(it, dupMap){
+  const f = [];
+  if (!exists(it.main, "main")) f.push(["err", "Objek utama tidak dikenal"]);
+  if (it.mod !== "none" && !exists(it.mod, "mod")) f.push(["err", "Pengubah tidak dikenal"]);
+  if (it.mod === "none") f.push([LIB_RE.test(it.main) ? "err" : "warn", LIB_RE.test(it.main) ? "Tanpa pengubah: sama dengan ikon pustaka" : "Tanpa pengubah"]);
+  const c = collisions(it); if (c.length) f.push(["err", "Mirip " + c[0]]);
+  const key = it.main + "|" + it.mod;
+  if (dupMap && dupMap[key] > 1) f.push(["err", "Rakitan dobel di pack"]);
+  if (it.main === it.mod || libName(it.main, "main") === libName(it.mod, "mod")) f.push(["warn", "Objek dan pengubah sama"]);
+  const M = MAINS[it.main]; if (M && M.missing) f.push(["warn", "Belum termuat"]);
+  if (M && M.plate) f.push(["warn", "Tanpa body: mode Solid·garis memakai pelat bulat, isi bidang Aksen tidak tersedia"]);
+  const solidCheck = typeof solidLineDiagnostic === "function" ? solidLineDiagnostic(it) : null;
+  if (solidCheck && solidCheck.message) f.push(["warn", solidCheck.message]);
+  return f;
+}
+function dupMap(){ const m = {}; items.filter(i => i.on).forEach(i => { const k = i.main + "|" + i.mod; m[k] = (m[k] || 0) + 1; }); return m; }
+const isBad = (it, dm) => flagsOf(it, dm).some(f => f[0] === "err");
+
+/* ---------- render ikon: mesin Icon Composer ---------- */
+/*@ENGINE2@*/
+function render(it, kind, opt){
+  opt = opt || {};
+  if (!MAINS[it.main]) return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="${opt.size || 48}" height="${opt.size || 48}"></svg>`;
+  useStyle(kind);
+  if (kind === "X") return composeAccent({...it, vis:{main:true, mod:true, deco:true}, deco:it.deco || {type:"none"}}, {size: opt.size || 48, idp: opt.idp});
+  return compose({...it, pref: MODES.includes(kind) ? kind : "A", deco:{type:"none"}}, {size: opt.size || 48, idp: opt.idp});
+}
+function thumbKey(k, kind){
+  if (kind === "mod" && k === "none") return `<svg viewBox="0 0 24 24" fill="none" stroke="#8B8D96" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M6.5 17.5 17.5 6.5"/></svg>`;
+  if (LIB_RE.test(k)){ const A = luAnalyze(k); if (!A) return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="#8B8D96" stroke-dasharray="2 2"/></svg>`; return `<svg viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${A.node.map(([t, a]) => partStr({tag:t, attrs:a})).join("")}</svg>`; }
+  if (kind === "main" && MAINS[k]) return render({main:k, mod:"none", slot:"BR", nx:0, ny:0, mx:0, my:0, vis:{main:true, mod:false, deco:false}}, "C", {idp:"th" + k});
+  const md = MODS[k]; if (!md) return "";
+  const sc = Math.min(30/md.w, 30/md.h), W = md.w*sc, H = md.h*sc;
+  return `<svg viewBox="0 0 48 48" fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(${r3(24-W/2)} ${r3(24-H/2)}) scale(${r3(sc)})"><g stroke-width="${r3(2.4/sc)}">${md.sil}</g><g stroke-width="${r3(2.4*(md.badge ? .75 : 1)/(sc*(md.kd || 1)))}">${md.det.replace(/INK/g, "#1A1A1A")}</g></g></svg>`;
+}
+
+/* ---------- views ---------- */
+function showView(v){
+  if (v !== "import" && !items.length) v = "import";
+  view = v;
+  $("vImport").hidden = v !== "import"; $("vReview").hidden = v !== "review"; $("vExport").hidden = v !== "export";
+  document.querySelectorAll("[data-view]").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.view === v)); if (b.dataset.view !== "import") b.disabled = !items.length; });
+  document.querySelectorAll("[data-pv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pv === pv)));
+  const deck = man && man.deck && man.deck.title ? man.deck.title : "manifest → pack Canva";
+  $("crumb").textContent = items.length ? `${deck}${isSample ? " (data contoh)" : ""} · ${items.filter(i => i.on).length} ikon` : deck;
+  if (v === "import") renderImport();
+  if (v === "review") renderReview();
+  if (v === "export") renderExport();
+}
+function renderImport(){
+  if (!man){ $("impSum").innerHTML = `<p class="hint">Belum ada manifest.</p>`; $("impIssues").innerHTML = ""; $("goReview").hidden = true; return; }
+  const slots = items.filter(i => i.role === "slot").length, extra = items.length - slots;
+  const dm = dupMap(), bad = items.filter(i => isBad(i, dm)).length;
+  $("impSum").innerHTML = `<div class="stats"><div class="stat"><b>${items.length}</b><span>ikon</span></div><div class="stat"><b>${slots}</b><span>slot deck</span></div><div class="stat"><b>${extra}</b><span>ekstra</span></div><div class="stat"><b>${bad}</b><span>perlu dicek</span></div></div>
+    <p class="hint" style="margin-top:8px">${esc((man.deck && man.deck.title) || "Tanpa judul")} · tema pack ${esc(packOf().en || "–")} · mode deck ${esc(MODE_INFO[pv].short)} · tinta ${esc(style.ink)} · aksen ${esc(style.accent)}</p>`;
+  const nEx = items.filter(i => i.role === "extra").length;
+  if (isSample) $("impSum").innerHTML = `<div class="iss" style="border-color:var(--warn,#E0A100)"><span class="dot warn">!</span><span class="t"><b>Ini data contoh, bukan manifest Anda.</b><br><span class="hint">Tempel atau unggah manifest dari Claude Design, lalu tekan Impor manifest.</span></span></div>` + $("impSum").innerHTML;
+  const list = [...(issuesG.length ? issuesG : [["ok", "Semua nama objek dan pengubah dikenali."]]), ...(nEx ? [["warn", `${nEx} ikon ekstra (tidak dipakai di slide). Pilih ikut diekspor atau tidak di langkah Ekspor.`]] : [])];
+  $("impIssues").innerHTML = list.map(([lv, t, fix], n) => `<div class="iss"><span class="dot ${lv}">${lv === "ok" ? "✓" : "!"}</span><span class="t">${esc(t)}</span>${fix ? `<button class="btn sm" data-fixi="${n}">Pakai saran</button>` : ""}</div>`).join("");
+  $("goReview").hidden = false;
+}
+function filtered(){
+  const dm = dupMap();
+  return items.filter(it => filter === "all" ? true : filter === "bad" ? isBad(it, dm) || flagsOf(it, dm).length > 0 : filter === "slot" ? it.role === "slot" : filter === "extra" ? it.role === "extra" : filter === "off" ? !it.on : true);
+}
+function boxesT(it){
+  useStyle(pv);
+  const g = geom(it), ms = style.scale.main/100, d = it.deco || {type:"none"};
+  const deco = pv === "X" && d.type !== "none" ? (d.type === "star4" ? {x:d.x - 4.5, y:d.y - 4.5, w:9, h:9} : {x:d.x - 5.5, y:d.y - 6.5, w:12.5, h:12.5}) : null;
+  return {main:{x:24 + it.mx - 20*ms, y:24 + it.my - 20*ms, w:40*ms, h:40*ms}, mod: g.md ? {x:g.L, y:g.T, w:g.W, h:g.H} : null, deco};
+}
+const LAYER_LAB = {main:"Objek utama", mod:"Pengubah", deco:"Kilau"};
+const curIt = () => items.find(i => i.uid === sel);
+function renderReview(){
+  if (!curIt() && items.length) sel = items[0].uid;
+  if (layer === "mod" && curIt() && curIt().mod === "none" && pickTarget !== "mod") layer = "main";
+  pickTarget = layer === "deco" ? "main" : layer;
+  const dm = dupMap();
+  const nBad = items.filter(i => i.on && flagsOf(i, dm).length).length;
+  $("rvSub").textContent = `${items.filter(i => i.on).length} ikon aktif · ${nBad} perlu dicek`;
+  const F = [["all", "Semua", items.length], ["bad", "Perlu dicek", items.filter(i => flagsOf(i, dm).length).length], ["slot", "Slot deck", items.filter(i => i.role === "slot").length], ["extra", "Ekstra", items.filter(i => i.role === "extra").length], ["off", "Dikeluarkan", items.filter(i => !i.on).length]];
+  $("filters").innerHTML = F.map(([k, t, n]) => `<button class="chipb" data-filter="${k}" aria-pressed="${filter === k}">${t} · ${n}</button>`).join("");
+  $("grid").innerHTML = filtered().map(it => {
+    const fl = flagsOf(it, dm), lv = fl.some(f => f[0] === "err") ? "err" : fl.length ? "warn" : "ok";
+    return `<button class="ic${it.on ? "" : " off"}" data-sel="${it.uid}" aria-pressed="${sel === it.uid}" title="${esc(it.name.en)}${fl.length ? " · " + esc(fl.map(f => f[1]).join(", ")) : ""}"><span class="one">${render(it, pv, {idp:"g" + it.uid})}</span><span class="id">${esc(it.id)}</span><span class="badges"><span class="bdg ${lv}">${lv === "ok" ? "unik" : lv === "err" ? "masalah" : "cek"}</span><span class="bdg">${it.role === "slot" ? "slide " + (it.slides.join(",") || "–") : "ekstra"}</span></span></button>`;
+  }).join("") || `<div class="empty" style="grid-column:1/-1">Tidak ada ikon di filter ini.</div>`;
+  renderBoard(); renderLib(); renderDetail();
+}
+function renderBoard(){
+  const it = curIt();
+  if (!it){ $("bArt").innerHTML = ""; $("bOv").innerHTML = ""; return; }
+  $("bArt").innerHTML = render(it, pv, {size:"100%", idp:"bd"});
+  $("bName").textContent = `${it.id} · ${it.name.en}`;
+  $("bMeta").textContent = `utama ${it.mx}, ${it.my} · pengubah ${it.mod === "none" ? "–" : it.nx + ", " + it.ny}`;
+  $("bMode").textContent = MODE_INFO[pv].label + (pv === "X" ? " · klik bagian untuk ganti warna" : "");
+  if (layer === "deco" && !(pv === "X" && it.deco && it.deco.type !== "none")) layer = "main";
+  const b = boxesT(it), sb = b[layer];
+  let o = "";
+  const hit = k => { const x = b[k]; return x ? `<rect data-layer="${k}" x="${r3(x.x - 1)}" y="${r3(x.y - 1)}" width="${r3(x.w + 2)}" height="${r3(x.h + 2)}" fill="transparent" style="cursor:move"/>` : ""; };
+  o += hit("main");
+  if (pv === "X" && layer === "main"){
+    useStyle("X"); const info = mainInfo(it.main), g = geom(it);
+    o += `<g transform="${g.mainT}">` + info.parts.map((p, i) => {
+      const css = `style="fill:${p.closed ? "rgba(0,0,0,0)" : "none"};stroke:rgba(0,0,0,0);stroke-width:${r3(4/g.ms/p.k)}px;pointer-events:${p.closed ? "all" : "stroke"}"`;
+      const el = p.svg.replace(/^<(\w+)/, `<$1 data-layer="main" data-part="${i}" class="hp${p.closed ? " cl" : ""}" ${css}`).replace(/ fill="INK"| stroke="none"/g, "");
+      return `<g${p.k === 1 ? "" : ` transform="scale(${p.k})"`}><title>Bagian ${i + 1}: klik untuk ganti warna</title>${el}</g>`;
+    }).join("") + `</g>`;
+  }
+  o += hit("mod") + hit("deco");
+  if (sb){
+    const lab = LAYER_LAB[layer], tw = lab.length*0.72 + 1.2, ty = sb.y - 2.4 < 0 ? sb.y + sb.h + 0.5 : sb.y - 2.4;
+    o += `<rect x="${r3(sb.x)}" y="${r3(sb.y)}" width="${r3(sb.w)}" height="${r3(sb.h)}" fill="none" stroke="#3A57E8" stroke-width="0.22" stroke-dasharray="0.7 0.5" pointer-events="none"/>`;
+    for (const [hx, hy] of [[sb.x, sb.y], [sb.x + sb.w, sb.y], [sb.x, sb.y + sb.h], [sb.x + sb.w, sb.y + sb.h]]) o += `<rect x="${r3(hx - 0.55)}" y="${r3(hy - 0.55)}" width="1.1" height="1.1" fill="#fff" stroke="#3A57E8" stroke-width="0.2" pointer-events="none"/>`;
+    o += `<rect x="${r3(sb.x)}" y="${r3(ty)}" width="${r3(tw)}" height="1.9" rx="0.3" fill="#3A57E8" pointer-events="none"/><text x="${r3(sb.x + 0.6)}" y="${r3(ty + 1.38)}" font-size="1.25" font-family="Geist, sans-serif" font-weight="600" fill="#fff" pointer-events="none">${lab}</text>`;
+  }
+  $("bOv").innerHTML = o;
+}
+function renderLib(){
+  const it = curIt();
+  $("lib").innerHTML = `
+    <div class="hd"><span class="cap">Pustaka</span><span class="hint">klik untuk mengganti</span></div>
+    <div class="seg" role="group" aria-label="Yang diganti"><button data-pt="main" aria-pressed="${pickTarget === "main"}">Objek utama</button><button data-pt="mod" aria-pressed="${pickTarget === "mod"}">Pengubah</button></div>
+    <div class="seg psources" role="group" aria-label="Sumber"><button data-psrc="lu" aria-pressed="${pickSrc === "lu"}">Lucide</button><button data-psrc="tb" aria-pressed="${pickSrc === "tb"}">Tabler</button><button data-psrc="hg" aria-pressed="${pickSrc === "hg"}">Hugeicons</button><button data-psrc="in" aria-pressed="${pickSrc === "in"}">Bawaan</button>${pickTarget === "mod" ? `<button data-psrc="pool" aria-pressed="${pickSrc === "pool"}">Saran</button>` : ""}</div>
+    <input class="inp" id="pQ" placeholder="cari: clock, star, lampu…" value="${esc(pickQ)}" aria-label="Cari ikon">
+    ${["lu","tb","hg"].includes(pickSrc) ? `<div class="seg pbody" role="group" aria-label="Filter struktur ikon"><button data-pbody="all" aria-pressed="${pickBodyFilter === "all"}">Semua</button><button data-pbody="body" aria-pressed="${pickBodyFilter === "body"}">Punya body</button><button data-pbody="line" aria-pressed="${pickBodyFilter === "line"}">Hanya garis</button></div>` : ""}
+    ${it ? `<div class="part"><span class="th">${thumbKey(it[pickTarget], pickTarget)}</span><span class="tx"><span class="hint">${pickTarget === "main" ? "Objek utama" : "Pengubah"} sekarang · ${it[pickTarget] === "none" ? "–" : srcOf(it[pickTarget])}</span><b>${it[pickTarget] === "none" ? "Tanpa" : esc(keyLabel(it[pickTarget]))}</b></span>${pickTarget === "mod" && it.mod !== "none" ? `<button class="btn sm" data-setnone="1">Lepas</button>` : ""}</div>` : ""}
+    <div class="pgrid" id="pGrid"></div>
+    <p class="hint">Kotak bergaris merah = rakitan itu sudah ada sebagai ikon pustaka.</p>`;
+  renderPick();
+}
+function renderDetail(){
+  const it = curIt();
+  if (!it){ $("detail").innerHTML = `<span class="cap">Detail</span><p class="hint">Pilih ikon di panel Pack.</p>${legend()}`; return; }
+  const dm = dupMap(), fl = flagsOf(it, dm), col = collisions(it);
+  if (layer === "deco" && !(pv === "X" && it.deco && it.deco.type !== "none")) layer = "main";
+  const pos = posOf(it, layer), R0 = layer === "deco" ? [0, 48] : [-12, 12];
+  $("detail").innerHTML = `
+    <div class="hd"><span class="cap">Detail ikon</span><label class="optrow" style="min-height:0;gap:8px"><span class="hint">Masuk pack</span><input type="checkbox" id="dOn" ${it.on ? "checked" : ""}></label></div>
+    <div class="big">${MODES.map(m => `<figure><div class="pv">${render(it, m, {idp:"d" + m})}</div><figcaption>${MODE_INFO[m].short}</figcaption></figure>`).join("")}</div>
+    <div class="issues">${fl.length ? fl.map(([lv, t]) => `<div class="iss"><span class="dot ${lv}">!</span><span class="t">${esc(t)}${t.startsWith("Mirip") ? `<br><span class="hint">Ganti pengubah supaya element Anda unik.${col.length > 1 ? " Juga: " + esc(col.slice(1, 3).join(", ")) : ""}</span>` : ""}</span></div>`).join("") : `<div class="iss"><span class="dot ok">✓</span><span class="t">Rakitan unik, tidak ada nama serupa di Lucide/Tabler/Hugeicons.</span></div>`}</div>
+    <label class="f">id · nama file &amp; label Resource Page<input class="inp mono" id="dId" value="${esc(it.id)}"></label>
+    <div class="two"><label class="f">Nama (EN)<input class="inp" id="dEn" value="${esc(it.name.en)}"></label><label class="f">Nama (ID)<input class="inp" id="dIdn" value="${esc(it.name.id)}"></label></div>
+    <span class="cap">Lapisan</span>
+    <div class="two">
+      <button class="part" data-pt="main" style="text-align:left" aria-pressed="${layer === "main"}"><span class="th">${thumbKey(it.main, "main")}</span><span class="tx"><span class="hint">Objek utama</span><b>${esc(keyLabel(it.main))}</b></span></button>
+      <button class="part" data-pt="mod" style="text-align:left" aria-pressed="${layer === "mod"}"><span class="th">${thumbKey(it.mod, "mod")}</span><span class="tx"><span class="hint">Pengubah</span><b>${it.mod === "none" ? "Tanpa" : esc(keyLabel(it.mod))}</b></span></button>
+    </div>
+    ${pv === "X" && it.deco && it.deco.type !== "none" ? `<button class="part" data-pt="deco" style="text-align:left" aria-pressed="${layer === "deco"}"><span class="th"><svg viewBox="-8 -8 16 16"><path d="${DECOS[it.deco.type].d}" fill="${style.accent}"/></svg></span><span class="tx"><span class="hint">Dekorasi</span><b>${DECOS[it.deco.type].n}</b></span></button>` : ""}
+    ${layer === "mod" && it.mod !== "none" ? `<div style="display:flex;gap:14px;align-items:center"><div class="slots" role="group" aria-label="Jangkar pengubah">${ANCHORS.map(a => `<button data-anchor="${a}" ${a === "C" ? "disabled" : ""} aria-pressed="${it.slot === a}" aria-label="${a}">${SLOT_GLYPH[a]}</button>`).join("")}</div><p class="hint">Jangkar menempelkan pengubah ke sudut. Objek utama ikut bergeser menjauh.</p></div>` : ""}
+    ${layer === "main" || it.mod !== "none" ? `<div class="two"><div class="rng"><div class="hd"><label for="dX">X</label><span class="sub">${pos[0]}</span></div><input type="range" id="dX" min="${R0[0]}" max="${R0[1]}" step="0.5" value="${pos[0]}"></div><div class="rng"><div class="hd"><label for="dY">Y</label><span class="sub">${pos[1]}</span></div><input type="range" id="dY" min="${R0[0]}" max="${R0[1]}" step="0.5" value="${pos[1]}"></div></div>
+    <div class="hd"><span class="hint">Geser 0,5</span><div class="nudge"><button data-nudge="l" aria-label="Kiri">←</button><button data-nudge="u" aria-label="Atas">↑</button><button data-nudge="d" aria-label="Bawah">↓</button><button data-nudge="r" aria-label="Kanan">→</button><button class="btn sm" data-resetpos="1" style="width:auto">Atur ulang</button></div></div>` : ""}
+    ${accPanel(it)}
+    <p class="hint">Skala, tebal garis, celah knockout dan warna mengikuti patokan Icon Composer untuk semua ikon. Yang bisa diubah per ikon: objek, pengubah, posisi, dan pengaturan Aksen.</p>`;
+}
+function posOf(it, l){ return l === "main" ? [it.mx, it.my] : l === "mod" ? [it.nx, it.ny] : [it.deco.x, it.deco.y]; }
+function accPanel(it){
+  if (pv !== "X") return `<div class="accbox"><span class="cap">Gaya aksen</span><p class="hint">Warna bagian, isi bidang, penanda dan kilau diatur di pratinjau Aksen.</p><button class="btn sm" data-pv="X">Buka pratinjau Aksen</button></div>`;
+  useStyle("X");
+  const info = mainInfo(it.main), R = rolesOf(it, info), hasBody = info.parts.some(p => p.body);
+  const rows = info.parts.map((p, i) => `<div class="prow"><span class="pt2">${partThumb(info, i, R)}</span><div class="seg" role="group" aria-label="Warna bagian ${i + 1}">${ROLES.map(r => `<button data-prole="${i}:${r}" aria-pressed="${R[i] === r}" ${!p.closed && r.startsWith("fill") ? "disabled" : ""}>${ROLE_NAME[r]}</button>`).join("")}</div></div>`).join("");
+  return `<div class="accbox">
+    <div class="hd"><span class="cap">Gaya aksen</span><button class="btn sm" data-pauto="1">${it.parts ? "Kembali ke otomatis" : "Otomatis"}</button></div>
+    <p class="hint">Klik bagian ikon di kanvas untuk berganti warna, atau pilih di sini. Satu kelompok aksen per ikon.</p>
+    <div class="plist">${rows}</div>
+    <span>Isi bidang <span class="sub">· Cara 3</span></span>
+    <div class="seg sm" role="group" aria-label="Isi bidang">${FILLS.map(k => `<button data-under="${k}" aria-pressed="${it.under === k}" ${!hasBody && k !== "none" ? "disabled" : ""}>${UNDER_NAME[k]}</button>`).join("")}</div>
+    ${it.mod !== "none" ? `<span>Penanda <span class="sub">· Cara 4, di depan dengan celah</span></span>
+    <div class="seg sm" role="group" aria-label="Penanda"><button data-mstyle="line" aria-pressed="${it.mstyle === "line"}">Garis</button><button data-mstyle="fill" aria-pressed="${it.mstyle === "fill"}">Isi</button></div>` : ""}
+    <span>Kilau</span>
+    <div class="seg sm" role="group" aria-label="Kilau">${SPARKS.map(k => `<button data-spark="${k}" aria-pressed="${(it.deco || {}).type === k}">${k === "none" ? "Tanpa" : DECOS[k].n}</button>`).join("")}</div>
+  </div>`;
+}
+function setPos(it, which, x, y){
+  const c = v => Math.max(-12, Math.min(12, Math.round(v*2)/2)), c2 = v => Math.max(0, Math.min(48, Math.round(v*2)/2));
+  if (which === "deco"){ it.deco.x = c2(x); it.deco.y = c2(y); return; }
+  if (which === "main"){ it.mx = c(x); it.my = c(y); } else { it.nx = c(x); it.ny = c(y); }
+}
+function legend(){ return `<span class="cap">Arti tanda</span><div class="issues">
+  <div class="iss"><span class="dot err">!</span><span class="t"><b>Mirip ikon pustaka</b><br><span class="hint">Nama gabungannya sudah ada di Lucide/Tabler/Hugeicons (mis. user-plus). Element seperti ini berisiko dianggap tidak orisinal.</span></span></div>
+  <div class="iss"><span class="dot warn">!</span><span class="t"><b>Tanpa body</b><br><span class="hint">Objek pustaka tanpa bidang tertutup. Di mode Solid·garis, objek ini diberi pelat bulat aksen. Ganti objek bila ingin bentuk solid asli.</span></span></div>
+  <div class="iss"><span class="dot err">!</span><span class="t"><b>Tanpa pengubah</b><br><span class="hint">Ikon pustaka tanpa tambahan sama saja dengan salinan.</span></span></div>
+  <div class="iss"><span class="dot ok">✓</span><span class="t"><b>Gaya Aksen</b><br><span class="hint">Wadah tinta, isi atau bidang aksen, penanda pengubah di depan dengan celah. Warna bagian otomatis bisa diubah dengan klik bagian di kanvas.</span></span></div>
+  <div class="iss"><span class="dot warn">!</span><span class="t"><b>Tidak dikenal</b><br><span class="hint">Nama dari manifest tidak ada di kosakata. Pilih pengganti.</span></span></div></div>`; }
+function quickHasBody(node){ return (node || []).some(([tag, attrs]) => ["circle","rect","ellipse","polygon"].includes(tag) || (tag === "path" && /[zZ]/.test((attrs && attrs.d) || ""))); }
+function pickList(){
+  const q = pickQ.trim().toLowerCase(); const terms = q ? q.split(/[,\s]+/).filter(Boolean).map(t => ID_EN[t] || t) : [];
+  const score = n => { if (!terms.length) return 1; let s = 0; for (const t of terms){ if (n === t) s += 10; else if (n.startsWith(t)) s += 6; else if (n.split("-").includes(t)) s += 5; else if (n.includes(t)) s += 2; } return s; };
+  let names;
+  if (pickSrc === "pool") names = MOD_POOL.filter(n => luNames().has(n)).map(n => "lu:" + n);
+  else if (pickSrc === "in") names = Object.keys(pickTarget === "main" ? MAINS : MODS).filter(k => !k.includes(":")).map(k => [k, score(k + " " + (pickTarget === "main" ? MAINS : MODS)[k].n.toLowerCase())]).filter(x => x[1] > 0).map(x => x[0]);
+  else {
+    const all = pickSrc === "lu" ? [...luNames()] : pickSrc === "tb" ? [...TB_NAMES] : [...hgNames()];
+    names = terms.length ? all.map(n => [n, score(n)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1] || a[0].length - b[0].length).map(x => x[0]) : all;
+    if (pickBodyFilter !== "all"){
+      const idx = SOURCES[pickSrc].index();
+      names = names.filter(n => quickHasBody(idx && idx.get(n)) === (pickBodyFilter === "body"));
+    }
+    names = names.slice(0, 60).map(n => pickSrc + ":" + n);
+  }
+  return names.slice(0, 60);
+}
+function renderPick(){
+  const g = $("pGrid"); if (!g) return;
+  const it = items.find(i => i.uid === sel); if (!it) return;
+  if (pickSrc === "tb" && !TB){ g.innerHTML = `<p class="hint" style="grid-column:1/-1">Memuat Tabler…</p>`; loadTabler().then(() => { if (sel === it.uid) renderPick(); }); return; }
+  if (pickSrc === "hg" && !HG){ g.innerHTML = `<p class="hint" style="grid-column:1/-1">Memuat Hugeicons…</p>`; loadHugeicons().then(() => { if (sel === it.uid) renderPick(); }); return; }
+  const list = pickList();
+  g.innerHTML = list.map(k => {
+    const trial = {...it, [pickTarget]: k};
+    const hit = collisions(trial).length > 0;
+    return `<button class="pt${hit ? " hit" : ""}" data-pick="${k}" title="${esc(keyLabel(k))}${hit ? " · sudah ada di pustaka" : ""}">${thumbKey(k, pickTarget)}<span>${esc(keyLabel(k))}</span></button>`;
+  }).join("") || `<p class="hint" style="grid-column:1/-1">Tidak ada hasil.</p>`;
+}
+/* satu halaman Resource Page: kolom bertambah mengikuti jumlah ikon */
+function sheetGrid(n){ if (sheetCols !== "auto") return +sheetCols; return n <= 12 ? 4 : n <= 24 ? 6 : n <= 40 ? 8 : n <= 60 ? 10 : n <= 96 ? 12 : 14; }
+function roleOk(i){ return i.role === "extra" ? $("exExtra").checked : $("exSlot").checked; }
+function exportList(){ const dm = dupMap(); const L = items.filter(i => i.on && roleOk(i) && !($("exSkipBad").checked && isBad(i, dm))); return [...L.filter(i => i.role !== "extra"), ...L.filter(i => i.role === "extra")]; }
+const ROLE_DIR = {slot:"slot-deck", extra:"ekstra"};
+function pathOf(it, s){ const d = MODE_INFO[s].dir; return `${d}/${$("exSplit").checked ? ROLE_DIR[it.role === "extra" ? "extra" : "slot"] + "/" : ""}${it.id}-${d}.svg`; }
+function renderExport(){
+  const list = exportList(), cols = sheetGrid(list.length), styles = MODES.filter(m => $("ex" + m).checked);
+  document.querySelectorAll("[data-cols]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.cols === sheetCols)));
+  $("sheet").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px"><div><div style="font-size:30px;font-weight:600;letter-spacing:-.02em">Resource Page</div><div style="color:#5E6068;margin-top:4px">${esc((man && man.resource && man.resource.description) || "Use these icons to add clarity to your presentation.")}</div></div><div class="mono" style="font-size:11px;color:#8B8D96">${list.length} icons · ${MODE_INFO[pv].short}</div></div>
+    ${[["slot", "Used in this deck"], ["extra", "Extra icons in the same set"]].map(([r, lab]) => { const g = list.filter(i => (i.role === "extra" ? "extra" : "slot") === r); if (!g.length) return ""; return `${list.some(i => i.role === "extra") ? `<div style="font-size:13px;font-weight:600;color:#5E6068;margin:14px 0 10px;border-top:1px solid #E4E4DE;padding-top:8px">${lab} · ${g.length}</div>` : ""}<div class="rg" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${g.map((it, i) => `<div class="cell">${render(it, pv, {idp:"sh" + r + i})}<span>${esc(it.id)}</span></div>`).join("")}</div>`; }).join("")}`;
+  const nS = items.filter(i => i.on && i.role !== "extra").length, nE = items.filter(i => i.on && i.role === "extra").length;
+  $("exSlotN").textContent = `· ${nS}`; $("exExtraN").textContent = `· ${nE}`; $("exExtra").disabled = !nE;
+  const dm = dupMap(), flagged = items.filter(i => i.on && flagsOf(i, dm).length).length;
+  $("exIcons").textContent = list.length; $("exFiles").textContent = list.length * styles.length; $("exFlags").textContent = flagged;
+  if (!$("exName").value) $("exName").value = (man && man.deck && man.deck.title) ? man.deck.title + " Icons" : "Icon Pack";
+  const pk = packOf(); if (document.activeElement !== $("exPackEn")) $("exPackEn").value = pk.en; if (document.activeElement !== $("exPackId")) $("exPackId").value = pk.id;
+  if (document.activeElement !== $("exBrand")) $("exBrand").value = brandId();
+  const b0 = brandId(), okB = !b0 || /^BA[A-Za-z0-9_-]{6,}$/.test(b0);
+  if (list[0]){ const m0 = meta(list[0], styles[0] || pv, 15); $("exSearchEx").innerHTML = `Judul: <b>${esc(m0.title_en)}</b><br>Cari di Elements: <span class="mono">${esc(m0.search)}</span>${!pk.en ? "<br>Tema pack kosong: judul tidak memuat tema." : ""}${!b0 ? "<br>ID brand kosong: kolom search tanpa filter brand." : okB ? "" : "<br>ID brand biasanya diawali BA. Periksa lagi."}`; }
+  const base = kebab2($("exName").value) || "icon-pack";
+  const ex = list.slice(0, 2).map(i => i.id);
+  $("exTree").textContent = `${base}.zip\n` + styles.map(s => `├─ ${MODE_INFO[s].dir}/\n` + ($("exSplit").checked ? [list.some(i => i.role !== "extra") ? `│  ├─ slot-deck/   ${list.filter(i => i.role !== "extra").length} svg` : "", list.some(i => i.role === "extra") ? `│  ├─ ekstra/      ${list.filter(i => i.role === "extra").length} svg` : ""].filter(Boolean).join("\n") : `│  └─ ${list.length} svg`)).join("\n") + `\n├─ metadata.csv (Canva)\n├─ metadata-internal.csv\n├─ submission-profile.json\n├─ resource-page.html\n├─ manifest-final.json\n└─ LICENSES.txt`;
+  $("exGo").disabled = !list.length || !styles.length;
+  void ex;
+}
+
+/* ---------- metadata ---------- */
+/* judul & pencarian: [nama ikon] [tema pack] [gaya] Icon, dicari dengan brand:<ID> [id] [tema pack] */
+const BRAND_KEY = "tib-canva-brand-id";
+function brandId(){ try { return (localStorage.getItem(BRAND_KEY) || "").trim(); } catch { return ""; } }
+function packOf(){ const p = man && man.pack; if (!p) return {en:"", id:""}; if (typeof p === "string") return {en:p, id:p}; return {en:String(p.en || p.id || ""), id:String(p.id || p.en || "")}; }
+const SMALL = new Set(["a","an","the","and","or","of","for","to","in","on","at","by","with","vs"]);
+function titleCase(s){ return String(s || "").trim().split(/\s+/).map((w, i) => i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1)).join(" "); }
+const STYLE_WORD = {X:"Accent Line", A:"Two Tone", B:"Solid Two Tone", C:"Outline"};
+function searchOf(it){ const b = brandId(), pk = packOf().en.toLowerCase().trim(); return [b ? "brand:" + b : "", it.id.replace(/-/g, " "), pk].filter(Boolean).join(" "); }
+async function loadTags(){
+  const get = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!LU_TAGS) LU_TAGS = await get(LU_TAGS_URL) || {};
+  if (!TB_TAGS){ const j = await get(TB_TAGS_URL); TB_TAGS = {}; if (j) for (const [k, v] of Object.entries(j)) if (v && v.category !== "Brand") TB_TAGS[k] = v.tags || []; }
+}
+function tagsOf(k, kind){
+  const n = libName(k, kind), base = n.replace(/-\d+$/, "");
+  const t = [...(LU_TAGS && LU_TAGS[n] || []), ...(TB_TAGS && TB_TAGS[n] || []), ...(TB_TAGS && TB_TAGS[base] || [])];
+  const STOP = new Set(["logo","brand","social","emoji","overview","projects","ui","app","web3","crypto","nft"]);
+  return [...new Set([...base.split("-").filter(w => w.length > 1 && !/^\d+$/.test(w)), ...t.map(x => String(x).toLowerCase())])].filter(w => !STOP.has(w));
+}
+function trID(w){ if (EN_ID[w]) return EN_ID[w]; const parts = w.split(/[\s-]+/); const tr = parts.map(p => EN_ID[p]); return tr.every(Boolean) ? tr.join(" ") : null; }
+function meta(it, kind, N){
+  const styleEN = MODE_INFO[kind].en, styleID = MODE_INFO[kind].id;
+  const mainT = tagsOf(it.main, "main"), modT = it.mod !== "none" ? tagsOf(it.mod, "mod") : [];
+  const lc = a => a.map(s => String(s).toLowerCase().trim()).filter(Boolean);
+  const pk = packOf();
+  const en = [...new Set([...lc(it.keywords.en), it.name.en.toLowerCase(), ...lc([pk.en]), ...mainT.slice(0, 6), ...modT.slice(0, 4), ...styleEN, "icon"])].slice(0, N);
+  const idw = [...new Set([...lc(it.keywords.id), it.name.id.toLowerCase(), ...lc([pk.id]), ...[...mainT.slice(0, 6), ...modT.slice(0, 4)].map(trID).filter(Boolean), ...styleID, "ikon"])].slice(0, N);
+  const nid = it.name.id.charAt(0).toLowerCase() + it.name.id.slice(1);
+  return {
+    title_en: [titleCase(it.name.en), titleCase(pk.en), STYLE_WORD[kind], "Icon"].filter(Boolean).join(" "),
+    title_id: ["Ikon", nid, pk.id.toLowerCase(), MODE_INFO[kind].tid].filter(Boolean).join(" "),
+    keywords_en: en.join(", "), keywords_id: idw.join(", "), search: searchOf(it)
+  };
+}
+const csvCell = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+
+/* ---------- ekspor ---------- */
+/* pengaman ekspor: buang atribut ganda di tiap tag agar file selalu XML valid */
+function dedupeAttrs(svg){ return svg.replace(/<([\w:-]+)((?:\s+[\w:-]+="[^"]*")*)\s*(\/?)>/g, (m, tag, attrs, sl) => { const seen = new Map(); for (const a of attrs.matchAll(/([\w:-]+)="([^"]*)"/g)) seen.set(a[1], a[2]); return `<${tag}${[...seen].map(([k, v]) => ` ${k}="${v}"`).join("")}${sl ? "/" : ""}>`; }); }
+function svgFile(it, kind, i){ return `<?xml version="1.0" encoding="UTF-8"?>\n` + dedupeAttrs(render(it, kind, {size:480, idp:"k" + kind + i})); }
+const OUTLINE_SHAPES = "path,line,polyline,polygon,rect,circle,ellipse";
+const STROKE_ATTRS = ["stroke","stroke-width","stroke-linecap","stroke-linejoin","stroke-miterlimit","stroke-dasharray","stroke-dashoffset","stroke-opacity","vector-effect"];
+function inheritedAttr(el, name, fallback){
+  for (let node = el; node && node.nodeType === 1; node = node.parentElement){ const value = node.getAttribute(name); if (value != null && value !== "inherit") return value; }
+  return fallback;
+}
+const colorKey = value => String(value || "").trim().toLowerCase();
+function geometryForColor(element, color, viewBox){
+  const clone = element.cloneNode(true), originals = [...element.querySelectorAll(OUTLINE_SHAPES)], copies = [...clone.querySelectorAll(OUTLINE_SHAPES)];
+  clone.removeAttribute("mask"); clone.querySelectorAll("[mask]").forEach(node => node.removeAttribute("mask"));
+  copies.forEach((copy, index) => {
+    const original = originals[index], fill = inheritedAttr(original, "fill", "black"), stroke = inheritedAttr(original, "stroke", "none");
+    const includeFill = colorKey(fill) === colorKey(color), includeStroke = colorKey(stroke) === colorKey(color) && Number(inheritedAttr(original, "stroke-width", "1")) > 0;
+    if (!includeFill && !includeStroke){ copy.remove(); return; }
+    copy.setAttribute("fill", includeFill ? color : "none");
+    if (includeStroke){
+      copy.setAttribute("stroke", color);
+      for (const name of STROKE_ATTRS.slice(1)){ const value = inheritedAttr(original, name, null); if (value != null) copy.setAttribute(name, value); else copy.removeAttribute(name); }
+    } else STROKE_ATTRS.forEach(name => copy.removeAttribute(name));
+  });
+  const content = [...clone.childNodes].map(node => new XMLSerializer().serializeToString(node)).join("");
+  const mini = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${content}</svg>`;
+  return window.IconOutline.outlineSvgToMultiPolygon(mini, {fills:true, fill:color, precision:4, curves:true});
+}
+function cloneSingleShape(element, shapeIndex, color){
+  const clone = element.cloneNode(true), copies = [...clone.querySelectorAll(OUTLINE_SHAPES)];
+  clone.removeAttribute("mask"); clone.querySelectorAll("[mask]").forEach(node => node.removeAttribute("mask"));
+  copies.forEach((copy, index) => {
+    if (index !== shapeIndex){ copy.remove(); return; }
+    STROKE_ATTRS.forEach(name => copy.removeAttribute(name)); copy.setAttribute("fill", color);
+  });
+  return clone;
+}
+function geometryForShape(element, shapeIndex, color, viewBox){
+  const clone = cloneSingleShape(element, shapeIndex, color);
+  const mini = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${new XMLSerializer().serializeToString(clone)}</svg>`;
+  return window.IconOutline.outlineSvgToMultiPolygon(mini, {fills:true, fill:color, precision:4, curves:true});
+}
+function geometryArea(mp){
+  const ringArea = ring => Math.abs(ring.reduce((sum, point, index) => { const next = ring[(index + 1) % ring.length]; return sum + point[0] * next[1] - next[0] * point[1]; }, 0) / 2);
+  return mp.reduce((sum, polygon) => sum + ringArea(polygon[0]) - polygon.slice(1).reduce((holes, ring) => holes + ringArea(ring), 0), 0);
+}
+function flattenSvgMasks(doc){
+  const svg = doc.documentElement, viewBox = svg.getAttribute("viewBox") || "0 0 48 48", masked = [...svg.querySelectorAll("[mask]")];
+  for (const element of masked){
+    if (element.closest("defs")) continue;
+    const ref = element.getAttribute("mask") || "", match = ref.match(/^url\(#([^)]+)\)$/), mask = match && svg.querySelector(`mask[id="${CSS.escape(match[1])}"]`);
+    if (!mask) throw new Error(`Mask ${ref || "tanpa id"} tidak ditemukan.`);
+    const cut = geometryForColor(mask, "#000", viewBox), shapes = [...element.querySelectorAll(OUTLINE_SHAPES)];
+    const replacement = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+    for (let index = 0; index < shapes.length; index++){
+      const color = inheritedAttr(shapes[index], "fill", "black");
+      if (["none","transparent","#fff","white"].includes(colorKey(color))) continue;
+      const source = geometryForShape(element, index, color, viewBox), result = window.IconOutline.differenceMultiPolygons(source, cut);
+      if (Math.abs(geometryArea(source) - geometryArea(result)) < 0.0001){ replacement.appendChild(cloneSingleShape(element, index, color)); continue; }
+      const d = window.IconOutline.multiPolygonToPathData(result, {precision:4, curves:true});
+      if (!d) continue;
+      const path = doc.createElementNS("http://www.w3.org/2000/svg", "path"); path.setAttribute("d", d); path.setAttribute("fill", color); path.setAttribute("fill-rule", "evenodd"); replacement.appendChild(path);
+    }
+    element.replaceWith(replacement);
+  }
+  svg.querySelectorAll("mask").forEach(mask => mask.remove());
+  svg.querySelectorAll("defs").forEach(defs => { if (!defs.children.length) defs.remove(); });
+  if (svg.querySelector("[mask],mask")) throw new Error("Validasi gagal: output masih mengandung mask.");
+}
+function outlineSvgFile(source){
+  if (!window.IconOutline || typeof window.IconOutline.outlineSvg !== "function") throw new Error("Mesin konversi outline tidak tersedia.");
+  const doc = new DOMParser().parseFromString(source, "image/svg+xml");
+  if (doc.querySelector("parsererror")) throw new Error("SVG sumber tidak valid.");
+  const svg = doc.documentElement, shapes = [...svg.querySelectorAll(OUTLINE_SHAPES)];
+  for (const el of shapes){
+    if (!el.isConnected) continue;
+    if (el.closest("defs")) continue;
+    const stroke = inheritedAttr(el, "stroke", "none");
+    const width = Number(inheritedAttr(el, "stroke-width", "1"));
+    if (!stroke || stroke === "none" || stroke === "transparent" || !(width > 0)) continue;
+    if (inheritedAttr(el, "stroke-dasharray", "none") !== "none") throw new Error("Stroke putus-putus belum didukung untuk konversi shape.");
+    const clone = el.cloneNode(true);
+    clone.setAttribute("stroke", stroke);
+    clone.setAttribute("stroke-width", String(width));
+    clone.setAttribute("stroke-linecap", inheritedAttr(el, "stroke-linecap", "butt"));
+    clone.setAttribute("stroke-linejoin", inheritedAttr(el, "stroke-linejoin", "miter"));
+    clone.setAttribute("stroke-miterlimit", inheritedAttr(el, "stroke-miterlimit", "4"));
+    clone.setAttribute("fill", "none");
+    const mini = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${svg.getAttribute("viewBox") || "0 0 48 48"}">${new XMLSerializer().serializeToString(clone)}</svg>`;
+    const warnings = [];
+    const converted = window.IconOutline.outlineSvg(mini, {fills:false, fill:stroke, precision:4, curves:true, onWarning:w => warnings.push(w)});
+    if (warnings.length) throw new Error(warnings[0].message || "Ada bentuk yang tidak dapat dikonversi.");
+    const outDoc = new DOMParser().parseFromString(converted, "image/svg+xml"), outlinePath = outDoc.querySelector("path");
+    if (!outlinePath) throw new Error("Outline stroke tidak menghasilkan path.");
+    const group = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+    group.setAttribute("stroke", "none");
+    const fill = inheritedAttr(el, "fill", "black");
+    if (fill && fill !== "none" && fill !== "transparent"){
+      const fillShape = el.cloneNode(true);
+      STROKE_ATTRS.forEach(name => fillShape.removeAttribute(name));
+      fillShape.setAttribute("stroke", "none"); fillShape.setAttribute("fill", fill);
+      group.appendChild(fillShape);
+    }
+    const path = doc.importNode(outlinePath, true);
+    path.setAttribute("fill", stroke); path.setAttribute("fill-rule", "evenodd"); path.removeAttribute("stroke");
+    group.appendChild(path); el.replaceWith(group);
+  }
+  flattenSvgMasks(doc);
+  svg.querySelectorAll("*").forEach(el => STROKE_ATTRS.forEach(name => el.removeAttribute(name)));
+  STROKE_ATTRS.forEach(name => svg.removeAttribute(name));
+  const result = `<?xml version="1.0" encoding="UTF-8"?>\n` + new XMLSerializer().serializeToString(svg);
+  if (/\sstroke(?:-|=)/.test(result)) throw new Error("Validasi gagal: output masih mengandung atribut stroke.");
+  if (/<mask\b|\smask=/.test(result)) throw new Error("Validasi gagal: output masih mengandung mask.");
+  return dedupeAttrs(result);
+}
+function directFillSvgFile(source){
+  const outlined = outlineSvgFile(source);
+  const doc = new DOMParser().parseFromString(outlined, "image/svg+xml");
+  if (doc.querySelector("parsererror")) throw new Error("SVG outline tidak valid.");
+  const svg = doc.documentElement, viewBox = svg.getAttribute("viewBox") || "0 0 48 48";
+  const colors = [];
+  for (const shape of svg.querySelectorAll(OUTLINE_SHAPES)){
+    const fill = inheritedAttr(shape, "fill", "none"), key = colorKey(fill);
+    if (key && key !== "none" && key !== "transparent"){
+      const previous = colors.findIndex(color => colorKey(color) === key);
+      if (previous >= 0) colors.splice(previous, 1);
+      colors.push(fill);
+    }
+  }
+  const flat = document.implementation.createDocument("http://www.w3.org/2000/svg", "svg", null);
+  const root = flat.documentElement;
+  root.setAttribute("xmlns", "http://www.w3.org/2000/svg"); root.setAttribute("viewBox", viewBox);
+  root.setAttribute("width", svg.getAttribute("width") || "480"); root.setAttribute("height", svg.getAttribute("height") || "480");
+  for (const color of colors){
+    const geometry = geometryForColor(svg, color, viewBox);
+    const d = window.IconOutline.multiPolygonToPathData(geometry, {precision:4, curves:true});
+    if (!d) continue;
+    const path = flat.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d); path.setAttribute("fill", color); path.setAttribute("fill-rule", "nonzero");
+    root.appendChild(path);
+  }
+  const result = `<?xml version="1.0" encoding="UTF-8"?>\n` + new XMLSerializer().serializeToString(root);
+  if (!root.children.length) throw new Error("Direct-fill tidak menghasilkan path.");
+  if (/<mask\b|\smask=|\sstroke(?:-|=)|<g\b|\stransform=/.test(result)) throw new Error("Validasi direct-fill gagal: struktur SVG belum rata.");
+  const paths = [...root.children];
+  if (paths.some(path => path.localName !== "path" || !path.getAttribute("d") || !path.getAttribute("fill"))) throw new Error("Validasi Canva gagal: setiap warna harus berupa path fill langsung.");
+  const editableColors = [...new Set(paths.map(path => colorKey(path.getAttribute("fill"))).filter(Boolean))];
+  if (!editableColors.length || editableColors.length > 5) throw new Error(`Validasi Canva gagal: ditemukan ${editableColors.length} warna editable (batas 1–5).`);
+  if (/\sstyle=|<style\b|<use\b|<symbol\b|<clipPath\b/i.test(result)) throw new Error("Validasi Canva gagal: SVG masih memakai style atau referensi yang tidak langsung.");
+  return dedupeAttrs(result);
+}
+function finalManifest(list){
+  return {...(man || {}), format:"tib-manifest", version:1, generator:{name:"Template Icon Builder", version:OUTPUT_VERSION, exported_at:new Date().toISOString()},
+    version:2, style:{...((man && man.style) || {}), family: pv === "X" ? "accent" : "classic", mode: pv === "X" ? ((man && man.style && man.style.mode) || "A") : pv, ink:style.ink, accent:style.accent},
+    icons: list.map(it => ({id:it.id, name:it.name, main:it.main, mod:it.mod, anchor:it.slot, offset:{main:[it.mx, it.my], mod:[it.nx, it.ny]},
+      accent:{fill:it.under, marker:it.mstyle, spark:(it.deco || {}).type || "none", ...((it.deco || {}).type && it.deco.type !== "none" ? {spark_pos:[it.deco.x, it.deco.y]} : {}), parts:it.parts || "auto"},
+      slides:it.slides, role:it.role, keywords:it.keywords}))};
+}
+function resourceHTML(list){
+  const cols = sheetGrid(list.length);
+  const cell = (it, i) => `<figure>${render(it, pv, {idp:"rp" + it.uid})}<figcaption>${esc(it.id)}<small>${esc(searchOf(it))}</small></figcaption></figure>`;
+  const grp = [["slot", "Used in this deck"], ["extra", "Extra icons in the same set"]].map(([r, lab]) => { const g = list.filter(i => (i.role === "extra" ? "extra" : "slot") === r); return g.length ? `${list.some(i => i.role === "extra") ? `<h2>${lab} · ${g.length}</h2>` : ""}<div class="g">${g.map(cell).join("")}</div>` : ""; }).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resource Page</title><style>body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#141414}main{padding:40px}h1{font-size:40px;margin:0 0 6px;font-weight:600}p{color:#5E6068;margin:0 0 28px}.g{display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:22px 14px}figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}svg{width:72px;height:72px}figcaption{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#5E6068;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}small{font-size:9px;color:#8B8D96}h2{font-size:16px;color:#5E6068;margin:28px 0 14px;font-weight:600}</style></head><body><main><h1>Resource Page</h1><p>${esc((man && man.resource && man.resource.description) || "Use these icons to add clarity to your presentation.")}</p>${grp}</main></body></html>`;
+}
+const LICENSES = `Ikon dalam pack ini dirakit dengan Template Icon Builder.\nSebagian bentuk dasar berasal dari:\n- Lucide (https://lucide.dev) — ISC License, © Lucide Contributors\n- Tabler Icons (https://tabler.io/icons) — MIT License, © Paweł Kuna\n- Hugeicons Free (https://hugeicons.com) — MIT License, © Hugeicons\nPaket Hugeicons Pro tidak digunakan.\nKonversi stroke ke shape menggunakan:\n- unstroke — MIT License, © Paweł Kuna\n- clipper-lib — Boost Software License\nSetiap ikon adalah gabungan objek + pengubah, digambar ulang dengan gaya Icon Composer:\n- aksen/: garis 3,5 ujung bulat, celah knockout 1,25, wadah tinta + bagian aksen, penanda di depan\n- garis-solid/ dan solid-garis/: garis 2, celah knockout 2, dua warna\n`;
+async function doExport(){
+  const list = exportList();
+  const styles = MODES.filter(m => $("ex" + m).checked);
+  if (!list.length || !styles.length) return;
+  if (!window.JSZip){ $("exStatus").textContent = "JSZip tidak termuat. Periksa koneksi internet."; return; }
+  $("exStatus").textContent = "Mengambil tag pustaka untuk kata kunci…";
+  await loadTags();
+  const N = +$("exKw").value, z = new JSZip(), base = kebab2($("exName").value) || "icon-pack", outline = true;
+  const locale = $("exLocale").value === "id" ? "id" : "en";
+  const artist = $("exCreator").value === "chital" ? "chital" : "hashtagben", description = $("exDescription").value.trim();
+  const canvaRows = [["filename","title","keywords","Artist","locale","description"].join(",")];
+  const filenames = new Set();
+  for (const it of list) for (const s of styles){
+    const filename = `${it.id}-${MODE_INFO[s].dir}.svg`;
+    if (filenames.has(filename)){
+      $("exStatus").textContent = `Ekspor dibatalkan: nama file duplikat ${filename}. Ubah ID ikon sebelum mengekspor.`;
+      return;
+    }
+    filenames.add(filename);
+  }
+  const rows = [["file","id","style","title_en","title_id","keywords_en","keywords_id","search","pack","slides","role","main","modifier"].join(",")];
+  try {
+    list.forEach((it, i) => styles.forEach(s => {
+      const f = pathOf(it, s);
+      const sourceSvg = svgFile(it, s, i);
+      z.file(f, directFillSvgFile(sourceSvg));
+      const m = meta(it, s, N);
+      canvaRows.push([`${it.id}-${MODE_INFO[s].dir}.svg`, m["title_" + locale], m["keywords_" + locale], artist, locale, description].map(csvCell).join(","));
+      rows.push([f, it.id, MODE_INFO[s].dir, m.title_en, m.title_id, m.keywords_en, m.keywords_id, m.search, packOf().en, it.slides.join(" "), it.role, it.main, it.mod].map(csvCell).join(","));
+    }));
+  } catch (error){
+    $("exStatus").textContent = `Ekspor outline dibatalkan: ${error.message}`;
+    return;
+  }
+  z.file("metadata.csv", "﻿" + canvaRows.join("\r\n") + "\r\n");
+  z.file("submission-profile.json", JSON.stringify({format:"icon-composer-submission-profile", version:1, creator_profile_id:artist, artist, stroke_output:"direct-fill", output_version:OUTPUT_VERSION, classic_engine:typeof CLASSIC_ENGINE_VERSION === "string" ? CLASSIC_ENGINE_VERSION : TIB_VERSION, svg_structure:"one-path-per-color", fill_rule:"nonzero", updates:["Overlap satu warna tidak menjadi lubang", "Stroke otomatis menjadi fill", "Mask diratakan", "Transform dan group dihapus", "Satu path per warna"]}, null, 2));
+  z.file("metadata-internal.csv", "﻿" + rows.join("\r\n") + "\r\n");
+  z.file("resource-page.html", resourceHTML(list));
+  z.file("manifest-final.json", JSON.stringify(finalManifest(list), null, 2));
+  z.file("LICENSES.txt", LICENSES);
+  const blob = await z.generateAsync({type:"blob"});
+  await saveFile(base + ".zip", blob);
+  const dropped = items.filter(i => !list.includes(i)).map(i => i.id);
+  $("exStatus").textContent = `${list.length} ikon × ${styles.length} gaya diekspor.` + (outline ? ` ${list.length * styles.length} SVG dikonversi menjadi shape.` : "") + (dropped.length ? ` Tidak ikut: ${dropped.join(", ")}. Hapus juga dari Resource Page di deck.` : "");
+}
+
+/* ---------- ekspor skill ---------- */
+function vocabulary(){
+  return {
+    generator:{name:"Template Icon Builder", version:TIB_VERSION},
+    style:{families:{accent:{stroke:STY.X.sw, gap:STY.X.gap, cap:STY.X.cap, fill:FILLS, marker:["line","fill"], spark:SPARKS}, classic:{stroke:STY.C.sw, gap:STY.C.gap, cap:STY.C.cap, modes:{A:MODE_INFO.A.label, B:MODE_INFO.B.label}}}, grid:48, colors:{ink:style.ink, accent:style.accent}},
+    anchors:ANCHORS.filter(a => a !== "C"),
+    builtin_main:Object.fromEntries(Object.entries(MAINS).filter(([k]) => !k.includes(":")).map(([k, v]) => [k, v.n])),
+    builtin_mod:Object.fromEntries(Object.entries(MODS).filter(([k]) => !k.includes(":")).map(([k, v]) => [k, v.n])),
+    modifier_suggestions:MOD_POOL.filter(n => luNames().has(n)).map(n => "lu:" + n),
+    lucide:[...luNames()].sort(),
+    tabler:[...TB_NAMES].sort(),
+    hugeicons:[...hgNames()].sort()
+  };
+}
+function skillMd(){ return SKILL_TEMPLATE.replace(/\{\{VERSION\}\}/g, TIB_VERSION)
+  .replace("{{BUILTIN_MAIN}}", Object.entries(MAINS).filter(([k]) => !k.includes(":")).map(([k, v]) => `\`${k}\` (${v.n})`).join(", "))
+  .replace("{{BUILTIN_MOD}}", Object.entries(MODS).filter(([k]) => !k.includes(":")).map(([k, v]) => `\`${k}\` (${v.n})`).join(", "))
+  .replace("{{MOD_POOL}}", MOD_POOL.filter(n => luNames().has(n)).map(n => "`lu:" + n + "`").join(", "))
+  .replace("{{STROKE}}", String(style.sw)); }
+async function exportSkill(){
+  if (!window.JSZip) return toast("JSZip tidak termuat");
+  const z = new JSZip();
+  z.file("deck-icon-slots/SKILL.md", skillMd());
+  z.file("deck-icon-slots/references/vocabulary.json", JSON.stringify(vocabulary()));
+  z.file("deck-icon-slots/references/example-manifest.json", JSON.stringify(SAMPLE, null, 2));
+  await saveFile("deck-icon-slots-skill-v" + TIB_VERSION + ".zip", await z.generateAsync({type:"blob"}));
+}
+const SKILL_TEMPLATE = /*@SKILL@*/"";
+const SAMPLE = /*@SAMPLE@*/null;
+
+/* ---------- io ---------- */
+let downloads = null;
+async function saveFile(filename, data){
+  if (downloads){ try { await downloads.save({filename, data}); toast("Tersimpan: " + filename); } catch (e){ if (!e || e.code !== "declined") toast("Unduhan tidak bisa dibuat di sini"); } return; }
+  const blob = data instanceof Blob ? data : new Blob([data]);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast("Tersimpan: " + filename);
+}
+let toastT; function toast(m){ const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1800); }
+
+/* ---------- wiring ---------- */
+async function runImport(text){
+  const r = importManifest(text);
+  if (r.fatal){ issuesG = [["err", r.fatal]]; man = null; items = []; renderImport(); $("impIssues").innerHTML = `<div class="iss"><span class="dot err">!</span><span class="t">${esc(r.fatal)}</span></div>`; showView("import"); return; }
+  if (r.needTb){ $("impIssues").innerHTML = `<div class="iss"><span class="dot warn">…</span><span class="t">Memuat Tabler…</span></div>`; await loadTabler(); }
+  if (r.needHg){ $("impIssues").innerHTML = `<div class="iss"><span class="dot warn">…</span><span class="t">Memuat Hugeicons…</span></div>`; await loadHugeicons(); }
+  items.forEach(ensureItem);
+  issuesG = validateManifest();
+  sel = items[0] ? items[0].uid : null; filter = "all";
+  $("exName").value = ""; $("exStatus").textContent = "";
+  persist(); showView("import"); toast(`${items.length} ikon diimpor`);
+}
+function setKey(it, kind, k){
+  it[kind] = k;
+  if (k !== "none" && LIB_RE.test(k)) ensureLucide(k, kind);
+  if (kind === "mod"){ const sh = k === "none" ? [0, 0] : (SHIFT[it.slot] || [0, 0]); it.mx = sh[0]; it.my = sh[1]; }
+  issuesG = validateManifest(); persist();
+}
+function closeCreatorMenu(){
+  const root = $("exCreatorSelect"), menu = $("exCreatorMenu"), trigger = root.querySelector(".creator-trigger");
+  root.classList.remove("open"); menu.hidden = true; trigger.setAttribute("aria-expanded", "false");
+}
+function setCreator(value){
+  const creator = value === "chital" ? "chital" : "hashtagben";
+  $("exCreator").value = creator; $("exArtist").value = creator; $("exCreatorLabel").textContent = creator === "chital" ? "Chital" : "hashtagben";
+  $("exCreatorMenu").querySelectorAll("[data-creator]").forEach(button => button.setAttribute("aria-selected", String(button.dataset.creator === creator)));
+  closeCreatorMenu();
+}
+function closeLocaleMenu(){
+  const root = $("exLocaleSelect"), menu = $("exLocaleMenu"), trigger = root.querySelector(".creator-trigger");
+  root.classList.remove("open"); menu.hidden = true; trigger.setAttribute("aria-expanded", "false");
+}
+function setLocale(value){
+  const locale = value === "id" ? "id" : "en";
+  $("exLocale").value = locale; $("exLocaleLabel").textContent = locale === "id" ? "Indonesia (id)" : "English (en)";
+  $("exLocaleMenu").querySelectorAll("[data-locale]").forEach(button => button.setAttribute("aria-selected", String(button.dataset.locale === locale)));
+  closeLocaleMenu();
+}
+function closeKwMenu(){
+  const root = $("exKwSelect"), menu = $("exKwMenu"), trigger = root.querySelector(".creator-trigger");
+  root.classList.remove("open"); menu.hidden = true; trigger.setAttribute("aria-expanded", "false");
+}
+function setKw(value){
+  const kw = ["10", "15", "20", "25"].includes(String(value)) ? String(value) : "15";
+  $("exKw").value = kw; $("exKwLabel").textContent = kw;
+  $("exKwMenu").querySelectorAll("[data-kw]").forEach(button => button.setAttribute("aria-selected", String(button.dataset.kw === kw)));
+  closeKwMenu();
+}
+$("exCreatorSelect").querySelector(".creator-trigger").addEventListener("keydown", e => {
+  if (!["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) return;
+  e.preventDefault(); const menu = $("exCreatorMenu"); menu.hidden = false; $("exCreatorSelect").classList.add("open"); e.currentTarget.setAttribute("aria-expanded", "true");
+  (menu.querySelector('[aria-selected="true"]') || menu.querySelector("button")).focus();
+});
+$("exCreatorMenu").addEventListener("keydown", e => {
+  const options = [...e.currentTarget.querySelectorAll("button")], index = options.indexOf(document.activeElement);
+  if (e.key === "Escape"){ e.preventDefault(); closeCreatorMenu(); $("exCreatorSelect").querySelector(".creator-trigger").focus(); }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); options[(index + (e.key === "ArrowDown" ? 1 : -1) + options.length) % options.length].focus(); }
+});
+$("exLocaleSelect").querySelector(".creator-trigger").addEventListener("keydown", e => {
+  if (!["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) return;
+  e.preventDefault(); const menu = $("exLocaleMenu"); menu.hidden = false; $("exLocaleSelect").classList.add("open"); e.currentTarget.setAttribute("aria-expanded", "true");
+  (menu.querySelector('[aria-selected="true"]') || menu.querySelector("button")).focus();
+});
+$("exLocaleMenu").addEventListener("keydown", e => {
+  const options = [...e.currentTarget.querySelectorAll("button")], index = options.indexOf(document.activeElement);
+  if (e.key === "Escape"){ e.preventDefault(); closeLocaleMenu(); $("exLocaleSelect").querySelector(".creator-trigger").focus(); }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); options[(index + (e.key === "ArrowDown" ? 1 : -1) + options.length) % options.length].focus(); }
+});
+$("exKwSelect").querySelector(".creator-trigger").addEventListener("keydown", e => {
+  if (!["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) return;
+  e.preventDefault(); const menu = $("exKwMenu"); menu.hidden = false; $("exKwSelect").classList.add("open"); e.currentTarget.setAttribute("aria-expanded", "true");
+  (menu.querySelector('[aria-selected="true"]') || menu.querySelector("button")).focus();
+});
+$("exKwMenu").addEventListener("keydown", e => {
+  const options = [...e.currentTarget.querySelectorAll("button")], index = options.indexOf(document.activeElement);
+  if (e.key === "Escape"){ e.preventDefault(); closeKwMenu(); $("exKwSelect").querySelector(".creator-trigger").focus(); }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); options[(index + (e.key === "ArrowDown" ? 1 : -1) + options.length) % options.length].focus(); }
+});
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#exCreatorSelect")) closeCreatorMenu(); if (!e.target.closest("#exLocaleSelect")) closeLocaleMenu(); if (!e.target.closest("#exKwSelect")) closeKwMenu(); });
+document.addEventListener("click", e => {
+  const t = e.target.closest("button,[data-sel]"); if (!t) return;
+  const d = t.dataset;
+  if (d.creatorToggle !== undefined){ const menu = $("exCreatorMenu"), open = menu.hidden; closeCreatorMenu(); if (open){ menu.hidden = false; $("exCreatorSelect").classList.add("open"); t.setAttribute("aria-expanded", "true"); } return; }
+  if (d.creator){ setCreator(d.creator); $("exCreatorSelect").querySelector(".creator-trigger").focus(); return; }
+  if (d.localeToggle !== undefined){ const menu = $("exLocaleMenu"), open = menu.hidden; closeLocaleMenu(); if (open){ menu.hidden = false; $("exLocaleSelect").classList.add("open"); t.setAttribute("aria-expanded", "true"); } return; }
+  if (d.locale){ setLocale(d.locale); $("exLocaleSelect").querySelector(".creator-trigger").focus(); return; }
+  if (d.kwToggle !== undefined){ const menu = $("exKwMenu"), open = menu.hidden; closeKwMenu(); if (open){ menu.hidden = false; $("exKwSelect").classList.add("open"); t.setAttribute("aria-expanded", "true"); } return; }
+  if (d.kw){ setKw(d.kw); $("exKwSelect").querySelector(".creator-trigger").focus(); return; }
+  if (d.view) return showView(d.view);
+  if (d.pv){ pv = d.pv; includePreviewStyleInExport(pv); persist(); return showView(view); }
+  if (d.prole){ const it = curIt(); if (it){ const [i, r] = d.prole.split(":"); useStyle("X"); const info = mainInfo(it.main); it.parts = Object.fromEntries(rolesOf(it, info).map((x, j) => [j, x])); it.parts[i] = r; persist(); renderReview(); } return; }
+  if (d.pauto){ const it = curIt(); if (it){ it.parts = null; persist(); renderReview(); } return; }
+  if (d.under){ const it = curIt(); if (it){ it.under = d.under; persist(); renderReview(); } return; }
+  if (d.mstyle){ const it = curIt(); if (it){ it.mstyle = d.mstyle; persist(); renderReview(); } return; }
+  if (d.spark){ const it = curIt(); if (it){ const h = sparkHome(it.slot, d.spark); it.deco = d.spark === "none" ? {type:"none", x:9, y:9, r:0, color:"accent"} : {type:d.spark, x:(it.deco && it.deco.type !== "none") ? it.deco.x : h[0], y:(it.deco && it.deco.type !== "none") ? it.deco.y : h[1], r:0, color:"accent"}; if (d.spark === "none" && layer === "deco") layer = "main"; persist(); renderReview(); } return; }
+  if (d.filter){ filter = d.filter; return renderReview(); }
+  if (d.sel){ sel = d.sel; return renderReview(); }
+  if (d.pt === "deco"){ layer = "deco"; renderBoard(); return renderDetail(); }
+  if (d.pt){ layer = pickTarget = d.pt; pickQ = ""; if (pickTarget === "mod" && pickSrc === "in") pickSrc = "pool"; if (pickTarget === "main" && pickSrc === "pool") pickSrc = "lu"; renderBoard(); renderLib(); return renderDetail(); }
+  if (d.psrc){ pickSrc = d.psrc; return renderLib(); }
+  if (d.pbody){ pickBodyFilter = d.pbody; return renderLib(); }
+  if (d.nudge){ const it = curIt(); if (it){ const p = posOf(it, layer); const dx = {l:-0.5, r:0.5}[d.nudge] || 0, dy = {u:-0.5, d:0.5}[d.nudge] || 0; setPos(it, layer, p[0] + dx, p[1] + dy); persist(); renderReview(); } return; }
+  if (d.resetpos){ const it = curIt(); if (it){ if (layer === "main"){ const sh = it.mod !== "none" ? (SHIFT[it.slot] || [0, 0]) : [0, 0]; it.mx = sh[0]; it.my = sh[1]; } else if (layer === "deco"){ const h = sparkHome(it.slot, it.deco.type); it.deco.x = h[0]; it.deco.y = h[1]; } else { it.nx = 0; it.ny = 0; } persist(); renderReview(); } return; }
+  if (d.pick){ const it = items.find(i => i.uid === sel); if (it){ setKey(it, pickTarget, d.pick); renderReview(); } return; }
+  if (d.setnone){ const it = items.find(i => i.uid === sel); if (it){ setKey(it, "mod", "none"); renderReview(); } return; }
+  if (d.anchor){ const it = items.find(i => i.uid === sel); if (it){ it.slot = d.anchor; it.nx = 0; it.ny = 0; const sh = SHIFT[d.anchor] || [0, 0]; it.mx = sh[0]; it.my = sh[1]; persist(); renderReview(); } return; }
+  if (d.fixi){ const f = issuesG[+d.fixi]; if (f && f[2]){ const it = items.find(i => i.uid === f[2].uid); if (it) setKey(it, f[2].kind, f[2].to); renderImport(); } return; }
+  if (d.cols){ sheetCols = d.cols; persist(); return renderExport(); }
+});
+document.addEventListener("input", e => {
+  const id = e.target.id, it = items.find(i => i.uid === sel);
+  if (id === "exBrand"){ try { localStorage.setItem(BRAND_KEY, e.target.value.trim()); } catch {} renderExport(); return; }
+  if (id === "exPackEn" || id === "exPackId"){ if (man){ const p = packOf(); man.pack = {en: id === "exPackEn" ? e.target.value : p.en, id: id === "exPackId" ? e.target.value : p.id}; persist(); } renderExport(); return; }
+  if (id === "pQ"){ pickQ = e.target.value; clearTimeout(window.__pq); window.__pq = setTimeout(renderPick, 160); return; }
+  if (!it) return;
+  if (id === "dX" || id === "dY"){ const p = posOf(it, layer); if (id === "dX") p[0] = +e.target.value; else p[1] = +e.target.value; setPos(it, layer, p[0], p[1]); persist(); renderBoard(); const sp = e.target.parentElement.querySelector(".sub"); if (sp) sp.textContent = e.target.value; return; }
+  if (id === "dId"){ it.id = kebab2(e.target.value) || it.id; persist(); const c = document.querySelector(`[data-sel="${it.uid}"] .id`); if (c) c.textContent = it.id; }
+  if (id === "dEn"){ it.name.en = e.target.value.slice(0, 60); persist(); }
+  if (id === "dIdn"){ it.name.id = e.target.value.slice(0, 60); persist(); }
+});
+document.addEventListener("change", e => {
+  const id = e.target.id;
+  if (id === "dX" || id === "dY"){ renderReview(); return; }
+  if (id === "dOn"){ const it = items.find(i => i.uid === sel); if (it){ it.on = e.target.checked; persist(); renderReview(); } }
+  if (["exX", "exA", "exB", "exSlot", "exExtra", "exSplit", "exSkipBad", "exName"].includes(id)) renderExport();
+  if (id === "dId"){ e.target.value = (items.find(i => i.uid === sel) || {}).id || ""; }
+});
+$("bOv").addEventListener("pointerdown", e => {
+  const t = e.target.closest("[data-layer]"), it = curIt(); if (!t || !it) return;
+  layer = t.dataset.layer; pickTarget = layer === "deco" ? "main" : layer;
+  const r = $("board").getBoundingClientRect(), p = posOf(it, layer);
+  drag = {sx:e.clientX, sy:e.clientY, f:48/r.width, x0:p[0], y0:p[1], part:t.dataset.part, moved:false};
+  try { $("bOv").setPointerCapture(e.pointerId); } catch {}
+  renderBoard(); renderLib(); renderDetail(); e.preventDefault();
+});
+$("bOv").addEventListener("pointermove", e => { const it = curIt(); if (!drag || !it) return; if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 3) return; drag.moved = true; setPos(it, layer, drag.x0 + (e.clientX - drag.sx)*drag.f, drag.y0 + (e.clientY - drag.sy)*drag.f); renderBoard(); });
+["pointerup", "pointercancel"].forEach(ev => $("bOv").addEventListener(ev, () => {
+  if (!drag) return;
+  const it = curIt();
+  if (ev === "pointerup" && !drag.moved && drag.part != null && pv === "X" && it) cycleRole(it, +drag.part);
+  drag = null; persist(); renderReview();
+}));
+$("doImport").onclick = async () => { isSample = false; await runImport($("src").value); };
+$("loadSample").onclick = async () => { $("src").value = JSON.stringify(SAMPLE, null, 2); await runImport($("src").value); isSample = true; persist(); showView("import"); };
+$("goReview").onclick = () => showView("review");
+$("exGo").onclick = doExport;
+$("skillBtn").onclick = exportSkill;
+$("drop").addEventListener("click", () => $("file").click());
+$("drop").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); $("file").click(); } });
+$("file").addEventListener("change", async e => { const f = e.target.files[0]; if (f){ const t = await f.text(); $("src").value = t; isSample = false; runImport(t); } e.target.value = ""; });
+["dragover", "dragenter"].forEach(ev => $("drop").addEventListener(ev, e => { e.preventDefault(); $("drop").classList.add("on"); }));
+["dragleave", "drop"].forEach(ev => $("drop").addEventListener(ev, e => { e.preventDefault(); $("drop").classList.remove("on"); }));
+$("drop").addEventListener("drop", async e => { const f = e.dataTransfer.files[0]; if (f){ const t = await f.text(); $("src").value = t; isSample = false; runImport(t); } });
+
+/* ---------- boot ---------- */
+(function boot(){
+  try {
+    const j = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (j && j.man && Array.isArray(j.items)){
+      man = j.man; items = j.items; sheetCols = j.sheetCols || "auto"; isSample = !!j.isSample;
+      applyManStyle(); pv = MODES.includes(j.pv) ? j.pv : pv; includePreviewStyleInExport(pv);
+      $("src").value = JSON.stringify(man, null, 2);
+      const needTb = items.some(it => /^tb:/.test(it.main) || /^tb:/.test(it.mod));
+      const needHg = items.some(it => /^hg:/.test(it.main) || /^hg:/.test(it.mod));
+      items.forEach(ensureItem); items.forEach(it => normAcc(it, null)); if (!j.v151){ items.forEach(it => { if (it.role === "extra") it.on = true; }); } issuesG = validateManifest(); sel = items[0] && items[0].uid;
+      if (needTb) loadTabler().then(() => {
+        for (const reg of [MAINS, MODS]) for (const k of Object.keys(reg)) if (/^tb:/.test(k) && reg[k].missing) delete reg[k];
+        items.forEach(ensureItem); issuesG = validateManifest(); showView(view);
+      });
+      if (needHg) loadHugeicons().then(() => {
+        for (const reg of [MAINS, MODS]) for (const k of Object.keys(reg)) if (/^hg:/.test(k) && reg[k].missing) delete reg[k];
+        items.forEach(ensureItem); issuesG = validateManifest(); showView(view);
+      });
+    }
+  } catch {}
+  showView(items.length ? "review" : "import");
+  (async () => { if (window.claude && window.claude.use){ try { downloads = await window.claude.use("downloads"); } catch {} } })();
+})();
+</script>
+</body>
+</html>

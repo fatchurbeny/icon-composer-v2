@@ -1,0 +1,162 @@
+{
+  "format": "tib-manifest",
+  "version": 2,
+  "skill_version": "1.4.0",
+  "deck": {
+    "title": "Outline Mask Test",
+    "slides": 3,
+    "resource_slide": 3,
+    "file": "outline-mask-test-manifest.json"
+  },
+  "pack": {
+    "en": "Outline Mask Test",
+    "id": "Tes Mask Outline",
+    "name": "Outline Mask Test"
+  },
+  "style": {
+    "family": "accent",
+    "ink": "#141414",
+    "accent": "#FECC33",
+    "mode": "A"
+  },
+  "resource": {
+    "description": "Three mask-heavy icons used to validate editable fill output."
+  },
+  "icons": [
+    {
+      "id": "workshop-objectives",
+      "name": {
+        "en": "Workshop objectives",
+        "id": "Tujuan lokakarya"
+      },
+      "main": "lu:target",
+      "mod": "lu:check",
+      "anchor": "BR",
+      "offset": {
+        "main": [
+          -3,
+          -3
+        ],
+        "mod": [
+          0,
+          0
+        ]
+      },
+      "accent": {
+        "fill": "none",
+        "marker": "line",
+        "spark": "star4",
+        "spark_pos": [
+          9,
+          9
+        ],
+        "parts": "auto"
+      },
+      "slides": [
+        1
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "objectives",
+          "goals",
+          "workshop"
+        ],
+        "id": [
+          "tujuan",
+          "sasaran",
+          "lokakarya"
+        ]
+      }
+    },
+    {
+      "id": "visible-timer",
+      "name": {
+        "en": "Timer in view",
+        "id": "Penanda waktu"
+      },
+      "main": "clock",
+      "mod": "lu:eye",
+      "anchor": "BR",
+      "offset": {
+        "main": [
+          -3,
+          -3
+        ],
+        "mod": [
+          0,
+          0
+        ]
+      },
+      "accent": {
+        "fill": "none",
+        "marker": "fill",
+        "spark": "none",
+        "parts": "auto"
+      },
+      "slides": [
+        2
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "timer",
+          "clock",
+          "visible"
+        ],
+        "id": [
+          "pengatur waktu",
+          "jam",
+          "terlihat"
+        ]
+      }
+    },
+    {
+      "id": "teacher",
+      "name": {
+        "en": "Teacher",
+        "id": "Guru"
+      },
+      "main": "book",
+      "mod": "lu:graduation-cap",
+      "anchor": "TR",
+      "offset": {
+        "main": [
+          -3,
+          3
+        ],
+        "mod": [
+          0,
+          0
+        ]
+      },
+      "accent": {
+        "fill": "none",
+        "marker": "line",
+        "spark": "none",
+        "parts": "auto"
+      },
+      "slides": [
+        3
+      ],
+      "role": "slot",
+      "keywords": {
+        "en": [
+          "teacher",
+          "education",
+          "school"
+        ],
+        "id": [
+          "guru",
+          "pendidikan",
+          "sekolah"
+        ]
+      }
+    }
+  ],
+  "generator": {
+    "name": "Template Icon Builder",
+    "version": "1.4.2",
+    "exported_at": "2026-10-12T09:19:46.241Z"
+  }
+}
