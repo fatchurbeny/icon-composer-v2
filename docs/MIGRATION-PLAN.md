@@ -26,7 +26,7 @@ Status: `[ ]` belum · `[~]` berjalan · `[x]` selesai.
 
 **Kriteria terima:** golden identik untuk classic dan accent di kedua app. ZIP ekspor TIB sama isinya, kecuali timestamp `exported_at`.
 
-## Fase 2: Ekstrak paket bersama
+## Fase 2: Ekstrak paket bersama ✅
 
 - [x] `packages/core`: `rng`, `hash`, `partStr`, `dedupeAttrs`, pembulatan.
 - [x] `packages/icon-sources`: loader (`createIconSources`), `sources.json`, `concept()` (gabungan `variantsOf`, `MOD_SYN`, alias), katalog kategori, data Kustom.
@@ -36,7 +36,7 @@ Status: `[ ]` belum · `[~]` berjalan · `[x]` selesai.
 
 **Kriteria terima:** golden tetap identik. Tidak ada fungsi mesin yang masih terduplikasi di `apps/` (cek `graphify query "compose"`).
 
-Status 2026-10-18: semua butir selesai, golden (9 tes, termasuk Tabler, Hugeicons, Kustom, dan ZIP Composer) identik. Menunggu persetujuan pemilik untuk menutup fase.
+Status 2026-10-18: **selesai, disetujui pemilik.** Golden (9 tes, termasuk Tabler, Hugeicons, Kustom, dan ZIP Composer) identik.
 
 ## Fase 2b: UI terpadu Icon Studio
 
