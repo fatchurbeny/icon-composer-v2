@@ -3,14 +3,6 @@ body {
   margin: 0;
   min-width: 960px;
 }
-.studio-empty {
-  display: grid;
-  place-items: center;
-  height: 100%;
-}
-.studio-empty .ic-empty {
-  max-width: 320px;
-}
 .ic-empty strong {
   display: block;
 }
@@ -23,4 +15,79 @@ body {
   width: 0;
   height: 0;
   overflow: hidden;
+}
+/* tata letak lokal app: hanya token, tanpa warna atau kelas ic- baru (UI-RULES) */
+.studio-center {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+}
+.studio-center > .ic-empty {
+  max-width: 420px;
+}
+.studio-pad {
+  padding: var(--ic-sp-6);
+}
+.studio-row,
+.studio-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ic-sp-3);
+}
+.studio-grow {
+  flex: 1;
+}
+.studio-info-mono {
+  font-size: var(--ic-fs-sm);
+}
+.studio-status-field {
+  height: 20px;
+}
+.studio-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.studio-paste {
+  height: auto;
+  padding: var(--ic-sp-3) var(--ic-sp-4);
+}
+.studio-paste textarea {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-family: var(--ic-font-mono);
+  resize: vertical;
+}
+.studio-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ic-sp-3);
+}
+.studio-edit__art {
+  width: 520px;
+  height: 520px;
+  cursor: default;
+}
+.studio-edit__art svg {
+  width: 480px;
+  height: 480px;
+}
+/* pembungkus isi panel (target lipat panel): isi tab menggulir di dalam panel yang tumbuh */
+.studio-panel-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.studio-panel-body[hidden] {
+  display: none;
+}
+.studio-panel-body > .ic-panel__body {
+  flex: 1;
 }

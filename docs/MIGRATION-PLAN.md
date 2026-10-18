@@ -45,12 +45,12 @@ Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/
 - [x] Bangun ulang `packages/ui/icons.js` dari `lucide-static@1.52.0` (versi terkunci).
 - [x] Tambah skrip `lint:ui` ke `package.json` root dan jalankan di CI lokal (`npm run lint`).
 - [x] Fondasi state Icon Studio (`state/document.js`, `store.js`, `render.js`) dan golden render terhadap IC/TIB (langkah 1 di `docs/plans/fase-2b.md`).
-- [~] Buat `apps/icon-studio`: kerangka `.ic-shell`, routing hash (`#/composer`, `#/composer/edit/<id>`, `#/builder`, `#/tinjau`, `#/kombinasi`), dan tab dokumen.
+- [x] Buat `apps/icon-studio`: kerangka `.ic-shell`, routing hash (`#/composer`, `#/composer/edit/<id>`, `#/builder`, `#/tinjau`, `#/kombinasi`), dan tab dokumen (langkah 2, menunggu tinjauan pemilik).
 - [ ] Persona Composer · Set dan Composer · Edit, memindahkan logika dari `apps/icon-composer` tanpa mengubah keluaran mesin.
 - [ ] Persona Builder, memindahkan logika dari `apps/template-icon-builder`.
 - [ ] Persona Tinjau (lembar kontak, pemeriksaan, metadata, isi ZIP).
 - [ ] Persona Kombinasi (pustaka lintas library + filter Bentuk, matriks, pool, hasil).
-- [ ] `tests/e2e/ui-shell.spec.js`: ukuran kerangka tepat sesuai `DESIGN-HANDOFF.md` bagian 9.
+- [x] `tests/e2e/ui-shell.spec.js`: ukuran kerangka tepat sesuai `DESIGN-HANDOFF.md` bagian 9.
 - [ ] Migrasi localStorage dari kedua app lama ke `icon-studio-v1`.
 
 **Kriteria terima:** semua butir `DESIGN-HANDOFF.md` bagian 9 lulus, golden test mesin tetap identik, dan pemilik menyetujui tampilan tiap persona dibandingkan dengan artboard.

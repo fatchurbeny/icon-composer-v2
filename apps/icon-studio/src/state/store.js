@@ -17,12 +17,18 @@ export function emptyState() {
   return { schemaVersion: SCHEMA_VERSION, documents: [], activeId: null };
 }
 
+/** Akses localStorage bisa melempar (data: URL, jendela privat), jadi selalu dibungkus. */
+function defaultStorage() {
+  return globalThis.localStorage;
+}
+
 /**
  * @param {Pick<Storage, "getItem">} [storage]
  * @returns {StudioState}
  */
-export function loadState(storage = globalThis.localStorage) {
+export function loadState(storage) {
   try {
+    storage = storage || defaultStorage();
     const raw = storage && storage.getItem(STORE_KEY);
     if (!raw) return emptyState();
     const data = JSON.parse(raw);
@@ -45,8 +51,9 @@ export function loadState(storage = globalThis.localStorage) {
  * @param {Pick<Storage, "setItem">} [storage]
  * @returns {boolean} true bila tersimpan
  */
-export function saveState(state, storage = globalThis.localStorage) {
+export function saveState(state, storage) {
   try {
+    storage = storage || defaultStorage();
     if (!storage) return false;
     storage.setItem(
       STORE_KEY,

@@ -65,7 +65,18 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - **Golden:** `tests/e2e/studio-golden.spec.js` membuka `dist/icon-studio.html`, memuat fixture `basic` dan `mixed`, lalu membandingkan SVG per ikon dengan baseline IC/TIB yang sudah ada di `tests/golden/`.
   - Butuh `window.__studio` (hanya di build tes) atau atribut `data-svg` di halaman untuk membaca SVG.
 
-### 2. Kerangka lengkap (shell)
+### 2. Kerangka lengkap (shell) ✅ (menunggu tinjauan Ika)
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Struktur: `src/shell.js`, `src/app-state.js`, `src/ui.js` (pembantu markup kit), `src/personas/{common,composer,builder,tinjau,kombinasi}.js`. Composer · Edit ada di `personas/composer.js`.
+- Isi panel yang belum dibangun memakai `.ic-empty` dengan keterangan tahapnya. Kontrol konteks sudah tampil sesuai artboard, tetapi belum berefek sampai langkah persona masing-masing.
+- Tombol "Muat set contoh" (PRESET IC) di panel Halaman set kosong, untuk meninjau kerangka dengan isi.
+- Font Instrument Sans dan Geist Mono dimuat dari Google Fonts seperti `ui-kit.html`. Tanpa internet, jatuh ke `system-ui`.
+- Uji screenshot (DESIGN-HANDOFF 9.3) dibatasi ke wilayah yang isinya sama dengan kit: bilah atas kiri dan tool rail. Wilayah lain di kit berisi data contoh sticker dan 5 mesin, jadi tidak bisa dibandingkan piksel. Ambang: < 2% piksel berbeda (toleransi kanal 24). Sebagai pembanding, wilayah studio berbeda 17,8%.
+- Preview pane Claude memuat file sebagai `data:` URL: routing hash dan localStorage tidak berjalan di sana. Buka `dist/icon-studio/index.html` langsung di Chrome untuk meninjau.
+
+**Butuh keputusan sebelum langkah 3–6 (UI-RULES "Menambah komponen"):** kit belum punya komponen untuk artboard edit 520 px + handle seleksi + filmstrip (Edit), grup kartu per slide (Builder), lembar kontak + uji 32 px (Tinjau), dan area drop manifest (Builder; sementara memakai `.ic-empty`). Setiap komponen baru perlu usulan, CSS di `packages/ui/components.css`, contoh di `ui-kit.html`, dan baris di DESIGN-HANDOFF bagian 4.
+
 
 - Rapikan `main.js` menjadi `shell.js`. Isinya:
   - bilah atas: persona, mode tampilan, info dokumen, Ekspor;
