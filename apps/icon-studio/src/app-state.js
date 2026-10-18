@@ -8,7 +8,8 @@ import { PRESET, createManifestDocument, createSetDocument, importManifest, norm
 import { createVocabulary, defaultExportOptions, validateManifest } from "./state/builder-ops.js";
 import { ensureReviewFields } from "./state/review-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
-import { loadState, saveState } from "./state/store.js";
+import { migrateFromLegacy } from "./state/migrations/001-from-legacy.js";
+import { hasState, loadState, saveState } from "./state/store.js";
 
 export const PERSONAS = /** @type {const} */ (["composer", "builder", "tinjau", "kombinasi"]);
 
@@ -40,7 +41,22 @@ export const routeHash = (route) =>
  */
 export function createAppState(options) {
   const { renderer } = options;
-  const loaded = loadState(options.storage);
+  /* migrasi sekali dari IC 1.5.1 dan TIB 1.6.0 bila icon-studio-v1 belum ada */
+  /** @type {string[]} */
+  let migratedFrom = [];
+  let loaded = loadState(options.storage);
+  if (!hasState(options.storage)) {
+    let legacy = null;
+    try {
+      legacy = migrateFromLegacy(options.storage || globalThis.localStorage, { lib: renderer.lib });
+    } catch {
+      legacy = null;
+    }
+    if (legacy) {
+      loaded = legacy.state;
+      migratedFrom = legacy.sources;
+    }
+  }
   /** @type {any[]} */
   const documents = loaded.documents;
   let activeId = loaded.activeId;
@@ -90,6 +106,9 @@ export function createAppState(options) {
   }
 
   const save = () => saveState({ schemaVersion: 1, documents, activeId }, options.storage);
+  /* dokumen Builder hasil migrasi divalidasi seperti boot TIB */
+  for (const doc of documents) if (doc.kind === "manifest" && migratedFrom.length) doc.issues = validateManifest(doc, vocab);
+  if (migratedFrom.length) save();
   const notify = () => listeners.forEach((fn) => fn());
 
   /** @param {string | null} id */
@@ -119,6 +138,8 @@ export function createAppState(options) {
     documentFor,
     history,
     vocab,
+    /** Kunci lama yang dimigrasikan saat app ini dibuka (kosong bila tidak ada migrasi). */
+    migratedFrom,
     /** Validasi ulang dokumen Builder setelah objek atau pengubah diganti. @param {any} doc */
     revalidate(doc) {
       doc.issues = validateManifest(doc, vocab);
@@ -231,11 +252,14 @@ export function createAppState(options) {
       if (keys.some((k) => k.startsWith("hg:"))) jobs.push(renderer.loadHugeicons().then(() => renderer.dropMissing("hg")));
       if (!jobs.length) return;
       await Promise.all(jobs);
-      for (const doc of documents)
+      for (const doc of documents) {
         for (const it of doc.items) {
           if (renderer.LIB_RE.test(String(it.main))) renderer.lib.ensure(it.main, "main");
           if (it.mod !== "none" && renderer.LIB_RE.test(String(it.mod))) renderer.lib.ensure(it.mod, "mod");
         }
+        /* validasi ulang setelah pustaka termuat, seperti boot TIB */
+        if (doc.kind === "manifest") doc.issues = validateManifest(doc, vocab);
+      }
       notify();
     },
     save,

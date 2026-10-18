@@ -141,7 +141,7 @@ function exportCanvas(ctx) {
   const list = exportList(ctx.doc, ctx.doc.export, deps(ctx));
   const all = ctx.doc.items;
   const cols = sheetGrid(list.length, ctx.doc.export.sheetCols);
-  return `<div class="ic-sheet" style="--ic-sheet-icon: 72px; --ic-cols: ${cols}"><div class="ic-sheet__head"><span class="ic-sheet__title">Resource Page</span><span class="ic-sheet__meta">${list.length} icons · ${esc(/** @type {any} */ (MODE_INFO)[ctx.doc.pv].short)}</span></div><div class="ic-sheet__grid">${all
+  return `<div class="ic-sheet" style="--ic-sheet-icon: 72px; --ic-cols: ${cols}"><div class="ic-sheet__head"><span class="ic-sheet__title">Resource Page</span><span class="ic-sheet__meta">${list.length} ikon · ${esc(/** @type {any} */ (MODE_INFO)[ctx.doc.pv].short)}</span></div><div class="ic-sheet__grid">${all
     .map(
       (/** @type {any} */ it) =>
         `<button type="button" class="ic-sheet__cell" data-action="b-toggle-on" data-uid="${esc(it.uid)}" ${aria("aria-pressed", list.includes(it))} aria-label="${esc(it.id)}${list.includes(it) ? ", ikut diekspor" : ", tidak ikut"}"><span class="ic-sheet__badge">dikeluarkan</span>${render(ctx, it, ctx.doc.pv, `sh${it.uid}`)}<span class="ic-sheet__file">${esc(it.id)}</span></button>`,

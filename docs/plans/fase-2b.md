@@ -208,7 +208,23 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - "Tambahkan <n> ke set" menulis ke dokumen set aktif.
 - **Tinjauan Ika** terhadap `artboard-kombinasi-*.png`.
 
-### 8. Migrasi localStorage + penutupan
+### 8. Migrasi localStorage + penutupan ✅
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Migrasi 001 dan isi `icon-studio-v1` dicatat di `docs/DATA-MODEL.md` bagian 4.1–4.2. Dites unit (`studio-migration.test.js`, `studio-app-state.test.js`) dan e2e (`studio-migration.spec.js`).
+- Pack tersimpan IC (`packs`) ikut dimigrasikan sebagai dokumen set terpisah, supaya tidak ada data yang hilang.
+- Ikut diperbaiki: toast hilang saat kerangka dirender ulang.
+
+**Pemeriksaan DESIGN-HANDOFF bagian 9:**
+
+| Butir | Hasil |
+|---|---|
+| 1. `npm run lint:ui` | lulus |
+| 2. Ukuran kerangka 1440×900 (56/42/30/34/28, rail 56, studio 330, studio kiri 300) | lulus untuk 4 persona (`ui-shell.spec.js`) |
+| 3. Screenshot vs kerangka kit (< 2%) | lulus untuk bilah atas kiri dan tool rail. Wilayah lain berisi data contoh kit yang berbeda (lihat langkah 2) |
+| 4. Keyboard: Tab, panah antar tab panel, dropdown | lulus (`ui-shell.spec.js`), plus Alt + panah urutan set, panah/Shift/Delete/Esc di Edit |
+| 5. Tanpa teks UI berbahasa Inggris | diperiksa dengan pemindaian teks, label, dan placeholder di 4 persona. Yang tersisa hanya nama gaya, nama pustaka, kunci ikon, istilah Canva (Artist, ZIP, SVG, direct fill), dan judul "Resource Page" milik file ekspor |
+
 
 - `state/migrations/001-from-legacy.js` membaca:
   - `icon-composer-aksen-v1` (fallback ke `icon-composer-v2`);

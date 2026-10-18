@@ -23,6 +23,19 @@ function defaultStorage() {
 }
 
 /**
+ * Apakah `icon-studio-v1` sudah pernah disimpan (penentu migrasi sekali jalan).
+ * @param {Pick<Storage, "getItem">} [storage]
+ */
+export function hasState(storage) {
+  try {
+    storage = storage || defaultStorage();
+    return !!(storage && storage.getItem(STORE_KEY));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * @param {Pick<Storage, "getItem">} [storage]
  * @returns {StudioState}
  */

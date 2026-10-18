@@ -40,4 +40,11 @@ const renderer = createRenderer({
 const app = createAppState({ renderer });
 const shell = createShell({ root: /** @type {HTMLElement} */ (document.getElementById("app")), app, renderer });
 shell.render();
+const LEGACY_LABEL = /** @type {Record<string, string>} */ ({
+  "icon-composer-aksen-v1": "set Icon Composer",
+  "icon-composer-v2": "set Icon Composer",
+  "icon-composer-meta-v1": "metadata Canva",
+  "template-icon-builder-aksen-v1": "dokumen Builder",
+});
+if (app.migratedFrom.length) shell.toast(`Data lama diimpor: ${app.migratedFrom.map((k) => LEGACY_LABEL[k] || k).join(", ")}`);
 void app.warmLibraries();

@@ -32,7 +32,9 @@ export function createShell({ root, app, renderer }) {
   const panelTabs = new Map();
   /** panel studio yang dilipat */
   const collapsed = new Set();
-  let toastTimer = 0;
+  let toastTimer = 0,
+    toastUntil = 0,
+    toastMessage = "";
   /** @type {{id: string | null, at: number}} */
   let lastClick = { id: null, at: 0 };
   /** @type {import("./personas/common.js").Ctx | null} */
@@ -165,17 +167,26 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
       const el = String(key).startsWith("#") ? scrollEls[Number(String(key).slice(1))] : root.querySelector(`#${CSS.escape(String(key))}`);
       if (el && top) el.scrollTop = Number(top);
     }
+    showToast();
     if (spec.mount) spec.mount(root, c, { toast, go, importText });
   }
 
   /** @param {string} message */
   function toast(message) {
+    toastMessage = message;
+    toastUntil = Date.now() + 1800;
+    showToast();
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(showToast, 1810);
+  }
+
+  /** Pasang ulang toast yang masih aktif (render ulang mengganti seluruh kerangka). */
+  function showToast() {
     const el = /** @type {HTMLElement | null} */ (root.querySelector(".ic-toast"));
     if (!el) return;
-    el.textContent = message;
-    el.hidden = false;
-    clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => (el.hidden = true), 1800);
+    const active = Date.now() < toastUntil;
+    el.textContent = active ? toastMessage : "";
+    el.hidden = !active;
   }
 
   /** @param {import("./app-state.js").Route} route */

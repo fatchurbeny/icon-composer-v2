@@ -38,7 +38,7 @@ Status: `[ ]` belum · `[~]` berjalan · `[x]` selesai.
 
 Status 2026-10-18: **selesai, disetujui pemilik.** Golden (9 tes, termasuk Tabler, Hugeicons, Kustom, dan ZIP Composer) identik.
 
-## Fase 2b: UI terpadu Icon Studio
+## Fase 2b: UI terpadu Icon Studio (selesai, menunggu persetujuan akhir)
 
 Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/ui-kit.html`, dan artifact Claude Design "Icon Studio · Affinity Redesign". Rencana kerja rinci dan keputusan awal: `docs/plans/fase-2b.md` dan ADR-017.
 
@@ -51,7 +51,7 @@ Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/
 - [x] Persona Tinjau (lembar kontak, pemeriksaan, metadata, isi ZIP) (langkah 6; ZIP identik dengan IC 1.5.1, menunggu tinjauan pemilik).
 - [x] Persona Kombinasi (pustaka lintas library + filter Bentuk, matriks, pool, hasil) (langkah 7, menunggu tinjauan pemilik).
 - [x] `tests/e2e/ui-shell.spec.js`: ukuran kerangka tepat sesuai `DESIGN-HANDOFF.md` bagian 9.
-- [ ] Migrasi localStorage dari kedua app lama ke `icon-studio-v1`.
+- [x] Migrasi localStorage dari kedua app lama ke `icon-studio-v1` (langkah 8, `state/migrations/001-from-legacy.js`).
 
 **Kriteria terima:** semua butir `DESIGN-HANDOFF.md` bagian 9 lulus, golden test mesin tetap identik, dan pemilik menyetujui tampilan tiap persona dibandingkan dengan artboard.
 

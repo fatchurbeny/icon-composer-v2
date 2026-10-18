@@ -146,4 +146,30 @@ describe("Icon Studio app state", () => {
     expect(app.documents).toHaveLength(1);
     expect(app.documents[0].kind).toBe("set");
   });
+
+  test("migrasi data IC lama sekali saat icon-studio-v1 belum ada", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      "icon-composer-aksen-v1",
+      JSON.stringify({
+        style: { family: "accent" },
+        set: [{ id: "a", main: "face", mod: "check" }],
+      }),
+    );
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.migratedFrom).toEqual(["icon-composer-aksen-v1"]);
+    expect(app.documents).toHaveLength(1);
+    expect(app.documents[0]).toMatchObject({
+      kind: "set",
+      name: "Set Icon Composer",
+    });
+    expect(app.documents[0].style.family).toBe("accent");
+    expect(storage.map.has(STORE_KEY)).toBe(true);
+    expect(storage.map.has("icon-composer-aksen-v1")).toBe(true);
+    const again = createAppState({ renderer: fakeRenderer(), storage });
+    expect(again.migratedFrom).toEqual([]);
+    expect(again.documents.map((d) => d.id)).toEqual(
+      app.documents.map((d) => d.id),
+    );
+  });
 });

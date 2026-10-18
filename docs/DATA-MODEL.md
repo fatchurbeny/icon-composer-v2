@@ -57,14 +57,39 @@ style = {
 
 | Kunci | Pemilik | Status |
 |---|---|---|
-| `icon-composer-aksen-v1` | IC ≤1.5.1 | dibaca sekali untuk migrasi |
-| `icon-composer-meta-v1` | IC metadata Canva | tetap |
+| `icon-composer-aksen-v1` | IC ≤1.5.1 | dibaca sekali untuk migrasi (fallback `icon-composer-v2`) |
+| `icon-composer-meta-v1` | IC metadata Canva | dibaca sekali untuk migrasi ke `meta.canva` dokumen set |
 | `template-icon-builder-aksen-v1` | TIB ≤1.6.0 | dibaca sekali untuk migrasi |
 | `icon-studio-v1` | Icon Studio (set Composer dan dokumen Builder) | aktif (ADR-017) |
 | `tib-canva-brand-id` | TIB | tetap, tidak pernah masuk manifest |
 | `offset-composer-v1`, `coret-composer-v1`, `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
 
 `icon-studio-v1` menyimpan `schemaVersion`. Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes.
+
+### 4.1 Isi `icon-studio-v1`
+
+```js
+{ schemaVersion: 1, activeId, documents: [
+  { id, kind: "set", name, style, items, customs,
+    pool: { mains, mods, off }, view: { sort, cols, snap, grid },
+    combo: { pos, mode, skipExisting, skip },
+    review: { json, html, ko, fmt, bg, size, names, flags, compare, off },
+    meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack? } },
+  { id, kind: "manifest", name, manifest, style, pv, items, isSample,
+    exportModes, export: { modes, slot, extra, split, skipBad, kw, name, locale, creator, description, sheetCols },
+    view: { filter, group, step }, issues, review } ] }
+```
+
+### 4.2 Migrasi 001 (`apps/icon-studio/src/state/migrations/001-from-legacy.js`)
+
+Berjalan sekali, hanya bila `icon-studio-v1` belum ada. Kunci lama tidak diubah atau dihapus.
+
+| Kunci lama | Hasil |
+|---|---|
+| `icon-composer-aksen-v1` (atau `icon-composer-v2`, gaya diganti Aksen seperti boot IC) | dokumen set "Set Icon Composer" (aktif), item lewat `normItem` |
+| `packs` di kunci IC | satu dokumen set per pack (`<nama> <versi>`), info pack di `meta.pack` |
+| `icon-composer-meta-v1` | `meta.canva` dokumen set dari IC |
+| `template-icon-builder-aksen-v1` | dokumen Builder: `man` → `manifest`, `items` (lewat `normAcc`), `pv`, `sheetCols`, `isSample`; centang ekspor = mode pratinjau (seperti boot TIB) |
 
 ## 5. Migrasi dari composer gaya lama
 
