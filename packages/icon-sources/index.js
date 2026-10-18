@@ -83,21 +83,11 @@ export function concept(key, kind = "main") {
   return variants.at(-1) || alias;
 }
 
-export async function loadLucide(url) {
-  return loadJson(url);
-}
-
-export async function loadTabler(url) {
-  return loadJson(url);
-}
-
-export async function loadHugeicons(url) {
-  return import(url);
-}
-
-async function loadJson(url) {
-  const response = await fetch(url);
-  if (!response.ok)
-    throw new Error(`Pustaka ikon gagal dimuat: ${response.status}`);
-  return response.json();
-}
+export {
+  SOURCE_URLS,
+  createIconSources,
+  hgAttrs,
+  kebab,
+  libNameOf,
+  luLabel,
+} from "./library.js";

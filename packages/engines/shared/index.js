@@ -2,3 +2,4 @@
 /** @module engines/shared */
 export * from "./measure.js";
 export * from "./shapes.js";
+export * from "./library.js";
