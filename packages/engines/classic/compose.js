@@ -6,6 +6,7 @@
  * diberikan lewat `ctx`. Pengukuran (getBBox) tetap di aplikasi.
  */
 import { r3 } from "@icon-studio/core";
+import { anchoredModifierGeometry, solidLineFit, solidMainDetails } from "./solid.js";
 
 /**
  * @typedef {object} ClassicCtx
@@ -17,8 +18,8 @@ import { r3 } from "@icon-studio/core";
  * @property {Array<any>} customs              dekorasi unggahan: {id, vb, inner, mono}
  * @property {() => string} nextId             id mask otomatis bila opt.idp kosong
  * @property {boolean} decoStarFill            true: bintang dekorasi dirender terisi (IC)
- * @property {(it:any, g:any, P:any) => {g:any, gap:number}} [solidFit]        hanya varian TIB
- * @property {(it:any, S:any, g:any, ink:string, accent:string) => string} [solidDetails]  hanya varian TIB
+ * @property {boolean} [solidV145]               true: aturan Solid·garis mesin 1.4.5 (TIB), lihat ./solid.js
+ * @property {(key:string) => any} [infoOf]     analisis objek utama, wajib bila solidV145 true
  */
 
 /** @param {any} it @param {ClassicCtx} ctx */
@@ -35,13 +36,7 @@ export function geomClassic(it, ctx) {
   const mainT = `translate(${r3(24 + it.mx)} ${r3(24 + it.my)}) scale(${r3(ms)}) translate(-24 -24)`;
   const g = { md, ms, mainT };
   if (it.mod !== "none" && MODS[it.mod]) {
-    const m0 = MODS[it.mod], sc = style.scale.mod / 100, W = m0.w * sc, H = m0.h * sc;
-    const row = it.slot[0], col = it.slot[1];
-    let L = col === "L" ? 2 : col === "R" ? 46 - W : 24 - W / 2;
-    let T = row === "T" ? 2 : row === "B" ? 46 - H : 24 - H / 2;
-    L += it.nx;
-    T += it.ny;
-    Object.assign(g, { sc, W, H, L, T, modT: `translate(${r3(L)} ${r3(T)}) scale(${r3(sc)})` });
+    Object.assign(g, anchoredModifierGeometry(it, MODS[it.mod], style.scale.mod / 100));
   }
   return g;
 }
@@ -59,7 +54,7 @@ export const fillOfClassic = (it, ctx, l) => ctx.style.colors[l].fill || ctx.sty
  */
 export function composeClassic(it, ctx, opt = {}) {
   const S = ctx.style, base = geomClassic(it, ctx), P = ctx.PREFS[modeOfClassic(it, ctx)] || ctx.PREFS.A;
-  const fit = ctx.solidFit ? ctx.solidFit(it, base, P) : { g: base, gap: S.gap };
+  const fit = ctx.solidV145 ? solidLineFit(it, base, P, /** @type {any} */ (ctx)) : { g: base, gap: S.gap };
   const g = fit.g;
   const sz = opt.size || 48, mode = opt.mode || "mask";
   const id = opt.idp || ctx.nextId();
@@ -81,7 +76,7 @@ export function composeClassic(it, ctx, opt = {}) {
     const fx = S.fx || { mode: "none" };
     if (P.main !== "solid" && fx.mode === "soft") fxL = M.b ? `<g fill="${fx.color}" stroke="none">${fix(M.b)}</g>` : `<circle cx="24" cy="24" r="19" fill="${fx.color}" stroke="none"/>`;
     if (P.main !== "solid" && fx.mode === "shadow" && M.b) fxL = `<g transform="translate(${r3(fx.dx / g.ms)} ${r3(fx.dy / g.ms)})" fill="${fx.color}" stroke="${fx.color}">${fix(M.b)}</g>`;
-    const details = P.main === "solid" && ctx.solidDetails ? ctx.solidDetails(it, S, g, mInk, mAcc) : fix(M.s);
+    const details = P.main === "solid" && ctx.solidV145 ? solidMainDetails(it, S, g, mInk, mAcc, /** @type {any} */ (ctx)) : fix(M.s);
     const inner = `<g transform="${g.mainT}" stroke="${mInk}" stroke-width="${r3(S.sw / g.ms)}">${fxL}${body}${details}</g>`;
     out += g.md && mode === "mask" ? `<g mask="url(#${id})">${inner}</g>` : inner;
   }

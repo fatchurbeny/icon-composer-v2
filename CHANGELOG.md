@@ -28,6 +28,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Fase 2 (langkah 6): perakitan ZIP Icon Composer memakai `buildZip` dari `@icon-studio/export`. Isi file tidak berubah. Belum dipindah: `metadataCSV` (header IC tanpa kutip, paket memakai kutip) dan `STYLE_WORD` TIB, menunggu keputusan format.
 - Fase 2 (langkah 7): `metadataCSV` Icon Composer memakai `metadataCsv` dari `@icon-studio/export`. Perubahan format: baris header `metadata.csv` kini diberi kutip, sama seperti baris data. Isi nilai tidak berubah.
 - Fase 2 (langkah 8): pemuat pustaka ikon (`createIconSources`: cache Lucide, Tabler dengan filter kategori, Hugeicons, Kustom) dan katalog kategori pindah ke `@icon-studio/icon-sources`. `ensureLucide`/`luAnalyze` pindah ke `createLibraryShapes` di `engines/shared`. URL CDN dibaca dari `sources.json`. Golden diperluas ke Tabler, Hugeicons, Kustom, dan tag. Keluaran tidak berubah.
+- Fase 2 (langkah 9): data bawaan classic (`MAINS`, `PREFS`, `MODS`, `SHIFT`, `SLOT_GLYPH`, `DECOS`) pindah ke `createClassicData` di `packages/engines/classic/data.js`. Aturan Solid·garis 1.4.5 TIB pindah ke `packages/engines/classic/solid.js` dan aktif lewat `ctx.solidV145`. IC belum memakainya. Keluaran tidak berubah.
 
 ### Ditambahkan (desain)
 - Render acuan 5 artboard (`docs/design/reference/`), sumber artboard (`docs/design/artboards/`), `scripts/render-artboards.py`, `packages/icon-sources/sources.json`, bahan pendukung dari folder lama (lihat `docs/legacy/INVENTORY.md`).

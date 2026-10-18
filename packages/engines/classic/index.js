@@ -2,10 +2,11 @@
 /** @module engines/classic */
 import { concept } from "@icon-studio/icon-sources";
 import { composeClassic } from "./compose.js";
+import { CLASSIC_ENGINE_VERSION } from "./solid.js";
 
 export const classic = {
   id: "classic",
-  version: "1.4.5",
+  version: CLASSIC_ENGINE_VERSION,
   label: "Klasik",
   canvas: 48,
   supports: {
@@ -51,4 +52,19 @@ export const classic = {
 
 const emptySvg = (size = 48) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="${size}" height="${size}"></svg>`;
-export { composeClassic, decoMarkupClassic, geomClassic, modeOfClassic } from "./compose.js";
+export {
+  composeClassic,
+  decoMarkupClassic,
+  fillOfClassic,
+  geomClassic,
+  lineOfClassic,
+  modeOfClassic,
+} from "./compose.js";
+export { createClassicData } from "./data.js";
+export {
+  CLASSIC_ENGINE_VERSION,
+  anchoredModifierGeometry,
+  solidLineDiagnostic,
+  solidLineFit,
+  solidMainDetails,
+} from "./solid.js";

@@ -77,3 +77,6 @@ Catat di sini setiap perbedaan perilaku antar salinan kode (misalnya classic IC 
 |---|---|---|---|
 | 2026-10-17 | `partStr`, `dedupeAttrs` | TIB menimpa atribut lama saat atribut tambahan diberikan dan membersihkan atribut SVG ganda; IC tidak. | Perilaku TIB. |
 | 2026-10-17 | Classic `compose` | TIB 1.6.0 memakai mesin classic 1.4.5: kotak pengubah adaptif pada Solid·garis, celah berdasarkan overlap, pewarnaan detail struktural, dan `solidLineDiagnostic`. IC 1.5.1 belum memilikinya. | Mesin TIB 1.4.5 menjadi kanonis. |
+| 2026-10-18 | Dekorasi classic (`DECOS`, `decoStarFill`) | IC punya dekorasi bintang `star4` dan `star4x2` yang dirender terisi (`decoStarFill: true`). TIB tidak punya keduanya (`decoStarFill: false`). | Keduanya dipertahankan: `createClassicData({starDecos})` dan `ctx.decoStarFill`. |
+| 2026-10-18 | Classic Solid·garis 1.4.5 | Aturan Solid·garis 1.4.5 kini di `packages/engines/classic/solid.js`, aktif lewat `ctx.solidV145`. TIB menyalakannya, IC belum (keputusan Ika 2026-10-18, golden IC tetap). | TIB: aktif. IC: menyusul lewat keputusan terpisah. |
+| 2026-10-18 | `normStyle` | `normStyle` IC (batas skala, efek `fx`, keluarga default classic) berbeda dari `normStyle` registry mesin. | Tetap di IC sebagai normalisasi gaya set, bukan logika mesin. |
