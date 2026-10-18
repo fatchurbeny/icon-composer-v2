@@ -40,7 +40,7 @@ Status 2026-10-18: **selesai, disetujui pemilik.** Golden (9 tes, termasuk Table
 
 ## Fase 2b: UI terpadu Icon Studio
 
-Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/ui-kit.html`, dan artifact Claude Design "Icon Studio · Affinity Redesign".
+Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/ui-kit.html`, dan artifact Claude Design "Icon Studio · Affinity Redesign". Rencana kerja rinci dan keputusan awal: `docs/plans/fase-2b.md` dan ADR-017.
 
 - [x] Bangun ulang `packages/ui/icons.js` dari `lucide-static@1.52.0` (versi terkunci).
 - [x] Tambah skrip `lint:ui` ke `package.json` root dan jalankan di CI lokal (`npm run lint`).

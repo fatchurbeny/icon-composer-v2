@@ -32,6 +32,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Fase 2 (langkah 10): tag pustaka, `titleCase`, `trID` (`packages/export/tags.js`) dan hitung warna (`packages/export/colors.js`) dipakai kedua app. Kata gaya judul dibaca dari `STYLE_WORDS` (kunci `classic:C` ditambah, kata accent ID dibetulkan menjadi `garis aksen` sesuai legacy). ZIP dan CSV TIB memakai `buildZip` dan `metadataCsv` (header tetap tanpa kutip). Golden ZIP Icon Composer ditambah. Keluaran tidak berubah.
 - Fase 2 (langkah 11): tes unit untuk `icon-sources` (pemuat Tabler, Hugeicons, Lucide, Kustom), mesin classic (`solidV145`, `createClassicData`), dan `export` (`STYLE_WORDS`, `metadataCsv`, `buildZip`, warna, tag).
 - ADR-016: header `metadata.csv` Icon Composer dikutip. Fase 2 selesai dan disetujui pemilik (2026-10-18).
+- ADR-017 dan rencana Fase 2b (`docs/plans/fase-2b.md`): satu kunci `icon-studio-v1`, varian classic per persona, fitur Fase 5/6 belum ditampilkan, persetujuan per persona.
 
 ### Ditambahkan (desain)
 - Render acuan 5 artboard (`docs/design/reference/`), sumber artboard (`docs/design/artboards/`), `scripts/render-artboards.py`, `packages/icon-sources/sources.json`, bahan pendukung dari folder lama (lihat `docs/legacy/INVENTORY.md`).

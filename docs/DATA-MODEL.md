@@ -58,14 +58,13 @@ style = {
 | Kunci | Pemilik | Status |
 |---|---|---|
 | `icon-composer-aksen-v1` | IC ≤1.5.1 | dibaca sekali untuk migrasi |
-| `icon-composer-v3` | IC baru | aktif |
 | `icon-composer-meta-v1` | IC metadata Canva | tetap |
 | `template-icon-builder-aksen-v1` | TIB ≤1.6.0 | dibaca sekali untuk migrasi |
-| `template-icon-builder-v2` | TIB baru | aktif |
+| `icon-studio-v1` | Icon Studio (set Composer dan dokumen Builder) | aktif (ADR-017) |
 | `tib-canva-brand-id` | TIB | tetap, tidak pernah masuk manifest |
 | `offset-composer-v1`, `coret-composer-v1`, `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
 
-Setiap app menyimpan `schemaVersion`. Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes.
+`icon-studio-v1` menyimpan `schemaVersion`. Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes.
 
 ## 5. Migrasi dari composer gaya lama
 

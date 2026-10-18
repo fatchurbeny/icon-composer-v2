@@ -63,6 +63,15 @@ Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5, JSZip 3.10.1. Alasannya, sidik ja
 ### ADR-016 · 2026-10-18 · Header metadata.csv Composer dikutip
 **Keputusan pemilik.** `metadata.csv` Icon Composer dibuat oleh `metadataCsv` di `packages/export`, sehingga header ikut dikutip (`"filename","title",...`), sama seperti baris data. Legacy 1.5.1 menulis header tanpa kutip. Isi nilai tidak berubah, dan pembaca CSV standar membaca keduanya sama. Golden ZIP Composer membandingkan dengan legacy setelah header legacy dikutip. Header `metadata.csv` dan `metadata-internal.csv` Builder belum diubah (tetap seperti legacy 1.6.0).
 
+### ADR-017 · 2026-10-18 · Keputusan awal Fase 2b
+**Keputusan pemilik.**
+1. Icon Studio menyimpan semua dokumen (set Composer dan dokumen Builder) di satu kunci localStorage `icon-studio-v1` dengan `schemaVersion`. Kunci app lama hanya dibaca sekali untuk migrasi dan tidak dihapus.
+2. Persona Composer memakai varian classic IC (`solidV145: false`, bintang dekorasi aktif). Persona Builder memakai classic 1.4.5 (`solidV145: true`). Penyatuan diputuskan terpisah.
+3. UI hanya menampilkan fitur yang sudah ada: empat kartu mesin (Klasik, Aksen, Offset, Hand-writing), dan panel Repetisi berbasis signature. Sticker dan sidik jari menyusul di Fase 5 dan 6.
+4. Fase 2b dikerjakan per persona. Pemilik menyetujui tampilan tiap persona sebelum persona berikutnya dimulai.
+
+Rencana kerja: `docs/plans/fase-2b.md`.
+
 ---
 
 ## Dibatalkan (jangan dipasang lagi tanpa diminta)
