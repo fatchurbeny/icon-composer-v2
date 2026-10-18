@@ -1,0 +1,77 @@
+{
+  "name": "mixed",
+  "$comment": "Ikon dari Tabler, Hugeicons, Lucide, dan custom. Menjaga pemuat sumber ikon dan tag saat dipindah ke paket.",
+  "iconComposer": {
+    "families": ["classic", "accent"],
+    "storage": {
+      "icon-composer-aksen-v1": {
+        "style": { "family": "classic" },
+        "set": [
+          { "id": "mx-tabler", "name": "Tabler surat", "main": "tb:mail", "mod": "check", "slot": "BR" },
+          { "id": "mx-huge", "name": "Huge roket", "main": "hg:rocket-01", "mod": "tb:bulb", "slot": "TR" },
+          { "id": "mx-lucide", "name": "Lucide kopi", "main": "lu:coffee", "mod": "hg:home-01", "slot": "BL" }
+        ],
+        "luUsed": [
+          "main|tb:mail",
+          "main|tb:calendar",
+          "main|hg:rocket-01",
+          "main|lu:coffee",
+          "mod|tb:bulb",
+          "mod|hg:home-01"
+        ]
+      }
+    }
+  },
+  "templateIconBuilder": {
+    "zipStyles": ["X", "A", "B"],
+    "zipManifest": {
+      "format": "tib-manifest",
+      "version": 2,
+      "deck": { "title": "Golden Mixed", "slides": 4, "resource_slide": 4 },
+      "pack": { "en": "Golden Mixed", "id": "Uji Campuran" },
+      "style": { "family": "classic", "ink": "#141414", "accent": "#FECC33", "mode": "A" },
+      "icons": [
+        {
+          "id": "mixed-tabler-mail",
+          "name": { "en": "Mail check", "id": "Surat centang" },
+          "main": "tb:mail",
+          "mod": "check",
+          "anchor": "BR",
+          "slides": [1],
+          "role": "slot",
+          "keywords": { "en": ["mail"], "id": ["surat"] }
+        },
+        {
+          "id": "mixed-huge-rocket",
+          "name": { "en": "Rocket idea", "id": "Roket ide" },
+          "main": "hg:rocket-01",
+          "mod": "tb:bulb",
+          "anchor": "TR",
+          "slides": [2],
+          "role": "slot",
+          "keywords": { "en": ["rocket"], "id": ["roket"] }
+        },
+        {
+          "id": "mixed-custom-dripper",
+          "name": { "en": "Dripper", "id": "Dripper" },
+          "main": "cu:pour-over-dripper",
+          "mod": "none",
+          "anchor": "BL",
+          "slides": [3],
+          "role": "slot",
+          "keywords": { "en": ["coffee"], "id": ["kopi"] }
+        },
+        {
+          "id": "mixed-lucide-coffee",
+          "name": { "en": "Coffee home", "id": "Kopi rumah" },
+          "main": "lu:coffee",
+          "mod": "hg:home-01",
+          "anchor": "BL",
+          "slides": [4],
+          "role": "extra",
+          "keywords": { "en": ["coffee"], "id": ["kopi"] }
+        }
+      ]
+    }
+  }
+}

@@ -4,20 +4,38 @@ import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "../..");
 
-/** @param {import("@playwright/test").Page} page */
-export async function installOfflineRoutes(page) {
+const GOLDEN_ORIGIN = "http://golden.test/";
+
+/** Berkas vendor offline. Urutan penting: pola yang lebih spesifik lebih dulu. */
+const VENDOR_ROUTES = [
+  ["jszip", "jszip.min.js", "application/javascript"],
+  ["lucide.min.js", "lucide.min.js", "application/javascript"],
+  ["lucide-static@1.52.0/tags.json", "lucide-tags.json", "application/json"],
+  [
+    "tabler-nodes-outline.json",
+    "tabler-nodes-outline.json",
+    "application/json",
+  ],
+  ["@tabler/icons@3.49.0/icons.json", "tabler-icons.json", "application/json"],
+  ["core-free-icons", "hugeicons.mjs", "application/javascript"],
+];
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {string} [html] isi halaman yang dilayani di GOLDEN_ORIGIN
+ */
+export async function installOfflineRoutes(page, html) {
   await page.route("**/*", async (route) => {
     const url = route.request().url();
-    if (url.includes("jszip")) {
-      return route.fulfill({
-        path: path.join(root, "tests/fixtures/vendor/jszip.min.js"),
-        contentType: "application/javascript",
-      });
+    if (html && url === GOLDEN_ORIGIN) {
+      return route.fulfill({ body: html, contentType: "text/html" });
     }
-    if (url.includes("lucide.min.js")) {
+    const hit = VENDOR_ROUTES.find(([pattern]) => url.includes(pattern));
+    if (hit) {
       return route.fulfill({
-        path: path.join(root, "tests/fixtures/vendor/lucide.min.js"),
-        contentType: "application/javascript",
+        path: path.join(root, "tests/fixtures/vendor", hit[1]),
+        contentType: hit[2],
+        headers: { "access-control-allow-origin": "*" },
       });
     }
     return route.abort();
@@ -25,25 +43,57 @@ export async function installOfflineRoutes(page) {
 }
 
 /**
+ * Membuka file HTML dengan Math.random berbenih.
+ * Kalau `storage` diberikan, halaman dibuka di origin uji supaya localStorage bisa diisi lebih dulu.
  * @param {import("@playwright/test").Page} page
  * @param {string} file
+ * @param {{storage?: Record<string, unknown>}} [options]
  */
-export async function openHtml(page, file) {
-  await installOfflineRoutes(page);
-  await page.evaluate(() => {
-    let state = 0x1a2b3c4d;
-    Math.random = () => {
-      state = (1664525 * state + 1013904223) >>> 0;
-      return state / 0x100000000;
-    };
-  });
+export async function openHtml(page, file, options = {}) {
+  const html = await readFile(path.join(root, file), "utf8");
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.setContent(await readFile(path.join(root, file), "utf8"), {
-    waitUntil: "domcontentloaded",
-  });
+  if (options.storage) {
+    await installOfflineRoutes(page, html);
+    await page.addInitScript((storage) => {
+      let state = 0x1a2b3c4d;
+      Math.random = () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 0x100000000;
+      };
+      for (const [key, value] of Object.entries(storage)) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    }, options.storage);
+    await page.goto(GOLDEN_ORIGIN, { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+  } else {
+    await installOfflineRoutes(page);
+    await page.evaluate(() => {
+      let state = 0x1a2b3c4d;
+      Math.random = () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 0x100000000;
+      };
+    });
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
+  }
   await page.waitForTimeout(100);
   if (errors.length) throw new Error(errors.join("\n"));
+}
+
+/**
+ * Menangkap seluruh panel Bentuk Icon Composer (objek utama + pengubah) dan artboard.
+ * @param {import("@playwright/test").Page} page
+ * @param {string} family
+ */
+export async function captureIconComposerBins(page, family) {
+  await page.locator(`[data-family="${family}"]`).click();
+  return page.evaluate(() =>
+    ["art", "mainBin", "modBin"]
+      .map((id) => `<!-- ${id} -->\n${document.getElementById(id).innerHTML}`)
+      .join("\n"),
+  );
 }
 
 /** @param {import("@playwright/test").Page} page */
@@ -65,10 +115,17 @@ export async function captureTemplateIconBuilder(page, style) {
 /**
  * @param {import("@playwright/test").Page} page
  * @param {object} manifest
+ * @param {string[]} [styles] mode ekspor yang dicentang (X, A, B)
  */
-export async function captureTemplateIconBuilderZip(page, manifest) {
+export async function captureTemplateIconBuilderZip(
+  page,
+  manifest,
+  styles = ["A"],
+) {
   await page.locator("#src").fill(JSON.stringify(manifest));
   await page.locator("#doImport").click();
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(100);
   await page.locator('[data-view="export"]').click();
   await page.evaluate(() => {
     window.__goldenBlob = null;
@@ -78,8 +135,9 @@ export async function captureTemplateIconBuilderZip(page, manifest) {
     };
     HTMLAnchorElement.prototype.click = () => {};
   });
-  await page.locator("#exX").uncheck();
-  await page.locator("#exA").check();
+  for (const mode of ["X", "A", "B"]) {
+    await page.locator(`#ex${mode}`).setChecked(styles.includes(mode));
+  }
   await page.locator("#exGo").click();
   await page.waitForFunction(() => window.__goldenBlob instanceof Blob, null, {
     timeout: 30_000,
