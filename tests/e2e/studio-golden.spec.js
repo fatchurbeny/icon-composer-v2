@@ -226,3 +226,83 @@ test("@golden Icon Studio SVG ekspor Builder lintas pustaka", async ({
     await studio.close();
   }
 });
+
+/**
+ * Normalisasi yang sama untuk ZIP legacy dan Icon Studio: waktu ekspor dan id mask Resource Page
+ * (`rp` + uid acak TIB) tidak memengaruhi isi.
+ * @param {Record<string, string | null>} files
+ */
+function normalizeZip(files) {
+  const out = {};
+  for (const [name, body] of Object.entries(files)) {
+    if (body == null) continue;
+    let text = body.replace(
+      /"exported_at"\s*:\s*"[^"]*"/,
+      '"exported_at":"<dinormalisasi>"',
+    );
+    if (name === "resource-page.html")
+      text = text.replace(/rpi\d+-[a-z0-9]+/g, "rpUID");
+    out[name] = text;
+  }
+  return out;
+}
+
+for (const [label, fixture, styles] of [
+  ["basic", basic, ["A"]],
+  ["lintas pustaka", mixed, mixed.templateIconBuilder.zipStyles],
+]) {
+  test(`@golden Icon Studio ZIP Builder ${label} identik dengan TIB 1.6.0`, async ({
+    browser,
+  }) => {
+    const legacy = await browser.newPage();
+    const studio = await browser.newPage();
+    try {
+      await openHtml(legacy, "legacy/template-icon-builder-aksen-v1.6.0.html");
+      const expected = normalizeZip(
+        await captureTemplateIconBuilderZip(
+          legacy,
+          fixture.templateIconBuilder.zipManifest,
+          styles,
+        ),
+      );
+      await openHtml(studio, STUDIO);
+      const files = await studio.evaluate(
+        async ({ manifest, styles }) => {
+          const S = window.__iconStudio,
+            D = S.document,
+            r = S.renderer,
+            B = S.builder;
+          const imp = D.importManifest(JSON.stringify(manifest), r.lib);
+          if (imp.needTb) await r.loadTabler();
+          if (imp.needHg) await r.loadHugeicons();
+          imp.items.forEach(r.ensureManifestItem);
+          const doc = D.createManifestDocument(imp);
+          const vocab = B.createVocabulary(r);
+          doc.issues = B.validateManifest(doc, vocab);
+          const opts = {
+            ...B.defaultExportOptions(doc),
+            modes: {
+              X: styles.includes("X"),
+              A: styles.includes("A"),
+              B: styles.includes("B"),
+            },
+          };
+          const res = await B.buildExportFiles(doc, opts, {
+            renderer: r,
+            vocab,
+            brand: "",
+          });
+          return res.files;
+        },
+        { manifest: fixture.templateIconBuilder.zipManifest, styles },
+      );
+      const actual = normalizeZip(files);
+      expect(Object.keys(actual).sort()).toEqual(Object.keys(expected).sort());
+      for (const name of Object.keys(expected))
+        expect(actual[name], name).toBe(expected[name]);
+    } finally {
+      await legacy.close();
+      await studio.close();
+    }
+  });
+}

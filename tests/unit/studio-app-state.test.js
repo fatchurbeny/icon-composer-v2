@@ -22,7 +22,10 @@ function fakeRenderer() {
   const LIB_RE = /^(lu|tb|hg|cu):/;
   return /** @type {any} */ ({
     lib: { ...data, LIB_RE, ensure },
+    data,
+    SOURCES: {},
     LIB_RE,
+    solidLineDiagnostic: () => null,
     ensureManifestItem: (/** @type {any} */ it) => {
       if (LIB_RE.test(it.main)) ensure(it.main, "main");
       if (it.mod !== "none" && LIB_RE.test(it.mod)) ensure(it.mod, "mod");

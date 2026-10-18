@@ -107,3 +107,38 @@ body {
 .ic-artboard .ic-selbox {
   pointer-events: none;
 }
+/* langkah Builder bisa diklik: tombol polos di dalam .ic-step */
+.studio-steplink {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.studio-steplink:disabled {
+  cursor: default;
+}
+.studio-stretch {
+  align-self: stretch;
+}
+.studio-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ic-sp-2);
+}
+.studio-tree {
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+}
+/* panel studio yang tidak tumbuh dibatasi tingginya supaya panel utama (--grow) tetap terlihat */
+.ic-studio > .ic-panel:not(.ic-panel--grow) > .studio-panel-body {
+  max-height: 34vh;
+}
+.ic-studio > .ic-panel--grow {
+  min-height: 160px;
+}

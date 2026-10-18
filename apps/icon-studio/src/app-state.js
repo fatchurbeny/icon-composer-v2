@@ -5,6 +5,7 @@
  * Pindah persona tidak menghapus seleksi atau state dokumen (DESIGN-HANDOFF bagian 2).
  */
 import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem } from "./state/document.js";
+import { createVocabulary, defaultExportOptions, validateManifest } from "./state/builder-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
 import { loadState, saveState } from "./state/store.js";
 
@@ -53,7 +54,23 @@ export function createAppState(options) {
     activeId = activeId || doc.id;
   }
 
-  for (const doc of documents) if (doc.kind === "set") ensureSetFields(doc);
+  /** Kosakata pustaka untuk validasi dan flag Builder. */
+  const vocab = createVocabulary(renderer);
+  /**
+   * Lengkapi field dokumen Builder (pilihan ekspor, tampilan, hasil validasi).
+   * @param {any} doc
+   */
+  const ensureManifestFields = (doc) => {
+    doc.export = { ...defaultExportOptions(doc), ...(doc.export || {}) };
+    doc.export.modes = { ...defaultExportOptions(doc).modes, ...(doc.export.modes || {}) };
+    doc.view = { filter: "all", group: true, step: "check", ...(doc.view || {}) };
+    doc.issues = Array.isArray(doc.issues) ? doc.issues : [];
+    return doc;
+  };
+  for (const doc of documents) {
+    if (doc.kind === "set") ensureSetFields(doc);
+    else ensureManifestFields(doc);
+  }
 
   /** Riwayat perubahan sesi per dokumen (panel Riwayat; bukan undo). */
   /** @type {Record<string, {label: string, at: number}[]>} */
@@ -99,6 +116,11 @@ export function createAppState(options) {
     byId,
     documentFor,
     history,
+    vocab,
+    /** Validasi ulang dokumen Builder setelah objek atau pengubah diganti. @param {any} doc */
+    revalidate(doc) {
+      doc.issues = validateManifest(doc, vocab);
+    },
     /**
      * Ubah dokumen lalu simpan dan render ulang. `label` dicatat di Riwayat sesi.
      * @param {string} docId
@@ -139,9 +161,10 @@ export function createAppState(options) {
     /**
      * Impor manifest Builder. Pustaka Tabler/Hugeicons dimuat dulu bila dipakai.
      * @param {string} text
+     * @param {{sample?: boolean}} [opts]
      * @returns {Promise<{fatal?: string, doc?: any}>}
      */
-    async importManifest(text) {
+    async importManifest(text, opts = {}) {
       const imp = importManifest(text, renderer.lib);
       if ("fatal" in imp && imp.fatal) return { fatal: imp.fatal };
       if (imp.needTb) {
@@ -153,7 +176,10 @@ export function createAppState(options) {
         renderer.dropMissing("hg");
       }
       imp.items.forEach(renderer.ensureManifestItem);
-      const doc = createManifestDocument(/** @type {any} */ (imp));
+      const doc = ensureManifestFields(createManifestDocument(/** @type {any} */ (imp)));
+      doc.isSample = !!opts.sample;
+      /* validasi seperti runImport TIB: id dobel diberi akhiran, nama tak dikenal diberi saran */
+      doc.issues = validateManifest(doc, vocab);
       documents.push(doc);
       activeId = doc.id;
       selection[doc.id] = imp.items[0] ? imp.items[0].uid : null;

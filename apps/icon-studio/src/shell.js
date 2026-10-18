@@ -165,7 +165,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
       const el = String(key).startsWith("#") ? scrollEls[Number(String(key).slice(1))] : root.querySelector(`#${CSS.escape(String(key))}`);
       if (el && top) el.scrollTop = Number(top);
     }
-    if (spec.mount) spec.mount(root, c, { toast, go });
+    if (spec.mount) spec.mount(root, c, { toast, go, importText });
   }
 
   /** @param {string} message */
@@ -185,9 +185,9 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     else location.hash = hash;
   };
 
-  /** @param {string} text */
-  async function importText(text) {
-    const result = await app.importManifest(text);
+  /** @param {string} text @param {{sample?: boolean}} [opts] */
+  async function importText(text, opts = {}) {
+    const result = await app.importManifest(text, opts);
     const message = /** @type {HTMLElement | null} */ (root.querySelector('[data-role="import-message"]'));
     if (result.fatal) {
       if (message) message.textContent = result.fatal;
@@ -202,7 +202,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     const c = ctx;
     if (!c) return;
     const persona = c.route.persona;
-    if (spec && spec.actions && spec.actions[action]) return spec.actions[action](c, el, { toast, go });
+    if (spec && spec.actions && spec.actions[action]) return spec.actions[action](c, el, { toast, go, importText });
     if (action === "view-pages") return go({ persona: "composer", edit: null });
     if (action === "view-single") {
       const id = c.doc && c.app.selection[c.doc.id];
@@ -213,7 +213,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
       if (persona === "composer") return go({ persona: "tinjau", edit: null });
       return toast("Unduhan ZIP dibangun pada tahap berikutnya.");
     }
-    if (action === "import-sample") return void importText(JSON.stringify(SAMPLE_MANIFEST, null, 2));
+    if (action === "import-sample") return void importText(JSON.stringify(SAMPLE_MANIFEST, null, 2), { sample: true });
     if (action === "import-text") {
       const area = /** @type {HTMLTextAreaElement | null} */ (root.querySelector('[data-name="manifest-text"]'));
       return void importText(area ? area.value : "");
@@ -281,7 +281,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
   function control(el, value) {
     const named = /** @type {HTMLElement | null} */ (el.closest("[data-name]"));
     if (rendering || !named || !ctx || !spec || !spec.control) return;
-    spec.control(ctx, named.dataset.name, value, named, { toast, go });
+    spec.control(ctx, named.dataset.name, value, named, { toast, go, importText });
   }
 
   root.addEventListener("change", async (event) => {

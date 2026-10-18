@@ -12,6 +12,7 @@ import { dedupeAttrs } from "@icon-studio/core";
 import { directFillSvgFile } from "@icon-studio/export";
 import { createAppState } from "./app-state.js";
 import { createShell } from "./shell.js";
+import * as builderOps from "./state/builder-ops.js";
 import * as documentModel from "./state/document.js";
 import { SAMPLE_MANIFEST } from "./state/data/sample-manifest.js";
 import { createRenderer } from "./state/render.js";
@@ -27,6 +28,7 @@ const renderer = createRenderer({
 /** @type {any} */ (window).__iconStudio = Object.freeze({
   renderer,
   document: documentModel,
+  builder: builderOps,
   store,
   SAMPLE_MANIFEST,
   directFillSvgFile,

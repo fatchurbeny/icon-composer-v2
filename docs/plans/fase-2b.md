@@ -139,7 +139,17 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - Undo/redo masih backlog. Panel Riwayat hanya menampilkan log perubahan sesi, tanpa tombol undo.
 - **Tinjauan Ika** terhadap `artboard-edit-1600x1000.png`.
 
-### 5. Persona Builder
+### 5. Persona Builder ✅ (menunggu tinjauan Ika)
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Logika TIB tanpa DOM di `state/builder-ops.js`: kosakata (`exists`, `suggest`, `collisions`), `validateManifest`, `flagsOf`, `exportList`, `metaOf`, `finalManifest`, `buildExportFiles`. Template Resource Page di `state/data/export/resource-page.js`.
+- Golden `studio-golden.spec.js`: isi ZIP Builder dibandingkan langsung dengan TIB 1.6.0 untuk `basic` (gaya A) dan `mixed` (X, A, B). Normalisasi hanya `exported_at` dan id mask `rp<uid>` di Resource Page (uid memakai angka acak).
+- Kunci JSON `version` di manifest akhir ditulis sekali (TIB menulis dua kali); nilai dan urutan kunci sama.
+- Perbedaan perilaku UI dari TIB (bukan keluaran): memilih Pratinjau tidak lagi mengubah centang gaya ekspor (artboard memisahkan Pratinjau dan panel Gaya ekspor). Posisi lapisan di Builder diatur lewat jangkar, tanpa seret di kanvas (handoff 3.3 tidak memintanya).
+- Pengecualian `lint:ui` untuk `apps/icon-studio/src/state/data/export/`: font dan ukuran huruf di HTML ekspor adalah bagian keluaran golden, bukan UI.
+- Panel studio yang tidak tumbuh dibatasi 34vh dan menggulir, supaya panel Ikon tetap terlihat di layar 900 px.
+- Belum ada: dobel klik membuka ikon di Composer (perlu konversi item manifest ke set), Ratakan variasi (Fase 6), dan ekspor skill `deck-icon-slots` (Fase 7).
+
 
 - Langkah Impor → Periksa → Ekspor.
   - Area drop manifest.

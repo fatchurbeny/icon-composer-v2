@@ -7,7 +7,7 @@
  * Urutan pemanggilan dan nilai `ctx` meniru kedua app lama supaya keluaran identik (golden).
  */
 import { get } from "@icon-studio/engines";
-import { createClassicData, decoMarkupClassic } from "@icon-studio/engines/classic";
+import { createClassicData, decoMarkupClassic, solidLineDiagnostic as solidLineDiagnosticClassic } from "@icon-studio/engines/classic";
 import { modPreviewAccent as modPreviewAccentEngine } from "@icon-studio/engines/accent";
 import {
   ROLES,
@@ -157,8 +157,18 @@ export function createRenderer(options) {
       for (const k of Object.keys(reg)) if (k.startsWith(prefix + ":") && reg[k].missing) delete reg[k];
   }
 
+  /**
+   * Diagnostik Solid·garis 1.4.5 untuk flag Builder (solidLineDiagnostic TIB).
+   * @param {any} it
+   * @param {any} style
+   */
+  function solidLineDiagnostic(it, style) {
+    return solidLineDiagnosticClassic(it, /** @type {any} */ (classicCtx(style, "manifest")));
+  }
+
   return {
     lib,
+    solidLineDiagnostic,
     data,
     icons,
     SOURCES,
