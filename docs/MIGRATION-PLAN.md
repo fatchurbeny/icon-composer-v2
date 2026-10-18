@@ -29,12 +29,14 @@ Status: `[ ]` belum · `[~]` berjalan · `[x]` selesai.
 ## Fase 2: Ekstrak paket bersama
 
 - [x] `packages/core`: `rng`, `hash`, `partStr`, `dedupeAttrs`, pembulatan.
-- [~] `packages/icon-sources`: loader, `sources.json`, `concept()` (gabungan `variantsOf`, `MOD_SYN`, alias).
-- [~] `packages/engines`: registry, lalu classic dan accent sebagai mesin pertama. Bandingkan dua salinan classic (IC vs TIB) dan catat perbedaannya.
-- [~] `packages/export`: outline, direct fill, ZIP, metadata.
-- [~] Kedua app memakai paket di atas. Kode duplikat di app dihapus.
+- [x] `packages/icon-sources`: loader (`createIconSources`), `sources.json`, `concept()` (gabungan `variantsOf`, `MOD_SYN`, alias), katalog kategori, data Kustom.
+- [x] `packages/engines`: registry, lalu classic dan accent sebagai mesin pertama. Perbedaan salinan classic IC vs TIB dicatat di `docs/legacy/INVENTORY.md`.
+- [x] `packages/export`: outline, direct fill, ZIP, metadata, tag, kata gaya, hitung warna.
+- [x] Kedua app memakai paket di atas. Kode duplikat di app dihapus. Yang tersisa di app hanya pembungkus tipis dan logika UI.
 
 **Kriteria terima:** golden tetap identik. Tidak ada fungsi mesin yang masih terduplikasi di `apps/` (cek `graphify query "compose"`).
+
+Status 2026-10-18: semua butir selesai, golden (9 tes, termasuk Tabler, Hugeicons, Kustom, dan ZIP Composer) identik. Menunggu persetujuan pemilik untuk menutup fase.
 
 ## Fase 2b: UI terpadu Icon Studio
 

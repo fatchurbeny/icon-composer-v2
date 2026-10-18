@@ -31,6 +31,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Fase 2 (langkah 9): data bawaan classic (`MAINS`, `PREFS`, `MODS`, `SHIFT`, `SLOT_GLYPH`, `DECOS`) pindah ke `createClassicData` di `packages/engines/classic/data.js`. Aturan Solid·garis 1.4.5 TIB pindah ke `packages/engines/classic/solid.js` dan aktif lewat `ctx.solidV145`. IC belum memakainya. Keluaran tidak berubah.
 - Fase 2 (langkah 10): tag pustaka, `titleCase`, `trID` (`packages/export/tags.js`) dan hitung warna (`packages/export/colors.js`) dipakai kedua app. Kata gaya judul dibaca dari `STYLE_WORDS` (kunci `classic:C` ditambah, kata accent ID dibetulkan menjadi `garis aksen` sesuai legacy). ZIP dan CSV TIB memakai `buildZip` dan `metadataCsv` (header tetap tanpa kutip). Golden ZIP Icon Composer ditambah. Keluaran tidak berubah.
 - Fase 2 (langkah 11): tes unit untuk `icon-sources` (pemuat Tabler, Hugeicons, Lucide, Kustom), mesin classic (`solidV145`, `createClassicData`), dan `export` (`STYLE_WORDS`, `metadataCsv`, `buildZip`, warna, tag).
+- ADR-016: header `metadata.csv` Icon Composer dikutip. Fase 2 ditandai selesai di `MIGRATION-PLAN.md`, menunggu persetujuan pemilik.
 
 ### Ditambahkan (desain)
 - Render acuan 5 artboard (`docs/design/reference/`), sumber artboard (`docs/design/artboards/`), `scripts/render-artboards.py`, `packages/icon-sources/sources.json`, bahan pendukung dari folder lama (lihat `docs/legacy/INVENTORY.md`).

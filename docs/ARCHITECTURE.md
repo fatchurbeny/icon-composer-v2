@@ -27,12 +27,12 @@ Aturan:
 | Modul | Tanggung jawab | Fungsi utama |
 |---|---|---|
 | `core` | Utilitas murni | `rng(seed)` (mulberry32), `hash(str)` (FNV-1a), `partStr`, `dedupeAttrs`, `r2/r3`, `bboxUnion` |
-| `icon-sources` | Memuat dan menormalkan pustaka | `loadLucide`, `loadTabler`, `loadHugeicons`, `nodeOf(key)`, `concept(key)`, `fillShapeOf(key)` |
+| `icon-sources` | Memuat dan menormalkan pustaka | `createIconSources({getLucide, custom})` (cache Lucide, `loadTabler`, `loadHugeicons`, Kustom, `customRoles`), `SOURCE_URLS` dari `sources.json`, `concept(key)`, `variantsOf`, `libNameOf`; subpath `/catalog` (kategori, `ID_EN`) dan `/custom` (`CUSTOM_ICONS`). Rencana: `fillShapeOf(key)` |
 | `engines/registry` | Daftar mesin dan dispatch | `register(engine)`, `get(id)`, `list()`, `migrateFamily(id)` |
-| `engines/<id>` | Satu gaya | `compose`, `axes`, `signature`, `defaults`, `normStyle`, `adapt` |
-| `engines/shared` | Analisis bentuk yang dipakai lebih dari satu mesin | `analyzeParts` (dulu `luAnalyze`/`mainInfo`), `closedOf`, `bodyOf`, `knockout` |
+| `engines/<id>` | Satu gaya | `compose`, `axes`, `signature`, `defaults`, `normStyle`, `adapt`. Classic juga punya `createClassicData` (data bawaan) dan `solid.js` (aturan Solid·garis 1.4.5, aktif lewat `ctx.solidV145`) |
+| `engines/shared` | Analisis bentuk yang dipakai lebih dari satu mesin | `createLibraryShapes` (dulu `luAnalyze`/`ensureLucide`), `analyzeLibraryIcon`, `mainInfoOf`, `modShapeOf`, `rolesOf`, `setMeasureHost` |
 | `repetition` | Deteksi dan variasi | `signatureFlags`, `fingerprint`, `similarPairs`, `planVariations` |
-| `export` | Dari SVG mentah ke file Canva | `outlineSvgFile`, `directFillSvgFile`, `buildZip`, `metadataCsv`, `gayaJson` |
+| `export` | Dari SVG mentah ke file Canva | `outlineSvgFile`, `directFillSvgFile`, `buildZip`, `metadataCsv`, `STYLE_WORDS`/`styleWord`, `createTagIndex`, `titleCase`, `trID`, `svgColors`, `packColors`. Rencana: `gayaJson` |
 
 ## 3. Alur render satu ikon
 

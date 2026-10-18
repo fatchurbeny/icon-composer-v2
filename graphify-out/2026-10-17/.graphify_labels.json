@@ -1,1 +1,8 @@
-{"0": "package.json", "1": "fetch-fixtures.mjs", "2": "render-artboards.py", "3": "lint-ui.mjs", "4": "ui/package.json", "5": "devDependencies", "6": "components.js", "7": "scripts", "8": "icon-composer/package.json", "9": "template-icon-builder/package.json"}
+{
+  "0": "package.json",
+  "1": "fetch-fixtures.mjs",
+  "2": "render-artboards.py",
+  "4": "ui/package.json",
+  "8": "icon-composer/package.json",
+  "9": "template-icon-builder/package.json"
+}
