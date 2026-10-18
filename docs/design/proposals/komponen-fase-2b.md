@@ -1,6 +1,6 @@
 # Usulan komponen kit: Fase 2b
 
-Tanggal: 2026-10-18 · Status: **menunggu persetujuan Ika** · Prosedur: `docs/design/UI-RULES.md` bagian "Menambah atau mengubah komponen".
+Tanggal: 2026-10-18 · Status: **disetujui Ika 2026-10-18, sudah dipasang di `packages/ui`** · Prosedur: `docs/design/UI-RULES.md` bagian "Menambah atau mengubah komponen".
 
 Langkah 3–6 Fase 2b butuh empat wilayah layar yang belum punya komponen di kit. Usulan ini menyiapkan komponennya dulu, supaya kode persona tidak membuat kelas atau warna sendiri.
 
@@ -122,7 +122,10 @@ Token yang sudah ada dipakai ulang: `--ic-select-ring`, `--ic-accent`, `--ic-err
 - **State:** `data-dragover="true"` saat file diseret di atas area. Tampilannya garis biru dan latar `--ic-bg-selected`.
 - **Input file:** disembunyikan secara visual. Label tombol tetap bisa difokus dan diklik, sama seperti di app sekarang.
 
-## Pertanyaan untuk Ika
+## Pertanyaan untuk Ika (dijawab 2026-10-18)
+
+Jawaban: (1) grid 16 sel seperti artboard; (2) klik mengeluarkan/memasukkan, klik dua kali membuka Edit; (3) kotak tempel JSON tetap ada.
+
 
 1. **Grid artboard edit.** Artboard Edit menggambar 16 sel (satu garis tiap 3 unit kanvas 48), sedangkan DESIGN-HANDOFF 3.2 menulis "grid 8 unit". Usulan ini mengikuti artboard (16 sel). Kalau maksudnya 8 sel (tiap 6 unit), cukup ubah `--ic-artboard-cells` menjadi 8.
 2. **Klik sel lembar kontak.** Usulan: satu klik mengeluarkan atau memasukkan ikon, sesuai bilah status artboard. Klik dua kali membuka ikon di Composer · Edit. Setuju?

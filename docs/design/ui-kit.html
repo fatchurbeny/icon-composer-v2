@@ -48,7 +48,7 @@
     <a href="#slider">Slider &amp; angka</a><a href="#check">Checkbox &amp; toggle</a><a href="#field">Field &amp; pencarian</a><a href="#chips">Chip, tag, stepper</a>
     <a href="#flags">Lencana, flag, peringatan</a><a href="#stats">Statistik</a><a href="#rows">Baris daftar</a><a href="#tiles">Tile pustaka</a>
     <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a>
-    <a href="#misc">Kosong, tooltip, toast</a><a href="#shell">Contoh kerangka penuh</a>
+    <a href="#misc">Kosong, tooltip, toast</a><a href="#edit">Artboard edit &amp; filmstrip</a><a href="#slides">Grup slide &amp; kartu ikon</a><a href="#sheet">Lembar kontak &amp; uji 32 px</a><a href="#drop">Area drop &amp; field banyak baris</a><a href="#shell">Contoh kerangka penuh</a>
   </nav>
 
   <main class="kit-main">
@@ -328,6 +328,74 @@
         <div class="kit-cap"><span class="ic-tooltip" style="position: static">X 35.25  Y 12.75</span><code>.ic-tooltip (koordinat kanvas)</code></div>
         <div class="kit-cap"><span class="ic-toast" style="position: static; transform: none">ZIP diunduh</span><code>.ic-toast</code></div>
       </div>
+    </section>
+
+    <section class="kit-sec" id="edit">
+      <h2>Artboard edit, kotak seleksi, filmstrip</h2>
+    
+    <p><code>.ic-artboard</code> 520 × 520 dengan grid, <code>.ic-selbox</code> + 8 <code>.ic-selbox__h</code>, tooltip koordinat <code>.ic-tooltip</code> yang sudah ada, dan <code>.ic-filmstrip</code> 84 px.</p>
+    <div class="kit-demo kit-demo--col" style="padding: 0; overflow: hidden">
+      <div style="display: flex; justify-content: center; padding: 30px">
+        <div class="ic-artboard-wrap">
+          <span class="ic-artboard__label">koper-siap <span class="ic-meta">· 48 × 48</span></span>
+          <div class="ic-artboard">
+            <img class="ic-artboard__art" src="assets/s01-koper-siap.svg" alt="koper-siap">
+            <div class="ic-selbox" style="left: 292px; top: 48px; width: 180px; height: 180px">
+              <span class="ic-selbox__h" data-at="nw"></span><span class="ic-selbox__h" data-at="n"></span><span class="ic-selbox__h" data-at="ne"></span><span class="ic-selbox__h" data-at="e"></span>
+              <span class="ic-selbox__h" data-at="se"></span><span class="ic-selbox__h" data-at="s"></span><span class="ic-selbox__h" data-at="sw"></span><span class="ic-selbox__h" data-at="w"></span>
+            </div>
+            <span class="ic-tooltip" style="left: 486px; top: 236px">X 35.25  Y 12.75</span>
+          </div>
+        </div>
+      </div>
+      <div class="ic-filmstrip" role="listbox" aria-label="Ikon dalam set"><span class="ic-label">Set</span><button type="button" class="ic-filmstrip__item" role="option" aria-selected="true" aria-label="koper-siap"><img src="assets/s01-koper-siap.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="peta-tujuan"><img src="assets/s02-peta-tujuan.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="kamera-liburan"><img src="assets/s03-kamera-liburan.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="kemah-malam"><img src="assets/s04-kemah-malam.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="berlayar"><img src="assets/s05-berlayar.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="road-trip"><img src="assets/s06-road-trip.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="mendaki"><img src="assets/s07-mendaki.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="bus-wisata"><img src="assets/s08-bus-wisata.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="pantai"><img src="assets/s09-pantai.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="tiket-pesawat"><img src="assets/s10-tiket-pesawat.svg" alt=""></button><button type="button" class="ic-filmstrip__item" role="option" aria-selected="false" aria-label="kamera-foto"><img src="assets/s11-kamera-foto.svg" alt=""></button></div>
+    </div>
+    </section>
+
+    <section class="kit-sec" id="slides">
+      <h2>Grup slide &amp; kartu ikon</h2>
+    
+    <p><code>.ic-slidegrid</code> (2 kolom) berisi <code>.ic-slidegroup</code>. Kartu <code>.ic-iconcard</code>: terpilih lewat <code>aria-selected</code>, dobel lewat <code>data-level="err"</code>, flag memakai <code>.ic-flag</code> yang sudah ada.</p>
+    <div class="kit-demo kit-demo--col">
+      <div class="ic-slidegrid">
+        <div class="ic-slidegroup"><div class="ic-slidegroup__head"><span class="ic-slidegroup__no">02</span><span class="ic-slidegroup__title">Riset pasar</span><span class="ic-hsep"></span><span class="ic-meta">4 slot</span></div><div class="ic-cardgrid"><button type="button" class="ic-iconcard" aria-selected="true"><span class="ic-iconcard__art"><img src="assets/b01-scan-market.svg" alt=""></span><span class="ic-iconcard__id">scan-market</span></button><button type="button" class="ic-iconcard" aria-selected="false"><span class="ic-iconcard__art"><img src="assets/b02-find-audience.svg" alt=""></span><span class="ic-iconcard__id">find-audience</span></button><button type="button" class="ic-iconcard" aria-selected="false"><span class="ic-iconcard__art"><img src="assets/b03-launch-campaign.svg" alt=""></span><span class="ic-iconcard__id">launch-campaign</span></button><button type="button" class="ic-iconcard" aria-selected="false"><span class="ic-iconcard__art"><img src="assets/b04-set-goals.svg" alt=""><span class="ic-flag" data-level="warn">mirip</span></span><span class="ic-iconcard__id">set-goals</span></button></div></div>
+        <div class="ic-slidegroup"><div class="ic-slidegroup__head"><span class="ic-slidegroup__no">03</span><span class="ic-slidegroup__title">Strategi kampanye</span><span class="ic-hsep"></span><span class="ic-meta">4 slot</span></div><div class="ic-cardgrid"><button type="button" class="ic-iconcard" aria-selected="false"><span class="ic-iconcard__art"><img src="assets/b05-track-growth.svg" alt=""></span><span class="ic-iconcard__id">track-growth</span></button><button type="button" class="ic-iconcard" aria-selected="false" data-level="err"><span class="ic-iconcard__art"><img src="assets/b06-send-newsletter.svg" alt=""><span class="ic-flag" data-level="err">dobel</span></span><span class="ic-iconcard__id">send-newsletter</span></button><button type="button" class="ic-iconcard" aria-selected="false"><span class="ic-iconcard__art"><img src="assets/b07-plan-content.svg" alt=""></span><span class="ic-iconcard__id">plan-content</span></button><button type="button" class="ic-iconcard" aria-selected="false"><span class="ic-iconcard__art"><img src="assets/b08-pitch-deck.svg" alt=""></span><span class="ic-iconcard__id">pitch-deck</span></button></div></div>
+      </div>
+    </div>
+    </section>
+
+    <section class="kit-sec" id="sheet">
+      <h2>Lembar kontak &amp; uji 32 px</h2>
+    
+    <p><code>.ic-sheet</code> dengan sel <code>.ic-sheet__cell</code>. Sel adalah tombol toggle: <code>aria-pressed="true"</code> = ikut diunduh, <code>"false"</code> = dikeluarkan (opasitas 35% + label). Latar lembar dari swatch lewat <code>--ic-sheet-bg</code>, ukuran lewat <code>--ic-sheet-icon</code>.</p>
+    <div class="kit-demo kit-demo--col">
+      <div class="ic-sheet" style="--ic-sheet-icon: 96px">
+        <div class="ic-sheet__head"><span class="ic-sheet__title">Travel Set</span><span class="ic-sheet__meta">sticker 1.1.0 · 11 ikon · 128 px</span></div>
+        <div class="ic-sheet__grid"><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s01-koper-siap.svg" alt="koper-siap"><span class="ic-sheet__file">koper-siap-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s02-peta-tujuan.svg" alt="peta-tujuan"><span class="ic-sheet__file">peta-tujuan-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s03-kamera-liburan.svg" alt="kamera-liburan"><span class="ic-sheet__file">kamera-liburan-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s04-kemah-malam.svg" alt="kemah-malam"><span class="ic-sheet__file">kemah-malam-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s05-berlayar.svg" alt="berlayar"><span class="ic-sheet__file">berlayar-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s06-road-trip.svg" alt="road-trip"><span class="ic-sheet__file">road-trip-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s07-mendaki.svg" alt="mendaki"><span class="ic-sheet__file">mendaki-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s08-bus-wisata.svg" alt="bus-wisata"><span class="ic-sheet__file">bus-wisata-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s09-pantai.svg" alt="pantai"><span class="ic-sheet__file">pantai-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="true"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s10-tiket-pesawat.svg" alt="tiket-pesawat"><span class="ic-sheet__file">tiket-pesawat-sticker.svg</span></button><button type="button" class="ic-sheet__cell" aria-pressed="false"><span class="ic-sheet__badge">dikeluarkan</span><img src="assets/s11-kamera-foto.svg" alt="kamera-foto"><span class="ic-sheet__file">kamera-foto-sticker.svg</span></button></div>
+      </div>
+      <div class="ic-sizetest" style="margin-top: 24px">
+        <div class="ic-sizetest__panel"><span class="ic-label">Uji 32 px di latar terang</span><div class="ic-sizetest__row" style="--ic-sizetest-bg: #ECEBE7"><img src="assets/s01-koper-siap.svg" alt=""><img src="assets/s02-peta-tujuan.svg" alt=""><img src="assets/s03-kamera-liburan.svg" alt=""><img src="assets/s04-kemah-malam.svg" alt=""><img src="assets/s05-berlayar.svg" alt=""><img src="assets/s06-road-trip.svg" alt=""><img src="assets/s07-mendaki.svg" alt=""><img src="assets/s08-bus-wisata.svg" alt=""><img src="assets/s09-pantai.svg" alt=""><img src="assets/s10-tiket-pesawat.svg" alt=""></div></div>
+        <div class="ic-sizetest__panel"><span class="ic-label">Uji 32 px di latar gelap (halo putih tetap terlihat)</span><div class="ic-sizetest__row" style="--ic-sizetest-bg: #141414"><img src="assets/s01-koper-siap.svg" alt=""><img src="assets/s02-peta-tujuan.svg" alt=""><img src="assets/s03-kamera-liburan.svg" alt=""><img src="assets/s04-kemah-malam.svg" alt=""><img src="assets/s05-berlayar.svg" alt=""><img src="assets/s06-road-trip.svg" alt=""><img src="assets/s07-mendaki.svg" alt=""><img src="assets/s08-bus-wisata.svg" alt=""><img src="assets/s09-pantai.svg" alt=""><img src="assets/s10-tiket-pesawat.svg" alt=""></div></div>
+      </div>
+    </div>
+    </section>
+
+    <section class="kit-sec" id="drop">
+      <h2>Area drop &amp; field banyak baris</h2>
+    
+    <p><code>.ic-dropzone</code> dengan garis putus <code>--ic-line-5</code> (DESIGN-HANDOFF bagian 7). Saat file diseret di atasnya: <code>data-dragover="true"</code>. <code>.ic-field--area</code> untuk menempel JSON.</p>
+    <div class="kit-demo">
+      <div class="ic-dropzone">
+        <span class="ic-dropzone__title">Seret manifest JSON ke sini</span>
+        <span>Atau pilih file dari Claude Design. Builder memeriksa nama objek, pengubah, dan id ikon.</span>
+        <div class="ic-dropzone__actions"><label class="ic-btn ic-btn--primary">Pilih file…<input type="file" accept=".json"></label><button type="button" class="ic-btn">Muat contoh</button></div>
+        <label class="ic-field ic-field--area" style="align-self: stretch"><textarea aria-label="Tempel JSON manifest" placeholder="Atau tempel JSON manifest di sini"></textarea></label>
+      </div>
+      <div class="ic-dropzone" data-dragover="true">
+        <span class="ic-dropzone__title">Lepaskan untuk mengimpor</span>
+        <span>Keadaan saat file diseret di atas area.</span>
+      </div>
+    </div>
     </section>
 
     <section class="kit-sec" id="shell">

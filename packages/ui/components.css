@@ -313,6 +313,81 @@
 .ic-toast { position: fixed; left: 50%; bottom: 44px; transform: translateX(-50%); z-index: 70; padding: var(--ic-sp-4) var(--ic-sp-7); border-radius: var(--ic-r-xl); background: var(--ic-text-1); color: var(--ic-bg-app); font-size: var(--ic-fs-md); box-shadow: var(--ic-shadow-menu); }
 .ic-toast[hidden] { display: none; }
 
+/* ===== Artboard edit, kotak seleksi, filmstrip (Composer · Edit) ===== */
+.ic-artboard-wrap { display: flex; flex-direction: column; gap: var(--ic-sp-4); }
+.ic-artboard__label { font-size: var(--ic-fs-md); color: var(--ic-text-1); }
+.ic-artboard__label .ic-meta { font-size: var(--ic-fs-sm); }
+.ic-artboard { position: relative; width: var(--ic-artboard-size); height: var(--ic-artboard-size); flex: none; background-color: var(--ic-bg-artboard);
+  background-image: linear-gradient(var(--ic-artboard-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--ic-artboard-grid-line) 1px, transparent 1px);
+  background-size: calc(var(--ic-artboard-size) / var(--ic-artboard-cells)) calc(var(--ic-artboard-size) / var(--ic-artboard-cells)); }
+.ic-artboard[data-grid="off"] { background-image: none; }
+.ic-artboard__art { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* kotak seleksi lapisan: posisi dan ukuran ditulis inline (geometri, bukan gaya) */
+.ic-selbox { position: absolute; box-shadow: inset 0 0 0 1.5px var(--ic-accent); }
+.ic-selbox__h { position: absolute; width: 9px; height: 9px; background: var(--ic-bg-artboard); border: 1.5px solid var(--ic-accent); box-sizing: border-box; }
+.ic-selbox__h[data-at="nw"] { left: -5px; top: -5px; }      .ic-selbox__h[data-at="n"] { left: calc(50% - 4.5px); top: -5px; }
+.ic-selbox__h[data-at="ne"] { right: -5px; top: -5px; }     .ic-selbox__h[data-at="e"] { right: -5px; top: calc(50% - 4.5px); }
+.ic-selbox__h[data-at="se"] { right: -5px; bottom: -5px; }  .ic-selbox__h[data-at="s"] { left: calc(50% - 4.5px); bottom: -5px; }
+.ic-selbox__h[data-at="sw"] { left: -5px; bottom: -5px; }   .ic-selbox__h[data-at="w"] { left: -5px; top: calc(50% - 4.5px); }
+
+/* filmstrip set di bawah kanvas edit */
+.ic-filmstrip { display: flex; align-items: center; gap: var(--ic-sp-4); height: var(--ic-h-filmstrip); padding: 0 var(--ic-sp-8);
+  background: var(--ic-bg-filmstrip); border-top: 1px solid var(--ic-line-strong); overflow-x: auto; flex: none; }
+.ic-filmstrip > .ic-label { width: 40px; flex: none; }
+.ic-filmstrip__item { width: 60px; height: 60px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0; border: 0;
+  background: var(--ic-bg-artboard); cursor: pointer; }
+.ic-filmstrip__item img, .ic-filmstrip__item svg { width: 52px; height: 52px; }
+.ic-filmstrip__item[aria-selected="true"] { box-shadow: var(--ic-select-ring); }
+
+/* ===== Grup slide dan kartu ikon (Builder) ===== */
+.ic-slidegrid { display: grid; grid-template-columns: repeat(var(--ic-cols, 2), minmax(0, 1fr)); gap: 30px 44px; align-content: start; }
+.ic-slidegroup { display: flex; flex-direction: column; gap: var(--ic-sp-6); min-width: 0; }
+.ic-slidegroup__head { display: flex; align-items: center; gap: var(--ic-sp-4); }
+.ic-slidegroup__no { font-family: var(--ic-font-mono); font-size: 11.5px; color: var(--ic-text-4); }
+.ic-slidegroup__title { font-size: var(--ic-fs-base); color: var(--ic-text-1); font-weight: var(--ic-fw-medium); }
+.ic-slidegroup__head .ic-hsep { background: var(--ic-line-4); }
+.ic-cardgrid { display: grid; grid-template-columns: repeat(var(--ic-cols, 4), minmax(0, 1fr)); gap: var(--ic-sp-7); }
+.ic-iconcard { display: flex; flex-direction: column; gap: var(--ic-sp-3); min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.ic-iconcard__art { position: relative; width: 100%; aspect-ratio: 1; background: var(--ic-bg-artboard); display: flex; align-items: center; justify-content: center; }
+.ic-iconcard__art img, .ic-iconcard__art svg { width: 72%; height: 72%; }
+.ic-iconcard__art .ic-flag { position: absolute; top: 5px; right: 5px; }
+.ic-iconcard__id { font-family: var(--ic-font-mono); font-size: 11px; color: var(--ic-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ic-iconcard[aria-selected="true"] .ic-iconcard__art { box-shadow: var(--ic-select-ring); }
+.ic-iconcard[data-level="err"] .ic-iconcard__art { box-shadow: 0 0 0 2px var(--ic-err); }
+.ic-iconcard[data-level="err"][aria-selected="true"] .ic-iconcard__art { box-shadow: 0 0 0 2px var(--ic-err), 0 0 0 4px var(--ic-accent); }
+
+/* ===== Lembar kontak dan uji ukuran kecil (Tinjau) ===== */
+.ic-sheet { display: flex; flex-direction: column; gap: 18px; padding: 26px 30px 22px; background: var(--ic-sheet-bg, var(--ic-bg-artboard)); color: var(--ic-text-on-light); }
+.ic-sheet__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--ic-sp-6); }
+.ic-sheet__title { font-size: var(--ic-fs-xl); font-weight: var(--ic-fw-semibold); }
+.ic-sheet__meta { font-family: var(--ic-font-mono); font-size: 11px; color: var(--ic-text-on-light-3); }
+.ic-sheet__grid { display: grid; grid-template-columns: repeat(var(--ic-cols, 6), minmax(0, 1fr)); gap: 18px 14px; }
+.ic-sheet__cell { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--ic-sp-3); padding: var(--ic-sp-4) 0 var(--ic-sp-3);
+  border: 0; border-radius: var(--ic-r-md); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.ic-sheet__cell img, .ic-sheet__cell svg { width: var(--ic-sheet-icon, 96px); height: var(--ic-sheet-icon, 96px); }
+.ic-sheet__file { font-family: var(--ic-font-mono); font-size: var(--ic-fs-xs); color: var(--ic-text-on-light-2); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.ic-sheet__cell[aria-pressed="false"] { opacity: .35; box-shadow: inset 0 0 0 1.5px var(--ic-line-on-light); }
+.ic-sheet__badge { position: absolute; top: 4px; left: 4px; display: none; align-items: center; height: 18px; padding: 0 6px; border-radius: var(--ic-r-sm);
+  background: var(--ic-text-on-light); color: var(--ic-text-on-accent); font-size: var(--ic-fs-xs); }
+.ic-sheet__cell[aria-pressed="false"] .ic-sheet__badge { display: flex; }
+.ic-sheet[data-names="off"] .ic-sheet__file { display: none; }
+
+.ic-sizetest { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ic-sp-8); }
+.ic-sizetest__panel { display: flex; flex-direction: column; gap: var(--ic-sp-5); padding: var(--ic-sp-7) var(--ic-sp-8); background: var(--ic-bg-panel); }
+/* latar baris uji = data pratinjau, diisi inline lewat --ic-sizetest-bg */
+.ic-sizetest__row { display: flex; flex-wrap: wrap; gap: var(--ic-sp-6); padding: var(--ic-sp-5); background: var(--ic-sizetest-bg); }
+.ic-sizetest__row img, .ic-sizetest__row svg { width: 32px; height: 32px; }
+
+/* ===== Area drop dan field banyak baris (Builder · Impor) ===== */
+.ic-dropzone { display: flex; flex-direction: column; align-items: center; gap: var(--ic-sp-6); max-width: 520px; padding: 36px 32px; text-align: center;
+  border: 1.5px dashed var(--ic-line-5); border-radius: var(--ic-r-lg); color: var(--ic-text-3); }
+.ic-dropzone__title { font-size: var(--ic-fs-lg); font-weight: var(--ic-fw-semibold); color: var(--ic-text-1); }
+.ic-dropzone__actions { display: flex; gap: var(--ic-sp-3); }
+.ic-dropzone[data-dragover="true"] { border-color: var(--ic-accent); background: var(--ic-bg-selected); color: var(--ic-text-1); }
+.ic-dropzone input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.ic-field--area { height: auto; align-items: stretch; padding: var(--ic-sp-3) var(--ic-sp-4); }
+.ic-field--area textarea { flex: 1; min-width: 0; min-height: 96px; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; font-family: var(--ic-font-mono); font-size: var(--ic-fs-sm); resize: vertical; outline: none; }
+
 /* ===== Responsif (jendela sempit) ===== */
 @media (max-width: 1100px) {
   .ic-shell { grid-template-columns: var(--ic-w-toolrail) minmax(0, 1fr); grid-template-rows: var(--ic-h-topbar) auto minmax(0, 1fr) auto var(--ic-h-status); height: auto; }
