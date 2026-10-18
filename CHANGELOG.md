@@ -37,6 +37,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Fase 2b (langkah 2): kerangka lengkap Icon Studio. `shell.js` (bilah atas, konteks, tool rail atau studio kiri, tab dokumen, studio, status), `app-state.js` (dokumen aktif, seleksi per dokumen, rute hash, penyimpanan `icon-studio-v1`), dan modul persona di `src/personas/`. Keadaan set kosong dan manifest belum diimpor, impor manifest ke dokumen Builder, set contoh, mode edit (klik dua kali, Esc). `ui-shell.spec.js` diperluas: ukuran tiap persona, tab dokumen, keyboard, nama kontrol, dan kemiripan piksel bilah atas + tool rail dengan kit (< 2%).
 
 ### Ditambahkan (desain)
+- Usulan komponen kit Fase 2b (`docs/design/proposals/komponen-fase-2b.{md,html,css}`): artboard edit + kotak seleksi + filmstrip, grup slide + kartu ikon, lembar kontak + uji 32 px, area drop + field banyak baris. Menunggu persetujuan pemilik.
 - Render acuan 5 artboard (`docs/design/reference/`), sumber artboard (`docs/design/artboards/`), `scripts/render-artboards.py`, `packages/icon-sources/sources.json`, bahan pendukung dari folder lama (lihat `docs/legacy/INVENTORY.md`).
 - `packages/ui` (tokens.css, components.css, components.js, icons.js), `docs/design/` (DESIGN-HANDOFF.md, UI-RULES.md, ui-kit.html + aset contoh), `scripts/lint-ui.mjs`, `scripts/build-ui-icons.mjs`.
 
