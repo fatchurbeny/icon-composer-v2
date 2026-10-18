@@ -1,7 +1,7 @@
 /* eslint-disable -- Kode UI legacy dibekukan sampai Fase 2b. */
 import { dedupeAttrs, partStr, r3 } from "@icon-studio/core";
 import { get } from "@icon-studio/engines";
-import { buildZip as buildZipFile, metadataCsv } from "@icon-studio/export";
+import { buildZip as buildZipFile, createTagIndex, metadataCsv, packColors as packColorsOf, styleWord, titleCase, trID } from "@icon-studio/export";
 import { createClassicData, decoMarkupClassic, fillOfClassic, geomClassic, lineOfClassic, modeOfClassic } from "@icon-studio/engines/classic";
 import { rolesOf as rolesOfShared, ROLES, createLibraryShapes, setMeasureHost, svgParts, bbOf, measureNode, analyzeLibraryIcon, mainInfoOf, modShapeOf, autoRoles, isClosed, unionBB, inBB, touchBB, luPartSvg } from "@icon-studio/engines/shared";
 import { modPreviewAccent as modPreviewAccentEngine } from "@icon-studio/engines/accent";
@@ -182,14 +182,8 @@ function slug(s){ return String(s || "ikon").toLowerCase().normalize("NFKD").rep
 
 /* ---------- editor rendering ---------- */
 let binT;
-/* hitung warna terlihat (di luar <mask>) — Canva hanya bisa mengedit maks 5 warna */
-function svgColors(svg){
-  const vis = svg.replace(/<mask[\s\S]*?<\/mask>/g, "");
-  const set = new Set();
-  for (const m of vis.matchAll(/(?:fill|stroke)="(#[0-9a-fA-F]{3,8})"/g)) set.add(m[1].toUpperCase());
-  return set;
-}
-function packColors(items){ const all = new Set(); for (const it of items) for (const c of svgColors(compose(it, {idp:"cc"}))) all.add(c); return all; }
+/* hitung warna terlihat: logika ada di packages/export/colors.js (Canva hanya bisa mengedit maks 5 warna) */
+function packColors(items){ return packColorsOf(items, it => compose(it, {idp:"cc"})); }
 function setChanged(){
   persist(); renderEditor();
   clearTimeout(binT); binT = setTimeout(renderBins, 120);
@@ -607,39 +601,20 @@ function renderReview(){
   $("rDownload").disabled = !inc.length;
 }
 /* ---------- metadata Canva untuk Chrome extension (v1.5.1, diambil dari Builder v1.6.0) ---------- */
-const LU_TAGS_URL = "https://cdn.jsdelivr.net/npm/lucide-static@1.52.0/tags.json";
-const TB_TAGS_URL = "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/icons.json";
-const EN_ID = (() => {
-  const d = {}; for (const [id, en] of Object.entries(ID_EN)) if (!d[en]) d[en] = id;
-  return Object.assign(d, {plus:"tambah", add:"tambah", minus:"kurang", check:"centang", done:"selesai", x:"silang", close:"tutup", star:"bintang", favorite:"favorit", search:"cari", find:"temukan", clock:"jam", time:"waktu", timer:"pengatur waktu", hourglass:"jam pasir", bell:"lonceng", notification:"notifikasi", alert:"peringatan", lock:"gembok", security:"keamanan", secure:"aman", shield:"perisai", protection:"perlindungan", heart:"hati", love:"cinta", like:"suka", pencil:"pensil", edit:"sunting", write:"tulis", settings:"pengaturan", cloud:"awan", share:"bagikan", download:"unduh", upload:"unggah", refresh:"muat ulang", info:"informasi", sparkles:"kilau", magic:"ajaib", zap:"kilat", energy:"energi", eye:"mata", view:"lihat", flag:"bendera", goal:"tujuan", bookmark:"penanda", link:"tautan", user:"pengguna", users:"pengguna", person:"orang", people:"orang", team:"tim", group:"grup", message:"pesan", chat:"obrolan", comment:"komentar", gift:"hadiah", trophy:"piala", award:"penghargaan", target:"target", rocket:"roket", launch:"peluncuran", lightbulb:"bola lampu", idea:"ide", creative:"kreatif", calendar:"kalender", schedule:"jadwal", date:"tanggal", event:"acara", money:"uang", payment:"pembayaran", tag:"label", location:"lokasi", map:"peta", send:"kirim", mail:"surat", email:"email", file:"berkas", document:"dokumen", paper:"kertas", box:"kotak", package:"paket", cart:"troli", shopping:"belanja", home:"rumah", house:"rumah", phone:"telepon", book:"buku", read:"baca", learning:"belajar", education:"pendidikan", school:"sekolah", teacher:"guru", student:"siswa", presentation:"presentasi", meeting:"rapat", workshop:"lokakarya", work:"kerja", office:"kantor", tool:"alat", tools:"peralatan", build:"membangun", hammer:"palu", coffee:"kopi", break:"istirahat", sun:"matahari", morning:"pagi", leaf:"daun", nature:"alam", music:"musik", thumbs:"jempol", feedback:"umpan balik", rating:"penilaian", list:"daftar", task:"tugas", note:"catatan", sticky:"tempel", wall:"dinding", table:"meja", chair:"kursi", door:"pintu", welcome:"selamat datang", hand:"tangan", wave:"lambaian", cut:"potong", scissors:"gunting", tape:"selotip", print:"cetak", printer:"printer", outline:"garis", icon:"ikon", line:"garis", filled:"solid", solid:"solid", glyph:"glif"});
-})();
-let LU_TAGS = null, TB_TAGS = null;
 function libName(k, kind){ return libNameOf(k, kind, MAIN_ALIAS, MOD_ALIAS); }
-const SMALL = new Set(["a","an","the","and","or","of","for","to","in","on","at","by","with","vs"]);
-function titleCase(s){ return String(s || "").trim().split(/\s+/).map((w, i) => i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1)).join(" "); }
-async function loadTags(){
-  const get = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
-  if (!LU_TAGS) LU_TAGS = await get(LU_TAGS_URL) || {};
-  if (!TB_TAGS){ const j = await get(TB_TAGS_URL); TB_TAGS = {}; if (j) for (const [k, v] of Object.entries(j)) if (v && v.category !== "Brand") TB_TAGS[k] = v.tags || []; }
-}
-function tagsOf(k, kind){
-  const n = libName(k, kind), base = n.replace(/-\d+$/, "");
-  const t = [...(LU_TAGS && LU_TAGS[n] || []), ...(TB_TAGS && TB_TAGS[n] || []), ...(TB_TAGS && TB_TAGS[base] || [])];
-  const STOP = new Set(["logo","brand","social","emoji","overview","projects","ui","app","web3","crypto","nft"]);
-  return [...new Set([...base.split("-").filter(w => w.length > 1 && !/^\d+$/.test(w)), ...t.map(x => String(x).toLowerCase())])].filter(w => !STOP.has(w));
-}
-function trID(w){ if (EN_ID[w]) return EN_ID[w]; const parts = w.split(/[\s-]+/); const tr = parts.map(p => EN_ID[p]); return tr.every(Boolean) ? tr.join(" ") : null; }
-const csvCell = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+const TAGS = createTagIndex();
+const loadTags = TAGS.loadTags;
+function tagsOf(k, kind){ return TAGS.tagsOf(libName(k, kind)); }
 const META_KEY = "icon-composer-meta-v1";
 const rMeta = {on:true, artist:"hashtagben", locale:"en", packEn:"", packId:"", kw:15, desc:"", nm:"auto"};
 try { Object.assign(rMeta, JSON.parse(localStorage.getItem(META_KEY) || "{}")); } catch {}
 function saveMeta(){ try { localStorage.setItem(META_KEY, JSON.stringify(rMeta)); } catch {} }
 function styleMeta(it){
-  if (style.family === "accent") return {en:"Accent Line", id:"garis aksen", ken:["accent icon", "line icon", "two tone icon"], kid:["ikon aksen", "ikon garis", "ikon dua warna"]};
+  if (style.family === "accent") return {...styleWord("accent"), ken:["accent icon", "line icon", "two tone icon"], kid:["ikon aksen", "ikon garis", "ikon dua warna"]};
   const m = modeOf(it);
-  if (m === "B") return {en:"Solid Two Tone", id:"solid dua warna", ken:["solid icon", "two tone icon"], kid:["ikon solid", "ikon dua warna"]};
-  if (m === "C") return {en:"Outline", id:"garis", ken:["outline icon", "line icon"], kid:["ikon garis", "ikon outline"]};
-  return {en:"Two Tone", id:"dua warna", ken:["two tone icon", "outline icon"], kid:["ikon dua warna", "ikon garis"]};
+  if (m === "B") return {...styleWord("classic", "B"), ken:["solid icon", "two tone icon"], kid:["ikon solid", "ikon dua warna"]};
+  if (m === "C") return {...styleWord("classic", "C"), ken:["outline icon", "line icon"], kid:["ikon garis", "ikon outline"]};
+  return {...styleWord("classic", "A"), ken:["two tone icon", "outline icon"], kid:["ikon dua warna", "ikon garis"]};
 }
 const libWords = (k, kind) => libName(k, kind).replace(/-\d+$/, "").replace(/-/g, " ");
 function baseNameEN(it){ return [libWords(it.main, "main"), it.mod !== "none" ? libWords(it.mod, "mod") : ""].filter(Boolean).join(" "); }

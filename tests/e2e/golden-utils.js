@@ -127,6 +127,27 @@ export async function captureTemplateIconBuilderZip(
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(100);
   await page.locator('[data-view="export"]').click();
+  await interceptDownloads(page);
+  for (const mode of ["X", "A", "B"]) {
+    await page.locator(`#ex${mode}`).setChecked(styles.includes(mode));
+  }
+  await page.locator("#exGo").click();
+  return readDownloadedZip(page);
+}
+
+/**
+ * Isi ZIP ekspor Icon Composer dari panel Tinjau pack.
+ * @param {import("@playwright/test").Page} page
+ */
+export async function captureIconComposerZip(page) {
+  await page.locator('[data-view="review"]').first().click();
+  await interceptDownloads(page);
+  await page.locator("#rDownload").click();
+  return readDownloadedZip(page);
+}
+
+/** @param {import("@playwright/test").Page} page */
+async function interceptDownloads(page) {
   await page.evaluate(() => {
     window.__goldenBlob = null;
     URL.createObjectURL = (blob) => {
@@ -135,10 +156,10 @@ export async function captureTemplateIconBuilderZip(
     };
     HTMLAnchorElement.prototype.click = () => {};
   });
-  for (const mode of ["X", "A", "B"]) {
-    await page.locator(`#ex${mode}`).setChecked(styles.includes(mode));
-  }
-  await page.locator("#exGo").click();
+}
+
+/** @param {import("@playwright/test").Page} page */
+async function readDownloadedZip(page) {
   await page.waitForFunction(() => window.__goldenBlob instanceof Blob, null, {
     timeout: 30_000,
   });
