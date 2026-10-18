@@ -93,7 +93,17 @@ Selesai 2026-10-18. Catatan pelaksanaan:
   - screenshot kerangka Composer · Set dibandingkan dengan kerangka contoh `ui-kit.html` (< 2% di luar kanvas).
 - **Tinjauan Ika:** kerangka dan navigasi.
 
-### 3. Persona Composer · Set
+### 3. Persona Composer · Set ✅ (menunggu tinjauan Ika)
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Komponen kit baru dipasang lebih dulu (usulan `docs/design/proposals/komponen-fase-2b.md`, disetujui).
+- Logika set di `state/set-ops.js` (dites unit). Panel Pustaka di `personas/library-panel.js` dipakai lagi di Kombinasi.
+- Tata letak studio: tab Gaya hanya berisi kartu mesin, tebal garis, celah, dan ujung (seperti artboard). Mode warna, aksen, dan efek ada di tab Warna. Skala per lapisan ada di tab Lapisan (seperti panel properti IC).
+- Kartu Offset dan Hand-writing tampil tetapi nonaktif sampai UI Fase 3 dan 4.
+- Filter Bentuk "Isi" memakai `analyzeLibraryIcon().hasBody` dan di-cache per kunci. Saat filter aktif, hasil dipindai bertahap ("40+ ikon").
+- Tabler dan Hugeicons dimuat saat sumbernya dipilih. "Semua" hanya menampilkan pustaka yang sudah termuat.
+- Belum ada: halaman saran (`.ic-page--ghost`, menunggu Kombinasi), warna per lapisan (langkah 4), undo (backlog), dan tombol Pool berwarna persona (kit hanya mengizinkan warna persona di 4 tempat, jadi dipakai `.ic-btn--block`).
+
 
 - Kanvas `.ic-pagegrid`: satu `.ic-page` per ikon, `.ic-page--new`, dan flag `dobel` dari signature.
 - Konteks:

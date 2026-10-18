@@ -36,6 +36,8 @@ export function createShell({ root, app, renderer }) {
   let lastClick = { id: null, at: 0 };
   /** @type {import("./personas/common.js").Ctx | null} */
   let ctx = null;
+  /** @type {any} */
+  let spec = null;
 
   function context() {
     const route = parseRoute(location.hash);
@@ -83,11 +85,36 @@ export function createShell({ root, app, renderer }) {
     return `<div class="ic-doctabs" role="tablist" aria-label="Dokumen terbuka">${tabs}</div>`;
   }
 
+  /* render ulang bisa dipicu event blur/change saat innerHTML sedang diganti: tunda, jangan bersarang */
+  let rendering = false,
+    pendingRender = false;
   function render() {
+    if (rendering) {
+      pendingRender = true;
+      return;
+    }
+    rendering = true;
+    try {
+      renderNow();
+    } finally {
+      rendering = false;
+    }
+    if (pendingRender) {
+      pendingRender = false;
+      queueMicrotask(render);
+    }
+  }
+
+  function renderNow() {
     const c = (ctx = context());
-    const spec = c.route.edit ? composerEdit : PERSONA_SPECS[c.route.persona];
+    spec = c.route.edit ? composerEdit : PERSONA_SPECS[c.route.persona];
     const focused = /** @type {HTMLElement | null} */ (document.activeElement);
     const focusKey = focused && (focused.dataset.select || focused.dataset.doc) ? `[data-${focused.dataset.select ? "select" : "doc"}="${CSS.escape(focused.dataset.select || focused.dataset.doc || "")}"]` : null;
+    /* fokus di kontrol bernama (mis. pencarian) dan posisi gulir ikut dipulihkan setelah render ulang */
+    const named = focused && focused.closest ? /** @type {HTMLElement | null} */ (focused.closest("[data-name]")) : null;
+    const focusName = named && root.contains(named) ? named.dataset.name : null;
+    const caret = focused instanceof HTMLInputElement ? focused.selectionStart : null;
+    const scrolls = [...root.querySelectorAll(".ic-canvas, [role=tabpanel][id], .ic-studio")].map((el, i) => [el.id || `#${i}`, el.scrollTop]);
     const left = spec.layout === "left-studio";
     root.innerHTML = `<div class="ic-shell ic-app${left ? " ic-shell--left-studio" : ""}" data-persona="${c.route.persona}">
 ${topbar(spec, c)}
@@ -109,6 +136,20 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
       if (collapsed.has(id)) /** @type {HTMLElement | null} */ (section.querySelector(".ic-panel__collapse"))?.click();
     });
     if (focusKey) /** @type {HTMLElement | null} */ (root.querySelector(focusKey))?.focus();
+    if (focusName) {
+      const el = /** @type {HTMLElement | null} */ (root.querySelector(`[data-name="${CSS.escape(focusName)}"]`));
+      const input = el && (el.matches("input, textarea") ? el : el.querySelector("input, textarea, .ic-select__trigger"));
+      if (input) {
+        /** @type {HTMLInputElement} */ (input).focus();
+        if (caret != null && input instanceof HTMLInputElement && /^(text|search)$/.test(input.type)) input.setSelectionRange(caret, caret);
+      }
+    }
+    const scrollEls = [...root.querySelectorAll(".ic-canvas, [role=tabpanel][id], .ic-studio")];
+    for (const [key, top] of scrolls) {
+      const el = String(key).startsWith("#") ? scrollEls[Number(String(key).slice(1))] : root.querySelector(`#${CSS.escape(String(key))}`);
+      if (el && top) el.scrollTop = Number(top);
+    }
+    if (spec.mount) spec.mount(root, c, { toast, go });
   }
 
   /** @param {string} message */
@@ -145,6 +186,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     const c = ctx;
     if (!c) return;
     const persona = c.route.persona;
+    if (spec && spec.actions && spec.actions[action]) return spec.actions[action](c, el, { toast, go });
     if (action === "view-pages") return go({ persona: "composer", edit: null });
     if (action === "view-single") {
       const id = c.doc && c.app.selection[c.doc.id];
@@ -215,14 +257,42 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     if (event.key === "Escape" && ctx && ctx.route.edit && !target.closest?.(".ic-select")) go({ persona: "composer", edit: null });
   });
 
+  /**
+   * Kontrol bernama (`data-name`) diteruskan ke persona: `spec.control(ctx, name, value, el)`.
+   * @param {HTMLElement} el
+   * @param {unknown} value
+   */
+  function control(el, value) {
+    const named = /** @type {HTMLElement | null} */ (el.closest("[data-name]"));
+    if (rendering || !named || !ctx || !spec || !spec.control) return;
+    spec.control(ctx, named.dataset.name, value, named, { toast, go });
+  }
+
   root.addEventListener("change", async (event) => {
     const input = /** @type {HTMLInputElement} */ (event.target);
-    if (input.dataset.action === "import-file" && input.files && input.files[0]) await importText(await input.files[0].text());
+    if (input.dataset.action === "import-file" && input.files && input.files[0]) return void (await importText(await input.files[0].text()));
+    if (input.type === "checkbox") return control(input, input.checked);
+    /* slider dan angka: nilai diterapkan saat dilepas atau selesai diketik, supaya geser tidak terputus render */
+    if (input.closest('[data-ic="slider"], [data-ic="number"]')) return control(input, Number(input.value));
+    if (input.type === "text" || input.type === "search") return control(input, input.value);
   });
 
   root.addEventListener("ic-change", (event) => {
-    const section = /** @type {HTMLElement | null} */ (/** @type {HTMLElement} */ (event.target).closest("[data-panel]"));
-    if (section && /** @type {HTMLElement} */ (event.target) === section) panelTabs.set(section.dataset.panel || "", String(/** @type {CustomEvent} */ (event).detail.value));
+    const target = /** @type {HTMLElement} */ (event.target);
+    const section = /** @type {HTMLElement | null} */ (target.closest("[data-panel]"));
+    if (section && target === section) return void panelTabs.set(section.dataset.panel || "", String(/** @type {CustomEvent} */ (event).detail.value));
+    /* slider memancarkan ic-change saat digeser; nilainya diterapkan lewat event change di atas */
+    if (target.dataset.ic === "slider") return;
+    if (target.dataset.name) control(target, /** @type {CustomEvent} */ (event).detail.value);
+  });
+
+  /* pencarian pustaka: ketik langsung memfilter tanpa menunggu Enter */
+  let searchTimer = 0;
+  root.addEventListener("input", (event) => {
+    const input = /** @type {HTMLInputElement} */ (event.target);
+    if (input.type !== "search" || !input.closest("[data-name]")) return;
+    clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(() => control(input, input.value), 180);
   });
 
   window.addEventListener("hashchange", render);

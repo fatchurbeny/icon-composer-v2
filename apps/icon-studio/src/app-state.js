@@ -5,6 +5,7 @@
  * Pindah persona tidak menghapus seleksi atau state dokumen (DESIGN-HANDOFF bagian 2).
  */
 import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem } from "./state/document.js";
+import { ensureSetFields } from "./state/set-ops.js";
 import { loadState, saveState } from "./state/store.js";
 
 export const PERSONAS = /** @type {const} */ (["composer", "builder", "tinjau", "kombinasi"]);
@@ -47,10 +48,16 @@ export function createAppState(options) {
 
   /* set kosong selalu ada supaya Composer punya dokumen */
   if (!documents.some((d) => d.kind === "set")) {
-    const doc = createSetDocument({ name: "Set baru" });
+    const doc = ensureSetFields(createSetDocument({ name: "Set baru" }));
     documents.unshift(doc);
     activeId = activeId || doc.id;
   }
+
+  for (const doc of documents) if (doc.kind === "set") ensureSetFields(doc);
+
+  /** Riwayat perubahan sesi per dokumen (panel Riwayat; bukan undo). */
+  /** @type {Record<string, {label: string, at: number}[]>} */
+  const history = {};
 
   /* ikon pustaka di dokumen tersimpan didaftarkan ulang ke registry */
   for (const doc of documents) {
@@ -91,6 +98,21 @@ export function createAppState(options) {
     },
     byId,
     documentFor,
+    history,
+    /**
+     * Ubah dokumen lalu simpan dan render ulang. `label` dicatat di Riwayat sesi.
+     * @param {string} docId
+     * @param {(doc: any) => void} fn
+     * @param {string} [label]
+     */
+    mutate(docId, fn, label) {
+      const doc = byId(docId);
+      if (!doc) return;
+      fn(doc);
+      if (label) (history[docId] = history[docId] || []).unshift({ label, at: Date.now() });
+      save();
+      notify();
+    },
     /** @param {() => void} fn */
     subscribe(fn) {
       listeners.add(fn);
@@ -144,7 +166,7 @@ export function createAppState(options) {
       const i = documents.findIndex((d) => d.id === id);
       if (i < 0) return;
       documents.splice(i, 1);
-      if (!documents.some((d) => d.kind === "set")) documents.unshift(createSetDocument({ name: "Set baru" }));
+      if (!documents.some((d) => d.kind === "set")) documents.unshift(ensureSetFields(createSetDocument({ name: "Set baru" })));
       if (activeId === id) activeId = documents[Math.max(0, i - 1)].id;
       delete selection[id];
       save();

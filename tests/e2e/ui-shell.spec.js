@@ -165,7 +165,7 @@ test.describe("Icon Studio UI shell", () => {
     await expect(lapisan).toBeFocused();
     await expect(page.locator("#composer-pages-lapisan")).toBeVisible();
 
-    const trigger = page.locator('[data-name="sort"] .ic-select__trigger');
+    const trigger = page.locator('[data-name="view-sort"] .ic-select__trigger');
     await trigger.focus();
     await page.keyboard.press("Enter");
     await expect(trigger).toHaveAttribute("aria-expanded", "true");
