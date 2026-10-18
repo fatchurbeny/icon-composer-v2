@@ -7,7 +7,8 @@
 import { parseRoute, routeHash } from "./app-state.js";
 import { builder } from "./personas/builder.js";
 import { helpButton } from "./personas/common.js";
-import { composerEdit, composerSet } from "./personas/composer.js";
+import { composerSet } from "./personas/composer.js";
+import { composerEdit } from "./personas/composer-edit.js";
 import { kombinasi } from "./personas/kombinasi.js";
 import { tinjau } from "./personas/tinjau.js";
 import { SAMPLE_MANIFEST } from "./state/data/sample-manifest.js";
@@ -38,13 +39,28 @@ export function createShell({ root, app, renderer }) {
   let ctx = null;
   /** @type {any} */
   let spec = null;
+  /** @type {string | null} */
+  let lastEdit = null;
 
   function context() {
     const route = parseRoute(location.hash);
     const doc = app.documentFor(route.persona);
     if (doc && doc.id !== app.activeId) app.activate(doc.id, { silent: true });
-    if (route.edit && doc && doc.items.some((/** @type {any} */ it) => it.id === route.edit)) app.selection[doc.id] = route.edit;
-    else if (doc && app.selection[doc.id] === undefined) app.selection[doc.id] = doc.items[0] ? (doc.kind === "manifest" ? doc.items[0].uid : doc.items[0].id) : null;
+    /* rute edit menentukan seleksi saat rute berubah; seleksi dari UI menyusul ke rute (replace) */
+    if (route.edit && doc && doc.items.some((/** @type {any} */ it) => it.id === route.edit)) {
+      const picked = app.selection[doc.id];
+      if (route.edit !== lastEdit || !doc.items.some((/** @type {any} */ it) => it.id === picked)) app.selection[doc.id] = route.edit;
+      else if (picked && picked !== route.edit) {
+        history.replaceState(null, "", routeHash({ persona: "composer", edit: picked }));
+        route.edit = picked;
+      }
+      lastEdit = route.edit;
+    } else if (route.edit && doc) {
+      /* ikon pada rute edit sudah dihapus: kembali ke ikhtisar */
+      history.replaceState(null, "", routeHash({ persona: "composer", edit: null }));
+      route.edit = null;
+      lastEdit = null;
+    } else if (doc && app.selection[doc.id] === undefined) app.selection[doc.id] = doc.items[0] ? (doc.kind === "manifest" ? doc.items[0].uid : doc.items[0].id) : null;
     return { app, renderer, route, doc };
   }
 

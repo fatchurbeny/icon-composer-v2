@@ -2,7 +2,7 @@
 /**
  * Persona Composer · Set (DESIGN-HANDOFF 3.1) dan Composer · Edit (3.2).
  * Fase 2b langkah 3: Composer · Set lengkap (gaya, halaman, lapisan, pustaka, pool, repetisi, urutan).
- * Composer · Edit masih kerangka sampai langkah 4.
+ * Composer · Edit ada di ./composer-edit.js.
  */
 import { get } from "@icon-studio/engines";
 import { ACCENT_OPTIONS } from "../state/data/palettes.js";
@@ -31,25 +31,25 @@ import {
 } from "./common.js";
 import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } from "./library-panel.js";
 
-const LAYER_LABEL = { main: "Objek utama", mod: "Pengubah", deco: "Dekorasi" };
+export const LAYER_LABEL = { main: "Objek utama", mod: "Pengubah", deco: "Dekorasi" };
 
 /** @param {import("./common.js").Ctx} ctx */
-const itemsOf = (ctx) => (ctx.doc ? ctx.doc.items : []);
+export const itemsOf = (ctx) => (ctx.doc ? ctx.doc.items : []);
 /** @param {import("./common.js").Ctx} ctx */
-const selectedOf = (ctx) => {
+export const selectedOf = (ctx) => {
   const id = ctx.doc ? ctx.app.selection[ctx.doc.id] : null;
   return itemsOf(ctx).find((it) => it.id === id) || null;
 };
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
-const labelOf = (ctx, it) => nameOf(it, ctx.renderer.lib);
+export const labelOf = (ctx, it) => nameOf(it, ctx.renderer.lib);
 /** @param {import("./common.js").Ctx} ctx */
 const dupGroupsOf = (ctx) => duplicateGroups(itemsOf(ctx), (it) => get(ctx.doc.style.family).signature(it));
 /** @param {import("./common.js").Ctx} ctx */
-const flaggedOf = (ctx) => new Set(dupGroupsOf(ctx).flat().map((it) => it.id));
+export const flaggedOf = (ctx) => new Set(dupGroupsOf(ctx).flat().map((it) => it.id));
 /** @param {import("./common.js").Ctx} ctx @param {(doc: any) => void} fn @param {string} label */
-const mutate = (ctx, fn, label) => ctx.app.mutate(ctx.doc.id, fn, label);
+export const mutate = (ctx, fn, label) => ctx.app.mutate(ctx.doc.id, fn, label);
 /** @param {import("./common.js").Ctx} ctx */
-const rerender = (ctx) => ctx.app.mutate(ctx.doc.id, () => {});
+export const rerender = (ctx) => ctx.app.mutate(ctx.doc.id, () => {});
 
 /** @param {import("./common.js").Ctx} ctx */
 function info(ctx) {
@@ -82,7 +82,7 @@ function engineCards(ctx) {
 }
 
 /** @param {import("./common.js").Ctx} ctx */
-function stylePanel(ctx) {
+export function stylePanel(ctx) {
   const s = ctx.doc.style,
     classic = s.family === "classic";
   const gaya = [
@@ -117,7 +117,7 @@ function stylePanel(ctx) {
 /* ---------- panel Halaman | Lapisan | Pustaka | Pool ---------- */
 
 /** @param {import("./common.js").Ctx} ctx */
-function pageRows(ctx) {
+export function pageRows(ctx) {
   const items = itemsOf(ctx),
     sel = selectedOf(ctx),
     flagged = flaggedOf(ctx);
@@ -225,9 +225,9 @@ function repetitionPanel(ctx) {
  * @param {string} panelId
  * @param {string} tab
  */
-const openTab = (panelId, tab) => /** @type {HTMLElement | null} */ (document.querySelector(`[data-panel="${panelId}"] [role="tab"][data-value="${tab}"]`))?.click();
+export const openTab = (panelId, tab) => /** @type {HTMLElement | null} */ (document.querySelector(`[data-panel="${panelId}"] [role="tab"][data-value="${tab}"]`))?.click();
 
-const actions = {
+export const actions = {
   /** @param {import("./common.js").Ctx} ctx */
   "new-icon"(ctx) {
     mutate(ctx, (doc) => (ctx.app.selection[doc.id] = addItem(doc, ctx.renderer.lib).id), "Ikon baru");
@@ -304,7 +304,7 @@ const actions = {
  * @param {string} name
  * @param {any} value
  */
-function control(ctx, name, value) {
+export function control(ctx, name, value) {
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   if (name === "engine") {
     if (value === "classic" || value === "accent") mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${value === "accent" ? "Aksen" : "Klasik"}`);
@@ -407,70 +407,4 @@ export const composerSet = {
   control,
   mount,
   docTab: (/** @type {any} */ _ctx, /** @type {any} */ doc) => `${docFileName(doc)} @ 100%`,
-};
-
-/** Composer · Edit (kerangka; interaksi kanvas di langkah 4) */
-export const composerEdit = {
-  ...composerSet,
-  viewMode: "single",
-  mount: undefined,
-  /** @param {import("./common.js").Ctx} ctx */
-  info(ctx) {
-    const it = selectedOf(ctx);
-    return `<span class="ic-topbar__info">${esc(engineInfo(ctx.doc.style.family))}</span><span class="ic-sep"></span><span class="ic-topbar__info ic-mono studio-info-mono">${esc(it ? labelOf(ctx, it) : "")} · 48 × 48 · ${setColorCount(ctx)} warna</span>`;
-  },
-  /** @param {import("./common.js").Ctx} ctx */
-  context(ctx) {
-    const it = selectedOf(ctx);
-    return `<span class="ic-label">Pengubah</span><label class="ic-field ic-field--mono"><input value="${esc(it ? it.mod : "")}" aria-label="Kunci pengubah" readonly></label>${button("Ganti…", { size: "sm", action: "layer-swap" })}<span class="ic-sep"></span><span class="ic-label">Posisi</span><span class="ic-meta">${esc(it ? it.slot : "")}</span><span class="ic-sep"></span>${check("Celah knockout", true, { name: "knockout", disabled: true })}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
-  },
-  /** @param {import("./common.js").Ctx} ctx */
-  canvas(ctx) {
-    const it = selectedOf(ctx);
-    if (!it) return `<div class="studio-center">${empty("Ikon tidak ditemukan.", "Kembali ke ikhtisar halaman untuk memilih ikon.")}</div>`;
-    const film = itemsOf(ctx)
-      .map((x) => `<button type="button" class="ic-filmstrip__item" role="option" data-select="${esc(x.id)}" ${aria("aria-selected", x === it)} aria-label="${esc(labelOf(ctx, x))}">${renderSet(ctx, x, `fs${x.id}`)}</button>`)
-      .join("");
-    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}">${ctx.renderer.renderSetItem(it, ctx.doc.style, { size: "100%", idp: "editart" }, ctx.doc.customs).replace("<svg ", '<svg class="ic-artboard__art" ')}</div></div></div><div class="ic-filmstrip studio-filmstrip" role="listbox" aria-label="Ikon dalam set"><span class="ic-label">Set</span>${film}</div>`;
-  },
-  /** @param {import("./common.js").Ctx} ctx */
-  panels(ctx) {
-    const it = selectedOf(ctx);
-    return [
-      stylePanel(ctx),
-      panel({
-        id: "edit-layers",
-        label: "Lapisan",
-        tabs: [
-          { id: "lapisan", label: "Lapisan", body: it ? layerRows(ctx, it) : empty("Belum ada ikon terpilih."), flush: !!it },
-          { id: "halaman", label: "Halaman", body: pageRows(ctx), flush: true },
-          { id: "pustaka", label: "Pustaka", body: `${libraryBody(ctx, { target: true, cols: 5 })}${LICENSE_NOTE}` },
-        ],
-      }),
-      panel({
-        id: "edit-transform",
-        label: "Transform",
-        grow: true,
-        tabs: [
-          { id: "transform", label: "Transform", body: it ? `<span class="ic-meta">Objek X ${it.mx} · Y ${it.my} · pengubah X ${it.nx} · Y ${it.ny}</span>` : "" },
-          { id: "variasi", label: "Variasi", body: empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi.") },
-          { id: "riwayat", label: "Riwayat", body: `<span class="ic-meta">Belum ada perubahan di sesi ini.</span>` },
-        ],
-      }),
-    ];
-  },
-  /** @param {import("./common.js").Ctx} ctx */
-  status(ctx) {
-    const items = itemsOf(ctx),
-      it = selectedOf(ctx);
-    return statusBar(
-      `${it ? items.indexOf(it) + 1 : 0} dari ${items.length}`,
-      "<b>Seret</b> pengubah untuk memindah. <b>Shift</b> mengunci ke 4 sudut. <b>Esc</b> kembali ke ikhtisar halaman.",
-    );
-  },
-  /** @param {import("./common.js").Ctx} ctx @param {any} doc */
-  docTab(ctx, doc) {
-    const it = selectedOf(ctx);
-    return it && doc === ctx.doc ? `${docFileName(doc)} · ${labelOf(ctx, it)} @ 100%` : `${docFileName(doc)} @ 100%`;
-  },
 };

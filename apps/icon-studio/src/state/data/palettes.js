@@ -5,3 +5,9 @@
 
 /** Pilihan warna aksen (ACC_OPTS IC). */
 export const ACCENT_OPTIONS = ["#F05A5A", "#FF7A45", "#FFB547", "#C3DC1E", "#2EB67D", "#3A7BFF", "#8B5CF6", "#F27BA8"];
+
+/** Warna garis lapisan (LINE_OPTS IC). `null` = ikuti warna set. */
+export const LINE_OPTIONS = [null, "#1A1A1A", "#3A3C44", "#1A73E8", "#E2552D", "#FFFFFF"];
+
+/** Warna isi lapisan (FILL_OPTS IC). `null` = ikuti warna set. */
+export const FILL_OPTIONS = [null, "#C3DC1E", "#5BA8FF", "#FFB547", "#F27BA8", "#E4E4DE"];

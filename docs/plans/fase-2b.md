@@ -118,7 +118,16 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - Filter Bentuk "Isi" butuh `fillable` per ikon (DESIGN-HANDOFF 3.5). Nilainya dihitung dari `analyzeLibraryIcon().body.length > 0` lalu di-cache di `createLibraryShapes`. Tidak ada perubahan keluaran.
 - **Tinjauan Ika** terhadap `artboard-main-*.png`.
 
-### 4. Persona Composer · Edit
+### 4. Persona Composer · Edit ✅ (menunggu tinjauan Ika)
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Kode di `personas/composer-edit.js` dan `state/edit-ops.js` (dites unit). Rumus kotak lapisan, rentang posisi, slot, dan reset dipindah dari editor IC 1.5.1.
+- Seret hanya memperbarui gambar, kotak seleksi, dan tooltip selama digeser. Dokumen disimpan saat dilepas. Snap ke grid membulatkan ke 0,5 unit (seperti IC); tanpa snap ke 0,05.
+- Handle kotak seleksi masih penanda visual. Ukuran diatur lewat Skala (berlaku untuk semua ikon di set, seperti IC).
+- Warna garis/isi lapisan berlaku untuk seluruh set (`style.colors`, seperti IC), dan ini disebut di panel.
+- Rute `#/composer/edit/<id>` mengikuti ikon yang dipilih di filmstrip atau Halaman (`history.replaceState`).
+- Belum ada: unggah dekorasi SVG sendiri (`cleanSvg` + dialog; kit belum punya komponen dialog), "Celah knockout" per ikon (tidak ada padanannya di mesin classic/accent; tidak dipasang), undo (backlog), dan sumbu Variasi (classic/accent tidak punya).
+
 
 - Artboard 520×520 dengan grid 8 unit, seleksi lapisan + handle, tooltip koordinat, filmstrip.
 - Konteks:
