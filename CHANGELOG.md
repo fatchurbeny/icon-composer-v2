@@ -33,6 +33,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Fase 2 (langkah 11): tes unit untuk `icon-sources` (pemuat Tabler, Hugeicons, Lucide, Kustom), mesin classic (`solidV145`, `createClassicData`), dan `export` (`STYLE_WORDS`, `metadataCsv`, `buildZip`, warna, tag).
 - ADR-016: header `metadata.csv` Icon Composer dikutip. Fase 2 selesai dan disetujui pemilik (2026-10-18).
 - ADR-017 dan rencana Fase 2b (`docs/plans/fase-2b.md`): satu kunci `icon-studio-v1`, varian classic per persona, fitur Fase 5/6 belum ditampilkan, persetujuan per persona.
+- Fase 2b (langkah 1): fondasi state Icon Studio. `state/document.js` (set Composer dan dokumen Builder, dari `normItem`/`normStyle` IC dan `importManifest`/`toItem`/`normAcc` TIB), `state/store.js` (kunci `icon-studio-v1`), `state/render.js` (satu pintu ke mesin, varian classic per jenis dokumen). Golden render Icon Studio (`tests/e2e/studio-golden.spec.js`, 7 tes) identik dengan IC dan TIB.
 
 ### Ditambahkan (desain)
 - Render acuan 5 artboard (`docs/design/reference/`), sumber artboard (`docs/design/artboards/`), `scripts/render-artboards.py`, `packages/icon-sources/sources.json`, bahan pendukung dari folder lama (lihat `docs/legacy/INVENTORY.md`).

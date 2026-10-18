@@ -12,7 +12,7 @@
   "15": "C",
   "16": "hand-writing/index.js",
   "17": "Mesin `sticker`",
-  "18": "Rencana migrasi",
+  "18": "document.js",
   "19": "Model data",
   "20": "Tech stack",
   "21": "Unreleased",
@@ -26,7 +26,7 @@
   "29": "luNames",
   "30": "At",
   "31": "adRender",
-  "32": "doExport",
+  "32": "Oe",
   "33": "accentCtx",
   "34": "renderDetail",
   "35": "fileNames",
@@ -36,6 +36,7 @@
   "39": "Peta konteks proyek dengan graphify",
   "40": "Produk: tujuan, batasan, alur kerja",
   "41": "README.md",
+  "42": "jt",
   "43": "Aturan UI untuk agen (wajib dipatuhi)",
   "44": "ce",
   "47": "engines/package.json",
@@ -45,5 +46,8 @@
   "51": "icon-sources/package.json",
   "52": "AGENTS.md: instruksi untuk agen (Codex)",
   "53": "icon-studio/package.json",
-  "54": "offset/index.js"
+  "54": "offset/index.js",
+  "56": "renderOverlay",
+  "57": "getXY",
+  "58": "packColors"
 }

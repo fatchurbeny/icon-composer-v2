@@ -17,3 +17,10 @@ body {
 .ic-empty span {
   display: block;
 }
+/* pengukur bentuk tersembunyi untuk packages/engines/shared (getBBox) */
+.studio-measure {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}

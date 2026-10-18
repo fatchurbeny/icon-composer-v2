@@ -45,7 +45,14 @@ Kondisi sekarang:
 
 ## Langkah
 
-### 1. Fondasi state + golden render Icon Studio
+### 1. Fondasi state + golden render Icon Studio ✅
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Warna bawaan gaya dan contoh manifest berada di `state/data/` (warna data mesin, dikecualikan `lint:ui`).
+- Kait uji `window.__iconStudio` (baca-saja) dipasang di `main.js`.
+- Golden `studio-golden.spec.js` (7 tes): set Composer `basic` dan `mixed` (artboard + tile objek utama), dokumen Builder `basic`, dan semua SVG ekspor Builder `mixed` dibandingkan langsung dengan ZIP legacy TIB.
+- Batas yang diketahui: `decoStarFill` set Composer belum terjaga golden karena fixture belum memakai dekorasi bintang.
+
 
 - `state/document.js`: model dokumen `{id, kind: "set" | "manifest", name, style, items, meta}`.
   - Fungsi `normItem` dan `normStyle` dipindah dari IC.

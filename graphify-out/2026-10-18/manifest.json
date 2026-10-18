@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792326380.8258827,
-    "seen": 1792326382.268991,
-    "ast_hash": "aa61c41f8b59f5b36a0159ee5862ecea",
+    "mtime": 1792326654.2964916,
+    "seen": 1792326655.74369,
+    "ast_hash": "6277a87a8bf0dc28556d247dd0b17ddf",
     "semantic_hash": ""
   },
   "README.md": {
@@ -180,21 +180,21 @@
     "semantic_hash": ""
   },
   "docs/ARCHITECTURE.md": {
-    "mtime": 1792228500.0,
-    "seen": 1792252182.9723608,
-    "ast_hash": "277aca9f859910d9927269a8c46282e6",
+    "mtime": 1792326406.5494907,
+    "seen": 1792326413.444737,
+    "ast_hash": "32370384e70cd03a73ce675865252b64",
     "semantic_hash": ""
   },
   "docs/DATA-MODEL.md": {
-    "mtime": 1792228660.0,
-    "seen": 1792252182.9723608,
-    "ast_hash": "637c7ab49f0b68e0cd8e1950a93574fa",
+    "mtime": 1792326654.296284,
+    "seen": 1792326655.743697,
+    "ast_hash": "f38d9a1eca79405d1b47267c5eda40fc",
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1792250975.0,
-    "seen": 1792252182.972362,
-    "ast_hash": "ac66999fd2f04242190b2171fd135fc3",
+    "mtime": 1792326654.295891,
+    "seen": 1792326655.743698,
+    "ast_hash": "e845dc6a0d53906f710771251dad3758",
     "semantic_hash": ""
   },
   "docs/ENGINE-CONTRACT.md": {
@@ -204,9 +204,9 @@
     "semantic_hash": ""
   },
   "docs/EXPORT-PIPELINE.md": {
-    "mtime": 1792229688.0,
-    "seen": 1792252182.972364,
-    "ast_hash": "d7ec293101fc87fccc50a0ee9c84d440",
+    "mtime": 1792326406.5496595,
+    "seen": 1792326413.444741,
+    "ast_hash": "a74447a74ace7db1dd72c22fc41cc992",
     "semantic_hash": ""
   },
   "docs/GLOSSARY.md": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docs/MIGRATION-PLAN.md": {
-    "mtime": 1792285638.1417954,
-    "seen": 1792321503.725415,
-    "ast_hash": "f9dac021817aff3bfbdf7cb9ebac5c41",
+    "mtime": 1792326654.296382,
+    "seen": 1792326655.7437031,
+    "ast_hash": "7175bd5c6499032dc74d12c4a8b0b941",
     "semantic_hash": ""
   },
   "docs/PRODUCT.md": {
@@ -591,6 +591,12 @@
     "mtime": 1792326374.909885,
     "seen": 1792326382.268988,
     "ast_hash": "65a0f7602e506fec9f9f5172afb544b0",
+    "semantic_hash": ""
+  },
+  "docs/plans/fase-2b.md": {
+    "mtime": 1792326642.290609,
+    "seen": 1792326655.743715,
+    "ast_hash": "443de463a7406505fdecae48c4670e88",
     "semantic_hash": ""
   }
 }

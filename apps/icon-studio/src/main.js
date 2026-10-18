@@ -4,6 +4,29 @@ import "@icon-studio/ui/components.css";
 import "@icon-studio/ui/components.js";
 import "@icon-studio/ui/icons.js";
 import "./style.css";
+import "@icon-studio/export/vendor/icon-outline";
+import { dedupeAttrs } from "@icon-studio/core";
+import { directFillSvgFile } from "@icon-studio/export";
+import * as documentModel from "./state/document.js";
+import { createRenderer } from "./state/render.js";
+import { SAMPLE_MANIFEST } from "./state/data/sample-manifest.js";
+import * as store from "./state/store.js";
+
+/* mesin dan pustaka: satu renderer untuk seluruh app */
+const renderer = createRenderer({
+  getLucide: () => /** @type {any} */ (window).lucide,
+  measureHost: () => /** @type {SVGSVGElement | null} */ (/** @type {unknown} */ (document.getElementById("meas"))),
+});
+
+/* kait baca-saja untuk uji golden (tests/e2e/studio-golden.spec.js) dan debug */
+/** @type {any} */ (window).__iconStudio = Object.freeze({
+  renderer,
+  document: documentModel,
+  store,
+  SAMPLE_MANIFEST,
+  directFillSvgFile,
+  dedupeAttrs,
+});
 
 const personas = [
   ["composer", "Composer", "composer"],
