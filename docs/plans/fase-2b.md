@@ -186,7 +186,16 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - Golden: ZIP Composer dari Icon Studio dibandingkan dengan legacy IC (header CSV dikutip, ADR-016).
 - **Tinjauan Ika** terhadap `artboard-tinjau-1600x1000.png`.
 
-### 7. Persona Kombinasi
+### 7. Persona Kombinasi ✅ (menunggu tinjauan Ika)
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Logika di `state/combo-ops.js` (`comboItem` = batchItem IC, `comboMatrix`, `addCombos`, `setSkip`, `togglePool`), dites unit.
+- Status sel memakai signature mesin aktif untuk "di set" dan `collisions` Builder untuk "sama dengan pustaka". Status `similar` menunggu sidik jari Fase 6, jadi "Lewati yang mirip" dan "Ratakan variasi setelah ditambah" masih nonaktif.
+- Konteks memakai "Mode warna" (Ikuti set / Semua 3 mode, dari IC) di tempat "Warna pengubah" artboard, karena warna pengubah per ikon hanya ada di mesin sticker (Fase 5). Posisi pengubah: Bawaan, Paksa BL (opsi IC), Paksa TR, Paksa BR (artboard).
+- Kepala baris/kolom memakai kelas tata letak lokal `studio-mhead` (kit belum punya kepala matriks). Isinya tombol: klik memilih atau melewati seluruh baris/kolom.
+- Bug yang ditemukan dan diperbaiki: `skip` Kombinasi dan `off` Tinjau ikut terbagi antardokumen baru karena objek bawaan disalin dangkal.
+- Belum ada: impor ikon kustom dari Figma (tab Kustom; tombol nonaktif), halaman saran di Composer · Set.
+
 
 - `.ic-shell--left-studio`.
   - Kiri: studio Pustaka | Kustom | Riwayat.

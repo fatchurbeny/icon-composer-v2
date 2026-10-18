@@ -22,8 +22,9 @@ export const DEFAULT_REVIEW = { json: true, html: true, ko: "mask", fmt: "zip", 
 export function ensureReviewFields(doc) {
   doc.meta = doc.meta || {};
   doc.meta.canva = { ...DEFAULT_CANVA_META, ...(doc.meta.canva || {}) };
-  doc.review = { ...DEFAULT_REVIEW, ...(doc.review || {}) };
-  doc.review.off = doc.review.off || {};
+  const prev = doc.review || {};
+  /* off disalin baru supaya objek bawaan tidak terbagi antardokumen */
+  doc.review = { ...DEFAULT_REVIEW, ...prev, off: { ...(prev.off || {}) } };
   return doc;
 }
 

@@ -49,7 +49,7 @@ Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/
 - [x] Persona Composer · Set dan Composer · Edit, memindahkan logika dari `apps/icon-composer` tanpa mengubah keluaran mesin (langkah 3–4; Edit menunggu tinjauan pemilik).
 - [x] Persona Builder, memindahkan logika dari `apps/template-icon-builder` (langkah 5; ZIP identik dengan TIB 1.6.0, menunggu tinjauan pemilik).
 - [x] Persona Tinjau (lembar kontak, pemeriksaan, metadata, isi ZIP) (langkah 6; ZIP identik dengan IC 1.5.1, menunggu tinjauan pemilik).
-- [ ] Persona Kombinasi (pustaka lintas library + filter Bentuk, matriks, pool, hasil).
+- [x] Persona Kombinasi (pustaka lintas library + filter Bentuk, matriks, pool, hasil) (langkah 7, menunggu tinjauan pemilik).
 - [x] `tests/e2e/ui-shell.spec.js`: ukuran kerangka tepat sesuai `DESIGN-HANDOFF.md` bagian 9.
 - [ ] Migrasi localStorage dari kedua app lama ke `icon-studio-v1`.
 

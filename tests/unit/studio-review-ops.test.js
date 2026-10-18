@@ -41,4 +41,12 @@ describe("Icon Studio review-ops", () => {
     expect(doc.review).toEqual({ ...DEFAULT_REVIEW, off: { b: true } });
     expect(includedOf(doc).map((it) => it.id)).toEqual(["a"]);
   });
+
+  test("ikon yang dikeluarkan tidak terbagi antardokumen baru", () => {
+    const a = ensureReviewFields({ items: [] });
+    a.review.off.x = true;
+    const b = ensureReviewFields({ items: [] });
+    expect(b.review.off).toEqual({});
+    expect(DEFAULT_REVIEW.off).toEqual({});
+  });
 });

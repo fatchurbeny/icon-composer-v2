@@ -151,3 +151,44 @@ body {
 .studio-review {
   gap: var(--ic-sp-12);
 }
+/* kepala baris dan kolom matriks Kombinasi (tombol: klik memilih atau melewati seluruh baris/kolom) */
+.studio-mhead {
+  display: flex;
+  align-items: center;
+  gap: var(--ic-sp-3);
+  min-width: 0;
+  padding: var(--ic-sp-3);
+  border: 0;
+  border-radius: var(--ic-r-lg);
+  background: transparent;
+  color: var(--ic-text-2);
+  font: inherit;
+  font-size: var(--ic-fs-sm);
+  cursor: pointer;
+}
+.studio-mhead:hover {
+  background: var(--ic-bg-hover);
+}
+.studio-mhead svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.studio-mhead .ic-mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studio-mhead--col {
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.studio-mhead--row {
+  background: var(--ic-bg-card);
+}
+.studio-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

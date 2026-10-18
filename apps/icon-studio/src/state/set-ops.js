@@ -3,6 +3,7 @@
  * Operasi pada dokumen set Composer. Murni terhadap DOM: hanya mengubah objek dokumen yang diberikan.
  * Perilaku mengikuti Icon Composer 1.5.1 (tambah, duplikat, hapus, ganti isi lapisan, gaya set).
  */
+import { ensureComboFields } from "./combo-ops.js";
 import { applyFamily, blankItem, normItem } from "./document.js";
 
 /** Pool Kombinasi bawaan (bSel IC 1.5.1). */
@@ -19,7 +20,7 @@ export function ensureSetFields(doc) {
   doc.pool = doc.pool && Array.isArray(doc.pool.mains) ? doc.pool : structuredClone(DEFAULT_POOL);
   doc.pool.off = doc.pool.off || {};
   doc.view = { ...DEFAULT_VIEW, ...(doc.view || {}) };
-  return doc;
+  return ensureComboFields(doc);
 }
 
 /**

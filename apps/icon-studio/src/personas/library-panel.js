@@ -110,7 +110,7 @@ export function libraryTile(ctx, key, opts = {}) {
 /**
  * Isi tab Pustaka.
  * @param {import("./common.js").Ctx} ctx
- * @param {{cols?: number, target?: boolean, pool?: Set<string>}} [opts]
+ * @param {{cols?: number, target?: boolean, targetLabel?: string, pool?: Set<string>, sources?: string[]}} [opts]
  */
 export function libraryBody(ctx, opts = {}) {
   const sources = Object.keys(ctx.renderer.SOURCES);
@@ -120,7 +120,7 @@ export function libraryBody(ctx, opts = {}) {
   const search = `<label class="ic-field ic-field--search" data-name="lib-query">${/** @type {any} */ (globalThis).ICONS_UI.uiIcon("search", 13)}<input type="search" value="${esc(libraryUi.query)}" placeholder="Cari ikon di pustaka" aria-label="Cari ikon di pustaka"><span class="ic-meta">${count}</span></label>`;
   const shape = `<div class="ic-formrow"><span class="ic-label">Bentuk</span>${seg("Bentuk ikon", [["all", "Semua"], ["line", "Garis"], ["fill", "Isi"]], libraryUi.shape, { name: "lib-shape" })}</div>`;
   const target = opts.target
-    ? `<div class="ic-formrow"><span class="ic-label">Klik mengganti</span>${seg("Klik mengganti lapisan", [["main", "Objek utama"], ["mod", "Pengubah"]], libraryUi.target, { name: "lib-target" })}</div>`
+    ? `<div class="ic-formrow"><span class="ic-label">${esc(opts.targetLabel || "Klik mengganti")}</span>${seg(opts.targetLabel || "Klik mengganti lapisan", [["main", opts.targetLabel ? "Objek" : "Objek utama"], ["mod", "Pengubah"]], libraryUi.target === "mod" ? "mod" : "main", { name: "lib-target" })}</div>`
     : "";
   let grid;
   if (r.failed.length && !r.keys.length)
