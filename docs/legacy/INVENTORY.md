@@ -75,4 +75,5 @@ Catat di sini setiap perbedaan perilaku antar salinan kode (misalnya classic IC 
 
 | Tanggal | Fungsi | Perbedaan | Dipakai |
 |---|---|---|---|
-| | | | |
+| 2026-10-17 | `partStr`, `dedupeAttrs` | TIB menimpa atribut lama saat atribut tambahan diberikan dan membersihkan atribut SVG ganda; IC tidak. | Perilaku TIB. |
+| 2026-10-17 | Classic `compose` | TIB 1.6.0 memakai mesin classic 1.4.5: kotak pengubah adaptif pada Solid·garis, celah berdasarkan overlap, pewarnaan detail struktural, dan `solidLineDiagnostic`. IC 1.5.1 belum memilikinya. | Mesin TIB 1.4.5 menjadi kanonis. |

@@ -10,6 +10,10 @@ docs/
 tests/fixtures/
 packages/ui/
 packages/icon-sources/data/
+apps/icon-composer/index.html
+apps/icon-composer/src/
+apps/template-icon-builder/index.html
+apps/template-icon-builder/src/
 graphify-out/
 AGENTS.md
 README.md

@@ -26,7 +26,12 @@ const SKIP_DIR = new Set([
 ]);
 // File yang boleh memuat warna data mesin (palet ikon), bukan warna UI.
 const DATA_COLOR_OK = [/packages\/engines\//, /palette/i, /\/data\//];
-const GENERATED = [/packages\/ui\/icons\.js$/];
+// Port Fase 1 sengaja identik dengan legacy. Pengecualian ini dihapus saat
+// aplikasi lama diganti Icon Studio berbasis packages/ui pada Fase 2b.
+const GENERATED = [
+  /packages\/ui\/icons\.js$/,
+  /apps\/(icon-composer|template-icon-builder)\/(index\.html|src\/.*)$/,
+];
 
 const walk = (dir, out = []) => {
   if (!fs.existsSync(dir)) return out;

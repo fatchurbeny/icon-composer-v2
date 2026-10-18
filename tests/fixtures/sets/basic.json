@@ -1,0 +1,28 @@
+{
+  "name": "basic",
+  "iconComposer": {
+    "families": ["classic", "accent"]
+  },
+  "templateIconBuilder": {
+    "styles": ["A", "X"],
+    "zipManifest": {
+      "format": "tib-manifest",
+      "version": 2,
+      "deck": { "title": "Golden Test", "slides": 2, "resource_slide": 2 },
+      "pack": { "en": "Golden Test", "id": "Uji Golden" },
+      "style": { "family": "classic", "ink": "#141414", "accent": "#FECC33", "mode": "A" },
+      "icons": [
+        {
+          "id": "golden-face-check",
+          "name": { "en": "Golden check", "id": "Centang golden" },
+          "main": "face",
+          "mod": "check",
+          "anchor": "BR",
+          "slides": [1],
+          "role": "slot",
+          "keywords": { "en": ["golden", "check"], "id": ["golden", "centang"] }
+        }
+      ]
+    }
+  }
+}

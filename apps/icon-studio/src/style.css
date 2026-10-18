@@ -1,0 +1,19 @@
+/* @ts-check */
+body {
+  margin: 0;
+  min-width: 960px;
+}
+.studio-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+.studio-empty .ic-empty {
+  max-width: 320px;
+}
+.ic-empty strong {
+  display: block;
+}
+.ic-empty span {
+  display: block;
+}

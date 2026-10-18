@@ -1,11 +1,333 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Icon Composer</title>
-  </head>
-  <body>
-    <main>Shell Fase 0 Icon Composer.</main>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Icon Composer Aksen · v1.5.1</title>
+<link rel="icon" type="image/svg+xml" href="icon-composer-favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body data-mobile-panel="components">
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 48 48" fill="none" stroke="#EDEDEF" stroke-width="3" aria-hidden="true"><circle cx="29" cy="20" r="13"/><rect x="5" y="26" width="20" height="15" rx="1.5" fill="#C3DC1E" stroke="none"/></svg>
+      <div><b>Icon Composer · Aksen v1.5.1</b><span class="sub" id="crumb"></span></div>
+    </div>
+    <div class="tools" id="tools">
+      <button class="tbtn" data-view="editor">Editor</button>
+      <button class="tbtn" data-view="batch">Kombinasi massal</button>
+      <button class="tbtn" data-view="review">Tinjau pack</button>
+    </div>
+    <div class="top-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="copySvg">Salin SVG</button>
+      <button class="btn pri" id="goExport"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Ekspor</button>
+    </div>
+  </header>
+
+  <!-- EDITOR -->
+  <div class="cols" id="vEditor">
+    <aside class="side l" aria-label="Komponen">
+      <div class="seg" role="tablist" aria-label="Sumber komponen" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <button role="tab" data-tab="main">Utama</button>
+        <button role="tab" data-tab="mod">Pengubah</button>
+        <button role="tab" data-tab="lu">Pustaka</button>
+      </div>
+      <div id="tabMain" style="display:flex;flex-direction:column;gap:10px">
+        <div class="hd"><span class="cap">Objek utama</span><span class="hint">klik untuk memasang</span></div>
+        <div class="grid4" id="mainBin"></div>
+      </div>
+      <div id="tabMod" style="display:flex;flex-direction:column;gap:10px" hidden>
+        <div class="hd"><span class="cap">Pengubah</span><span class="hint">posisi bawaan ikut</span></div>
+        <div class="grid4" id="modBin"></div>
+        <button class="btn" id="modNone">Tanpa pengubah</button>
+      </div>
+      <div id="tabLu" style="display:flex;flex-direction:column;gap:10px" hidden>
+        <div class="seg" role="group" aria-label="Sumber ikon" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button data-libsrc="lu">Lucide</button><button data-libsrc="tb">Tabler</button><button data-libsrc="hg">Hugeicons</button></div>
+        <label class="sr" for="luQ">Cari ikon</label>
+        <div class="field"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B8D96" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="luQ" type="text" placeholder="telepon, mic, kirim"></div>
+        <span class="sr" id="luCatLabel">Kategori</span>
+        <div class="catdrop" id="luCatDrop">
+          <button class="drop-trigger" id="luCatBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="luCatLabel luCatText"><span id="luCatText">Semua kategori</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="drop-menu" id="luCatMenu" role="listbox" aria-label="Kategori ikon" hidden></div>
+        </div>
+        <div class="seg body-filter" role="group" aria-label="Filter struktur ikon"><button data-bodyfilter="all" aria-pressed="true">Semua</button><button data-bodyfilter="body" aria-pressed="false">Punya body</button><button data-bodyfilter="line" aria-pressed="false">Hanya garis</button></div>
+        <div class="hd"><span class="hint" id="luCount"></span><span class="hint">titik limau = punya body</span></div>
+        <div class="grid4" id="luBin"></div>
+        <button class="btn" id="luMore" hidden>Tampilkan lebih banyak</button>
+        <p class="hint" id="libLic"></p>
+      </div>
+    </aside>
+
+    <section class="center" aria-label="Kanvas">
+      <div class="stage">
+        <div class="board-wrap">
+          <div class="hd sub"><span id="iconName"></span><span>48 × 48</span></div>
+          <div class="board grid" id="board"><div class="keyline"></div><div id="art" style="position:absolute;inset:0"></div><svg class="ov" id="ov" viewBox="0 0 48 48" aria-hidden="true"></svg></div>
+          <div class="hd sub"><span id="metaLine"></span><span>seret lapisan untuk memindahkan</span></div>
+        </div>
+      </div>
+      <section class="strip" aria-label="Set ikon">
+        <div class="hd" style="align-items:center;flex-wrap:wrap">
+          <div style="display:flex;align-items:baseline;gap:10px"><b>Set</b><span class="sub" id="setCount"></span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm" id="newIcon">Ikon baru</button>
+            <button class="btn sm" id="dupIcon">Duplikat</button>
+            <button class="btn sm" id="delIcon">Hapus dari set</button>
+            <button class="btn sm pri" id="saveIcon">Simpan ke set</button>
+          </div>
+        </div>
+        <div class="strip-row" id="strip"></div>
+      </section>
+    </section>
+
+    <aside class="side r" aria-label="Pengaturan">
+      <section style="display:flex;flex-direction:column;gap:8px">
+        <div class="hd"><span class="cap">Lapisan</span><span class="hint">depan ke belakang</span></div>
+        <div id="layers" style="display:flex;flex-direction:column;gap:4px"></div>
+        <label class="sr" for="nameIn">Nama ikon</label>
+        <div class="field"><input id="nameIn" type="text" placeholder="Nama ikon"></div>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:14px">
+        <div class="hd" style="align-items:center"><span class="cap" id="propTitle"></span><button class="btn sm ghost" id="resetLayer">Atur ulang</button></div>
+        <div id="propMod" style="display:flex;gap:14px;align-items:center">
+          <div class="slots" id="slots" role="group" aria-label="Titik jangkar pengubah"></div>
+          <p class="hint">Titik jangkar menempelkan pengubah ke sudut. Objek utama ikut bergeser menjauh.</p>
+        </div>
+        <div id="propAccMain" style="display:flex;flex-direction:column;gap:10px">
+          <div class="hd" style="align-items:center"><span>Warna bagian <span class="sub">· per ikon</span></span><button class="btn sm ghost" id="pAuto">Otomatis</button></div>
+          <p class="hint">Klik bagian ikon di kanvas untuk berganti warna, atau pilih di sini. Satu kelompok aksen per ikon.</p>
+          <div class="plist" id="plist"></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span>Isi bidang <span class="sub">· Cara 3</span></span>
+            <div class="seg" role="group" aria-label="Isi bidang" style="grid-template-columns:repeat(4,minmax(0,1fr))" id="underSeg"></div>
+            <p class="hint" id="underHint"></p></div>
+        </div>
+        <div id="propAccMod" style="display:flex;flex-direction:column;gap:6px">
+          <span>Penanda <span class="sub">· Cara 4, di depan dengan celah</span></span>
+          <div class="seg" role="group" aria-label="Bentuk penanda" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-mstyle="line">Garis</button><button data-mstyle="fill">Isi</button></div>
+        </div>
+        <div id="propDeco" style="display:flex;flex-direction:column;gap:10px">
+          <div class="dtypes" id="dtypes"></div>
+          <div id="dcolorBox" style="display:flex;flex-direction:column;gap:6px">
+            <span>Warna dekorasi unggahan</span>
+            <div class="seg" role="group" aria-label="Warna dekorasi" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button data-dcol="ink">Garis</button><button data-dcol="accent">Isian</button><button data-dcol="orig">Asli</button></div>
+          </div>
+        </div>
+        <div class="two">
+          <div class="rng"><div class="hd"><label for="pX">X</label><span id="pXv"></span></div><input id="pX" type="range" step="0.5"></div>
+          <div class="rng"><div class="hd"><label for="pY">Y</label><span id="pYv"></span></div><input id="pY" type="range" step="0.5"></div>
+        </div>
+        <div class="rng"><div class="hd"><label for="pS">Skala <span class="sub">· semua ikon</span></label><span id="pSv"></span></div><input id="pS" type="range" step="1"></div>
+        <div class="rng" id="pRbox"><div class="hd"><label for="pR">Rotasi</label><span id="pRv"></span></div><input id="pR" type="range" min="-180" max="180" step="15"></div>
+        <div class="hd" style="align-items:center"><span class="hint">Geser 0,5</span>
+          <div style="display:flex;gap:4px" role="group" aria-label="Geser halus">
+            <button class="btn sm" data-nudge="-0.5,0" aria-label="Geser kiri">←</button><button class="btn sm" data-nudge="0,-0.5" aria-label="Geser atas">↑</button><button class="btn sm" data-nudge="0,0.5" aria-label="Geser bawah">↓</button><button class="btn sm" data-nudge="0.5,0" aria-label="Geser kanan">→</button>
+          </div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px">
+          <div class="hd" style="align-items:center"><span>Warna lapisan <span class="sub">· semua ikon</span></span><button class="btn sm ghost" id="colReset">Bawaan</button></div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="hint" style="width:44px;flex:none" id="lineLbl">Garis</span><div id="lineSw" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center" role="group" aria-label="Warna garis lapisan"></div></div>
+          <div style="display:flex;align-items:center;gap:10px" id="fillRow"><span class="hint" style="width:44px;flex:none">Isian</span><div id="fillSw" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center" role="group" aria-label="Warna isian lapisan"></div></div>
+          <p class="hint" id="colHint"></p>
+        </div>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:14px">
+        <div class="hd"><span class="cap">Gaya set</span><span class="hint">semua ikon</span></div>
+        <p class="hint" style="padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bar)">Patokan set: warna lapisan, skala, tebal garis, celah knockout dan ujung garis berlaku untuk semua ikon, baik tunggal maupun kombinasi. Yang tetap per ikon hanya posisi dan jangkar.</p>
+        <div style="display:flex;flex-direction:column;gap:6px"><span>Gaya ikon</span>
+          <div class="seg" role="group" aria-label="Gaya ikon" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-family="classic">Klasik</button><button data-family="accent">Aksen bagian</button></div>
+          <p class="hint" id="famHint"></p></div>
+        <div id="accOnly" style="display:flex;flex-direction:column;gap:6px"><div class="hd"><span>Warna aksen</span><span class="sub" id="accCount"></span></div>
+          <div class="accsw" id="accSw" role="group" aria-label="Warna aksen"></div></div>
+        <div id="classicOnly" style="display:flex;flex-direction:column;gap:12px">
+        <span>Mode warna</span>
+        <div class="prefs" id="prefs" role="group" aria-label="Mode warna set"></div>
+        <button class="btn" id="swapModes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg>Tukar garis dan solid</button>
+        <div style="display:flex;flex-direction:column;gap:6px"><div class="hd"><span>Efek objek utama</span><span class="sub" id="fxCount"></span></div>
+          <div class="seg" role="group" aria-label="Efek objek utama" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button data-fx="none">Tanpa</button><button data-fx="soft">Isian lembut</button><button data-fx="shadow">Bayangan</button></div>
+          <label class="swc" id="fxColBox"><input type="color" id="fxCol" aria-label="Warna efek"><span id="fxColV"></span></label>
+          <p class="hint" id="fxHint"></p></div>
+        </div>
+        <div class="rng"><div class="hd"><label for="sSw">Tebal garis</label><span id="sSwV"></span></div><input id="sSw" type="range" min="1" max="4" step="0.25"></div>
+        <div class="rng"><div class="hd"><label for="sGap">Celah knockout</label><span id="sGapV"></span></div><input id="sGap" type="range" min="0" max="4" step="0.25"></div>
+        <div class="seg" role="group" aria-label="Ujung garis" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-cap="butt">Ujung rata</button><button data-cap="round">Ujung bulat</button></div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- BATCH -->
+  <div class="page" id="vBatch" hidden>
+    <aside class="side l" aria-label="Pilih bahan">
+      <section style="display:flex;flex-direction:column;gap:8px"><div class="hd"><span class="cap">1 · Objek utama</span><span class="hint" id="bMainN"></span></div><div class="checks" id="bMains"></div></section>
+      <section style="display:flex;flex-direction:column;gap:8px"><div class="hd"><span class="cap">2 · Pengubah</span><span class="hint" id="bModN"></span></div><div class="checks" id="bMods"></div><p class="hint">Panah = posisi bawaan pengubah itu.</p></section>
+    </aside>
+    <main>
+      <div class="hd" style="flex-wrap:wrap;align-items:flex-end">
+        <div style="display:flex;flex-direction:column;gap:4px"><h1 class="ttl" id="bTitle"></h1><p class="hint">Klik sel untuk memilih atau melewati kombinasi. Yang dipilih masuk ke set.</p></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="sub" id="bPicked"></span><button class="btn sm" id="bAll">Pilih semua</button><button class="btn sm" id="bNone">Kosongkan</button></div>
+      </div>
+      <div class="matrix-wrap"><div class="matrix" id="matrix"></div></div>
+    </main>
+    <aside class="side r" aria-label="Aturan kombinasi">
+      <span class="cap">3 · Aturan</span>
+      <section style="display:flex;flex-direction:column;gap:8px"><span>Posisi pengubah</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-bpos="default">Bawaan</button><button data-bpos="BL">Kiri bawah</button></div></section>
+      <section style="display:flex;flex-direction:column;gap:8px"><span>Mode warna</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-bmode="set">Ikuti set</button><button data-bmode="all">Semua 3 mode</button></div><p class="hint" id="bModeHint"></p></section>
+      <label class="optrow"><span>Lewati yang sudah ada di set</span><input type="checkbox" id="bSkip" checked></label>
+      <section style="margin-top:auto;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px">
+        <div class="hd"><span class="hint">Akan ditambahkan</span><span class="mono" id="bAdd"></span></div>
+        <div class="hd"><span class="hint">Set setelahnya</span><span class="mono" id="bAfter"></span></div>
+        <button class="btn pri" id="bGo" style="height:40px">Tambahkan ke set</button>
+        <p class="hint" id="bStatus"></p>
+      </section>
+    </aside>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="page" id="vReview" hidden>
+    <main>
+      <div class="hd" style="flex-wrap:wrap;align-items:flex-end">
+        <div style="display:flex;flex-direction:column;gap:4px"><h1 class="ttl">Tinjau pack</h1><p class="hint">Periksa seluruh pack dalam satu lembar. Klik ikon untuk mengeluarkannya dari unduhan.</p></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div class="seg" role="group" aria-label="Latar pratinjau" style="grid-template-columns:repeat(4,auto)"><button data-rbg="#FFFFFF">Putih</button><button data-rbg="#EEEEEA">Abu</button><button data-rbg="#1A1B1F">Gelap</button><button data-rbg="#EEF6C4">Limau</button></div>
+          <div class="seg" role="group" aria-label="Ukuran pratinjau" style="grid-template-columns:repeat(4,auto)"><button data-rsz="64">64px</button><button data-rsz="32">32px</button><button data-rsz="24">24px</button><button data-rsz="16">16px</button></div>
+          <button class="btn sm" id="rNames" aria-pressed="true">Nama file</button>
+        </div>
+      </div>
+      <div role="status" id="rWarn" hidden style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--warn-bg);border:1px solid #5C4A1A;color:var(--warn)">Tinta set hampir hilang di latar gelap. Untuk mode gelap, ekspor varian dengan tinta terang.</div>
+      <div class="sheet" id="rSheet"></div>
+    </main>
+    <aside class="side r" aria-label="Ringkasan dan ekspor" style="flex-basis:320px">
+      <span class="cap">Ringkasan pack</span>
+      <div class="two"><div class="stat"><b id="rCount"></b><span>ikon diunduh</span></div><div class="stat"><b id="rSkip"></b><span>dilewati</span></div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="rPills"></div>
+      <span class="cap">Pemeriksaan gaya</span>
+      <div id="rChecks" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div class="divider"></div>
+      <span class="cap">Pengaturan unduhan</span>
+      <div style="display:flex;flex-direction:column;gap:6px"><span>Format</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-rfmt="zip">ZIP berisi SVG</button><button data-rfmt="sprite">Sprite SVG</button></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span>Celah knockout</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-rko="mask">Mask, transparan</button><button data-rko="white">Latar putih</button></div><p class="hint" id="rKoHint"></p></div>
+      <label class="optrow"><span>Sertakan gaya.json</span><input type="checkbox" id="rJson" checked></label>
+      <label class="optrow"><span>Sertakan lembar pratinjau HTML</span><input type="checkbox" id="rHtml" checked></label>
+      <div class="divider"></div>
+      <span class="cap">Metadata Canva · Chrome extension</span>
+      <label class="optrow"><span>Sertakan metadata.csv</span><input type="checkbox" id="rMetaOn" checked></label>
+      <div id="rMetaBox" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:6px"><span>Artist</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-mart="hashtagben">hashtagben</button><button data-mart="chital">Chital</button></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span>Bahasa metadata</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-mloc="en">English (en)</button><button data-mloc="id">Indonesia (id)</button></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span>Nama di judul</span><div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button data-mnm="auto">Otomatis</button><button data-mnm="name">Nama ikon</button></div></div>
+        <div class="two"><div style="display:flex;flex-direction:column;gap:6px"><label for="rPackEn">Tema pack (EN)</label><div class="field"><input id="rPackEn" type="text" maxlength="60" placeholder="Startup Pitch"></div></div><div style="display:flex;flex-direction:column;gap:6px"><label for="rPackId">Tema pack (ID)</label><div class="field"><input id="rPackId" type="text" maxlength="60" placeholder="Pitch Startup"></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span>Kata kunci per ikon</span><div class="seg" style="grid-template-columns:repeat(4,minmax(0,1fr))"><button data-mkw="10">10</button><button data-mkw="15">15</button><button data-mkw="20">20</button><button data-mkw="25">25</button></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="rDesc">Deskripsi (opsional, untuk semua ikon)</label><textarea id="rDesc" rows="2" style="border:1px solid var(--line2);border-radius:9px;background:var(--bg);padding:8px 10px;resize:vertical"></textarea></div>
+        <p class="hint" id="rMetaHint"></p>
+        <p class="hint">Format: filename, title, keywords, Artist, locale, description. Dibaca mode CSV Chrome extension (dicocokkan per nama file SVG). Tema pack boleh beberapa kata kunci dipisah koma; kata pertama masuk ke judul.</p>
+      </div>
+      <div class="tree" id="rTree"></div>
+      <button class="btn pri" id="rDownload" style="height:42px"></button>
+      <button class="btn" id="rSavePack" style="height:40px">Simpan pack</button>
+      <p class="hint" id="rStatus"></p>
+    </aside>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navigasi aplikasi">
+    <button type="button" data-mpanel="components" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Ikon</span></button>
+    <button type="button" data-mpanel="style" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>Gaya</span></button>
+    <button type="button" data-mpanel="set" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="12" height="12" rx="2"/><path d="M8 20h10a2 2 0 0 0 2-2V8"/></svg><span>Set</span></button>
+    <button type="button" data-view="batch" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16M8 4v16M16 4v16"/></svg><span>Rakit</span></button>
+    <button type="button" data-view="review" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v13H3z"/><path d="M8 7V4h8v3M8 13h8"/></svg><span>Pack</span></button>
+  </nav>
+</div>
+
+<!-- LUCIDE PICK -->
+<div class="modal" id="mLucide" hidden role="dialog" aria-modal="true" aria-labelledby="lpTitle">
+  <div class="dialog">
+    <header><div style="display:flex;align-items:center;gap:10px"><h2 id="lpTitle" class="mono"></h2><span id="lpChip"></span></div>
+      <div style="display:flex;gap:10px;align-items:center"><div class="seg" role="group" aria-label="Pakai sebagai" style="grid-template-columns:repeat(2,auto)"><button data-lpr="main">Objek utama</button><button data-lpr="mod">Pengubah</button></div><button class="btn sm" data-close aria-label="Tutup">✕</button></div></header>
+    <div class="body">
+      <div style="flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <p class="hint" id="lpDesc" style="font-size:13px"></p>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+          <figure style="margin:0;display:flex;flex-direction:column;gap:6px"><div class="prev" id="lpOrig"></div><figcaption><b style="font-weight:500">1 · Asli</b><br><span class="hint">Grid 24, garis 2, ujung bulat</span></figcaption></figure>
+          <figure style="margin:0;display:flex;flex-direction:column;gap:6px"><div class="prev board grid" style="border-radius:12px;box-shadow:none" id="lpRead"></div><figcaption><b style="font-weight:500">2 · Pembacaan bentuk</b><br><span class="hint">limau = body · garis = detail · putus-putus = pelat</span></figcaption></figure>
+          <figure style="margin:0;display:flex;flex-direction:column;gap:6px"><div class="prev" id="lpResult"></div><figcaption><b style="font-weight:500" id="lpResTitle"></b><br><span class="hint" id="lpResHint"></span></figcaption></figure>
+        </div>
+      </div>
+      <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:10px">
+        <div class="hd"><span class="cap">Bagian terbaca</span><span class="hint" id="lpPartN"></span></div>
+        <div id="lpParts" style="display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto"></div>
+        <span class="cap">Mode warna didukung</span>
+        <div id="lpModes" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+    </div>
+    <footer><span class="hint">Grid 24 → 48, tebal dan ujung garis mengikuti set.</span><div style="display:flex;gap:8px"><button class="btn" data-close>Batal</button><button class="btn pri" id="lpUse"></button></div></footer>
+  </div>
+</div>
+
+<!-- ADD DECO -->
+<div class="modal" id="mDeco" hidden role="dialog" aria-modal="true" aria-labelledby="adTitle">
+  <div class="dialog" style="max-width:880px">
+    <header><div><h2 id="adTitle">Tambah dekorasi</h2><span class="hint">Unggah SVG satu warna. Bentuknya diwarnai ulang agar cocok dengan set.</span></div><button class="btn sm" data-close aria-label="Tutup">✕</button></header>
+    <div class="body" id="adEmpty">
+      <label class="drop" id="adDrop" for="adFile"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EDEDEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg><b style="font-size:15px">Seret file SVG ke sini</b><span class="hint">atau klik untuk memilih · .svg · maks 100 KB</span></label>
+      <input id="adFile" type="file" accept=".svg,image/svg+xml" class="sr">
+      <p class="err" id="adErr"></p>
+    </div>
+    <div class="body" id="adReady" hidden>
+      <div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <div class="hd"><span class="cap">Pratinjau</span><span class="sub" id="adInfo"></span></div>
+        <div class="prev board grid" style="aspect-ratio:16/10;box-shadow:none" id="adPrev"></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span>Warna</span><div class="seg" role="group" aria-label="Warna dekorasi baru" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button data-adc="ink">Tinta</button><button data-adc="accent">Aksen</button><button data-adc="orig">Asli</button></div></div>
+        <span class="cap">Coba di ikon set</span>
+        <div class="grid4" id="adTry" style="grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+      </div>
+      <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <span class="cap">Hasil pembersihan</span>
+        <div id="adReport" style="display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bar)"></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="adName">Nama dekorasi</label><div class="field"><input id="adName" type="text"></div></div>
+      </div>
+    </div>
+    <footer><button class="btn ghost" id="adReset" hidden>Ganti file</button><span></span><div style="display:flex;gap:8px"><button class="btn" data-close>Batal</button><button class="btn pri" id="adAdd" disabled>Tambahkan ke kanvas</button></div></footer>
+  </div>
+</div>
+
+<!-- SAVE PACK -->
+<div class="modal" id="mPack" hidden role="dialog" aria-modal="true" aria-labelledby="spTitle">
+  <div class="dialog" style="max-width:980px">
+    <header><h2 id="spTitle">Simpan pack</h2><button class="btn sm" data-close aria-label="Tutup">✕</button></header>
+    <div class="body">
+      <form id="spForm" style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:10px">
+          <div style="display:flex;flex-direction:column;gap:6px"><label for="spName">Nama pack</label><div class="field"><input id="spName" type="text" required></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label for="spVer">Versi</label><div class="field"><input id="spVer" type="text" class="mono" value="v1.0"></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="spDesc">Deskripsi</label><textarea id="spDesc" rows="2" style="border:1px solid var(--line2);border-radius:9px;background:var(--bg);padding:8px 10px;resize:vertical"></textarea></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="spTags">Tag (pisahkan koma)</label><div class="field"><input id="spTags" type="text" placeholder="layanan, aplikasi"></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div class="hd"><span>Sampul pack</span><span class="sub" id="spCoverN"></span></div><div id="spCover" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px"></div></div>
+        <label class="optrow"><span>Unduh juga sebagai .zip</span><input type="checkbox" id="spZip" checked></label>
+        <p class="hint" id="spMsg"></p>
+        <div style="display:flex;justify-content:flex-end;gap:8px"><button type="button" class="btn" data-close>Batal</button><button type="submit" class="btn pri">Simpan pack</button></div>
+      </form>
+      <div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:14px">
+        <span class="cap">Kartu pack</span>
+        <article style="border:1px solid var(--line2);border-radius:16px;background:var(--raised);overflow:hidden">
+          <div id="spMosaic" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#E4E4DE;aspect-ratio:16/10"></div>
+          <div style="padding:12px 14px;display:flex;flex-direction:column;gap:6px"><div class="hd"><b id="spCardName" style="font-size:15px"></b><span class="sub" id="spCardVer"></span></div><span class="sub" id="spCardMeta"></span></div>
+        </article>
+        <div class="hd"><span class="cap">Pack saya</span><span class="hint" id="spPackN"></span></div>
+        <div id="spPacks" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<svg id="meas" aria-hidden="true" viewBox="0 0 24 24" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.52.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="/src/main.js"></script>
+</body>
 </html>
