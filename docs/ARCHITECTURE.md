@@ -82,7 +82,8 @@ Sejak Fase 2b, kedua app digabung di Icon Studio. Persona Composer memakai varia
 | Path | Isi |
 |---|---|
 | `main.js` | titik masuk: kit UI, renderer, state app, kerangka, kait uji `window.__iconStudio` |
-| `shell.js` | kerangka, routing hash, tab dokumen, delegasi event ke persona (`actions`, `control`, `mount`), toast |
+| `shell.js` | kerangka, routing hash, tab dokumen, delegasi event ke persona (`actions`, `control`, `mount`, `canvasFoot`), toast |
+| `canvas-zoom.js` | zoom dan geser kanvas (CSS `zoom` pada `.studio-zoom`), tool Geser/Perbesar, pintasan |
 | `app-state.js` | dokumen, dokumen aktif, seleksi per dokumen, riwayat sesi, migrasi sekali, penyimpanan |
 | `ui.js` | pembantu markup kelas `.ic-*` (panel, segmented, dropdown, angka, peringatan) |
 | `personas/` | `composer.js` (Set), `composer-edit.js`, `builder.js`, `tinjau.js`, `kombinasi.js`, `library-panel.js`, `common.js` |

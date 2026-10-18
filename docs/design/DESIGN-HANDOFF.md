@@ -58,6 +58,13 @@ Render ulang PNG dari artboard: `python3 scripts/render-artboards.py` (butuh Pla
 - Di bawah lebar 1100 px, studio pindah ke bawah kanvas (sudah diatur di `components.css`).
 - Persona Kombinasi memakai `.ic-shell--left-studio`: studio pustaka 300 px di kiri menggantikan tool rail.
 - Hanya kanvas dan isi panel yang bergulir. Bilah atas, konteks, dan status tidak pernah ikut bergulir.
+- **Zoom dan geser kanvas (seperti Affinity), di semua persona:**
+  - Ctrl/⌘ + roda atau pinch trackpad: zoom di titik kursor, 10–800%. Roda biasa menggulir, Shift + roda menggulir mendatar.
+  - Spasi + seret, tool Geser tampilan (H), atau tombol tengah mouse: geser kanvas.
+  - Tool Perbesar (Z): klik untuk zoom in, Alt + klik untuk zoom out. Tool Pilih: V.
+  - ⌘/Ctrl + = zoom in, ⌘/Ctrl + − zoom out, ⌘/Ctrl + 0 sesuaikan ke layar, ⌘/Ctrl + 1 100%.
+  - Persentase zoom tampil di tab dokumen aktif ("@ 150%") dan di ujung kanan bilah status bersama tombol perkecil, 100%, perbesar, dan sesuaikan.
+  - Zoom diingat per dokumen dan persona selama sesi. Filmstrip Composer · Edit berada di bawah kanvas dan tidak ikut di-zoom.
 
 ## 2. Persona dan routing
 

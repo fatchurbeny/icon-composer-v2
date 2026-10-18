@@ -343,10 +343,19 @@ export const composerEdit = {
     const it = selectedOf(ctx);
     if (!it) return `<div class="studio-center">${empty("Ikon tidak ditemukan.", "Kembali ke ikhtisar halaman untuk memilih ikon.")}</div>`;
     const boxes = layerBoxes(it, ctx.doc.style, ctx.renderer.data);
+    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(boxes)}${selbox(boxes[layerOf()])}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
+  },
+  /**
+   * Filmstrip set di bawah kanvas, di luar area zoom.
+   * @param {import("./common.js").Ctx} ctx
+   */
+  canvasFoot(ctx) {
+    const it = selectedOf(ctx);
+    if (!it) return "";
     const film = itemsOf(ctx)
       .map((x) => `<button type="button" class="ic-filmstrip__item" role="option" data-action="edit-item" data-id="${esc(x.id)}" ${aria("aria-selected", x === it)} aria-label="${esc(labelOf(ctx, x))}">${renderSet(ctx, x, `fs${x.id}`)}</button>`)
       .join("");
-    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(boxes)}${selbox(boxes[layerOf()])}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div><div class="ic-filmstrip studio-filmstrip" role="listbox" aria-label="Ikon dalam set"><span class="ic-label">Set</span>${film}</div>`;
+    return `<div class="ic-filmstrip" role="listbox" aria-label="Ikon dalam set"><span class="ic-label">Set</span>${film}</div>`;
   },
   /** @param {import("./common.js").Ctx} ctx */
   panels(ctx) {

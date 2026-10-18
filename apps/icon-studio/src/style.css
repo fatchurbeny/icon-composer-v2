@@ -66,14 +66,6 @@ body {
 .studio-edit {
   display: flex;
   justify-content: center;
-  padding-bottom: calc(var(--ic-h-filmstrip) + var(--ic-sp-8));
-}
-/* filmstrip menempel di bawah kanvas edit (artboard Edit) */
-.studio-filmstrip {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
 }
 /* pembungkus isi panel (target lipat panel): isi tab menggulir di dalam panel yang tumbuh */
 .studio-panel-body {
@@ -191,4 +183,50 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* lapisan isi kanvas yang di-zoom (canvas-zoom.js); zoom memakai CSS zoom supaya gulir dan koordinat tetap konsisten */
+.studio-zoom {
+  min-height: 100%;
+}
+.ic-canvas[data-tool="hand"] {
+  cursor: grab;
+}
+.ic-canvas[data-tool="hand"] * {
+  cursor: inherit;
+}
+.ic-canvas[data-panning="true"],
+.ic-canvas[data-panning="true"] * {
+  cursor: grabbing;
+}
+.ic-canvas[data-tool="zoom"],
+.ic-canvas[data-tool="zoom"] * {
+  cursor: zoom-in;
+}
+/* kontrol zoom di bilah status */
+.studio-zoombar {
+  display: flex;
+  align-items: center;
+  gap: var(--ic-sp-1);
+}
+.studio-zoombtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 var(--ic-sp-2);
+  border: 0;
+  border-radius: var(--ic-r-sm);
+  background: transparent;
+  color: var(--ic-text-2);
+  font: inherit;
+  cursor: pointer;
+}
+.studio-zoombtn:hover {
+  background: var(--ic-bg-hover);
+  color: var(--ic-text-1);
+}
+.studio-zoombtn--label {
+  min-width: 48px;
+  font-family: var(--ic-font-mono);
 }
