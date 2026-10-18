@@ -14,6 +14,7 @@ import { createAppState } from "./app-state.js";
 import { createShell } from "./shell.js";
 import * as builderOps from "./state/builder-ops.js";
 import * as documentModel from "./state/document.js";
+import * as reviewOps from "./state/review-ops.js";
 import { SAMPLE_MANIFEST } from "./state/data/sample-manifest.js";
 import { createRenderer } from "./state/render.js";
 import * as store from "./state/store.js";
@@ -29,6 +30,7 @@ const renderer = createRenderer({
   renderer,
   document: documentModel,
   builder: builderOps,
+  review: reviewOps,
   store,
   SAMPLE_MANIFEST,
   directFillSvgFile,

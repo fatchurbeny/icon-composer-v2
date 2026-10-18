@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "scripts/lint-ui.mjs": {
-    "mtime": 1792254010.567474,
-    "seen": 1792254035.995017,
-    "ast_hash": "c2b76d21d62221537b59604d1a7326ef",
+    "mtime": 1792337391.965411,
+    "seen": 1792337898.8269372,
+    "ast_hash": "fbab237af766353a43acbc1c089621cd",
     "semantic_hash": ""
   },
   "scripts/render-artboards.py": {
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792336989.8687055,
-    "seen": 1792337018.044063,
-    "ast_hash": "fc901f9bb038bdfc661bab5a4c147163",
+    "mtime": 1792337868.34345,
+    "seen": 1792337898.826964,
+    "ast_hash": "7ac05e14b67f2b0781951b7ca0865143",
     "semantic_hash": ""
   },
   "README.md": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docs/MIGRATION-PLAN.md": {
-    "mtime": 1792336989.8695211,
-    "seen": 1792337018.044076,
-    "ast_hash": "9a8549bfb86143bb193245b839b7851e",
+    "mtime": 1792337868.343898,
+    "seen": 1792337898.826977,
+    "ast_hash": "c515781bf5300f6edcfa5d63b181ab72",
     "semantic_hash": ""
   },
   "docs/PRODUCT.md": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
-    "mtime": 1792250441.0,
-    "seen": 1792252182.9723709,
-    "ast_hash": "9ac891bcfe087f3ed281f907557b10c5",
+    "mtime": 1792337868.3442566,
+    "seen": 1792337898.826981,
+    "ast_hash": "f41d42433655bc8264c138cf751b8930",
     "semantic_hash": ""
   },
   "docs/design/ui-kit.html": {
@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/main.js": {
-    "mtime": 1792331014.0746756,
-    "seen": 1792331300.7855701,
-    "ast_hash": "caf66e30c4816eaa43eb25e9469825e0",
+    "mtime": 1792337597.5544534,
+    "seen": 1792337898.826872,
+    "ast_hash": "a269da157d273f14aa2aa1677350ea6d",
     "semantic_hash": ""
   },
   "apps/icon-studio/vite.config.js": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "docs/plans/fase-2b.md": {
-    "mtime": 1792336989.869182,
-    "seen": 1792337018.044089,
-    "ast_hash": "e1e9367c7476fc8ce79fa188e80c6202",
+    "mtime": 1792337868.3437293,
+    "seen": 1792337898.8269901,
+    "ast_hash": "361a679c73ffd2960fb32484970fc8f5",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/sample-manifest.js": {
@@ -618,9 +618,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/render.js": {
-    "mtime": 1792330161.3940146,
-    "seen": 1792330277.735559,
-    "ast_hash": "2c907b5b7222c02b8f318b3c0b5ae678",
+    "mtime": 1792337437.1353085,
+    "seen": 1792337898.82689,
+    "ast_hash": "0574cafd63fed9baea2cbb790928945f",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/store.js": {
@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "tests/e2e/studio-golden.spec.js": {
-    "mtime": 1792330266.9566414,
-    "seen": 1792330277.735609,
-    "ast_hash": "c138acc797f2a4d4b730278a4994e183",
+    "mtime": 1792337622.6225195,
+    "seen": 1792337898.826945,
+    "ast_hash": "33c1c1c95a5b504a8fdefe216f1de0f7",
     "semantic_hash": ""
   },
   "tests/unit/studio-state.test.js": {
@@ -642,15 +642,15 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/app-state.js": {
-    "mtime": 1792334335.8540618,
-    "seen": 1792334818.913685,
-    "ast_hash": "bbef5569d121d252be10fc4d6715584a",
+    "mtime": 1792337445.0638244,
+    "seen": 1792337898.8268712,
+    "ast_hash": "2918b00b0ba882bf71070211a0bd7de3",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/builder.js": {
-    "mtime": 1792331128.1470675,
-    "seen": 1792331300.785571,
-    "ast_hash": "92345d3fa75ff4a6933e1a8e93f1f9d0",
+    "mtime": 1792337597.554035,
+    "seen": 1792337898.826873,
+    "ast_hash": "64bf5b279f5d6dbfe89f8b1a1537159a",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/common.js": {
@@ -678,9 +678,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/shell.js": {
-    "mtime": 1792336901.4748712,
-    "seen": 1792337018.0439832,
-    "ast_hash": "24ebddf1b1e68dda5d5a32e3182bc903",
+    "mtime": 1792337454.7286372,
+    "seen": 1792337898.82688,
+    "ast_hash": "481f3989731f74d8a7822c805248044d",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/preview-backgrounds.js": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "tests/unit/studio-app-state.test.js": {
-    "mtime": 1792331251.8405244,
-    "seen": 1792331300.785644,
-    "ast_hash": "1b5bb045515a12248dae8106c9c36191",
+    "mtime": 1792337815.535745,
+    "seen": 1792337898.8269582,
+    "ast_hash": "1d8f2dea5bdc5eb93b2afe3f47e7248a",
     "semantic_hash": ""
   },
   "docs/design/proposals/komponen-fase-2b.html": {
@@ -765,6 +765,30 @@
     "mtime": 1792336970.743686,
     "seen": 1792337018.044058,
     "ast_hash": "fe87c4d499ccda349ca5f345eae651f1",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/builder-ops.js": {
+    "mtime": 1792337391.9406857,
+    "seen": 1792337898.826881,
+    "ast_hash": "be873f0ee208bfde0d6f5f011c630aca",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/export/resource-page.js": {
+    "mtime": 1792337369.2919443,
+    "seen": 1792337898.8268821,
+    "ast_hash": "b1306819df44e69bddfe581c8d6e8937",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-builder.spec.js": {
+    "mtime": 1792337792.9656565,
+    "seen": 1792337898.826942,
+    "ast_hash": "5dcb86eb62c6316b92f0c4aba054caf3",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-builder-ops.test.js": {
+    "mtime": 1792337809.9118407,
+    "seen": 1792337898.8269591,
+    "ast_hash": "185cd8dd252e09577089dec6f702212d",
     "semantic_hash": ""
   }
 }

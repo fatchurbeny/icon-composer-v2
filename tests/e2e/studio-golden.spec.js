@@ -8,6 +8,7 @@ import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  captureIconComposerZip,
   captureTemplateIconBuilderZip,
   openHtml,
   root,
@@ -306,3 +307,48 @@ for (const [label, fixture, styles] of [
     }
   });
 }
+
+test("@golden Icon Studio ZIP Composer lintas pustaka identik dengan IC 1.5.1 (header CSV dikutip)", async ({
+  browser,
+}) => {
+  const legacy = await browser.newPage();
+  const studio = await browser.newPage();
+  try {
+    await openHtml(legacy, "legacy/icon-composer-aksen-v1.5.1.html", {
+      storage: mixed.iconComposer.storage,
+    });
+    const legacyZip = await captureIconComposerZip(legacy);
+    const [header, ...rest] = legacyZip["metadata.csv"].split("\r\n");
+    legacyZip["metadata.csv"] = [
+      "\uFEFF" +
+        header
+          .replace(/^\uFEFF/, "")
+          .split(",")
+          .map((c) => `"${c}"`)
+          .join(","),
+      ...rest,
+    ].join("\r\n");
+    const expected = Object.fromEntries(
+      Object.entries(legacyZip).filter(([, v]) => v != null),
+    );
+    await openHtml(studio, STUDIO);
+    const actual = await studio.evaluate(async (saved) => {
+      const S = window.__iconStudio,
+        D = S.document,
+        r = S.renderer,
+        R = S.review;
+      await r.loadTabler();
+      await r.loadHugeicons();
+      const doc = D.createSetDocument({ name: "set-ikon", style: saved.style });
+      doc.items = saved.set.map((p) => D.normItem(p, r.lib));
+      R.ensureReviewFields(doc);
+      return R.buildSetZipFiles(doc, R.includedOf(doc), r);
+    }, mixed.iconComposer.storage["icon-composer-aksen-v1"]);
+    expect(Object.keys(actual).sort()).toEqual(Object.keys(expected).sort());
+    for (const name of Object.keys(expected))
+      expect(actual[name], name).toBe(expected[name]);
+  } finally {
+    await legacy.close();
+    await studio.close();
+  }
+});

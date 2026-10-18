@@ -163,7 +163,16 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - Golden: ZIP Builder dari Icon Studio dibandingkan dengan legacy TIB, memakai fixture `basic` dan `mixed`.
 - **Tinjauan Ika** terhadap `artboard-builder-1600x1000.png`.
 
-### 6. Persona Tinjau
+### 6. Persona Tinjau ✅ (menunggu tinjauan Ika)
+
+Selesai 2026-10-18. Catatan pelaksanaan:
+- Set Composer memakai `state/review-ops.js` (nama file, `exportSVG`, sprite, `metaOf`, `buildSetZipFiles`, `reviewChecks`). Template `pratinjau.html` dan LICENSES ada di `state/data/export/preview-sheet.js`.
+- Dokumen Builder di Tinjau memakai `builder-ops.js`. Klik sel mengubah `on` (sama dengan Builder), dan unduhan memakai ekspor Builder. Metadata pack diatur di Builder.
+- Golden: ZIP Composer Icon Studio dibandingkan langsung dengan IC 1.5.1 (fixture `mixed`). Hanya header `metadata.csv` yang berbeda (ADR-016).
+- Pilihan tinjau (latar, ukuran, ikon yang dikeluarkan, format, mask) dan metadata Canva disimpan per dokumen (`doc.review`, `doc.meta.canva`). Migrasi `icon-composer-meta-v1` dikerjakan di langkah 8.
+- **Temuan untuk Fase 5:** objek bawaan IC `ticket` memakai `stroke-dasharray` (garis sobekan tiket), sehingga `directFillSvgFile` menolaknya ("Stroke putus-putus belum didukung"). Ini juga melanggar aturan AGENTS.md "tidak ada stroke-dasharray di keluaran akhir". ZIP Composer saat ini masih SVG asli (sama dengan IC), jadi keluarannya belum berubah. Di Tinjau, sel ini diberi lencana "gagal direct fill" dan muncul di Pemeriksaan. Perlu keputusan: panggang dash `ticket` jadi geometri (seperti hand-writing) sebelum direct fill Composer dipasang di Fase 5.
+- Belum ada: blokir unduhan bila pemeriksaan Canva gagal (IC tidak memblokir; menunggu direct fill Fase 5).
+
 
 - Lembar kontak dengan latar (5 swatch), ukuran 128/64/32, nama file, tanda flag, dan Bandingkan SVG asli / Direct fill.
   - Mode Direct fill memakai `directFillSvgFile` untuk pratinjau saja.

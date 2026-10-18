@@ -6,6 +6,7 @@
  */
 import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem } from "./state/document.js";
 import { createVocabulary, defaultExportOptions, validateManifest } from "./state/builder-ops.js";
+import { ensureReviewFields } from "./state/review-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
 import { loadState, saveState } from "./state/store.js";
 
@@ -49,7 +50,7 @@ export function createAppState(options) {
 
   /* set kosong selalu ada supaya Composer punya dokumen */
   if (!documents.some((d) => d.kind === "set")) {
-    const doc = ensureSetFields(createSetDocument({ name: "Set baru" }));
+    const doc = ensureReviewFields(ensureSetFields(createSetDocument({ name: "Set baru" })));
     documents.unshift(doc);
     activeId = activeId || doc.id;
   }
@@ -65,11 +66,12 @@ export function createAppState(options) {
     doc.export.modes = { ...defaultExportOptions(doc).modes, ...(doc.export.modes || {}) };
     doc.view = { filter: "all", group: true, step: "check", ...(doc.view || {}) };
     doc.issues = Array.isArray(doc.issues) ? doc.issues : [];
-    return doc;
+    return ensureReviewFields(doc);
   };
   for (const doc of documents) {
     if (doc.kind === "set") ensureSetFields(doc);
     else ensureManifestFields(doc);
+    ensureReviewFields(doc);
   }
 
   /** Riwayat perubahan sesi per dokumen (panel Riwayat; bukan undo). */
@@ -192,7 +194,7 @@ export function createAppState(options) {
       const i = documents.findIndex((d) => d.id === id);
       if (i < 0) return;
       documents.splice(i, 1);
-      if (!documents.some((d) => d.kind === "set")) documents.unshift(ensureSetFields(createSetDocument({ name: "Set baru" })));
+      if (!documents.some((d) => d.kind === "set")) documents.unshift(ensureReviewFields(ensureSetFields(createSetDocument({ name: "Set baru" }))));
       if (activeId === id) activeId = documents[Math.max(0, i - 1)].id;
       delete selection[id];
       save();

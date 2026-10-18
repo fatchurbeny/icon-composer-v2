@@ -27,7 +27,7 @@ Aturan ini membuat UI tetap konsisten walau ditulis oleh banyak sesi LLM. Pelang
 ## Pengecualian
 
 - Warna data mesin dan pratinjau (palet ikon, latar lembar kontak) ditulis di file `…/data/…` dan dikecualikan dari aturan warna literal.
-- Template file ekspor di `apps/icon-studio/src/state/data/export/` (mis. `resource-page.html` di ZIP Builder) bukan UI: font dan ukuran hurufnya bagian dari keluaran yang dijaga golden, jadi dikecualikan dari aturan font dan ukuran huruf literal.
+- Template file ekspor di `apps/icon-studio/src/state/data/export/` (mis. `resource-page.html` di ZIP Builder) bukan UI: font dan ukuran hurufnya bagian dari keluaran yang dijaga golden, jadi dikecualikan dari aturan font, ukuran huruf, dan radius literal.
 
 ## Menambah atau mengubah komponen
 

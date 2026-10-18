@@ -142,3 +142,12 @@ body {
 .ic-studio > .ic-panel--grow {
   min-height: 160px;
 }
+/* lencana flag di sel lembar kontak Tinjau */
+.studio-cellflag {
+  position: absolute;
+  top: var(--ic-sp-2);
+  right: var(--ic-sp-2);
+}
+.studio-review {
+  gap: var(--ic-sp-12);
+}

@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "scripts/lint-ui.mjs": {
-    "mtime": 1792337391.965411,
-    "seen": 1792337898.8269372,
-    "ast_hash": "fbab237af766353a43acbc1c089621cd",
+    "mtime": 1792339679.8842046,
+    "seen": 1792339998.697254,
+    "ast_hash": "08d6a52536ec838b5ef17e99e27fa664",
     "semantic_hash": ""
   },
   "scripts/render-artboards.py": {
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792337868.34345,
-    "seen": 1792337898.826964,
-    "ast_hash": "7ac05e14b67f2b0781951b7ca0865143",
+    "mtime": 1792339966.1959748,
+    "seen": 1792339998.697284,
+    "ast_hash": "37b3d569d02201cbddaaf70540c26564",
     "semantic_hash": ""
   },
   "README.md": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docs/MIGRATION-PLAN.md": {
-    "mtime": 1792337868.343898,
-    "seen": 1792337898.826977,
-    "ast_hash": "c515781bf5300f6edcfa5d63b181ab72",
+    "mtime": 1792339966.196556,
+    "seen": 1792339998.6972969,
+    "ast_hash": "3d7a5a693aaef9cd0340aaaafd0d5f6f",
     "semantic_hash": ""
   },
   "docs/PRODUCT.md": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
-    "mtime": 1792337868.3442566,
-    "seen": 1792337898.826981,
-    "ast_hash": "f41d42433655bc8264c138cf751b8930",
+    "mtime": 1792339679.8846698,
+    "seen": 1792339998.697301,
+    "ast_hash": "a47bfb87c7750c4ea38605a50c502f62",
     "semantic_hash": ""
   },
   "docs/design/ui-kit.html": {
@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/main.js": {
-    "mtime": 1792337597.5544534,
-    "seen": 1792337898.826872,
-    "ast_hash": "a269da157d273f14aa2aa1677350ea6d",
+    "mtime": 1792339831.6222553,
+    "seen": 1792339998.697186,
+    "ast_hash": "e3fd605922032459c8930aa32b3bc045",
     "semantic_hash": ""
   },
   "apps/icon-studio/vite.config.js": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "docs/plans/fase-2b.md": {
-    "mtime": 1792337868.3437293,
-    "seen": 1792337898.8269901,
-    "ast_hash": "361a679c73ffd2960fb32484970fc8f5",
+    "mtime": 1792339966.196367,
+    "seen": 1792339998.69731,
+    "ast_hash": "afefe539c942db9d4fa4eb6b91bdccc9",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/sample-manifest.js": {
@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "tests/e2e/studio-golden.spec.js": {
-    "mtime": 1792337622.6225195,
-    "seen": 1792337898.826945,
-    "ast_hash": "33c1c1c95a5b504a8fdefe216f1de0f7",
+    "mtime": 1792339847.6859303,
+    "seen": 1792339998.697263,
+    "ast_hash": "e1ec11a483af7883a33f82ea6b9e5c4f",
     "semantic_hash": ""
   },
   "tests/unit/studio-state.test.js": {
@@ -642,9 +642,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/app-state.js": {
-    "mtime": 1792337445.0638244,
-    "seen": 1792337898.8268712,
-    "ast_hash": "2918b00b0ba882bf71070211a0bd7de3",
+    "mtime": 1792339711.041551,
+    "seen": 1792339998.697185,
+    "ast_hash": "f09612524b334792b0d6f67073562475",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/builder.js": {
@@ -672,9 +672,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/tinjau.js": {
-    "mtime": 1792331128.1473954,
-    "seen": 1792331300.785574,
-    "ast_hash": "511698ce291a29818a55d54495aef617",
+    "mtime": 1792339937.1411796,
+    "seen": 1792339998.697194,
+    "ast_hash": "1242cb5e2873ea9434dec2b0832f1122",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/shell.js": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/preview-backgrounds.js": {
-    "mtime": 1792330937.5137682,
-    "seen": 1792331300.7855759,
-    "ast_hash": "682c5967e2c8b3753f2b046bbe11150e",
+    "mtime": 1792339711.0171692,
+    "seen": 1792339998.6972,
+    "ast_hash": "8b3a56c153b4c1b6d8b9659650ba1f3d",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/ui.js": {
@@ -789,6 +789,30 @@
     "mtime": 1792337809.9118407,
     "seen": 1792337898.8269591,
     "ast_hash": "185cd8dd252e09577089dec6f702212d",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/export/preview-sheet.js": {
+    "mtime": 1792339667.4844668,
+    "seen": 1792339998.697197,
+    "ast_hash": "c0449dcacca036d92ccee67bd4c57f87",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/review-ops.js": {
+    "mtime": 1792339831.6220512,
+    "seen": 1792339998.697207,
+    "ast_hash": "4e32d5c42298237a9c504abcee23ff92",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-tinjau.spec.js": {
+    "mtime": 1792339937.487337,
+    "seen": 1792339998.6972642,
+    "ast_hash": "d019da04511a005af4ff43e2f5953a80",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-review-ops.test.js": {
+    "mtime": 1792339966.1679947,
+    "seen": 1792339998.697279,
+    "ast_hash": "0b338d8986ce93c6f1d6da6427ade0d4",
     "semantic_hash": ""
   }
 }

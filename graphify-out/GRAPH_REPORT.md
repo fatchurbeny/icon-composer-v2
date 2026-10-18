@@ -1,17 +1,17 @@
 # Graph Report - icon-composer-v2  (2026-10-18)
 
 ## Corpus Check
-- 122 files · ~110,786 words
+- 126 files · ~115,421 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .css 5, (none) 4, .csv 2)
 
 ## Summary
-- 1243 nodes · 2881 edges · 76 communities (75 shown, 1 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 200 edges (avg confidence: 0.9)
+- 1294 nodes · 3104 edges · 70 communities (69 shown, 1 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 205 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `15c66260`
+- Built from commit: `95c90a98`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -32,7 +32,7 @@
 - builder.js
 - 2. Modul
 - C
-- Mesin `hand-writing` (dulu "Coret")
+- renderProps
 - Mesin `sticker`
 - document.js
 - Model data
@@ -59,7 +59,7 @@
 - Usulan komponen kit: Fase 2b
 - README.md
 - lint-ui.mjs
-- Aturan UI untuk agen (wajib dipatuhi)
+- 5. L3: perencana variasi
 - ce
 - renderDetail
 - directFillSvgFile
@@ -68,42 +68,36 @@
 - core/package.json
 - export/package.json
 - icon-sources/package.json
-- Pengujian
+- on
 - icon-studio/package.json
 - offset/index.js
 - @playwright/test
 - builder-ops.js
 - doExport
-- Produk: tujuan, batasan, alur kerja
-- common.js
+- ui-shell.spec.js
+- review-ops.js
 - Langkah
 - hand-writing/index.js
-- ref_node_fs
+- renderOverlay
 - Rencana migrasi
 - Mesin `offset`
-- Oe
-- jt
-- studio-golden.spec.js
 - compose
-- AGENTS.md: instruksi untuk agen (Codex)
-- libNameOf
-- Pipeline ekspor
-- engines/index.js
 - renderLu
-- Mesin `classic` (Klasik)
-- packColors
+- tinjau.js
+- components.js
+- 3. Anatomi layar
 
 ## God Nodes (most connected - your core abstractions)
-1. `esc()` - 42 edges
+1. `esc()` - 48 edges
 2. `r3()` - 28 edges
 3. `C()` - 27 edges
-4. `Diubah` - 27 edges
+4. `Diubah` - 26 edges
 5. `createRenderer()` - 24 edges
-6. `aria()` - 22 edges
-7. `2. Modul` - 21 edges
-8. `get()` - 20 edges
-9. `directFillSvgFile()` - 20 edges
-10. `createShell()` - 19 edges
+6. `aria()` - 24 edges
+7. `get()` - 24 edges
+8. `directFillSvgFile()` - 22 edges
+9. `button()` - 21 edges
+10. `2. Modul` - 21 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `4. Judul metadata (pola "Icon-style")` --references--> `icon()`  [INFERRED]
@@ -120,15 +114,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (76 total, 1 thin omitted)
+## Communities (70 total, 1 thin omitted)
 
 ### Community 0 - "package.json"
 Cohesion: 0.05
 Nodes (38): devDependencies, eslint, eslint-config-prettier, @eslint/js, globals, lucide-static, @playwright/test, prettier (+30 more)
 
 ### Community 1 - "golden-utils.js"
-Cohesion: 0.19
-Nodes (15): ADR-0016, fixture, mixed, fixture, mixed, captureIconComposer(), captureIconComposerBins(), captureIconComposerZip() (+7 more)
+Cohesion: 0.14
+Nodes (17): fixture, mixed, fixture, ADR-0016, mixed, captureIconComposer(), captureIconComposerBins(), captureIconComposerZip() (+9 more)
 
 ### Community 2 - "render-artboards.py"
 Cohesion: 0.17
@@ -148,7 +142,7 @@ Nodes (42): ACC_OPTS, accCache, ANCHORS, applyManStyle(), CANVA_COLUMNS, closeCr
 
 ### Community 6 - "icon-composer/src/main.js"
 Cohesion: 0.05
-Nodes (33): ACC_OPTS, accCache, bOff, bSel, copyText(), customs, DEFAULT_STYLE, FAMILY_DEFAULT (+25 more)
+Nodes (37): ACC_OPTS, accCache, baseNameEN(), bOff, bSel, copyText(), customs, DEFAULT_STYLE (+29 more)
 
 ### Community 7 - "vendor-1.js"
 Cohesion: 0.06
@@ -163,32 +157,32 @@ Cohesion: 0.25
 Nodes (7): name, private, scripts, build, dev, type, version
 
 ### Community 10 - "Design handoff: Icon Studio (UI terpadu)"
-Cohesion: 0.07
-Nodes (27): 0. Sumber kebenaran (urutan prioritas), 1. Kerangka aplikasi (`.ic-shell`), 2. Persona dan routing, 3.1.1 Isi tab panel 2, 3.1 Composer · Set (ikhtisar halaman), 3.2 Composer · Edit ikon, 3.3 Builder · Periksa pack, 3.4 Tinjau · Lembar kontak & ekspor (+19 more)
+Cohesion: 0.17
+Nodes (11): 0. Sumber kebenaran (urutan prioritas), 1. Kerangka aplikasi (`.ic-shell`), 2. Persona dan routing, 5. Ikon, 6. Teks UI, 7. Keadaan khusus, 8. Aksesibilitas (wajib), 9. Kriteria terima UI (+3 more)
 
 ### Community 11 - "5. L3: perencana variasi"
-Cohesion: 0.12
-Nodes (16): 2. Tiga lapis, 3. L1: signature, 4. L2: sidik jari visual, 5. L3: perencana variasi, 6. Data yang disimpan, Algoritma, Algoritma (greedy berimbang, deterministik), Anti-repetisi (+8 more)
+Cohesion: 0.20
+Nodes (9): 2. Tiga lapis, 3. L1: signature, 4. L2: sidik jari visual, 6. Data yang disimpan, Algoritma, Anti-repetisi, Kasus yang harus tertangkap (fixture wajib), Perbandingan (+1 more)
 
 ### Community 12 - "Log keputusan (ADR)"
 Cohesion: 0.11
 Nodes (19): ADR-001 · 2026-10-17 · Gaya baru digabung ke IC dan TIB lewat registry mesin, ADR-002 · 2026-10-17 · "Coret" berganti nama menjadi "Hand-writing", ADR-003 · 2026-10-17 · Cakupan repetisi, ADR-004 · 2026-10-17 · Offset tanpa pengubah, ADR-005 · 2026-10-17 · Stack: monorepo Vite, keluaran tetap HTML satu file, ADR-006 · 2026-10-17 · Versi pustaka ikon dikunci dan diseragamkan, ADR-007 · 2026-10-17 · Dash hand-writing dipanggang jadi geometri, ADR-008 · 2026-10-17 · Dokumentasi untuk agen + graphify (+11 more)
 
 ### Community 13 - "builder.js"
-Cohesion: 0.13
-Nodes (30): actions, ANCHORS, badgeOf(), brandId(), card(), checkCanvas(), control(), deps() (+22 more)
+Cohesion: 0.11
+Nodes (25): actions, ANCHORS, badgeOf(), brandId(), card(), checkCanvas(), control(), deps() (+17 more)
 
 ### Community 14 - "2. Modul"
-Cohesion: 0.20
-Nodes (15): 2. Modul, bboxUnion(), packColors(), svgColors(), buildZip(), metadataCsv(), STYLE_WORDS, styleWord() (+7 more)
+Cohesion: 0.17
+Nodes (16): metaOf(), styleMeta(), packColors(), svgColors(), buildZip(), metadataCsv(), STYLE_WORDS, styleWord() (+8 more)
 
 ### Community 15 - "C"
 Cohesion: 0.10
 Nodes (28): be(), bt(), C(), ci(), di(), ee(), F(), gi() (+20 more)
 
-### Community 16 - "Mesin `hand-writing` (dulu "Coret")"
-Cohesion: 0.15
-Nodes (11): Cara kerja, Masalah legacy yang diperbaiki, Mesin `hand-writing` (dulu "Coret"), Parameter gaya (berlaku untuk seluruh set), Penggantian nama, Sumbu variasi (`axes`), WAJIB: memanggang dash, engines (+3 more)
+### Community 16 - "renderProps"
+Cohesion: 0.29
+Nodes (10): batchItem(), classicCtx(), fillOf(), getXY(), lineOf(), modeOf(), partThumb(), renderBatch() (+2 more)
 
 ### Community 17 - "Mesin `sticker`"
 Cohesion: 0.22
@@ -196,7 +190,7 @@ Nodes (8): Batas warna Canva, Cara kerja, Data bentuk isi, Masalah legacy yang d
 
 ### Community 18 - "document.js"
 Cohesion: 0.06
-Nodes (56): createAppState(), PERSONAS, app, renderer, shell, defaultExportOptions(), SAMPLE_MANIFEST, DEFAULT_SET_STYLE (+48 more)
+Nodes (50): createAppState(), PERSONAS, app, renderer, shell, defaultExportOptions(), SAMPLE_MANIFEST, DEFAULT_SET_STYLE (+42 more)
 
 ### Community 19 - "Model data"
 Cohesion: 0.25
@@ -211,8 +205,8 @@ Cohesion: 0.33
 Nodes (5): Basis sebelum migrasi (dibekukan di `legacy/`), Changelog, Ditambahkan, Ditambahkan (desain), Unreleased
 
 ### Community 22 - "icon-sources/index.js"
-Cohesion: 0.15
-Nodes (17): 1. Fondasi state + golden render Icon Studio ✅, 3. Persona Composer · Set ✅ (menunggu tinjauan Ika), CAT_ID, LU_CATS, TB_CAT_ID, TB_CATS, MAIN_ALIAS, MOD_ALIAS (+9 more)
+Cohesion: 0.14
+Nodes (16): 1. Fondasi state + golden render Icon Studio ✅, 3. Persona Composer · Set ✅ (menunggu tinjauan Ika), CAT_ID, LU_CATS, TB_CAT_ID, TB_CATS, CUSTOM_ICONS, MAIN_ALIAS (+8 more)
 
 ### Community 23 - "render"
 Cohesion: 0.15
@@ -223,60 +217,60 @@ Cohesion: 0.29
 Nodes (6): 1. Lapisan dan arah ketergantungan, 3. Alur render satu ikon, 4. Alur repetisi, 5. Perbedaan dua aplikasi, 6. State dan penyimpanan, Arsitektur
 
 ### Community 25 - "compose"
-Cohesion: 0.38
-Nodes (10): buildZip(), download(), exportSVG(), fileNames(), included(), metadataCSV(), renderReview(), sheetHTML() (+2 more)
+Cohesion: 0.26
+Nodes (14): buildZip(), cleanSvg(), download(), esc(), exportSVG(), fileNames(), included(), metadataCSV() (+6 more)
 
 ### Community 26 - "r3"
-Cohesion: 0.08
-Nodes (63): MODES, useStyle(), createRenderer(), accentCtx(), classicCtx(), mainInfo(), modPreviewAccent(), modShape() (+55 more)
+Cohesion: 0.07
+Nodes (67): useStyle(), createRenderer(), accentCtx(), classicCtx(), mainInfo(), modPreviewAccent(), modShape(), renderManifestItem() (+59 more)
 
 ### Community 27 - "library-panel.js"
 Cohesion: 0.24
 Nodes (9): fillable, isFillable(), libraryAction(), libraryResults(), libraryUi, LICENSE_NOTE, namesOf(), SOURCE_LABEL (+1 more)
 
 ### Community 28 - "composer-edit.js"
-Cohesion: 0.10
-Nodes (37): ANCHORS, artSvg(), classicCtx(), colorSwatches(), editActions, editControl(), fillOf(), hitLayer() (+29 more)
+Cohesion: 0.09
+Nodes (40): actions, control(), ANCHORS, artSvg(), classicCtx(), editActions, editControl(), fillOf() (+32 more)
 
 ### Community 29 - "luNames"
 Cohesion: 0.21
 Nodes (15): cuNames(), exists(), exportSkill(), hgIndex(), hgNames(), lev(), luIndex(), luNames() (+7 more)
 
 ### Community 30 - "At"
-Cohesion: 0.15
-Nodes (17): At(), bn(), De(), dn(), gt(), ir(), mn(), nr() (+9 more)
+Cohesion: 0.22
+Nodes (13): At(), bn(), De(), dn(), gt(), ir(), mn(), nr() (+5 more)
 
 ### Community 31 - "adRender"
-Cohesion: 0.33
-Nodes (6): adLoad(), adRender(), adShow(), cleanSvg(), clone(), setCurrent()
+Cohesion: 0.40
+Nodes (5): adLoad(), adRender(), adShow(), clone(), setCurrent()
 
 ### Community 32 - "composer.js"
-Cohesion: 0.23
-Nodes (16): engineInfo(), setColorCount(), actions, control(), dupGroupsOf(), flaggedOf(), info(), itemsOf() (+8 more)
+Cohesion: 0.18
+Nodes (25): COMPOSER_TOOLS, docFileName(), duplicateCount(), ENGINE_CARDS, engineInfo(), ADR-0017, renderSet(), repetitionPanel() (+17 more)
 
 ### Community 33 - "accentCtx"
 Cohesion: 0.24
-Nodes (11): accentCtx(), boxes(), composeAccent(), cycleRole(), decoMarkup(), geom(), luAnalyze(), mainInfo() (+3 more)
+Nodes (10): accentCtx(), composeAccent(), cycleRole(), decoMarkup(), luAnalyze(), mainInfo(), modPreview(), modPreviewAccent() (+2 more)
 
 ### Community 34 - "ref_node_path"
-Cohesion: 0.18
-Nodes (6): builds, dist, root, apps, root, VENDOR
+Cohesion: 0.14
+Nodes (11): NAMES, out, builds, dist, root, files, outputDir, root (+3 more)
 
 ### Community 35 - "shell.js"
-Cohesion: 0.19
-Nodes (22): parseRoute(), routeHash(), builder, helpButton(), composerSet, composerEdit, kombinasi, createShell() (+14 more)
+Cohesion: 0.16
+Nodes (24): parseRoute(), routeHash(), builder, engineCards(), helpButton(), composerSet, composerEdit, kombinasi (+16 more)
 
 ### Community 36 - "esc"
-Cohesion: 0.25
-Nodes (20): importArea(), renderSet(), layerList(), engineCards(), layerRows(), layerScale(), pageRows(), pagesPanel() (+12 more)
+Cohesion: 0.28
+Nodes (21): exportBody(), exportCanvas(), iconBody(), metadataBody(), render(), colorSwatches(), transformBody(), engineCards() (+13 more)
 
 ### Community 37 - "cn"
-Cohesion: 0.36
-Nodes (8): cn(), Ft(), In(), Le(), _n(), Vt(), xn(), Zt()
+Cohesion: 0.21
+Nodes (12): cn(), Ft(), In(), jt(), Le(), _n(), pe(), R() (+4 more)
 
 ### Community 38 - "jn"
-Cohesion: 0.25
-Nodes (8): En(), gn(), Ht(), jn(), kn(), Nt(), tr(), zn()
+Cohesion: 0.13
+Nodes (15): ae(), En(), gn(), Ht(), jn(), kn(), Nt(), Oe() (+7 more)
 
 ### Community 39 - "Peta konteks proyek dengan graphify"
 Cohesion: 0.25
@@ -287,16 +281,16 @@ Cohesion: 0.20
 Nodes (9): 1. Artboard edit, kotak seleksi, filmstrip, 2. Grup slide dan kartu ikon, 3. Lembar kontak dan uji 32 px, 4. Area drop dan field banyak baris, Pertanyaan untuk Ika (dijawab 2026-10-18), Ringkasan, Setelah disetujui, Token baru (`tokens.css`) (+1 more)
 
 ### Community 41 - "README.md"
-Cohesion: 0.25
-Nodes (4): Icon-Composer v2, Lisensi pustaka ikon, Mulai, Peta dokumentasi
+Cohesion: 0.14
+Nodes (10): Aturan UI untuk agen (wajib dipatuhi), Checklist sebelum menyatakan UI selesai, Dilarang, Menambah atau mengubah komponen, Pengecualian, Selalu, Icon-Composer v2, Lisensi pustaka ikon (+2 more)
 
 ### Community 42 - "lint-ui.mjs"
-Cohesion: 0.14
-Nodes (12): COMPONENTS, DATA_COLOR_OK, defined, EXPORT_TEMPLATE, EXT, GENERATED, problems, ROOT (+4 more)
+Cohesion: 0.12
+Nodes (13): COMPONENTS, DATA_COLOR_OK, defined, EXPORT_TEMPLATE, EXT, GENERATED, problems, ROOT (+5 more)
 
-### Community 43 - "Aturan UI untuk agen (wajib dipatuhi)"
+### Community 43 - "5. L3: perencana variasi"
 Cohesion: 0.29
-Nodes (6): Aturan UI untuk agen (wajib dipatuhi), Checklist sebelum menyatakan UI selesai, Dilarang, Menambah atau mengubah komponen, Pengecualian, Selalu
+Nodes (7): 5. L3: perencana variasi, Algoritma (greedy berimbang, deterministik), Kapan planner dijalankan, Kontrol per item, Kriteria terima, Masalah yang diselesaikan, Masukan
 
 ### Community 44 - "ce"
 Cohesion: 0.40
@@ -307,16 +301,16 @@ Cohesion: 0.18
 Nodes (19): curIt(), ensureItem(), ensureLucide(), esc(), keyLabel(), legend(), loadHugeicons(), loadTabler() (+11 more)
 
 ### Community 46 - "directFillSvgFile"
-Cohesion: 0.30
-Nodes (14): 1. Tahapan, Aturan wajib ekspor Canva (keputusan pemilik), Penerapan per aplikasi, dedupeAttrs(), cloneSingleShape(), colorKey(), directFillSvgFile(), flattenSvgMasks() (+6 more)
+Cohesion: 0.06
+Nodes (40): 0. Bahasa dan pemilik, 1. Sebelum mengerjakan tugas apa pun, 2. Aturan keras, 3. Perintah, 4. Definisi selesai, 5. Versi dan rilis, 6. Gaya kode, AGENTS.md: instruksi untuk agen (Codex) (+32 more)
 
 ### Community 47 - "engines/package.json"
 Cohesion: 0.18
 Nodes (10): exports, ./accent, ./classic, ./hand-writing, ./offset, ./shared, name, private (+2 more)
 
 ### Community 48 - "normItem"
-Cohesion: 0.28
-Nodes (9): batchItem(), blankItem(), ensureLucide(), normItem(), openLucide(), openModal(), openPack(), renderLucidePick() (+1 more)
+Cohesion: 0.32
+Nodes (8): blankItem(), ensureLucide(), normItem(), openLucide(), openModal(), openPack(), renderLucidePick(), uid()
 
 ### Community 49 - "core/package.json"
 Cohesion: 0.33
@@ -330,9 +324,9 @@ Nodes (6): exports, ./vendor/icon-outline, name, private, type, version
 Cohesion: 0.25
 Nodes (7): exports, ./catalog, ./custom, name, private, type, version
 
-### Community 52 - "Pengujian"
-Cohesion: 0.20
-Nodes (10): Fase 2: Ekstrak paket bersama ✅, 1. Jenis tes, 2. Fixture, 3. Golden test, 4. Sweep validitas, 5. Tes migrasi data, Pengujian, rng() (+2 more)
+### Community 52 - "on"
+Cohesion: 0.50
+Nodes (4): on(), Qn(), 1. Cakupan (keputusan pemilik), 7. Persona Kombinasi
 
 ### Community 53 - "icon-studio/package.json"
 Cohesion: 0.25
@@ -343,104 +337,80 @@ Cohesion: 0.29
 Nodes (8): adapt(), closed(), compose(), EMPTY(), flags(), KEEP, normStyle(), partString()
 
 ### Community 55 - "@playwright/test"
-Cohesion: 0.16
-Nodes (3): @playwright/test, offline(), open()
+Cohesion: 0.12
+Nodes (4): @playwright/test, VENDOR, H, VENDOR
 
 ### Community 56 - "builder-ops.js"
-Cohesion: 0.12
-Nodes (27): BRAND_KEY, buildExportFiles(), CANVA_COLUMNS, createVocabulary(), collisions(), exists(), suggest(), finalManifest() (+19 more)
+Cohesion: 0.13
+Nodes (26): BRAND_KEY, buildExportFiles(), CANVA_COLUMNS, createVocabulary(), collisions(), exists(), suggest(), finalManifest() (+18 more)
 
 ### Community 57 - "doExport"
 Cohesion: 0.15
 Nodes (22): brandId(), collisions(), doExport(), dupMap(), exportList(), filtered(), finalManifest(), flagsOf() (+14 more)
 
-### Community 58 - "Produk: tujuan, batasan, alur kerja"
-Cohesion: 0.29
-Nodes (6): 1. Tujuan bisnis, 2. Batasan yang memandu semua keputusan, 3. Alur kerja end-to-end, 4. Pengguna, 5. Di luar cakupan (saat ini), Produk: tujuan, batasan, alur kerja
-
-### Community 59 - "common.js"
-Cohesion: 0.21
-Nodes (10): COMPOSER_TOOLS, docFileName(), duplicateCount(), ENGINE_CARDS, engineCards(), ADR-0017, repetitionPanel(), statusBar() (+2 more)
+### Community 59 - "review-ops.js"
+Cohesion: 0.15
+Nodes (26): esc(), previewSheetHTML(), SET_LICENSES, baseNameEN(), buildSetZipFiles(), DEFAULT_CANVA_META, DEFAULT_REVIEW, exportSVG() (+18 more)
 
 ### Community 60 - "Langkah"
-Cohesion: 0.15
-Nodes (12): 2. Kerangka lengkap (shell) ✅ (menunggu tinjauan Ika), 4. Persona Composer · Edit ✅ (menunggu tinjauan Ika), 5. Persona Builder ✅ (menunggu tinjauan Ika), 6. Persona Tinjau, 8. Migrasi localStorage + penutupan, Di luar cakupan Fase 2b, Keputusan pemilik (2026-10-18), Konteks (+4 more)
+Cohesion: 0.18
+Nodes (10): 2. Kerangka lengkap (shell) ✅ (menunggu tinjauan Ika), 5. Persona Builder ✅ (menunggu tinjauan Ika), 8. Migrasi localStorage + penutupan, Di luar cakupan Fase 2b, Keputusan pemilik (2026-10-18), Konteks, Langkah, Prinsip (+2 more)
 
 ### Community 61 - "hand-writing/index.js"
-Cohesion: 0.28
-Nodes (10): hash(), adapt(), ANCHORS, attrs(), bakeDash(), compose(), EMPTY(), esc() (+2 more)
+Cohesion: 0.07
+Nodes (36): Cara kerja, Masalah legacy yang diperbaiki, Mesin `hand-writing` (dulu "Coret"), Parameter gaya (berlaku untuk seluruh set), Penggantian nama, Sumbu variasi (`axes`), WAJIB: memanggang dash, Fase 2: Ekstrak paket bersama ✅ (+28 more)
 
-### Community 62 - "ref_node_fs"
-Cohesion: 0.17
-Nodes (7): NAMES, out, files, outputDir, root, sources, FakeZip
+### Community 62 - "renderOverlay"
+Cohesion: 1.00
+Nodes (3): boxes(), geom(), renderOverlay()
 
 ### Community 63 - "Rencana migrasi"
 Cohesion: 0.18
 Nodes (11): Backlog (di luar cakupan sekarang), Fase 0: Fondasi repo, Fase 1: Pindah apa adanya + golden test, Fase 2b: UI terpadu Icon Studio, Fase 3: Mesin offset, Fase 4: Mesin hand-writing, Fase 5: Mesin sticker, Fase 6: Anti-repetisi (+3 more)
 
 ### Community 64 - "Mesin `offset`"
-Cohesion: 0.25
-Nodes (7): Flag khusus, Mesin `offset`, Normalisasi kanvas, Parameter gaya (berlaku untuk seluruh set), Parameter per item, Risiko, Sumbu variasi (`axes`)
-
-### Community 65 - "Oe"
-Cohesion: 0.29
-Nodes (7): ae(), Oe(), pn(), rr(), sr(), We(), xe()
-
-### Community 66 - "jt"
-Cohesion: 0.33
-Nodes (6): jt(), pe(), R(), Ue(), Z(), Cara kerja
+Cohesion: 0.20
+Nodes (9): Z(), Cara kerja, Flag khusus, Mesin `offset`, Normalisasi kanvas, Parameter gaya (berlaku untuk seluruh set), Parameter per item, Risiko (+1 more)
 
 ### Community 68 - "compose"
-Cohesion: 0.19
-Nodes (21): classicCtx(), compose(), esc(), fillOf(), getXY(), lineOf(), modeOf(), modPreview() (+13 more)
-
-### Community 69 - "AGENTS.md: instruksi untuk agen (Codex)"
-Cohesion: 0.22
-Nodes (9): 0. Bahasa dan pemilik, 1. Sebelum mengerjakan tugas apa pun, 2. Aturan keras, 3. Perintah, 4. Definisi selesai, 5. Versi dan rilis, 6. Gaya kode, AGENTS.md: instruksi untuk agen (Codex) (+1 more)
-
-### Community 70 - "libNameOf"
-Cohesion: 0.29
-Nodes (8): baseNameEN(), libName(), libWords(), metaOf(), styleMeta(), syncMetaUI(), tagsOf(), libNameOf()
-
-### Community 71 - "Pipeline ekspor"
-Cohesion: 0.25
-Nodes (7): 2. Kompatibilitas per mesin, 3. Struktur ZIP, 4. Judul metadata (pola "Icon-style"), 5. Manifest dari Claude Design, Icon Composer, Pipeline ekspor, Template Icon Builder
-
-### Community 72 - "engines/index.js"
-Cohesion: 0.52
-Nodes (5): accent, classic, handWriting, migrateLegacy(), offset
+Cohesion: 0.26
+Nodes (12): compose(), nameOf(), packColors(), persist(), prefMini(), renderBins(), renderEditor(), renderPack() (+4 more)
 
 ### Community 73 - "renderLu"
 Cohesion: 0.40
 Nodes (6): fillCats(), loadHugeicons(), loadTabler(), luList(), quickHasBody(), renderLu()
 
-### Community 74 - "Mesin `classic` (Klasik)"
-Cohesion: 0.40
-Nodes (4): Catatan migrasi, Mesin `classic` (Klasik), Parameter gaya, Sumbu variasi (`axes`)
+### Community 77 - "tinjau.js"
+Cohesion: 0.17
+Nodes (23): actions, builderDeps(), canvas(), cellFlag(), cellsOf(), checksBody(), control(), directCache (+15 more)
 
-### Community 75 - "packColors"
-Cohesion: 0.67
-Nodes (3): packColors(), prefMini(), renderStyleUI()
+### Community 80 - "components.js"
+Cohesion: 0.27
+Nodes (7): 4. Inventaris komponen, collapse(), press(), select(), single(), slider(), tabs()
+
+### Community 81 - "3. Anatomi layar"
+Cohesion: 0.22
+Nodes (9): 3.1.1 Isi tab panel 2, 3.1 Composer · Set (ikhtisar halaman), 3.2 Composer · Edit ikon, 3.3 Builder · Periksa pack, 3.4 Tinjau · Lembar kontak & ekspor, 3.5 Kombinasi · Matriks + pustaka, 3. Anatomi layar, Filter Bentuk (ADR-015) (+1 more)
 
 ## Knowledge Gaps
-- **9 isolated node(s):** `ADR-0017`, `ADR-0015`, `ADR-0017`, `ADR-0017`, `eslint` (+4 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 465 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **10 isolated node(s):** `ADR-0017`, `ADR-0015`, `ADR-0017`, `ADR-0016`, `ADR-0017` (+5 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 478 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `on()` connect `At` to `Design handoff: Icon Studio (UI terpadu)`, `vendor-1.js`?**
-  _High betweenness centrality (0.123) - this node is a cross-community bridge._
-- **Are the 26 inferred relationships involving `Diubah` (e.g. with `metadataCSV()` and `cuRoles()`) actually correct?**
-  _`Diubah` has 26 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `directFillSvgFile()` connect `directFillSvgFile` to `render-artboards.py`, `template-icon-builder/src/main.js`, `tinjau.js`, `2. Modul`, `document.js`, `builder-ops.js`, `doExport`, `r3`, `review-ops.js`, `Langkah`?**
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._
+- **Are the 25 inferred relationships involving `Diubah` (e.g. with `cuRoles()` and `decoAccent()`) actually correct?**
+  _`Diubah` has 25 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `ADR-0017`, `ADR-0015`, `ADR-0017` to the rest of the system?**
-  _9 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _10 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.05204872646733112 - nodes in this community are weakly interconnected._
-- **Why does `7. Persona Kombinasi` connect `At` to `compose`, `Langkah`?**
-  _High betweenness centrality (0.109) - this node is a cross-community bridge._
+- **Why does `on()` connect `on` to `3. Anatomi layar`, `review-ops.js`, `vendor-1.js`?**
+  _High betweenness centrality (0.142) - this node is a cross-community bridge._
 - **Are the 8 inferred relationships involving `createRenderer()` (e.g. with `dropMissing()` and `ensureManifestItem()`) actually correct?**
   _`createRenderer()` has 8 INFERRED edges - model-reasoned connections that need verification._
-- **Should `template-icon-builder/src/main.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.051207729468599035 - nodes in this community are weakly interconnected._
+- **Should `golden-utils.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.14153846153846153 - nodes in this community are weakly interconnected._
