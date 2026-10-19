@@ -1,7 +1,7 @@
 # Graph Report - icon-composer-v2  (2026-10-19)
 
 ## Corpus Check
-- 138 files · ~125,463 words
+- 138 files · ~125,465 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .css 5, (none) 4, .csv 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6ec4312a`
+- Built from commit: `9f8022f7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -387,7 +387,7 @@ Nodes (12): activePool(), addCombos(), cellState(), comboItem(), comboMatrix(), 
 
 ### Community 63 - "Rencana migrasi"
 Cohesion: 0.18
-Nodes (11): Backlog (di luar cakupan sekarang), Fase 0: Fondasi repo, Fase 1: Pindah apa adanya + golden test, Fase 2b: UI terpadu Icon Studio (selesai, menunggu persetujuan akhir), Fase 3: Mesin offset, Fase 4: Mesin hand-writing, Fase 5: Mesin sticker, Fase 6: Anti-repetisi (+3 more)
+Nodes (11): Backlog (di luar cakupan sekarang), Fase 0: Fondasi repo, Fase 1: Pindah apa adanya + golden test, Fase 2b: UI terpadu Icon Studio ✅, Fase 3: Mesin offset, Fase 4: Mesin hand-writing, Fase 5: Mesin sticker, Fase 6: Anti-repetisi (+3 more)
 
 ### Community 64 - "Aturan UI untuk agen (wajib dipatuhi)"
 Cohesion: 0.29
@@ -486,7 +486,7 @@ Nodes (3): builds, dist, root
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `on()` connect `At` to `3. Anatomi layar`, `review-ops.js`, `studio-combo-ops.test.js`, `vendor-1.js`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
+  _High betweenness centrality (0.156) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `createShell()` (e.g. with `importText()` and `toast()`) actually correct?**
   _`createShell()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `eslint`, `lucide-static`, `prettier` to the rest of the system?**
@@ -494,7 +494,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.05204872646733112 - nodes in this community are weakly interconnected._
 - **Why does `directFillSvgFile()` connect `directFillSvgFile` to `render-artboards.py`, `Produk: tujuan, batasan, alur kerja`, `export/index.js`, `template-icon-builder/src/main.js`, `AGENTS.md: instruksi untuk agen (Codex)`, `tinjau.js`, `builder.js`, `builder-ops.js`, `Pipeline ekspor`, `createIconSources`, `studio-state.test.js`, `doExport`, `review-ops.js`?**
-  _High betweenness centrality (0.134) - this node is a cross-community bridge._
+  _High betweenness centrality (0.119) - this node is a cross-community bridge._
 - **Are the 25 inferred relationships involving `Diubah` (e.g. with `cuRoles()` and `decoAccent()`) actually correct?**
   _`Diubah` has 25 INFERRED edges - model-reasoned connections that need verification._
 - **Should `golden-utils.js` be split into smaller, more focused modules?**

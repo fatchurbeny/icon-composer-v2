@@ -42,9 +42,9 @@ function cellsOf(ctx) {
   const doc = ctx.doc;
   if (isSet(ctx)) {
     const dup = new Set(duplicateGroups(doc.items, (it) => get(doc.style.family).signature(it)).flat().map((it) => it.id));
-    return fileNames(doc.items, ctx.renderer.lib).map(({ it, file }, i) => ({
+    return fileNames(doc.items, ctx.renderer.lib, doc.style.family).map(({ it, file }, i) => ({
       id: it.id,
-      label: nameOf(it, ctx.renderer.lib),
+      label: nameOf(it, ctx.renderer.lib, doc.style.family),
       file,
       on: !doc.review.off[it.id],
       svg: exportSVG(ctx.renderer, doc, it, i).replace(/ko(\d+)/g, "tj$1"),
@@ -170,7 +170,7 @@ function keywordsBody(ctx) {
   const first = includedOf(ctx.doc)[0];
   if (!first) return empty("Belum ada ikon yang ikut diunduh.");
   const m = metaOf(ctx.doc, first, ctx.renderer);
-  return `<span class="ic-label">${esc(nameOf(first, ctx.renderer.lib))}</span><div class="studio-tags">${m.keywords
+  return `<span class="ic-label">${esc(nameOf(first, ctx.renderer.lib, ctx.doc.style.family))}</span><div class="studio-tags">${m.keywords
     .split(", ")
     .filter(Boolean)
     .map((k) => `<span class="ic-tag">${esc(k)}</span>`)
@@ -190,7 +190,7 @@ function zipBody(ctx) {
   }
   const r = ctx.doc.review,
     inc = includedOf(ctx.doc);
-  const files = fileNames(inc, ctx.renderer.lib);
+  const files = fileNames(inc, ctx.renderer.lib, ctx.doc.style.family);
   const base = slug(ctx.doc.name || "set-ikon");
   const tree =
     r.fmt === "zip"

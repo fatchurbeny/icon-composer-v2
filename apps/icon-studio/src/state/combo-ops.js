@@ -29,6 +29,27 @@ export function activePool(pool) {
 }
 
 /**
+ * Gaya tanpa pengubah (offset): kombinasi hanya memakai daftar objek.
+ * @param {any} doc
+ */
+export const objectsOnly = (doc) => doc.style.family === "offset";
+
+/** Kunci ikon pustaka (lu, tb, hg, cu). Objek bawaan tidak didukung gaya offset. */
+const LIB_KEY = /^(lu|tb|hg|cu):/;
+
+/**
+ * Baris matriks: objek aktif. Gaya offset melewati objek bawaan karena tidak bisa dirender.
+ * @param {any} doc
+ */
+export const matrixMains = (doc) => activePool(doc.pool).mains.filter((m) => !objectsOnly(doc) || LIB_KEY.test(m));
+
+/**
+ * Kolom matriks: pengubah aktif, atau satu kolom "none" untuk gaya tanpa pengubah.
+ * @param {any} doc
+ */
+export const matrixMods = (doc) => (objectsOnly(doc) ? ["none"] : activePool(doc.pool).mods);
+
+/**
  * Item hasil kombinasi (batchItem IC).
  * @param {string} m objek utama
  * @param {string} d pengubah
@@ -37,6 +58,10 @@ export function activePool(pool) {
  * @param {any} lib registry
  */
 export function comboItem(m, d, combo, pref, lib) {
+  if (d === "none") {
+    const M = lib.MAINS[m];
+    return normItem({ main: m, mod: "none", mx: 0, my: 0, pref: pref || "set", name: M ? M.n : m }, lib);
+  }
   const slot = combo.pos === "default" ? (lib.MODS[d] && lib.MODS[d].slot) || "BL" : combo.pos;
   const M = lib.MAINS[m],
     D = lib.MODS[d];
@@ -50,7 +75,7 @@ export function comboItem(m, d, combo, pref, lib) {
  * Mode warna yang dibuat untuk tiap kombinasi.
  * @param {any} doc
  */
-export const comboPrefs = (doc) => (doc.combo.mode === "all" && doc.style.family !== "accent" ? ["A", "B", "C"] : [null]);
+export const comboPrefs = (doc) => (doc.combo.mode === "all" && doc.style.family === "classic" ? ["A", "B", "C"] : [null]);
 
 /**
  * Status satu sel.
@@ -75,7 +100,8 @@ export function cellState(doc, m, d, deps) {
  * @param {{lib: any, signature: (it: any) => string, collisions: (it: any) => string[]}} deps
  */
 export function comboMatrix(doc, deps) {
-  const { mains, mods } = activePool(doc.pool);
+  const mains = matrixMains(doc),
+    mods = matrixMods(doc);
   const existing = new Set(doc.items.map((/** @type {any} */ it) => deps.signature(it)));
   const rows = mains.map((m) => ({ main: m, cells: mods.map((d) => ({ mod: d, ...cellState(doc, m, d, { ...deps, existing }) })) }));
   const count = { on: 0, skipped: 0, exists: 0, library: 0 };

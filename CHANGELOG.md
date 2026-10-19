@@ -10,6 +10,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Fase 2 berjalan: paket bersama `core`, `icon-sources`, registry mesin classic/accent, dan pipeline ekspor mulai diekstrak serta dilindungi tes unit dan golden.
 - Fase 2b selesai dan disetujui pemilik: shell `Icon Studio` dengan empat persona, routing hash, perilaku komponen UI, dan tes ukuran kerangka handoff.
 - Fase 3 berjalan: mesin `offset` 1.1.0 masuk registry dengan normalisasi ukuran 84%, flag pengubah nonaktif, signature, axes, dan mode warna dasar.
+- Fase 3 inti selesai: mesin `offset` 1.1.0 memenuhi kontrak penuh (kanvas 120 → 48, deteksi bidang tertutup tanpa DOM, dekorasi di dalam viewBox dengan knockout), dipakai Composer · Set, Edit, Kombinasi (hanya daftar objek), dan Tinjau; objek identik dengan legacy setelah diskalakan ke 84%, dan lolos `export-canva.spec.js`.
 - Fase 4 berjalan: mesin `hand-writing` 2.0.0 masuk registry, memakai seed deterministik dan mengeluarkan segmen geometri tanpa `stroke-dasharray`.
 - Fase 4 dilanjutkan: migrator payload `coret` ke item kanonik `hand-writing` ditambahkan, termasuk anchor, seed, blob, dan parameter gaya.
 - Fase 1: port Icon Composer 1.5.1 dan Template Icon Builder 1.6.0 ke sumber Vite terpisah, fixture serta baseline SVG golden, dan uji paritas keluaran SVG/ZIP terhadap legacy.
