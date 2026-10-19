@@ -9,6 +9,7 @@
 import { get } from "@icon-studio/engines";
 import { createClassicData, decoMarkupClassic, solidLineDiagnostic as solidLineDiagnosticClassic } from "@icon-studio/engines/classic";
 import { modPreviewAccent as modPreviewAccentEngine } from "@icon-studio/engines/accent";
+import { boxesOffset } from "@icon-studio/engines/offset";
 import {
   ROLES,
   createLibraryShapes,
@@ -20,6 +21,7 @@ import {
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
 import { MODES, useStyle } from "./document.js";
+import { layerBoxes } from "./edit-ops.js";
 
 /**
  * @param {{getLucide: () => any, measureHost?: SVGSVGElement | (() => SVGSVGElement | null)}} options
@@ -92,6 +94,39 @@ export function createRenderer(options) {
   }
 
   /**
+   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset).
+   * Objek bawaan dan ikon yang belum termuat menghasilkan null.
+   * @param {string} key
+   */
+  function nodeOf(key) {
+    if (!LIB_RE.test(String(key))) return null;
+    const src = /** @type {any} */ (SOURCES)[key.slice(0, 2)],
+      idx = src && src.index();
+    return (idx && idx.get(key.slice(3))) || null;
+  }
+  const offsetCtx = { nodeOf };
+
+  /**
+   * Kotak lapisan ikon set dalam satuan 48 (wilayah klik editor dan cek tepi viewBox).
+   * @param {any} it
+   * @param {any} style
+   */
+  function boxesOf(it, style) {
+    return style.family === "offset" ? boxesOffset(it, style, offsetCtx) : layerBoxes(it, style, data);
+  }
+
+  /**
+   * Flag khusus mesin untuk satu ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah).
+   * @param {any} it
+   * @param {any} style
+   * @returns {[string, string][]}
+   */
+  function flagsOf(it, style) {
+    const engine = /** @type {any} */ (get(style.family));
+    return engine.flags ? engine.flags(it, style, offsetCtx) : [];
+  }
+
+  /**
    * Render ikon set Composer (compose IC): keluarga dari `style.family`.
    * @param {any} it
    * @param {any} style
@@ -99,6 +134,10 @@ export function createRenderer(options) {
    * @param {any[]} [customs]
    */
   function renderSetItem(it, style, opt, customs = []) {
+    if (style.family === "offset") {
+      const engine = get("offset");
+      return engine.compose(engine.adapt(it, style), style, { ...(opt || {}), ctx: offsetCtx });
+    }
     if (style.family === "accent")
       return get("accent").compose(it, style, { ...(opt || {}), ctx: accentCtx(style, "set", customs) });
     return get("classic").compose(it, style, { ...(opt || {}), ctx: classicCtx(style, "set", customs) });
@@ -179,6 +218,9 @@ export function createRenderer(options) {
     rolesOf,
     renderSetItem,
     renderManifestItem,
+    nodeOf,
+    boxesOf,
+    flagsOf,
     modPreviewAccent,
     ensureManifestItem,
     dropMissing,

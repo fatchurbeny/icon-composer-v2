@@ -5,10 +5,10 @@
  * Logika di state/combo-ops.js (kombinasi massal Icon Composer 1.5.1).
  */
 import { get } from "@icon-studio/engines";
-import { activePool, addCombos, comboMatrix, comboPrefs, setSkip, togglePool } from "../state/combo-ops.js";
+import { activePool, addCombos, comboMatrix, comboPrefs, matrixMains, matrixMods, objectsOnly, setSkip, togglePool } from "../state/combo-ops.js";
 import { setStyleValue } from "../state/set-ops.js";
 import { alert, button, check, empty, esc, panel, seg, select } from "../ui.js";
-import { docFileName, engineInfo, statusBar } from "./common.js";
+import { ENGINE_NAMES, NO_MOD_TEXT, READY_ENGINES, docFileName, engineInfo, statusBar } from "./common.js";
 import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryTile, libraryUi } from "./library-panel.js";
 
 /** Status tambah terakhir (bukan bagian dokumen). */
@@ -53,9 +53,11 @@ function canvas(ctx) {
   if (!isSet(ctx)) return `<div class="studio-center">${empty("Kombinasi bekerja pada set Composer.", "Buka sebuah set di Composer lebih dulu.")}</div>`;
   const mx = matrixOf(ctx);
   if (!mx.mains.length || !mx.mods.length)
-    return `<div class="studio-center">${empty("Matriks kombinasi masih kosong.", "Pilih minimal satu objek utama dan satu pengubah di Pool, atau tambahkan dari Pustaka di kiri.")}</div>`;
+    return `<div class="studio-center">${empty("Matriks kombinasi masih kosong.", objectsOnly(ctx.doc) ? "Gaya Offset memakai objek dari pustaka. Tambahkan objek dari Pustaka di kiri." : "Pilih minimal satu objek utama dan satu pengubah di Pool, atau tambahkan dari Pustaka di kiri.")}</div>`;
   const head = mx.mods
     .map((d) => {
+      if (d === "none")
+        return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="none" aria-label="Pilih atau lewati semua objek"><span class="ic-mono">objek saja</span><span class="ic-meta">${esc(NO_MOD_TEXT)}</span></button>`;
       const D = ctx.renderer.lib.MODS[d];
       return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="${esc(d)}" aria-label="Pilih atau lewati semua dengan pengubah ${esc(d)}">${headIcon(ctx, d, "mod")}<span class="ic-mono">${esc(d)}</span><span class="ic-meta">${esc(ctx.doc.combo.pos === "default" ? (D && D.slot) || "BL" : ctx.doc.combo.pos)}</span></button>`;
     })
@@ -66,7 +68,7 @@ function canvas(ctx) {
         `<button type="button" class="studio-mhead studio-mhead--row" data-action="k-row" data-key="${esc(r.main)}" aria-label="Pilih atau lewati semua dengan objek ${esc(r.main)}">${headIcon(ctx, r.main, "main")}<span class="ic-mono">${esc(r.main)}</span></button>${r.cells
           .map((c) => {
             const fixed = c.state === "exists" || c.state === "library";
-            return `<button type="button" class="ic-cell" data-state="${c.state}" data-action="k-cell" data-main="${esc(r.main)}" data-mod="${esc(c.mod)}"${fixed ? " disabled" : ""} aria-label="${esc(r.main)} + ${esc(c.mod)}: ${{ on: "akan ditambahkan", skipped: "dilewati", exists: "sudah ada di set", library: "sama dengan ikon pustaka" }[c.state]}">${ctx.renderer.renderSetItem(c.item, ctx.doc.style, { idp: `kx${r.main.replace(/\W/g, "")}${c.mod.replace(/\W/g, "")}` }, ctx.doc.customs)}${c.flag ? `<span class="ic-flag"${c.state === "library" ? ' data-level="err"' : ""} title="${esc(c.flag)}"><span class="studio-ellipsis">${esc(c.flag)}</span></span>` : ""}</button>`;
+            return `<button type="button" class="ic-cell" data-state="${c.state}" data-action="k-cell" data-main="${esc(r.main)}" data-mod="${esc(c.mod)}"${fixed ? " disabled" : ""} aria-label="${esc(r.main)}${c.mod === "none" ? "" : ` + ${esc(c.mod)}`}: ${{ on: "akan ditambahkan", skipped: "dilewati", exists: "sudah ada di set", library: "sama dengan ikon pustaka" }[c.state]}">${ctx.renderer.renderSetItem(c.item, ctx.doc.style, { idp: `kx${r.main.replace(/\W/g, "")}${c.mod.replace(/\W/g, "")}` }, ctx.doc.customs)}${c.flag ? `<span class="ic-flag"${c.state === "library" ? ' data-level="err"' : ""} title="${esc(c.flag)}"><span class="studio-ellipsis">${esc(c.flag)}</span></span>` : ""}</button>`;
           })
           .join("")}`,
     )
@@ -80,12 +82,14 @@ function canvas(ctx) {
 function poolBody(ctx) {
   const pool = ctx.doc.pool;
   const act = activePool(pool);
+  const only = objectsOnly(ctx.doc);
+  const builtin = only ? act.mains.filter((k) => !ctx.renderer.LIB_RE.test(k)).length : 0;
   const row = (/** @type {"main" | "mod"} */ kind, /** @type {string} */ key) => {
     const src = /^(lu|tb|hg|cu):/.exec(key);
     const D = kind === "mod" ? ctx.renderer.lib.MODS[key] : null;
     return `<div class="ic-row ic-row--sm"><label class="ic-check" data-name="pool:${kind}:${esc(key)}"><input type="checkbox"${pool.off[`${kind}|${key}`] ? "" : " checked"} aria-label="${esc(key)} ikut kombinasi"></label>${src ? `<span class="ic-src" data-src="${src[1]}">${src[1]}</span>` : '<span class="ic-src">IC</span>'}<span class="ic-row__name ic-mono">${esc(key)}</span>${D ? `<span class="ic-meta">${esc(D.slot)}</span>` : ""}<button type="button" class="ic-iconbtn" data-action="k-pool-remove" data-kind="${kind}" data-key="${esc(key)}" aria-label="Keluarkan ${esc(key)} dari pool">${/** @type {any} */ (globalThis).ICONS_UI.uiIcon("x", 13)}</button></div>`;
   };
-  return `<div class="ic-panel__sub"><span class="ic-label">Objek utama</span><span class="ic-meta">${act.mains.length} dari ${pool.mains.length} aktif</span></div>${pool.mains.map((k) => row("main", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada objek. Tambahkan dari Pustaka.</span></div>'}<div class="ic-panel__sub"><span class="ic-label">Pengubah</span><span class="ic-meta">${act.mods.length} dari ${pool.mods.length} aktif</span></div>${pool.mods.map((k) => row("mod", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada pengubah. Tambahkan dari Pustaka.</span></div>'}`;
+  return `<div class="ic-panel__sub"><span class="ic-label">Objek utama</span><span class="ic-meta">${act.mains.length} dari ${pool.mains.length} aktif</span></div>${builtin ? `<div class="studio-pad">${alert("err", `${builtin} objek bawaan dilewati: tidak didukung gaya Offset.`)}</div>` : ""}${pool.mains.map((k) => row("main", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada objek. Tambahkan dari Pustaka.</span></div>'}<div class="ic-panel__sub"><span class="ic-label">Pengubah</span><span class="ic-meta">${only ? "tidak dipakai" : `${act.mods.length} dari ${pool.mods.length} aktif`}</span></div>${only ? `<div class="studio-pad">${alert("info", `${NO_MOD_TEXT}. Kombinasi memakai daftar objek saja.`)}</div>` : pool.mods.map((k) => row("mod", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada pengubah. Tambahkan dari Pustaka.</span></div>'}`;
 }
 
 /** Arti status sel (DESIGN-HANDOFF 3.5). */
@@ -135,12 +139,14 @@ const actions = {
   },
   /** @param {import("./common.js").Ctx} ctx */
   "k-all"(ctx) {
-    const { mains, mods } = activePool(ctx.doc.pool);
+    const mains = matrixMains(ctx.doc),
+      mods = matrixMods(ctx.doc);
     mutate(ctx, (doc) => setSkip(doc, mains.flatMap((m) => mods.map((d) => /** @type {[string, string]} */ ([m, d]))), false));
   },
   /** @param {import("./common.js").Ctx} ctx */
   "k-none"(ctx) {
-    const { mains, mods } = activePool(ctx.doc.pool);
+    const mains = matrixMains(ctx.doc),
+      mods = matrixMods(ctx.doc);
     mutate(ctx, (doc) => setSkip(doc, mains.flatMap((m) => mods.map((d) => /** @type {[string, string]} */ ([m, d]))), true));
   },
   /** @param {import("./common.js").Ctx} ctx @param {HTMLElement} el */
@@ -194,7 +200,7 @@ const actions = {
 function control(ctx, name, value) {
   if (!isSet(ctx)) return;
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
-  if (name === "k-family" && (value === "classic" || value === "accent")) return mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${value === "accent" ? "Aksen" : "Klasik"}`);
+  if (name === "k-family" && READY_ENGINES.includes(value)) return mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${/** @type {any} */ (ENGINE_NAMES)[value]}`);
   if (name === "k-pos") return mutate(ctx, (doc) => (doc.combo.pos = ["default", "BL", "TR", "BR"].includes(value) ? value : "default"));
   if (name === "k-mode") return mutate(ctx, (doc) => (doc.combo.mode = value === "all" ? "all" : "set"));
   if (name === "k-skip-existing") return mutate(ctx, (doc) => (doc.combo.skipExisting = !!value));
@@ -219,7 +225,8 @@ export const kombinasi = {
   info(ctx) {
     if (!isSet(ctx)) return `<span class="ic-topbar__info">${esc(ctx.doc ? ctx.doc.name : "")}</span>`;
     const mx = matrixOf(ctx);
-    return `<span class="ic-topbar__info">${esc(ctx.doc.name)} · ${esc(engineInfo(ctx.doc.style.family))}</span><span class="ic-sep"></span><span class="ic-topbar__info ic-mono studio-info-mono">${mx.mains.length} objek × ${mx.mods.length} pengubah = ${mx.mains.length * mx.mods.length} kombinasi</span>`;
+    const sum = objectsOnly(ctx.doc) ? `${mx.mains.length} objek, tanpa pengubah` : `${mx.mains.length} objek × ${mx.mods.length} pengubah = ${mx.mains.length * mx.mods.length} kombinasi`;
+    return `<span class="ic-topbar__info">${esc(ctx.doc.name)} · ${esc(engineInfo(ctx.doc.style.family))}</span><span class="ic-sep"></span><span class="ic-topbar__info ic-mono studio-info-mono">${sum}</span>`;
   },
   /** @param {import("./common.js").Ctx} ctx */
   action(ctx) {
@@ -231,7 +238,10 @@ export const kombinasi = {
     if (!isSet(ctx)) return "";
     const c = ctx.doc.combo,
       family = ctx.doc.style.family;
-    return `<span class="ic-label">Gaya</span>${select("Gaya", [["classic", "Klasik"], ["accent", "Aksen"]], family, { width: 120, name: "k-family" })}<span class="ic-sep"></span><span class="ic-label">Posisi pengubah</span>${seg("Posisi pengubah", [["default", "Bawaan"], ["BL", "Paksa BL"], ["TR", "Paksa TR"], ["BR", "Paksa BR"]], c.pos, { inline: true, name: "k-pos" })}${family === "classic" ? `<span class="ic-label">Mode warna</span>${seg("Mode warna kombinasi", [["set", "Ikuti set"], ["all", "Semua 3 mode"]], c.mode, { inline: true, name: "k-mode" })}` : ""}<span class="ic-sep"></span>${button("Pilih semua", { size: "sm", action: "k-all" })}${button("Lewati semua", { size: "sm", action: "k-none" })}<span class="ic-spacer"></span>${check("Lewati yang sudah ada", c.skipExisting, { name: "k-skip-existing" })}${check("Lewati yang mirip", false, { name: "k-skip-similar", disabled: true })}`;
+    const pos = objectsOnly(ctx.doc)
+      ? `<span class="ic-meta">${NO_MOD_TEXT}</span>`
+      : `<span class="ic-label">Posisi pengubah</span>${seg("Posisi pengubah", [["default", "Bawaan"], ["BL", "Paksa BL"], ["TR", "Paksa TR"], ["BR", "Paksa BR"]], c.pos, { inline: true, name: "k-pos" })}`;
+    return `<span class="ic-label">Gaya</span>${select("Gaya", READY_ENGINES.map((id) => [id, /** @type {any} */ (ENGINE_NAMES)[id]]), family, { width: 120, name: "k-family" })}<span class="ic-sep"></span>${pos}${family === "classic" ? `<span class="ic-label">Mode warna</span>${seg("Mode warna kombinasi", [["set", "Ikuti set"], ["all", "Semua 3 mode"]], c.mode, { inline: true, name: "k-mode" })}` : ""}<span class="ic-sep"></span>${button("Pilih semua", { size: "sm", action: "k-all" })}${button("Lewati semua", { size: "sm", action: "k-none" })}<span class="ic-spacer"></span>${check("Lewati yang sudah ada", c.skipExisting, { name: "k-skip-existing" })}${check("Lewati yang mirip", false, { name: "k-skip-similar", disabled: true })}`;
   },
   tools: [],
   canvas,

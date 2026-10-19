@@ -4,7 +4,7 @@
  */
 import { get } from "@icon-studio/engines";
 import { packColors } from "@icon-studio/export";
-import { esc, icon, iconButton, panel } from "../ui.js";
+import { esc, iconButton, panel } from "../ui.js";
 
 /**
  * @typedef {{
@@ -22,6 +22,26 @@ export const ENGINE_CARDS = [
   ["offset", "Offset"],
   ["hand-writing", "Hand-wr."],
 ];
+
+/** Mesin yang sudah bisa dipakai set Composer (hand-writing menyusul di Fase 4). */
+export const READY_ENGINES = ["classic", "accent", "offset"];
+
+/** Nama gaya untuk riwayat dan toast. */
+export const ENGINE_NAMES = { classic: "Klasik", accent: "Aksen", offset: "Offset", "hand-writing": "Hand-writing" };
+
+/** Teks pengganti panel pengubah saat gaya tidak memakai pengubah (docs/engines/offset.md). */
+export const NO_MOD_TEXT = "Pengubah tidak tersedia pada style ini";
+
+/** @param {any} doc */
+export const isOffset = (doc) => !!doc && doc.kind === "set" && doc.style.family === "offset";
+
+/**
+ * Flag mesin per ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah).
+ * @param {Ctx} ctx
+ * @param {any} it
+ * @returns {[string, string][]}
+ */
+export const engineFlags = (ctx, it) => (ctx.doc && ctx.doc.kind === "set" ? ctx.renderer.flagsOf(it, ctx.doc.style) : []);
 
 /** @param {string} family */
 export const engineInfo = (family) => {
@@ -59,24 +79,6 @@ export function duplicateCount(doc) {
     seen.set(key, (seen.get(key) || 0) + 1);
   }
   return [...seen.values()].filter((n) => n > 1).reduce((a, n) => a + n, 0);
-}
-
-/**
- * Kartu pemilih mesin (panel Gaya).
- * @param {Ctx} ctx
- * @param {string} active
- */
-export function engineCards(ctx, active) {
-  const sample = { main: "face", mod: "check", slot: "BR" };
-  return `<div class="ic-engines" data-ic="single" role="group" aria-label="Gaya ikon" data-name="engine">${ENGINE_CARDS.map(([id, label]) => {
-    let pv = icon(id === "offset" ? "grid" : "edit", 20);
-    if (id === "classic" || id === "accent") {
-      const style = { ...ctx.doc.style, family: id };
-      const it = ctx.app.sampleItem(sample);
-      pv = ctx.renderer.renderSetItem(it, style, { idp: `pv${id}` });
-    }
-    return `<button type="button" class="ic-engine" data-value="${id}" ${active === id ? 'aria-pressed="true"' : 'aria-pressed="false"'}><span class="ic-engine__pv">${pv}</span>${esc(label)}</button>`;
-  }).join("")}</div>`;
 }
 
 /**

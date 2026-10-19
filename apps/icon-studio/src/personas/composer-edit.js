@@ -6,12 +6,13 @@
  */
 import { r2 } from "@icon-studio/core";
 import { fillOfClassic, modeOfClassic } from "@icon-studio/engines/classic";
+import { offsetParams } from "@icon-studio/engines/offset";
 import { ROLES } from "@icon-studio/engines/shared";
 import { FILL_OPTIONS, LINE_OPTIONS } from "../state/data/palettes.js";
-import { LAYER_RANGE, getXY, layerBoxes, resetLayer, setDeco, setPartRole, setSlot, setXY } from "../state/edit-ops.js";
-import { clearLayer, setStyleValue } from "../state/set-ops.js";
-import { aria, button, empty, esc, icon, number, panel, seg } from "../ui.js";
-import { docFileName, engineInfo, renderSet, setColorCount, statusBar } from "./common.js";
+import { LAYER_RANGE, getXY, resetLayer, setDeco, setPartRole, setSlot, setXY } from "../state/edit-ops.js";
+import { clearLayer, setOffsetDeco, setStyleValue } from "../state/set-ops.js";
+import { alert, aria, button, check, empty, esc, icon, number, panel, seg } from "../ui.js";
+import { NO_MOD_TEXT, docFileName, engineFlags, engineInfo, isOffset, renderSet, setColorCount, statusBar } from "./common.js";
 import {
   LAYER_LABEL,
   actions as setActions,
@@ -20,6 +21,7 @@ import {
   itemsOf,
   labelOf,
   mutate,
+  offsetDecoLabel,
   openTab,
   pageRows,
   rerender,
@@ -73,17 +75,23 @@ const artSvg = (ctx, it) => ctx.renderer.renderSetItem(it, ctx.doc.style, { size
 
 /* ---------- panel ---------- */
 
+/** @param {import("./common.js").Ctx} ctx @param {any} it @param {any} doc */
+const boxesOf = (ctx, it, doc = ctx.doc) => ctx.renderer.boxesOf(it, doc.style);
+
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function layerList(ctx, it) {
-  const meta = {
-    mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot}`,
-    deco: it.deco.type === "none" ? "tidak ada" : `${it.deco.type} · ${it.deco.x}, ${it.deco.y}`,
-    main: `${it.main} · ${ctx.doc.style.scale.main}%`,
-  };
+  const off = isOffset(ctx.doc);
+  const meta = off
+    ? { mod: NO_MOD_TEXT, deco: offsetDecoLabel(it), main: `${it.main} · 84%` }
+    : {
+        mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot}`,
+        deco: it.deco.type === "none" ? "tidak ada" : `${it.deco.type} · ${it.deco.x}, ${it.deco.y}`,
+        main: `${it.main} · ${ctx.doc.style.scale.main}%`,
+      };
   return `<div class="ic-list" role="listbox" aria-label="Lapisan ikon">${["mod", "deco", "main"]
     .map((l) => {
       const only = { ...it, vis: { main: l === "main", mod: l === "mod", deco: l === "deco" } };
-      const present = l === "main" || (l === "mod" ? it.mod !== "none" : it.deco.type !== "none");
+      const present = l === "main" || (off ? l === "deco" && meta.deco !== "tanpa" : l === "mod" ? it.mod !== "none" : it.deco.type !== "none");
       return `<div class="ic-row" role="option" tabindex="0" data-action="layer-select" data-layer="${l}" ${aria("aria-selected", layerOf() === l)}><span class="ic-row__thumb">${present ? renderSet(ctx, only, `el${l}`) : ""}</span><span class="ic-row__name">${LAYER_LABEL[l]}<span class="ic-row__sub">${esc(meta[l])}</span></span><button type="button" class="ic-iconbtn" data-action="edit-eye" data-layer="${l}" ${aria("aria-pressed", it.vis[l])} aria-label="${it.vis[l] ? "Sembunyikan" : "Tampilkan"} ${LAYER_LABEL[l].toLowerCase()}">${icon(it.vis[l] ? "eye" : "eye-off")}</button></div>`;
     })
     .join("")}</div>`;
@@ -105,14 +113,43 @@ const colorSwatches = (name, label, options, current, fallback) =>
     )
     .join("")}</div></div>`;
 
+/**
+ * Transform untuk gaya offset: tanpa geser dan skala per lapisan; dekorasi diatur lewat sakelar.
+ * Panel pengubah tetap terlihat tetapi nonaktif.
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ */
+function offsetTransformBody(ctx, it) {
+  const layer = layerOf();
+  const box = boxesOf(ctx, it)[layer];
+  if (layer === "mod")
+    return `${alert("info", NO_MOD_TEXT)}<div class="ic-formrow"><span class="ic-label">Posisi</span><span class="ic-meta">${esc(it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot}, disimpan tetapi tidak dirender`)}</span></div>`;
+  const out = [`<div class="ic-formrow"><span class="ic-label">W × H</span><span class="ic-meta">${r2(box.w)} × ${r2(box.h)}</span></div>`];
+  if (layer === "deco") {
+    const d = /** @type {any} */ ((it.engine && it.engine.offset && it.engine.offset.deco) || {});
+    const on = (/** @type {string} */ k, /** @type {boolean} */ dflt) => (typeof d[k] === "boolean" ? d[k] : dflt);
+    out.push(
+      check("Garis kilat", on("tick", true), { name: "edit-odeco:tick" }),
+      `<div class="ic-formrow"><span class="ic-label">Posisi kilat</span>${seg("Posisi kilat", [["TR", "Kanan atas"], ["TL", "Kiri atas"]], d.tickPos === "TL" ? "TL" : "TR", { name: "edit-odeco:tickPos" })}</div>`,
+      check("Garis tanah", on("ground", true), { name: "edit-odeco:ground" }),
+      check("Awan kecil", on("cloud", false), { name: "edit-odeco:cloud" }),
+      check("Rumput", on("grass", false), { name: "edit-odeco:grass" }),
+      `<span class="ic-meta">Dekorasi berlaku per ikon dan selalu di dalam viewBox.</span>`,
+    );
+  } else out.push(`<span class="ic-meta">Objek 84% di tengah kanvas. Geser isi, tebal garis, dan warna diatur di panel Gaya untuk seluruh set.</span>`);
+  for (const [level, text] of engineFlags(ctx, it)) if (level !== "info") out.push(alert(/** @type {any} */ (level), text));
+  return out.join("");
+}
+
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function transformBody(ctx, it) {
+  if (isOffset(ctx.doc)) return offsetTransformBody(ctx, it);
   const layer = layerOf(),
     s = ctx.doc.style,
     accent = s.family === "accent";
   const [x, y] = getXY(it, layer);
   const [min, max] = LAYER_RANGE[layer];
-  const box = layerBoxes(it, s, ctx.renderer.data)[layer];
+  const box = boxesOf(ctx, it)[layer];
   const out = [
     `<div class="ic-formrow"><span class="ic-label">X</span>${number(`X ${LAYER_LABEL[layer].toLowerCase()}`, x, { min, max, step: 0.5, name: "edit-x" })}<span class="ic-label">Y</span>${number(`Y ${LAYER_LABEL[layer].toLowerCase()}`, y, { min, max, step: 0.5, name: "edit-y" })}</div>`,
     `<div class="ic-formrow"><span class="ic-label">W × H</span><span class="ic-meta">${r2(box.w)} × ${r2(box.h)}</span></div>`,
@@ -177,7 +214,9 @@ const editActions = {
     if (layerOf() === "deco") return openTab("edit-transform", "transform");
     openTab("edit-layers", "pustaka");
   },
-  "edit-colors"() {
+  /** @param {import("./common.js").Ctx} ctx */
+  "edit-colors"(ctx) {
+    if (isOffset(ctx.doc)) return openTab("composer-style", "warna");
     openTab("edit-transform", "transform");
   },
   /** @param {import("./common.js").Ctx} ctx */
@@ -208,6 +247,10 @@ const editActions = {
  */
 function editControl(ctx, name, value, el, tools) {
   const layer = layerOf();
+  if (name.startsWith("edit-odeco:")) {
+    const key = /** @type {any} */ (name.slice(11));
+    return mutateItem(ctx, (it) => setOffsetDeco(it, key, value), `Dekorasi offset ${key}`);
+  }
   if (name === "edit-slot") return mutateItem(ctx, (it) => setSlot(it, String(value), ctx.renderer.data.SHIFT), `Posisi pengubah ${value}`);
   if (name === "edit-scale") return mutate(ctx, (doc) => setStyleValue(doc.style, `scale.${layer}`, value), `Skala ${LAYER_LABEL[layer].toLowerCase()} ${value}`);
   if (name === "edit-x" || name === "edit-y")
@@ -235,7 +278,7 @@ let keyboardBound = false;
 /** @param {KeyboardEvent} e */
 function onKey(e) {
   const ctx = liveCtx;
-  if (!ctx || !ctx.route.edit || !ctx.doc) return;
+  if (!ctx || !ctx.route.edit || !ctx.doc || isOffset(ctx.doc)) return;
   const target = /** @type {HTMLElement} */ (e.target);
   if (target.closest && target.closest("input, textarea, .ic-select, [role=tab], [role=option]")) return;
   const layer = layerOf();
@@ -281,6 +324,11 @@ function mount(root, ctx) {
       drag = null;
       return rerender(ctx);
     }
+    /* offset: posisi lapisan mengikuti patokan gaya, jadi lapisan hanya bisa dipilih */
+    if (isOffset(ctx.doc)) {
+      drag = null;
+      return;
+    }
     board.setPointerCapture(e.pointerId);
     e.preventDefault();
   });
@@ -291,7 +339,7 @@ function mount(root, ctx) {
     setXY(it, drag.layer, drag.x0 + (e.clientX - drag.sx) * drag.f, drag.y0 + (e.clientY - drag.sy) * drag.f, { snap: ctx.doc.view.snap });
     const art = board.querySelector(".ic-artboard__art");
     if (art) art.outerHTML = artSvg(ctx, it);
-    const b = layerBoxes(it, ctx.doc.style, ctx.renderer.data)[drag.layer];
+    const b = boxesOf(ctx, it)[drag.layer];
     const sb = /** @type {HTMLElement | null} */ (board.querySelector('[data-role="selbox"]'));
     if (sb) sb.setAttribute("style", pct(b));
     const tip = /** @type {HTMLElement | null} */ (board.querySelector('[data-role="tooltip"]'));
@@ -331,6 +379,11 @@ export const composerEdit = {
     const it = selectedOf(ctx);
     if (!it) return "";
     const layer = layerOf();
+    if (isOffset(ctx.doc)) {
+      const acc = offsetParams(ctx.doc.style).acc;
+      const key = layer === "mod" ? "" : layer === "main" ? it.main : offsetDecoLabel(it);
+      return `<span class="ic-label">${LAYER_LABEL[layer]}</span>${layer === "mod" ? `<span class="ic-meta">${NO_MOD_TEXT}</span>` : `<label class="ic-field ic-field--mono"><input value="${esc(key)}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${layer === "main" ? button("Ganti…", { size: "sm", action: "layer-swap" }) : ""}`}<span class="ic-sep"></span><span class="ic-label">Isi</span><button type="button" class="ic-swatch" data-action="edit-colors" style="background: ${acc}" aria-label="Aksen offset ${acc}, ubah warna"></button><span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
+    }
     const anchor =
       layer === "mod" && it.mod !== "none"
         ? `<span class="ic-sep"></span><span class="ic-label">Posisi</span><div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="edit-slot">${ANCHORS.map((k) => (k === "C" ? '<button type="button" disabled aria-label="Tengah"></button>' : `<button type="button" data-value="${k}" ${aria("aria-pressed", it.slot === k)} aria-label="Posisi ${k}"></button>`)).join("")}</div>`
@@ -342,8 +395,8 @@ export const composerEdit = {
   canvas(ctx) {
     const it = selectedOf(ctx);
     if (!it) return `<div class="studio-center">${empty("Ikon tidak ditemukan.", "Kembali ke ikhtisar halaman untuk memilih ikon.")}</div>`;
-    const boxes = layerBoxes(it, ctx.doc.style, ctx.renderer.data);
-    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(boxes)}${selbox(boxes[layerOf()])}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
+    const boxes = boxesOf(ctx, it);
+    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : isOffset(ctx.doc) ? " · offset" : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(boxes)}${selbox(boxes[layerOf()])}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
   },
   /**
    * Filmstrip set di bawah kanvas, di luar area zoom.
@@ -379,7 +432,13 @@ export const composerEdit = {
         grow: true,
         tabs: [
           { id: "transform", label: "Transform", body: it ? transformBody(ctx, it) : "" },
-          { id: "variasi", label: "Variasi", body: empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi.") },
+          {
+            id: "variasi",
+            label: "Variasi",
+            body: isOffset(ctx.doc)
+              ? empty("Sumbu variasi offset: posisi kilat dan kombinasi dekorasi.", "Acak ulang dan kunci variasi menyusul bersama planner variasi.")
+              : empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi."),
+          },
           {
             id: "riwayat",
             label: "Riwayat",

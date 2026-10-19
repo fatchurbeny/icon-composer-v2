@@ -6,6 +6,7 @@
  * Template Icon Builder 1.6.0 (`toItem`, `normAcc`, `importManifest`, `applyManStyle`, `useStyle`).
  * Registry pustaka dan id acak disuntik lewat `deps`, supaya modul ini bisa dites tanpa browser.
  */
+import { offsetParams } from "@icon-studio/engines/offset";
 import { ROLES } from "@icon-studio/engines/shared";
 import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
 
@@ -19,15 +20,21 @@ export const randomUid = () => Math.random().toString(36).slice(2, 9);
 /* ---------- set Composer ---------- */
 
 
+/** Keluarga gaya yang bisa dipakai set Composer (hand-writing menyusul di Fase 4). */
+export const SET_FAMILIES = ["classic", "accent", "offset"];
+
 /**
  * Patokan set: warna lapisan, skala, tebal garis, celah knockout, dan ujung garis berlaku untuk semua ikon.
+ * Parameter mesin baru disimpan di `style.engine.<id>` dan hanya ditulis bila sudah ada (gaya.json classic/accent tetap sama dengan IC 1.5.1).
  * @param {any} [o]
  */
 export function normSetStyle(o){
   o = o || {}; const d = DEFAULT_SET_STYLE, oc = o.colors || {}, os = o.scale || {};
+  const family = SET_FAMILIES.includes(o.family) ? o.family : "classic";
+  const engine = family === "offset" || (o.engine && o.engine.offset) ? {engine:{...(o.engine || {}), offset:offsetParams(o)}} : {};
   const col = l => ({line:(oc[l] && oc[l].line) || null, fill:(oc[l] && oc[l].fill) || null});
   const num = (v, dflt, mn, mx) => (typeof v === "number" && isFinite(v)) ? Math.max(mn, Math.min(mx, v)) : dflt;
-  return {...d, ...o, family:o.family === "accent" ? "accent" : "classic", saved:(o.saved && typeof o.saved === "object") ? o.saved : {}, colors:{main:col("main"), mod:col("mod"), deco:col("deco")},
+  return {...d, ...o, ...engine, family, saved:(o.saved && typeof o.saved === "object") ? o.saved : {}, colors:{main:col("main"), mod:col("mod"), deco:col("deco")},
     scale:{main:num(os.main, d.scale.main, 60, 100), mod:num(os.mod, d.scale.mod, 50, 150), deco:num(os.deco, d.scale.deco, 50, 200)},
     fx:{mode:["none","soft","shadow"].includes((o.fx || {}).mode) ? o.fx.mode : "none", color:/^#[0-9a-f]{6}$/i.test((o.fx || {}).color || "") ? o.fx.color.toUpperCase() : d.fx.color,
         dx:num((o.fx || {}).dx, d.fx.dx, -4, 4), dy:num((o.fx || {}).dy, d.fx.dy, -4, 4)}};
@@ -36,14 +43,22 @@ export function normSetStyle(o){
 
 /**
  * Pindah keluarga gaya. Patokan keluarga lama disimpan di `style.saved`. Mengubah `style` langsung.
+ * Offset menyimpan parameternya sendiri di `style.engine.offset`, jadi field classic/accent tidak disentuh
+ * dan pulih apa adanya saat kembali.
  * @param {any} style
- * @param {"classic" | "accent"} f
+ * @param {"classic" | "accent" | "offset"} f
  */
 export function applyFamily(style, f){
   if (style.family === f && style.saved && style.saved[f]) return style;
   style.saved = style.saved || {};
   const old = style.family || "classic";
-  style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
+  if (f === "offset"){
+    if (old !== "offset") style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
+    style.family = "offset";
+    style.engine = {...(style.engine || {}), offset:offsetParams(style)};
+    return style;
+  }
+  if (old !== "offset") style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
   const p = style.saved[f] || FAMILY_DEFAULT[f];
   Object.assign(style, {family:f, sw:p.sw, gap:p.gap, cap:p.cap, join:p.join, accent:p.accent, scale:{...p.scale}});
   return style;

@@ -9,6 +9,7 @@
 | Golden | Playwright | `tests/golden/` | keluaran byte-per-byte (classic/accent) atau visual (mesin baru) terhadap legacy |
 | Render | Playwright | `tests/e2e/render.spec.js` | semua mesin × fixture menghasilkan SVG valid (`DOMParser`) |
 | Ekspor Canva | Playwright | `tests/e2e/export-canva.spec.js` | outline + direct fill lolos, ≤5 warna, selisih piksel kecil |
+| Paritas offset | Playwright | `tests/e2e/offset-parity.spec.js` (`@golden`) | objek offset < 1% piksel dari legacy setelah diskalakan ke 84% |
 | Sidik jari | Playwright | `tests/e2e/fingerprint.spec.js` | pasangan fixture "kembar/mirip/beda" diklasifikasi benar |
 | UI | Playwright | `tests/e2e/ic-*.spec.js`, `tib-*.spec.js` | alur utama: tambah ke set, ganti gaya, impor manifest, ekspor ZIP, reload |
 

@@ -36,7 +36,7 @@ Basisnya model item IC 1.5.1, ditambah blok `engine` untuk data khusus mesin.
 Di TIB, item juga punya field Builder: `uid, idRaw, name:{en,id}, slides, role, keywords, on`.
 
 Aturan:
-- `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada.
+- `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada. Pengecualian offset: `engine.offset` tidak ditulis oleh `normItem`; bawaannya (kilat kanan atas + garis tanah) diisi `offsetDeco` saat `adapt`, dan field baru ditulis hanya saat pengguna mengubah dekorasi. Alasannya, `gaya.json` set classic/accent harus tetap sama dengan IC 1.5.1 (golden).
 - Pindah gaya tidak menghapus `engine.<id>` milik gaya lain.
 - `engine.<id>` hanya dibaca oleh mesin `<id>`, lewat `adapt`.
 
@@ -50,6 +50,8 @@ style = {
   saved: { [family]: {...} }                                   // patokan tiap keluarga (applyFamily)
 }
 ```
+
+Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `style.engine.offset` (`mode, acc, ink, dx, dy, sw, size`) hanya ditulis bila set pernah memakai offset, dan pindah ke offset tidak mengubah field classic/accent (`sw`, `gap`, `scale`, dst.), sehingga kembali ke Klasik atau Aksen memulihkan patokan lama.
 
 `normStyle` lama hanya menerima `classic` dan `accent`. Fungsi ini diganti `registry.normStyle(style)` yang memanggil `engine.normStyle` milik mesin aktif dan mempertahankan `saved` untuk semua keluarga.
 

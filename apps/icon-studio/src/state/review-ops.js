@@ -35,8 +35,9 @@ export function slug(s){ return String(s || "ikon").toLowerCase().normalize("NFK
  * Nama file per ikon, unik dalam satu daftar (fileNames IC).
  * @param {any[]} list
  * @param {any} lib registry {MAINS, MODS}
+ * @param {string} [family] keluarga gaya set (offset: nama tanpa pengubah)
  */
-export function fileNames(list, lib){ /** @type {Record<string, number>} */ const seen = {}; return list.map(it => { let s = slug(nameOf(it, lib)); seen[s] = (seen[s] || 0) + 1; if (seen[s] > 1) s += "-" + seen[s]; return {it, file:s + ".svg"}; }); }
+export function fileNames(list, lib, family){ /** @type {Record<string, number>} */ const seen = {}; return list.map(it => { let s = slug(nameOf(it, lib, family)); seen[s] = (seen[s] || 0) + 1; if (seen[s] > 1) s += "-" + seen[s]; return {it, file:s + ".svg"}; }); }
 
 /** @param {any} doc */
 export const includedOf = (doc) => doc.items.filter((/** @type {any} */ it) => !doc.review.off[it.id]);
@@ -52,7 +53,7 @@ export function exportSVG(renderer, doc, it, i){ return renderer.renderSetItem(i
 
 /** @param {any} renderer @param {any} doc @param {any[]} list */
 export function spriteSVG(renderer, doc, list){
-  const files = fileNames(list, renderer.lib);
+  const files = fileNames(list, renderer.lib, doc.style.family);
   return `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">\n` + files.map(({it, file}, i) => { const s = exportSVG(renderer, doc, it, i); return `<symbol id="${file.replace(/\.svg$/, "")}" viewBox="0 0 48 48">${s.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</symbol>`; }).join("\n") + `\n</svg>`;
 }
 
@@ -61,12 +62,13 @@ export function spriteSVG(renderer, doc, list){
 /** @param {string} k @param {"main" | "mod"} kind */
 const libName = (k, kind) => libNameOf(k, kind, MAIN_ALIAS, MOD_ALIAS);
 const libWords = (/** @type {string} */ k, /** @type {"main" | "mod"} */ kind) => libName(k, kind).replace(/-\d+$/, "").replace(/-/g, " ");
-/** @param {any} it */
-function baseNameEN(it){ return [libWords(it.main, "main"), it.mod !== "none" ? libWords(it.mod, "mod") : ""].filter(Boolean).join(" "); }
+/** @param {any} it @param {boolean} [noMod] gaya tanpa pengubah */
+function baseNameEN(it, noMod){ return [libWords(it.main, "main"), it.mod !== "none" && !noMod ? libWords(it.mod, "mod") : ""].filter(Boolean).join(" "); }
 
 /** @param {any} doc @param {any} it @param {any} PREFS */
 function styleMeta(doc, it, PREFS){
   if (doc.style.family === "accent") return {...styleWord("accent"), ken:["accent icon", "line icon", "two tone icon"], kid:["ikon aksen", "ikon garis", "ikon dua warna"]};
+  if (doc.style.family === "offset") return {...styleWord("offset"), ken:["offset style", "line icon", "two tone icon"], kid:["gaya offset", "ikon garis", "ikon dua warna"]};
   const m = modeOfClassic(it, /** @type {any} */ ({ style: doc.style, PREFS }));
   if (m === "B") return {...styleWord("classic", "B"), ken:["solid icon", "two tone icon"], kid:["ikon solid", "ikon dua warna"]};
   if (m === "C") return {...styleWord("classic", "C"), ken:["outline icon", "line icon"], kid:["ikon garis", "ikon outline"]};
@@ -87,13 +89,14 @@ export function metaOf(doc, it, renderer){
   const tagsOf = (/** @type {string} */ k, /** @type {"main" | "mod"} */ kind) => TAGS.tagsOf(libName(k, kind));
   const lc = (/** @type {any[]} */ a) => a.map(s => String(s).toLowerCase().trim()).filter(Boolean);
   const first = (/** @type {string} */ s) => String(s || "").split(",")[0].trim();
-  const mainT = tagsOf(it.main, "main"), modT = it.mod !== "none" ? tagsOf(it.mod, "mod") : [];
+  const noMod = doc.style.family === "offset";
+  const mainT = tagsOf(it.main, "main"), modT = it.mod !== "none" && !noMod ? tagsOf(it.mod, "mod") : [];
   if (rMeta.locale === "id"){
-    const n = nm || nameOf(it, renderer.lib);
+    const n = nm || nameOf(it, renderer.lib, doc.style.family);
     return {title:["Ikon", n.charAt(0).toLowerCase() + n.slice(1), first(rMeta.packId).toLowerCase(), sm.id].filter(Boolean).join(" "),
       keywords:[...new Set([n.toLowerCase(), ...lc(rMeta.packId.split(",")), ...[...mainT.slice(0, 6), ...modT.slice(0, 4)].map(trID).filter(Boolean), ...sm.kid, "ikon"])].slice(0, N).join(", ")};
   }
-  const n = (rMeta.nm === "name" && nm) ? nm : baseNameEN(it);
+  const n = (rMeta.nm === "name" && nm) ? nm : baseNameEN(it, noMod);
   return {title:[titleCase(n), titleCase(first(rMeta.packEn)), sm.en, "Icon"].filter(Boolean).join(" "),
     keywords:[...new Set([n.toLowerCase(), ...lc(rMeta.packEn.split(",")), ...mainT.slice(0, 6), ...modT.slice(0, 4), ...sm.ken, "icon"])].slice(0, N).join(", ")};
 }
@@ -104,7 +107,7 @@ export const META_COLUMNS = ["filename","title","keywords","Artist","locale","de
 /** @param {any} doc @param {any[]} list @param {any} renderer */
 export function metadataCSV(doc, list, renderer){
   const rMeta = doc.meta.canva;
-  const rows = fileNames(list, renderer.lib).map(({it, file}) => { const m = metaOf(doc, it, renderer); return {filename:file, title:m.title, keywords:m.keywords, Artist:rMeta.artist, locale:rMeta.locale, description:rMeta.desc.trim()}; });
+  const rows = fileNames(list, renderer.lib, doc.style.family).map(({it, file}) => { const m = metaOf(doc, it, renderer); return {filename:file, title:m.title, keywords:m.keywords, Artist:rMeta.artist, locale:rMeta.locale, description:rMeta.desc.trim()}; });
   return metadataCsv(rows, META_COLUMNS);
 }
 
@@ -120,10 +123,10 @@ export const loadTags = () => TAGS.loadTags();
 export async function buildSetZipFiles(doc, list, renderer){
   /** @type {Record<string, string>} */
   const files = {};
-  fileNames(list, renderer.lib).forEach(({it, file}, i) => { files[file] = exportSVG(renderer, doc, it, i); });
+  fileNames(list, renderer.lib, doc.style.family).forEach(({it, file}, i) => { files[file] = exportSVG(renderer, doc, it, i); });
   files["LICENSES.txt"] = SET_LICENSES;
   if (doc.review.json) files["gaya.json"] = JSON.stringify({grid:48, ...doc.style, export:doc.review.ko, icons:list.map((it) => { const r = {...it}; delete r.id; return r; })}, null, 2);
-  if (doc.review.html) files["pratinjau.html"] = previewSheetHTML(fileNames(list, renderer.lib).map(({it, file}, i) => ({label: nameOf(it, renderer.lib), file, svg: exportSVG(renderer, doc, it, i)})));
+  if (doc.review.html) files["pratinjau.html"] = previewSheetHTML(fileNames(list, renderer.lib, doc.style.family).map(({it, file}, i) => ({label: nameOf(it, renderer.lib, doc.style.family), file, svg: exportSVG(renderer, doc, it, i)})));
   if (doc.meta.canva.on){ await loadTags(); files["metadata.csv"] = metadataCSV(doc, list, renderer); }
   return files;
 }
@@ -140,15 +143,21 @@ export function reviewChecks(doc, inc, renderer){
   const out = [];
   const pc = packColors(inc, (it) => renderer.renderSetItem(it, style, { idp: "cc" }, doc.customs));
   out.push({ ok: pc.size <= 5, text: "Maksimal 5 warna di seluruh pack", meta: `${pc.size} warna` });
-  const noMod = inc.filter(it => it.mod === "none").length;
-  out.push({ ok: noMod === 0, text: "Setiap ikon punya pengubah", meta: `${inc.length - noMod}/${inc.length}` });
+  const offset = style.family === "offset";
+  if (offset) {
+    const bad = inc.filter(it => renderer.flagsOf(it, style).some((/** @type {any} */ f) => f[0] === "err")).length;
+    out.push({ ok: bad === 0, text: "Objek didukung gaya Offset (bukan objek bawaan)", meta: `${inc.length - bad}/${inc.length}` });
+  } else {
+    const noMod = inc.filter(it => it.mod === "none").length;
+    out.push({ ok: noMod === 0, text: "Setiap ikon punya pengubah", meta: `${inc.length - noMod}/${inc.length}` });
+  }
   if (style.family === "classic") {
     const dual = inc.filter(it => modeOfClassic(it, /** @type {any} */ ({ style, PREFS })) !== style.pref).length;
     out.push({ ok: dual === 0, text: "Semua ikon mengikuti mode warna set", meta: dual ? `${dual} beda` : "" });
   }
-  const edge = inc.filter(it => { const b = layerBoxes(it, style, renderer.data); return ["main","mod","deco"].some(k => /** @type {any} */ (b)[k].w && (/** @type {any} */ (b)[k].x < 0.5 || /** @type {any} */ (b)[k].y < 0.5 || /** @type {any} */ (b)[k].x + /** @type {any} */ (b)[k].w > 47.5 || /** @type {any} */ (b)[k].y + /** @type {any} */ (b)[k].h > 47.5)); });
+  const edge = inc.filter(it => { const b = offset ? renderer.boxesOf(it, style) : layerBoxes(it, style, renderer.data); return ["main","mod","deco"].some(k => /** @type {any} */ (b)[k].w && (/** @type {any} */ (b)[k].x < 0.5 || /** @type {any} */ (b)[k].y < 0.5 || /** @type {any} */ (b)[k].x + /** @type {any} */ (b)[k].w > 47.5 || /** @type {any} */ (b)[k].y + /** @type {any} */ (b)[k].h > 47.5)); });
   out.push({ ok: edge.length === 0, text: "Elemen di dalam viewBox 0–48", meta: edge.length ? `${edge.length} ikon menyentuh tepi` : `${inc.length}/${inc.length}` });
-  const renamed = fileNames(inc, renderer.lib).filter(({it, file}) => file !== slug(nameOf(it, renderer.lib)) + ".svg").length;
+  const renamed = fileNames(inc, renderer.lib, style.family).filter(({it, file}) => file !== slug(nameOf(it, renderer.lib, style.family)) + ".svg").length;
   out.push({ ok: renamed === 0, text: "Nama file unik", meta: renamed ? `${renamed} diberi akhiran` : `${inc.length}/${inc.length}` });
   const dup = duplicateGroups(inc, (it) => get(style.family).signature(it)).reduce((a, g) => a + g.length, 0);
   out.push({ ok: dup === 0, text: "Rakitan dobel dalam gaya ini", meta: String(dup) });
