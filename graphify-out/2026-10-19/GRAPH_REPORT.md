@@ -1,7 +1,7 @@
 # Graph Report - icon-composer-v2  (2026-10-19)
 
 ## Corpus Check
-- 138 files · ~125,450 words
+- 138 files · ~125,463 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .css 5, (none) 4, .csv 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `76f52ee0`
+- Built from commit: `6ec4312a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -107,26 +107,26 @@
 ## God Nodes (most connected - your core abstractions)
 1. `esc()` - 55 edges
 2. `r3()` - 28 edges
-3. `createShell()` - 27 edges
-4. `C()` - 27 edges
-5. `get()` - 26 edges
-6. `Diubah` - 26 edges
-7. `createRenderer()` - 24 edges
-8. `aria()` - 24 edges
+3. `C()` - 27 edges
+4. `createShell()` - 27 edges
+5. `Diubah` - 26 edges
+6. `get()` - 26 edges
+7. `aria()` - 24 edges
+8. `createRenderer()` - 24 edges
 9. `button()` - 22 edges
 10. `directFillSvgFile()` - 22 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Masalah legacy yang diperbaiki` --references--> `comboItem()`  [INFERRED]
-  docs/engines/sticker.md → apps/icon-studio/src/state/combo-ops.js
-- `4. Judul metadata (pola "Icon-style")` --references--> `icon()`  [INFERRED]
-  docs/EXPORT-PIPELINE.md → apps/icon-studio/src/ui.js
 - `1. Kunci ikon` --references--> `check()`  [INFERRED]
   docs/DATA-MODEL.md → apps/icon-studio/src/ui.js
 - `4. `signature`` --references--> `check()`  [INFERRED]
   docs/ENGINE-CONTRACT.md → apps/icon-studio/src/ui.js
 - `Risiko` --references--> `check()`  [INFERRED]
   docs/engines/offset.md → apps/icon-studio/src/ui.js
+- `Sumbu variasi (`axes`)` --references--> `C()`  [INFERRED]
+  docs/engines/hand-writing.md → apps/template-icon-builder/src/vendor-1.js
+- `Masalah yang diketahui` --references--> `autoRoles()`  [INFERRED]
+  docs/engines/accent.md → packages/engines/shared/shapes.js
 
 ## Import Cycles
 - None detected.
@@ -478,7 +478,7 @@ Cohesion: 0.50
 Nodes (3): builds, dist, root
 
 ## Knowledge Gaps
-- **11 isolated node(s):** `ADR-0017`, `ADR-0015`, `ADR-0017`, `ADR-0017`, `ADR-0016` (+6 more)
+- **11 isolated node(s):** `eslint`, `lucide-static`, `prettier`, `ADR-0016`, `ADR-0017` (+6 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 499 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -486,16 +486,16 @@ Nodes (3): builds, dist, root
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `on()` connect `At` to `3. Anatomi layar`, `review-ops.js`, `studio-combo-ops.test.js`, `vendor-1.js`?**
-  _High betweenness centrality (0.158) - this node is a cross-community bridge._
+  _High betweenness centrality (0.142) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `createShell()` (e.g. with `importText()` and `toast()`) actually correct?**
   _`createShell()` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `ADR-0017`, `ADR-0015`, `ADR-0017` to the rest of the system?**
+- **What connects `eslint`, `lucide-static`, `prettier` to the rest of the system?**
   _11 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.05204872646733112 - nodes in this community are weakly interconnected._
 - **Why does `directFillSvgFile()` connect `directFillSvgFile` to `render-artboards.py`, `Produk: tujuan, batasan, alur kerja`, `export/index.js`, `template-icon-builder/src/main.js`, `AGENTS.md: instruksi untuk agen (Codex)`, `tinjau.js`, `builder.js`, `builder-ops.js`, `Pipeline ekspor`, `createIconSources`, `studio-state.test.js`, `doExport`, `review-ops.js`?**
   _High betweenness centrality (0.134) - this node is a cross-community bridge._
+- **Are the 25 inferred relationships involving `Diubah` (e.g. with `cuRoles()` and `decoAccent()`) actually correct?**
+  _`Diubah` has 25 INFERRED edges - model-reasoned connections that need verification._
 - **Should `golden-utils.js` be split into smaller, more focused modules?**
   _Cohesion score 0.14245014245014245 - nodes in this community are weakly interconnected._
-- **Why does `6. Persona Tinjau ✅ (menunggu tinjauan Ika)` connect `review-ops.js` to `createIconSources`, `directFillSvgFile`, `At`?**
-  _High betweenness centrality (0.099) - this node is a cross-community bridge._
