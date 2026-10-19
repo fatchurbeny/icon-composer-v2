@@ -238,8 +238,19 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
 
   /** @param {string} text @param {{sample?: boolean}} [opts] */
   async function importText(text, opts = {}) {
-    const result = await app.importManifest(text, opts);
     const message = /** @type {HTMLElement | null} */ (root.querySelector('[data-role="import-message"]'));
+    /* gaya.json offset-composer 1.0.1 menjadi set Composer bergaya Offset */
+    const offset = await app.importOffsetSet(text);
+    if (offset) {
+      if (offset.fatal) {
+        if (message) message.textContent = offset.fatal;
+        return;
+      }
+      go({ persona: "composer", edit: null });
+      toast([`${offset.doc.items.length} ikon offset-composer diimpor`, ...(offset.warnings || [])].join(". "));
+      return;
+    }
+    const result = await app.importManifest(text, opts);
     if (result.fatal) {
       if (message) message.textContent = result.fatal;
       return;

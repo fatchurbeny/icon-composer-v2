@@ -23,3 +23,6 @@ export function defaultManifestStyle(){
     colors:{main:{line:null, fill:null}, mod:{line:null, fill:null}, deco:{line:null, fill:null}},
     scale:{main:84, mod:100, deco:100}, fx:{mode:"none"}};
 }
+
+/** Nilai bawaan item offset-composer 1.0.1 (`DEF`), dipakai saat impor untuk field yang hilang. */
+export const OFFSET_COMPOSER_DEFAULT = {mode:"solid", acc:"#B8405A", ink:"#1A1A1A", dx:4, dy:4, sw:2.6, size:72, dTick:true, tickPos:"TR", dGround:true, dCloud:false, dGrass:false};

@@ -24,7 +24,7 @@ export const LEGACY_KEYS = {
  * @param {Pick<Storage, "getItem">} storage
  * @param {string} key
  */
-function readJson(storage, key) {
+export function readJson(storage, key) {
   try {
     const raw = storage.getItem(key);
     return raw ? JSON.parse(raw) : null;
@@ -98,5 +98,5 @@ export function migrateFromLegacy(storage, deps) {
   }
 
   if (!documents.length) return null;
-  return { state: { schemaVersion: SCHEMA_VERSION, documents, activeId }, sources };
+  return { state: { schemaVersion: SCHEMA_VERSION, documents, activeId, migrations: [] }, sources };
 }

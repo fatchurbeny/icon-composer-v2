@@ -4,11 +4,12 @@
  * Disimpan ke `icon-studio-v1` lewat `state/store.js`. Seleksi dan rute tidak disimpan.
  * Pindah persona tidak menghapus seleksi atau state dokumen (DESIGN-HANDOFF bagian 2).
  */
-import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem } from "./state/document.js";
+import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem, offsetComposerSource, offsetSetFromComposer } from "./state/document.js";
 import { createVocabulary, defaultExportOptions, validateManifest } from "./state/builder-ops.js";
 import { ensureReviewFields } from "./state/review-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
 import { migrateFromLegacy } from "./state/migrations/001-from-legacy.js";
+import { MIGRATION_ID as OFFSET_MIGRATION, migrateFromOffset } from "./state/migrations/002-from-offset.js";
 import { hasState, loadState, saveState } from "./state/store.js";
 
 export const PERSONAS = /** @type {const} */ (["composer", "builder", "tinjau", "kombinasi"]);
@@ -55,6 +56,25 @@ export function createAppState(options) {
     if (legacy) {
       loaded = legacy.state;
       migratedFrom = legacy.sources;
+    }
+  }
+  /* migrasi sekali dari offset-composer 1.0.1, juga bila icon-studio-v1 sudah ada; dokumen ditambahkan */
+  const migrations = [...loaded.migrations];
+  /** @type {string[]} */
+  const migrationWarnings = [];
+  if (!migrations.includes(OFFSET_MIGRATION)) {
+    let offset = null;
+    try {
+      offset = migrateFromOffset(options.storage || globalThis.localStorage, { lib: renderer.lib });
+    } catch {
+      offset = null;
+    }
+    migrations.push(OFFSET_MIGRATION);
+    if (offset) {
+      loaded.documents.push(...offset.documents);
+      loaded.activeId = loaded.activeId || offset.documents[0].id;
+      migratedFrom = [...migratedFrom, ...offset.sources];
+      migrationWarnings.push(...offset.warnings);
     }
   }
   /** @type {any[]} */
@@ -105,7 +125,7 @@ export function createAppState(options) {
     }
   }
 
-  const save = () => saveState({ schemaVersion: 1, documents, activeId }, options.storage);
+  const save = () => saveState({ schemaVersion: 1, documents, activeId, migrations }, options.storage);
   /* dokumen Builder hasil migrasi divalidasi seperti boot TIB */
   for (const doc of documents) if (doc.kind === "manifest" && migratedFrom.length) doc.issues = validateManifest(doc, vocab);
   if (migratedFrom.length) save();
@@ -140,6 +160,8 @@ export function createAppState(options) {
     vocab,
     /** Kunci lama yang dimigrasikan saat app ini dibuka (kosong bila tidak ada migrasi). */
     migratedFrom,
+    /** Peringatan dari migrasi saat app ini dibuka (mis. gaya offset diseragamkan). */
+    migrationWarnings,
     /** Validasi ulang dokumen Builder setelah objek atau pengubah diganti. @param {any} doc */
     revalidate(doc) {
       doc.issues = validateManifest(doc, vocab);
@@ -209,6 +231,34 @@ export function createAppState(options) {
       save();
       notify();
       return { doc };
+    },
+    /**
+     * Impor set offset-composer 1.0.1 (`gaya.json` dari ZIP atau isi `offset-composer-v1`) menjadi dokumen set.
+     * @param {string} text
+     * @returns {Promise<{fatal?: string, doc?: any, warnings?: string[]} | null>} null bila teks bukan data offset-composer
+     */
+    async importOffsetSet(text) {
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return null;
+      }
+      const icons = offsetComposerSource(data)?.icons;
+      if (!icons) return null;
+      if (icons.some((/** @type {any} */ o) => String(o && o.key).startsWith("tb:"))) {
+        await renderer.loadTabler();
+        renderer.dropMissing("tb");
+      }
+      const res = offsetSetFromComposer(data, renderer.lib);
+      if (!res || "fatal" in res) return res;
+      const doc = ensureReviewFields(ensureSetFields(res.doc));
+      documents.push(doc);
+      activeId = doc.id;
+      selection[doc.id] = doc.items[0] ? doc.items[0].id : null;
+      save();
+      notify();
+      return { doc, warnings: res.warnings };
     },
     /** @param {string} id */
     close(id) {

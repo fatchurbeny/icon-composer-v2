@@ -7,11 +7,30 @@ import {
   migrateFromLegacy,
 } from "../../apps/icon-studio/src/state/migrations/001-from-legacy.js";
 import { SAMPLE_MANIFEST } from "../../apps/icon-studio/src/state/data/sample-manifest.js";
-import { importManifest } from "../../apps/icon-studio/src/state/document.js";
-import { STORE_KEY, hasState } from "../../apps/icon-studio/src/state/store.js";
+import {
+  importManifest,
+  offsetSetFromComposer,
+} from "../../apps/icon-studio/src/state/document.js";
+import {
+  MIGRATION_ID,
+  OFFSET_KEY,
+  migrateFromOffset,
+} from "../../apps/icon-studio/src/state/migrations/002-from-offset.js";
+import {
+  STORE_KEY,
+  hasState,
+  loadState,
+  saveState,
+} from "../../apps/icon-studio/src/state/store.js";
 
 const mixed = JSON.parse(
   readFileSync(new URL("../fixtures/sets/mixed.json", import.meta.url), "utf8"),
+);
+const offsetFixture = JSON.parse(
+  readFileSync(
+    new URL("../fixtures/sets/offset-composer.json", import.meta.url),
+    "utf8",
+  ),
 );
 const data = createClassicData({ starDecos: true });
 const lib = {
@@ -171,5 +190,108 @@ describe("Icon Studio migrasi 001 dari IC dan TIB", () => {
     expect(
       hasState(storage({ [STORE_KEY]: { schemaVersion: 1, documents: [] } })),
     ).toBe(true);
+  });
+});
+
+describe("Icon Studio migrasi 002 dari offset-composer", () => {
+  test("tanpa kunci offset-composer-v1 atau set kosong tidak ada migrasi", () => {
+    expect(migrateFromOffset(storage(), { lib })).toBeNull();
+    expect(
+      migrateFromOffset(
+        storage({ [OFFSET_KEY]: { cur: { key: "lu:coffee" }, set: [] } }),
+        { lib },
+      ),
+    ).toBeNull();
+    expect(
+      migrateFromOffset(storage({ [OFFSET_KEY]: "{rusak" }), { lib }),
+    ).toBeNull();
+  });
+
+  test("set offset-composer menjadi dokumen set bergaya offset", () => {
+    const res = migrateFromOffset(
+      storage(offsetFixture.storage),
+      { lib, uid: () => "o" },
+    );
+    expect(res?.sources).toEqual([OFFSET_KEY]);
+    expect(res?.warnings).toEqual([]);
+    const doc = res?.documents[0];
+    expect(doc).toMatchObject({
+      kind: "set",
+      name: "Set Offset Composer",
+      meta: {
+        import: { format: "offset-composer", source: OFFSET_KEY, warnings: [] },
+      },
+    });
+    expect(doc.style.family).toBe("offset");
+    /* gaya dari ikon pertama; ukuran objek selalu 84% (ADR-012), bukan size lama */
+    expect(doc.style.engine.offset).toEqual({
+      mode: "white",
+      acc: "#2F6FD0",
+      ink: "#1A1A1A",
+      dx: 3,
+      dy: -2,
+      sw: 3,
+      size: 100.8,
+    });
+    expect(doc.items.map((/** @type {any} */ it) => [it.main, it.mod, it.name])).toEqual([
+      ["lu:luggage", "none", "luggage"],
+      ["lu:coffee", "none", "coffee"],
+      ["tb:camera", "none", "kamera"],
+    ]);
+    expect(doc.items[1].engine.offset.deco).toEqual({
+      tick: false,
+      tickPos: "TL",
+      ground: true,
+      cloud: true,
+      grass: false,
+    });
+    expect(doc.items[2].engine.offset.deco).toMatchObject({
+      ground: false,
+      grass: true,
+    });
+    /* cur (ikon yang sedang diedit) tidak ikut */
+    expect(doc.items).toHaveLength(3);
+  });
+
+  test("gaya.json dari ZIP dikenali; gaya berbeda per ikon memberi peringatan", () => {
+    const res = /** @type {any} */ (
+      offsetSetFromComposer(offsetFixture.gayaJson, lib, { uid: () => "g" })
+    );
+    expect(res.warnings).toEqual(["Gaya diseragamkan mengikuti ikon pertama"]);
+    expect(res.needTb).toBe(false);
+    expect(res.doc.meta.import).toMatchObject({
+      source: "gaya.json",
+      version: "1.0.1",
+    });
+    expect(res.doc.style.engine.offset.acc).toBe("#B8405A");
+    expect(res.doc.items.map((/** @type {any} */ it) => it.main)).toEqual([
+      "lu:wallet",
+      "lu:house",
+    ]);
+  });
+
+  test("data lain bukan offset-composer; set tanpa ikon pustaka ditolak", () => {
+    expect(offsetSetFromComposer(SAMPLE_MANIFEST, lib)).toBeNull();
+    expect(offsetSetFromComposer(null, lib)).toBeNull();
+    expect(
+      offsetSetFromComposer(
+        { format: "offset-composer", icons: [{ key: "face" }] },
+        lib,
+      ),
+    ).toEqual({ fatal: "Set offset-composer tidak berisi ikon Lucide atau Tabler." });
+  });
+
+  test("catatan migrasi ikut tersimpan di icon-studio-v1", () => {
+    const store = storage();
+    expect(
+      saveState(
+        { schemaVersion: 1, documents: [], activeId: null, migrations: [MIGRATION_ID] },
+        store,
+      ),
+    ).toBe(true);
+    expect(loadState(store).migrations).toEqual([MIGRATION_ID]);
+    /* state lama tanpa field migrations dibaca sebagai daftar kosong */
+    store.setItem(STORE_KEY, JSON.stringify({ schemaVersion: 1, documents: [], activeId: null }));
+    expect(loadState(store).migrations).toEqual([]);
   });
 });

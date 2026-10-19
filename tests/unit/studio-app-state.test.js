@@ -8,6 +8,14 @@ import {
 } from "../../apps/icon-studio/src/app-state.js";
 import { SAMPLE_MANIFEST } from "../../apps/icon-studio/src/state/data/sample-manifest.js";
 import { STORE_KEY } from "../../apps/icon-studio/src/state/store.js";
+import { readFileSync } from "node:fs";
+
+const offsetFixture = JSON.parse(
+  readFileSync(
+    new URL("../fixtures/sets/offset-composer.json", import.meta.url),
+    "utf8",
+  ),
+);
 
 /** Renderer tiruan: registry classic tanpa DOM, pustaka langsung "termuat". */
 function fakeRenderer() {
@@ -103,6 +111,68 @@ describe("Icon Studio app state", () => {
     const again = createAppState({ renderer: fakeRenderer(), storage });
     expect(again.documents.map((d) => d.kind)).toEqual(["set", "manifest"]);
     expect(again.activeId).toBe(result.doc.id);
+  });
+
+  test("migrasi offset-composer berjalan sekali dan tidak menimpa dokumen yang ada", async () => {
+    const storage = memoryStorage();
+    const first = createAppState({ renderer: fakeRenderer(), storage });
+    const { doc: manifest } = await first.importManifest(
+      JSON.stringify(SAMPLE_MANIFEST),
+    );
+    /* pengguna lama: icon-studio-v1 tersimpan sebelum migrasi 002 dikenal */
+    const saved = JSON.parse(storage.map.get(STORE_KEY));
+    delete saved.migrations;
+    storage.setItem(STORE_KEY, JSON.stringify(saved));
+    storage.setItem(
+      "offset-composer-v1",
+      JSON.stringify(offsetFixture.storage["offset-composer-v1"]),
+    );
+
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.migratedFrom).toEqual(["offset-composer-v1"]);
+    expect(app.documents.map((d) => d.kind)).toEqual(["set", "manifest", "set"]);
+    expect(app.documents[2]).toMatchObject({
+      name: "Set Offset Composer",
+      style: { family: "offset" },
+    });
+    expect(app.documents[2].items).toHaveLength(3);
+    expect(app.documents[2].pool).toBeTruthy();
+    /* dokumen aktif pengguna tidak diganti */
+    expect(app.activeId).toBe(manifest.id);
+    expect(JSON.parse(storage.map.get(STORE_KEY)).migrations).toEqual([
+      "002-from-offset",
+    ]);
+
+    const again = createAppState({ renderer: fakeRenderer(), storage });
+    expect(again.migratedFrom).toEqual([]);
+    expect(again.documents).toHaveLength(3);
+  });
+
+  test("tanpa icon-studio-v1, set offset-composer menjadi dokumen aktif", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      "offset-composer-v1",
+      JSON.stringify(offsetFixture.storage["offset-composer-v1"]),
+    );
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.documents).toHaveLength(1);
+    expect(app.documents[0].style.family).toBe("offset");
+    expect(app.activeId).toBe(app.documents[0].id);
+  });
+
+  test("impor gaya.json offset-composer menambah set aktif; teks lain dilewatkan", async () => {
+    const storage = memoryStorage();
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(await app.importOffsetSet(JSON.stringify(SAMPLE_MANIFEST))).toBeNull();
+    expect(await app.importOffsetSet("{")).toBeNull();
+    const res = await app.importOffsetSet(
+      JSON.stringify(offsetFixture.gayaJson),
+    );
+    expect(res?.warnings).toEqual(["Gaya diseragamkan mengikuti ikon pertama"]);
+    expect(app.activeId).toBe(res?.doc.id);
+    expect(app.documentFor("composer")).toBe(res?.doc);
+    expect(app.selection[res?.doc.id]).toBe(res?.doc.items[0].id);
+    expect(JSON.parse(storage.map.get(STORE_KEY)).documents).toHaveLength(2);
   });
 
   test("impor manifest rusak tidak menambah dokumen", async () => {
