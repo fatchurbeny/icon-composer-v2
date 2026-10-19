@@ -203,4 +203,154 @@ test.describe("Icon Studio · Builder", () => {
       "diekspor",
     );
   });
+
+  test("gaya Offset: pratinjau, flag info pengubah, dan ZIP direct fill tanpa stroke", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await open(page);
+    const keys = ["house", "heart", "luggage", "mail", "calendar", "minus"];
+    const manifest = {
+      format: "tib-manifest",
+      version: 2,
+      deck: { title: "Uji Offset", slides: 1 },
+      pack: { en: "Finance", id: "Keuangan" },
+      style: { family: "offset", mode: "white", accent: "#B8405A" },
+      icons: keys.map((k, i) => ({
+        id: k,
+        name: { en: k, id: k },
+        main: `lu:${k}`,
+        mod: i % 2 ? "none" : "check",
+        anchor: "BR",
+        slides: [1],
+      })),
+    };
+    await page
+      .locator('[data-name="manifest-text"]')
+      .fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    const cards = page.locator(".ic-iconcard[data-select]");
+    await expect(cards).toHaveCount(keys.length);
+    /* manifest family offset memilih pratinjau Offset */
+    await expect(
+      page.locator('[data-name="b-preview"] .ic-select__trigger'),
+    ).toContainText("Offset");
+    /* info pengubah tidak memberi lencana; tanpa pengubah tidak lagi err di offset.
+       Hanya minus (tanpa bidang tertutup) yang perlu dicek. */
+    await expect(page.locator(".ic-iconcard .ic-flag")).toHaveCount(1);
+    await expect(
+      page.locator('.ic-iconcard:has-text("minus") .ic-flag'),
+    ).toHaveText("cek");
+    await expect(
+      page.locator('[data-name="b-filter"] button[data-value="bad"]'),
+    ).toContainText("1");
+    await cards.first().click();
+    const iconPanel = page.locator('[data-panel="builder-icon"]');
+    await expect(
+      iconPanel.locator('.ic-alert[data-level="info"]'),
+    ).toContainText("Pengubah tidak tersedia pada style ini");
+    await expect(iconPanel.locator('[data-name="b-ofill"]')).toBeVisible();
+    await expect(
+      iconPanel.locator('[data-name="b-ofill"] [aria-pressed="true"]'),
+    ).toHaveText("Putih");
+    await page.click(
+      '[data-panel="builder-rep"] [role="tab"][data-value="flag"]',
+    );
+    await expect(
+      page.locator('[data-panel="builder-rep"] .ic-alert[data-level="info"]'),
+    ).toContainText("Pengubah tidak tersedia pada style ini");
+
+    await page.locator('.ic-topbar [data-action="export"]').click();
+    const exportPanel = page.locator('[data-panel="builder-export"]');
+    await expect(
+      exportPanel.locator('[data-name="b-mode:O"] input'),
+    ).toBeChecked();
+    await expect(
+      exportPanel.locator('.ic-alert[data-level="info"]'),
+    ).toContainText("Pengubah 3 ikon diabaikan");
+    await page.evaluate(() => {
+      window.__zip = null;
+      URL.createObjectURL = (blob) => {
+        window.__zip = blob;
+        return "blob:uji";
+      };
+      HTMLAnchorElement.prototype.click = () => {};
+    });
+    await page.locator('[data-action="b-export"]').click();
+    await page
+      .waitForFunction(() => window.__zip instanceof Blob, null, {
+        timeout: 30000,
+      })
+      .catch(async () => {
+        throw new Error(
+          "ZIP tidak terbuat: " +
+            (await page.locator('[data-role="export-status"]').textContent()),
+        );
+      });
+    const zip = await page.evaluate(async () => {
+      const z = await window.JSZip.loadAsync(window.__zip);
+      /** @type {Record<string, string>} */
+      const out = {};
+      for (const n of Object.keys(z.files))
+        if (!z.files[n].dir) out[n] = await z.files[n].async("string");
+      return out;
+    });
+    const svgs = Object.keys(zip).filter((n) => n.endsWith(".svg"));
+    expect(svgs.sort()).toEqual(
+      keys.map((k) => `offset/slot-deck/${k}-offset.svg`).sort(),
+    );
+    const checks = await page.evaluate(
+      (files) =>
+        files.map(([name, svg]) => {
+          const S = /** @type {any} */ (window).__iconStudio;
+          const body = svg.replace(/^<\?xml[^>]*>\s*/, "");
+          const root = new DOMParser().parseFromString(
+            body,
+            "image/svg+xml",
+          ).documentElement;
+          let again = null;
+          try {
+            S.directFillSvgFile(svg);
+          } catch (e) {
+            again = /** @type {Error} */ (e).message;
+          }
+          return {
+            name,
+            again,
+            viewBox: root.getAttribute("viewBox"),
+            children: [...new Set([...root.children].map((c) => c.localName))],
+            colors: new Set(
+              [...root.children].map((c) => c.getAttribute("fill")),
+            ).size,
+            stroke: /\sstroke(?:-|=)/.test(body),
+            dash: /stroke-dasharray/.test(body),
+            banned:
+              /<g\b|\stransform=|<mask\b|\smask=|<clipPath|<style|\sstyle=|<use\b/.test(
+                body,
+              ),
+          };
+        }),
+      svgs.map((n) => [n, zip[n]]),
+    );
+    for (const r of checks) {
+      expect(r.again, r.name).toBeNull();
+      expect(r.viewBox, r.name).toBe("0 0 48 48");
+      expect(r.children, r.name).toEqual(["path"]);
+      expect(r.colors, r.name).toBeGreaterThanOrEqual(1);
+      expect(r.colors, r.name).toBeLessThanOrEqual(5);
+      expect(r.stroke, r.name).toBe(false);
+      expect(r.dash, r.name).toBe(false);
+      expect(r.banned, r.name).toBe(false);
+    }
+    expect(zip["metadata.csv"]).toContain("House Finance Offset Style Icon");
+    expect(zip["metadata-internal.csv"]).toContain('"offset"');
+    expect(JSON.parse(zip["manifest-final.json"]).style).toMatchObject({
+      family: "offset",
+      mode: "white",
+    });
+    expect(JSON.parse(zip["submission-profile.json"]).offset_engine).toBe(
+      "1.1.0",
+    );
+    expect(zip["LICENSES.txt"]).toContain("offset/");
+  });
 });

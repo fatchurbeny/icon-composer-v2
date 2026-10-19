@@ -78,10 +78,12 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
     combo: { pos, mode, skipExisting, skip },
     review: { json, html, ko, fmt, bg, size, names, flags, compare, off },
     meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack?, import? } },
-  { id, kind: "manifest", name, manifest, style, pv, items, isSample,
+  { id, kind: "manifest", name, manifest, style, pv /* X|A|B|O */, items, isSample,
     exportModes, export: { modes, slot, extra, split, skipBad, kw, name, locale, creator, description, sheetCols },
     view: { filter, group, step }, issues, review } ] }
 ```
+
+Dokumen manifest bergaya offset (Fase 3): `pv = "O"`, `export.modes.O`, dan isi warna di `style.engine.offset.mode` (`solid`, `white`, `line`). Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
 
 ### 4.2 Migrasi 001 (`apps/icon-studio/src/state/migrations/001-from-legacy.js`)
 

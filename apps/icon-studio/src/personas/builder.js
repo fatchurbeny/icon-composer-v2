@@ -9,6 +9,7 @@ import {
   BRAND_KEY,
   MODE_INFO,
   buildExportFiles,
+  dupKey,
   dupMap,
   exportList,
   flagsOf,
@@ -17,16 +18,17 @@ import {
   packOf,
   sheetGrid,
 } from "../state/builder-ops.js";
-import { MODES, SPARKS, kebab2, sparkHome } from "../state/document.js";
+import { BUILDER_MODES, OFFSET_MODE, SPARKS, kebab2, manifestOffsetStyle, sparkHome } from "../state/document.js";
 import { setSlot } from "../state/edit-ops.js";
 import { alert, aria, button, check, empty, esc, icon, panel, seg, select } from "../ui.js";
-import { docFileName, statusBar } from "./common.js";
+import { NO_MOD_TEXT, docFileName, statusBar } from "./common.js";
 import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } from "./library-panel.js";
 
 const ROLE_NAME = { ink: "Tinta", acc: "Aksen", fillA: "Isi aksen", fill: "Isi tinta" };
 const UNDER_NAME = { none: "Tanpa", full: "Penuh", offset: "Geser", half: "Separuh" };
 const ANCHORS = ["TL", "TC", "TR", "ML", "C", "MR", "BL", "BC", "BR"];
-const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis" };
+const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis", O: "Offset" };
+const OFFSET_FILL_NAME = [["solid", "Bidang"], ["white", "Putih"], ["line", "Garis"]];
 
 /** Status ekspor terakhir (bukan bagian dokumen). */
 let exportStatus = "";
@@ -40,8 +42,10 @@ function brandId() {
   }
 }
 
+/** Flag mengikuti mode pratinjau: mode O memakai flag offset. @param {import("./common.js").Ctx} ctx */
+const deps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style, mode: ctx.doc.pv });
 /** @param {import("./common.js").Ctx} ctx */
-const deps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style });
+const dmOf = (ctx) => dupMap(ctx.doc.items, ctx.doc.pv);
 /** @param {import("./common.js").Ctx} ctx */
 const selectedOf = (ctx) => (ctx.doc ? ctx.doc.items.find((/** @type {any} */ it) => it.uid === ctx.app.selection[ctx.doc.id]) || null : null);
 /** @param {import("./common.js").Ctx} ctx @param {any} it @param {string} mode @param {string} idp @param {any} [size] */
@@ -69,16 +73,16 @@ function badgeOf(it, fl) {
   const same = fl.find((f) => f[1].startsWith("Mirip "));
   if (same) return ["err", `= ${same[1].slice(6)}`];
   if (fl.some((f) => f[0] === "err")) return ["err", "masalah"];
-  if (fl.length) return ["warn", "cek"];
+  if (fl.some((f) => f[0] !== "info")) return ["warn", "cek"];
   return null;
 }
 
 /** @param {import("./common.js").Ctx} ctx */
 function filtered(ctx) {
-  const dm = dupMap(ctx.doc.items),
+  const dm = dmOf(ctx),
     f = ctx.doc.view.filter;
   return ctx.doc.items.filter((/** @type {any} */ it) =>
-    f === "bad" ? flagsOf(it, dm, deps(ctx)).length > 0 : f === "slot" ? it.role === "slot" : f === "extra" ? it.role === "extra" : f === "off" ? !it.on : true,
+    f === "bad" ? flagsOf(it, dm, deps(ctx)).some((x) => x[0] !== "info") : f === "slot" ? it.role === "slot" : f === "extra" ? it.role === "extra" : f === "off" ? !it.on : true,
   );
 }
 
@@ -117,7 +121,7 @@ function card(ctx, it, dm) {
 /** @param {import("./common.js").Ctx} ctx */
 function checkCanvas(ctx) {
   const items = filtered(ctx),
-    dm = dupMap(ctx.doc.items);
+    dm = dmOf(ctx);
   if (!items.length) return `<div class="studio-center">${empty("Tidak ada ikon di filter ini.")}</div>`;
   if (!ctx.doc.view.group) return `<div class="ic-cardgrid" style="--ic-cols: 8">${items.map((it) => card(ctx, it, dm)).join("")}</div>`;
   /** @type {Map<string, any[]>} */
@@ -154,11 +158,11 @@ function exportCanvas(ctx) {
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function iconBody(ctx, it) {
   if (!it) return empty("Belum ada ikon terpilih.", "Klik ikon di kanvas.");
-  const fl = flagsOf(it, dupMap(ctx.doc.items), deps(ctx));
+  const fl = flagsOf(it, dmOf(ctx), deps(ctx));
   const field = (/** @type {string} */ label, /** @type {string} */ name, /** @type {string} */ value, mono = false) =>
     `<div class="ic-formrow"><span class="ic-label">${label}</span><label class="ic-field${mono ? " ic-field--mono" : ""} studio-grow" data-name="${name}"><input value="${esc(value)}" aria-label="${label}"></label></div>`;
   const out = [
-    `<div class="ic-cardgrid" style="--ic-cols: 3">${MODES.map((m) => `<div class="ic-iconcard"><span class="ic-iconcard__art">${render(ctx, it, m, `d${m}`)}</span><span class="ic-iconcard__id">${esc(/** @type {any} */ (MODE_INFO)[m].short)}</span></div>`).join("")}</div>`,
+    `<div class="ic-cardgrid" style="--ic-cols: ${BUILDER_MODES.length}">${BUILDER_MODES.map((m) => `<div class="ic-iconcard"><span class="ic-iconcard__art">${render(ctx, it, m, `d${m}`)}</span><span class="ic-iconcard__id">${esc(/** @type {any} */ (MODE_INFO)[m].short)}</span></div>`).join("")}</div>`,
     check("Masuk pack", it.on, { name: "b-on" }),
     fl.length ? fl.map(([lv, t]) => alert(/** @type {any} */ (lv), t)).join("") : alert("ok", "Rakitan unik, tidak ada nama serupa di Lucide, Tabler, atau Hugeicons."),
     field("id", "b-id", it.id, true),
@@ -172,6 +176,12 @@ function iconBody(ctx, it) {
       `<div class="ic-formrow"><span class="ic-label">Posisi</span><div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="b-slot">${ANCHORS.map((k) => (k === "C" ? '<button type="button" disabled aria-label="Tengah"></button>' : `<button type="button" data-value="${k}" ${aria("aria-pressed", it.slot === k)} aria-label="Posisi ${k}"></button>`)).join("")}</div></div>`,
     );
   out.push(`<div class="ic-formrow"><span class="ic-label">Kata kunci</span><div class="studio-tags">${[...it.keywords.en].map((k) => `<span class="ic-tag">${esc(k)}</span>`).join("") || '<span class="ic-meta">dari pustaka saat ekspor</span>'}</div></div>`);
+  if (ctx.doc.pv === OFFSET_MODE)
+    out.push(
+      `<span class="ic-label">Gaya Offset</span>`,
+      `<div class="ic-formrow"><span class="ic-label">Isi warna</span>${seg("Isi warna offset", OFFSET_FILL_NAME, manifestOffsetStyle(ctx.doc.style).engine.offset.mode, { name: "b-ofill" })}</div>`,
+      `<span class="ic-meta">Berlaku untuk seluruh pack. Dekorasi offset memakai bawaan: kilat kanan atas dan garis tanah.</span>`,
+    );
   if (ctx.doc.pv === "X") {
     const info = ctx.renderer.mainInfo(it.main),
       roles = ctx.renderer.rolesOf(it, info),
@@ -194,7 +204,7 @@ function iconBody(ctx, it) {
 /** @param {import("./common.js").Ctx} ctx */
 function manifestBody(ctx) {
   const doc = ctx.doc,
-    dm = dupMap(doc.items);
+    dm = dmOf(ctx);
   const slots = doc.items.filter((/** @type {any} */ i) => i.role === "slot").length;
   const bad = doc.items.filter((/** @type {any} */ i) => isBad(i, dm, deps(ctx))).length;
   const issues = doc.issues.length ? doc.issues : [["ok", "Semua nama objek dan pengubah dikenali."]];
@@ -209,13 +219,14 @@ function manifestBody(ctx) {
 
 /** @param {import("./common.js").Ctx} ctx */
 function repetitionBody(ctx) {
-  const dm = dupMap(ctx.doc.items),
+  const dm = dmOf(ctx),
     d = deps(ctx);
-  const dupIds = ctx.doc.items.filter((/** @type {any} */ it) => it.on && dm[it.main + "|" + it.mod] > 1);
-  const same = ctx.doc.items.filter((/** @type {any} */ it) => ctx.app.vocab.collisions(it).length);
+  const dupIds = ctx.doc.items.filter((/** @type {any} */ it) => it.on && dm[dupKey(it, ctx.doc.pv)] > 1);
+  /* di offset pengubah tidak dirender, jadi nama gabungan objek + pengubah tidak bisa sama dengan ikon pustaka */
+  const same = ctx.doc.pv === OFFSET_MODE ? [] : ctx.doc.items.filter((/** @type {any} */ it) => ctx.app.vocab.collisions(it).length);
   const bad = ctx.doc.items.filter((/** @type {any} */ it) => it.on && isBad(it, dm, d));
   const groups = new Map();
-  for (const it of dupIds) groups.set(it.main + "|" + it.mod, [...(groups.get(it.main + "|" + it.mod) || []), it.id]);
+  for (const it of dupIds) groups.set(dupKey(it, ctx.doc.pv), [...(groups.get(dupKey(it, ctx.doc.pv)) || []), it.id]);
   return [
     `<div class="ic-stats"><div class="ic-stat" data-level="${dupIds.length ? "err" : "ok"}"><div class="ic-stat__n">${dupIds.length}</div><div class="ic-stat__l">Rakitan dobel</div></div><div class="ic-stat" data-level="${same.length ? "err" : "ok"}"><div class="ic-stat__n">${same.length}</div><div class="ic-stat__l">Sama dg pustaka</div></div><div class="ic-stat"${bad.length ? ' data-level="err"' : ""}><div class="ic-stat__n">${bad.length}</div><div class="ic-stat__l">Bermasalah</div></div></div>`,
     ...[...groups.values()].map((ids) => alert("err", ids.join(" = "), "dobel")),
@@ -230,7 +241,17 @@ const LEGEND = [
   ["warn", "Tanpa body: objek tanpa bidang tertutup. Mode Solid·garis memberi pelat bulat aksen."],
   ["err", "Tanpa pengubah: ikon pustaka tanpa tambahan sama saja dengan salinan."],
   ["warn", "Tidak dikenal: nama dari manifest tidak ada di kosakata. Pilih pengganti."],
+  ["info", `${NO_MOD_TEXT}: gaya Offset hanya merender objek utama. Pengubah tetap tersimpan di manifest, tidak menghalangi ekspor.`],
 ];
+
+/**
+ * Flag info pack untuk gaya Offset: berapa ikon yang pengubahnya diabaikan.
+ * @param {import("./common.js").Ctx} ctx
+ */
+function offsetNote(ctx) {
+  const n = ctx.doc.items.filter((/** @type {any} */ i) => i.on && i.mod !== "none").length;
+  return alert("info", n ? `${NO_MOD_TEXT}. Pengubah ${n} ikon diabaikan di folder offset/.` : `${NO_MOD_TEXT}.`, "offset");
+}
 
 /** @param {import("./common.js").Ctx} ctx */
 function exportBody(ctx) {
@@ -238,17 +259,17 @@ function exportBody(ctx) {
     o = doc.export,
     d = deps(ctx);
   const list = exportList(doc, o, d);
-  const styles = MODES.filter((m) => o.modes[m]);
+  const styles = BUILDER_MODES.filter((m) => o.modes[m]);
   const nS = doc.items.filter((/** @type {any} */ i) => i.on && i.role !== "extra").length,
     nE = doc.items.filter((/** @type {any} */ i) => i.on && i.role === "extra").length;
   const sample = selectedOf(ctx) || doc.items[0];
-  const rows = MODES.map(
+  const rows = BUILDER_MODES.map(
     (m) =>
       `<div class="ic-row ic-row--sm"><label class="ic-check" data-name="b-mode:${m}"><input type="checkbox"${o.modes[m] ? " checked" : ""} aria-label="Ekspor ${esc(/** @type {any} */ (PREVIEW_LABEL)[m])}"></label><span class="ic-row__thumb">${sample ? render(ctx, sample, m, `ex${m}`) : ""}</span><span class="ic-row__name">${esc(/** @type {any} */ (PREVIEW_LABEL)[m])}</span><span class="ic-meta">${esc(/** @type {any} */ (MODE_INFO)[m].dir)}/</span></div>`,
   ).join("");
   const base = kebab2(o.name) || "icon-pack";
   const tree = [`${base}.zip`, ...styles.map((s) => `├─ ${/** @type {any} */ (MODE_INFO)[s].dir}/  ${list.length} svg`), "├─ metadata.csv (Canva)", "├─ metadata-internal.csv", "├─ submission-profile.json", "├─ resource-page.html", "├─ manifest-final.json", "└─ LICENSES.txt"].join("\n");
-  return `${rows}<div class="studio-pad studio-stack">${check(`Ikon slot deck · ${nS}`, o.slot, { name: "b-ex:slot" })}${check(`Ikon ekstra · ${nE}`, o.extra, { name: "b-ex:extra", disabled: !nE })}${check("Pisahkan folder slot deck dan ekstra", o.split, { name: "b-ex:split" })}${check("Lewati ikon yang masih bermasalah", o.skipBad, { name: "b-ex:skipBad" })}<pre class="ic-meta studio-tree">${esc(tree)}</pre>${alert("ok", "SVG fill langsung untuk Canva: semua stroke jadi outline, satu path per warna.")}${button(`Unduh ZIP · ${list.length * styles.length} SVG`, { kind: "primary", block: true, action: "b-export", disabled: !list.length || !styles.length })}<p class="ic-meta" role="status" data-role="export-status">${esc(exportStatus)}</p></div>`;
+  return `${rows}<div class="studio-pad studio-stack">${check(`Ikon slot deck · ${nS}`, o.slot, { name: "b-ex:slot" })}${check(`Ikon ekstra · ${nE}`, o.extra, { name: "b-ex:extra", disabled: !nE })}${check("Pisahkan folder slot deck dan ekstra", o.split, { name: "b-ex:split" })}${check("Lewati ikon yang masih bermasalah", o.skipBad, { name: "b-ex:skipBad" })}<pre class="ic-meta studio-tree">${esc(tree)}</pre>${o.modes[OFFSET_MODE] ? offsetNote(ctx) : ""}${alert("ok", "SVG fill langsung untuk Canva: semua stroke jadi outline, satu path per warna.")}${button(`Unduh ZIP · ${list.length * styles.length} SVG`, { kind: "primary", block: true, action: "b-export", disabled: !list.length || !styles.length })}<p class="ic-meta" role="status" data-role="export-status">${esc(exportStatus)}</p></div>`;
 }
 
 /** @param {import("./common.js").Ctx} ctx */
@@ -261,7 +282,7 @@ function metadataBody(ctx) {
   const field = (/** @type {string} */ label, /** @type {string} */ name, /** @type {string} */ value) =>
     `<div class="ic-formrow"><span class="ic-label">${label}</span><label class="ic-field studio-grow" data-name="${name}"><input value="${esc(value)}" aria-label="${label}"></label></div>`;
   const first = list[0];
-  const ex = first ? metaOf(first, MODES.find((m) => o.modes[m]) || doc.pv, 15, { man: doc.manifest, brand, tagsOf: () => [] }) : null;
+  const ex = first ? metaOf(first, BUILDER_MODES.find((m) => o.modes[m]) || doc.pv, 15, { man: doc.manifest, brand, tagsOf: () => [] }) : null;
   return [
     field("Nama pack", "b-name", o.name),
     field("Tema EN", "b-pack-en", pk.en),
@@ -351,7 +372,7 @@ const actions = {
   },
   /** @param {import("./common.js").Ctx} ctx */
   "b-skip-bad"(ctx) {
-    const dm = dupMap(ctx.doc.items),
+    const dm = dmOf(ctx),
       d = deps(ctx);
     mutate(ctx, (doc) => doc.items.forEach((/** @type {any} */ it) => isBad(it, dm, d) && (it.on = false)), "Lewati bermasalah");
   },
@@ -399,7 +420,12 @@ function control(ctx, name, value) {
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   const doc = ctx.doc;
   if (name === "b-filter") return mutate(ctx, () => (doc.view.filter = value));
-  if (name === "b-preview") return mutate(ctx, () => (doc.pv = MODES.includes(value) ? value : doc.pv));
+  if (name === "b-preview") return mutate(ctx, () => (doc.pv = BUILDER_MODES.includes(value) ? value : doc.pv));
+  if (name === "b-ofill")
+    return mutate(ctx, () => {
+      const e = doc.style.engine || {};
+      doc.style.engine = { ...e, offset: { ...(e.offset || {}), mode: manifestOffsetStyle({ engine: { offset: { mode: value } } }).engine.offset.mode } };
+    }, "Isi warna offset");
   if (name === "b-group") return mutate(ctx, () => (doc.view.group = !!value));
   if (name === "b-on") return mutateItem(ctx, (it) => (it.on = !!value), value ? "Masuk pack" : "Dikeluarkan dari pack");
   if (name === "b-id") return mutateItem(ctx, (it) => (it.id = kebab2(value) || it.id), "Ubah id");
@@ -490,12 +516,12 @@ export const builder = {
   context(ctx) {
     if (!ctx.doc) return steps(ctx);
     const doc = ctx.doc,
-      dm = dupMap(doc.items),
+      dm = dmOf(ctx),
       d = deps(ctx);
     const count = (/** @type {(it: any) => boolean} */ f) => doc.items.filter(f).length;
     const F = [
       ["all", "Semua", doc.items.length],
-      ["bad", "Bermasalah", count((it) => flagsOf(it, dm, d).length > 0)],
+      ["bad", "Bermasalah", count((it) => flagsOf(it, dm, d).some((f) => f[0] !== "info"))],
       ["slot", "Slot deck", count((it) => it.role === "slot")],
       ["extra", "Ekstra", count((it) => it.role === "extra")],
       ["off", "Dikeluarkan", count((it) => !it.on)],

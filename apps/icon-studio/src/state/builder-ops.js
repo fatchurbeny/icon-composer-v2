@@ -5,11 +5,12 @@
  */
 import { dedupeAttrs } from "@icon-studio/core";
 import { CLASSIC_ENGINE_VERSION } from "@icon-studio/engines/classic";
+import { OFFSET_ENGINE_VERSION } from "@icon-studio/engines/offset";
 import { createTagIndex, directFillSvgFile, metadataCsv, styleWord, titleCase, trID } from "@icon-studio/export";
 import { MAIN_ALIAS, MOD_ALIAS, libNameOf, variantsOf } from "@icon-studio/icon-sources";
 import { TB_CATS } from "@icon-studio/icon-sources/catalog";
 import { resourceHTML } from "./data/export/resource-page.js";
-import { MODES, kebab2 } from "./document.js";
+import { BUILDER_MODES, OFFSET_MODE, kebab2, manifestOffsetStyle } from "./document.js";
 
 export const TIB_VERSION = "1.6.0";
 export const OUTPUT_VERSION = "1.5.0";
@@ -20,11 +21,16 @@ export const MODE_INFO = {
   X:{label:"Aksen bagian · penanda di depan", short:"Aksen", dir:"aksen", en:["two tone icon", "accent icon", "line icon", "rounded icon"], id:["ikon dua warna", "ikon aksen", "ikon garis"]},
   A:{label:"Utama garis · pengubah solid", short:"Garis·solid", dir:"garis-solid", en:["two tone icon", "outline icon", "accent icon"], id:["ikon dua warna", "ikon garis", "ikon aksen"]},
   B:{label:"Utama solid · pengubah garis", short:"Solid·garis", dir:"solid-garis", en:["two tone icon", "solid icon", "filled icon"], id:["ikon dua warna", "ikon solid", "ikon isi"]},
-  C:{label:"Keduanya garis", short:"Garis·garis", dir:"garis-garis", en:["outline icon", "line icon", "monoline icon"], id:["ikon garis", "ikon outline"]}
+  C:{label:"Keduanya garis", short:"Garis·garis", dir:"garis-garis", en:["outline icon", "line icon", "monoline icon"], id:["ikon garis", "ikon outline"]},
+  /* Fase 3: kata kunci gaya sama dengan metadata Tinjau (review-ops styleMeta) */
+  O:{label:"Offset · objek saja", short:"Offset", dir:"offset", en:["offset style", "line icon", "two tone icon"], id:["gaya offset", "ikon garis", "ikon dua warna"]}
 };
 export const MOD_POOL = ["plus","minus","check","x","star","search","clock","timer","bell","lock","shield","heart","pencil","settings","cloud","share-2","download","upload","refresh-cw","triangle-alert","info","zap","eye","flag","bookmark","link","user","message-circle","gift","trophy","target","rocket","hourglass","thumbs-up","send","tag","map-pin","sun","leaf","music","coffee"];
 
 export const LICENSES = `Ikon dalam pack ini dirakit dengan Template Icon Builder.\nSebagian bentuk dasar berasal dari:\n- Lucide (https://lucide.dev) — ISC License, © Lucide Contributors\n- Tabler Icons (https://tabler.io/icons) — MIT License, © Paweł Kuna\n- Hugeicons Free (https://hugeicons.com) — MIT License, © Hugeicons\nPaket Hugeicons Pro tidak digunakan.\n- Library Kustom (cu:) — digambar ulang sendiri, bukan dari pustaka pihak ketiga\nKonversi stroke ke shape menggunakan:\n- unstroke — MIT License, © Paweł Kuna\n- clipper-lib — Boost Software License\nSetiap ikon adalah gabungan objek + pengubah, digambar ulang dengan gaya Icon Composer:\n- aksen/: garis 3,5 ujung bulat, celah knockout 1,25, wadah tinta + bagian aksen, penanda di depan\n- garis-solid/ dan solid-garis/: garis 2, celah knockout 2, dua warna\n`;
+
+/** Tambahan LICENSES.txt bila folder offset/ ikut diekspor. Teks TIB 1.6.0 di atas tidak berubah (golden). */
+export const LICENSE_OFFSET = `- offset/: garis tinta di atas isi aksen yang digeser, objek utama saja (pengubah tidak dirender)\n`;
 
 /* kolom metadata: header tanpa kutip, sama dengan legacy 1.6.0 */
 export const CANVA_COLUMNS = ["filename","title","keywords","Artist","locale","description"];
@@ -130,17 +136,44 @@ export function validateManifest(doc, vocab){
   return out;
 }
 
-/** @param {any[]} items */
-export function dupMap(items){ /** @type {Record<string, number>} */ const m = {}; items.filter(i => i.on).forEach(i => { const k = i.main + "|" + i.mod; m[k] = (m[k] || 0) + 1; }); return m; }
+/**
+ * Kunci rakitan untuk deteksi dobel. Di mode offset pengubah tidak dirender, jadi objek utama saja yang dihitung.
+ * @param {any} it @param {string} [mode]
+ */
+export const dupKey = (it, mode) => mode === OFFSET_MODE ? it.main : it.main + "|" + it.mod;
+
+/** @param {any[]} items @param {string} [mode] */
+export function dupMap(items, mode){ /** @type {Record<string, number>} */ const m = {}; items.filter(i => i.on).forEach(i => { const k = dupKey(i, mode); m[k] = (m[k] || 0) + 1; }); return m; }
 
 /**
- * Flag satu ikon (flagsOf TIB).
+ * Flag satu ikon di mode offset: objek tidak dikenal, flag mesin offset (objek bawaan, tanpa bidang tertutup,
+ * info pengubah), dan dobel per objek utama. Flag khusus pengubah TIB tidak berlaku karena pengubah tidak dirender.
  * @param {any} it
- * @param {Record<string, number> | null} dm
+ * @param {Record<string, number> | null} dm dari `dupMap(items, OFFSET_MODE)`
  * @param {{vocab: ReturnType<typeof createVocabulary>, renderer: any, style: any}} deps
  * @returns {[string, string][]}
  */
+function offsetFlagsOf(it, dm, deps){
+  /** @type {[string, string][]} */
+  const f = [];
+  if (!deps.vocab.exists(it.main, "main")) f.push(["err", "Objek utama tidak dikenal"]);
+  else f.push(...deps.renderer.flagsOf(it, manifestOffsetStyle(deps.style)).filter((/** @type {[string, string]} */ x) => x[0] !== "info"));
+  if (dm && dm[dupKey(it, OFFSET_MODE)] > 1) f.push(["err", "Rakitan dobel di pack"]);
+  const M = deps.renderer.data.MAINS[it.main]; if (M && M.missing) f.push(["warn", "Belum termuat"]);
+  if (it.mod !== "none") f.push(["info", "Pengubah tidak tersedia pada style ini"]);
+  return f;
+}
+
+/**
+ * Flag satu ikon (flagsOf TIB). `deps.mode` O memakai flag offset; mode lain sama dengan TIB 1.6.0.
+ * Flag `info` tidak dihitung `isBad` dan tidak menghalangi ekspor.
+ * @param {any} it
+ * @param {Record<string, number> | null} dm dari `dupMap(items, deps.mode)`
+ * @param {{vocab: ReturnType<typeof createVocabulary>, renderer: any, style: any, mode?: string}} deps
+ * @returns {[string, string][]}
+ */
 export function flagsOf(it, dm, deps){
+  if (deps.mode === OFFSET_MODE) return offsetFlagsOf(it, dm, deps);
   const { vocab, renderer } = deps, LIB_RE = renderer.LIB_RE, MAINS = renderer.data.MAINS;
   /** @type {[string, string][]} */
   const f = [];
@@ -163,14 +196,20 @@ export const isBad = (it, dm, deps) => flagsOf(it, dm, deps).some(f => f[0] === 
 
 /**
  * Ikon yang ikut ekspor: aktif, perannya dicentang, dan bukan yang bermasalah (bila dilewati). Slot dulu, lalu ekstra.
+ * Ikon bermasalah dinilai per kelompok gaya yang dicentang: flag TIB untuk classic/accent, flag offset untuk mode O.
  * @param {any} doc
  * @param {any} opts defaultExportOptions
  * @param {any} deps
  */
 export function exportList(doc, opts, deps){
-  const dm = dupMap(doc.items);
+  const modes = BUILDER_MODES.filter(m => opts.modes && opts.modes[m]);
+  const checks = [];
+  if (!modes.length || modes.some(m => m !== OFFSET_MODE)) checks.push({...deps, mode: undefined});
+  if (modes.includes(OFFSET_MODE)) checks.push({...deps, mode: OFFSET_MODE});
+  const dms = checks.map(d => dupMap(doc.items, d.mode));
+  const bad = (/** @type {any} */ i) => checks.some((d, n) => isBad(i, dms[n], d));
   const roleOk = (/** @type {any} */ i) => i.role === "extra" ? opts.extra : opts.slot;
-  const L = doc.items.filter((/** @type {any} */ i) => i.on && roleOk(i) && !(opts.skipBad && isBad(i, dm, deps)));
+  const L = doc.items.filter((/** @type {any} */ i) => i.on && roleOk(i) && !(opts.skipBad && bad(i)));
   return [...L.filter((/** @type {any} */ i) => i.role !== "extra"), ...L.filter((/** @type {any} */ i) => i.role === "extra")];
 }
 
@@ -178,10 +217,10 @@ export function exportList(doc, opts, deps){
 export function pathOf(it, s, split){ const d = /** @type {any} */ (MODE_INFO)[s].dir; return `${d}/${split ? /** @type {any} */ (ROLE_DIR)[it.role === "extra" ? "extra" : "slot"] + "/" : ""}${it.id}-${d}.svg`; }
 
 /** @param {string} kind */
-const styleWordOf = (kind) => kind === "X" ? styleWord("accent") : styleWord("classic", kind);
+const styleWordOf = (kind) => kind === "X" ? styleWord("accent") : kind === OFFSET_MODE ? styleWord("offset") : styleWord("classic", kind);
 
 /**
- * Metadata satu ikon untuk satu gaya (meta TIB).
+ * Metadata satu ikon untuk satu gaya (meta TIB). Mode offset tidak memakai tag pengubah karena pengubah tidak dirender.
  * @param {any} it
  * @param {string} kind
  * @param {number} N jumlah kata kunci
@@ -190,7 +229,7 @@ const styleWordOf = (kind) => kind === "X" ? styleWord("accent") : styleWord("cl
 export function metaOf(it, kind, N, o){
   const MI = /** @type {any} */ (MODE_INFO)[kind];
   const styleEN = MI.en, styleID = MI.id;
-  const mainT = o.tagsOf(it.main, "main"), modT = it.mod !== "none" ? o.tagsOf(it.mod, "mod") : [];
+  const mainT = o.tagsOf(it.main, "main"), modT = it.mod !== "none" && kind !== OFFSET_MODE ? o.tagsOf(it.mod, "mod") : [];
   const lc = (/** @type {any[]} */ a) => a.map(s => String(s).toLowerCase().trim()).filter(Boolean);
   const pk = packOf(o.man);
   const en = [...new Set([...lc(it.keywords.en), it.name.en.toLowerCase(), ...lc([pk.en]), ...mainT.slice(0, 6), ...modT.slice(0, 4), ...styleEN, "icon"])].slice(0, N);
@@ -211,8 +250,10 @@ export function metaOf(it, kind, N, o){
  */
 export function finalManifest(doc, list, exportedAt){
   const man = doc.manifest, pv = doc.pv, style = doc.style;
+  const family = pv === "X" ? "accent" : pv === OFFSET_MODE ? "offset" : "classic";
+  const mode = pv === "X" ? ((man && man.style && man.style.mode) || "A") : pv === OFFSET_MODE ? manifestOffsetStyle(style).engine.offset.mode : pv;
   return {...(man || {}), format:"tib-manifest", /* TIB menulis version:1 lalu version:2; nilai dan urutan kunci hasilnya sama */ version:2, generator:{name:"Template Icon Builder", version:OUTPUT_VERSION, exported_at:exportedAt},
-    style:{...((man && man.style) || {}), family: pv === "X" ? "accent" : "classic", mode: pv === "X" ? ((man && man.style && man.style.mode) || "A") : pv, ink:style.ink, accent:style.accent},
+    style:{...((man && man.style) || {}), family, mode, ink:style.ink, accent:style.accent},
     icons: list.map(it => ({id:it.id, name:it.name, main:it.main, mod:it.mod, anchor:it.slot, offset:{main:[it.mx, it.my], mod:[it.nx, it.ny]},
       accent:{fill:it.under, marker:it.mstyle, spark:(it.deco || {}).type || "none", ...((it.deco || {}).type && it.deco.type !== "none" ? {spark_pos:[it.deco.x, it.deco.y]} : {}), parts:it.parts || "auto"},
       slides:it.slides, role:it.role, keywords:it.keywords}))};
@@ -230,7 +271,8 @@ const TAGS = createTagIndex();
 export async function buildExportFiles(doc, opts, deps){
   const flagDeps = { vocab: deps.vocab, renderer: deps.renderer, style: doc.style };
   const list = exportList(doc, opts, flagDeps);
-  const styles = MODES.filter(m => opts.modes[m]);
+  const styles = BUILDER_MODES.filter(m => opts.modes[m]);
+  const withOffset = styles.includes(OFFSET_MODE);
   if (!list.length || !styles.length) return { error: "Tidak ada ikon atau gaya yang dipilih untuk diekspor.", list, styles };
   await TAGS.loadTags();
   const tagsOf = (/** @type {string} */ k, /** @type {"main" | "mod"} */ kind) => TAGS.tagsOf(deps.vocab.libName(k, kind));
@@ -253,16 +295,16 @@ export async function buildExportFiles(doc, opts, deps){
       files[f] = directFillSvgFile(sourceSvg);
       const m = metaOf(it, s, N, {man: doc.manifest, brand: deps.brand, tagsOf});
       canvaRows.push({filename:`${it.id}-${/** @type {any} */ (MODE_INFO)[s].dir}.svg`, title:/** @type {any} */ (m)["title_" + locale], keywords:/** @type {any} */ (m)["keywords_" + locale], Artist:artist, locale, description});
-      rows.push({file:f, id:it.id, style:/** @type {any} */ (MODE_INFO)[s].dir, title_en:m.title_en, title_id:m.title_id, keywords_en:m.keywords_en, keywords_id:m.keywords_id, search:m.search, pack:packOf(doc.manifest).en, slides:it.slides.join(" "), role:it.role, main:it.main, modifier:it.mod});
+      rows.push({file:f, id:it.id, style:/** @type {any} */ (MODE_INFO)[s].dir, title_en:m.title_en, title_id:m.title_id, keywords_en:m.keywords_en, keywords_id:m.keywords_id, search:m.search, pack:packOf(doc.manifest).en, slides:it.slides.join(" "), role:it.role, main:it.main, modifier:s === OFFSET_MODE ? "none" : it.mod});
     }));
   } catch (error){
     return { error: `Ekspor outline dibatalkan: ${/** @type {Error} */ (error).message}`, list, styles };
   }
   files["metadata.csv"] = metadataCsv(canvaRows, CANVA_COLUMNS, {quoteHeader:false});
-  files["submission-profile.json"] = JSON.stringify({format:"icon-composer-submission-profile", version:1, creator_profile_id:artist, artist, stroke_output:"direct-fill", output_version:OUTPUT_VERSION, classic_engine:CLASSIC_ENGINE_VERSION, svg_structure:"one-path-per-color", fill_rule:"nonzero", updates:["Overlap satu warna tidak menjadi lubang", "Stroke otomatis menjadi fill", "Mask diratakan", "Transform dan group dihapus", "Satu path per warna"]}, null, 2);
+  files["submission-profile.json"] = JSON.stringify({format:"icon-composer-submission-profile", version:1, creator_profile_id:artist, artist, stroke_output:"direct-fill", output_version:OUTPUT_VERSION, classic_engine:CLASSIC_ENGINE_VERSION, ...(withOffset ? {offset_engine:OFFSET_ENGINE_VERSION} : {}), svg_structure:"one-path-per-color", fill_rule:"nonzero", updates:["Overlap satu warna tidak menjadi lubang", "Stroke otomatis menjadi fill", "Mask diratakan", "Transform dan group dihapus", "Satu path per warna"]}, null, 2);
   files["metadata-internal.csv"] = metadataCsv(rows, INTERNAL_COLUMNS, {quoteHeader:false});
   files["resource-page.html"] = resourceHTML(list, {man: doc.manifest, cols: sheetGrid(list.length, opts.sheetCols), render: (it, idp) => render(it, doc.pv, {idp}), searchOf: (it) => searchOf(it, doc.manifest, deps.brand)});
   files["manifest-final.json"] = JSON.stringify(finalManifest(doc, list, deps.now ? deps.now() : new Date().toISOString()), null, 2);
-  files["LICENSES.txt"] = LICENSES;
+  files["LICENSES.txt"] = withOffset ? LICENSES + LICENSE_OFFSET : LICENSES;
   return { files, base, list, styles };
 }
