@@ -12,11 +12,13 @@ import { composerEdit } from "./personas/composer-edit.js";
 import { kombinasi } from "./personas/kombinasi.js";
 import { tinjau } from "./personas/tinjau.js";
 import { createCanvasZoom, zoomLabel } from "./canvas-zoom.js";
+import { libraryUi } from "./personas/library-panel.js";
+import { TOOL_KEYS, TOOL_TIPS, tipId, toolTipMarkup } from "./tool-tips.js";
 import { SAMPLE_MANIFEST } from "./state/data/sample-manifest.js";
 import { aria, esc, icon, iconButton } from "./ui.js";
 
-/** Pintasan tool (V pilih, H geser tampilan, Z perbesar), seperti Affinity. */
-const TOOL_KEYS = /** @type {Record<string, string>} */ ({ select: "V", hand: "H", zoom: "Z" });
+/** Tool mode (tetap aktif) dan padanannya di canvas-zoom; tool lain adalah perintah sekali klik. */
+const MODE_TOOLS = /** @type {Record<string, string>} */ ({ select: "select", move: "select", hand: "hand", zoom: "zoom", magnifier: "zoom" });
 
 const PERSONA_SPECS = { composer: composerSet, builder, tinjau, kombinasi };
 const PERSONA_NAV = [
@@ -98,10 +100,16 @@ export function createShell({ root, app, renderer }) {
         if (t === "sep") return `<span class="ic-toolrail__sep"></span>`;
         const pressed = hasCurrent ? t[0] === currentTool : i === 0;
         const label = `${t[1]}${TOOL_KEYS[t[0]] ? ` (${TOOL_KEYS[t[0]]})` : ""}`;
-        return `<button type="button" class="ic-tool" aria-label="${esc(label)}" ${aria("aria-pressed", pressed)} data-value="${esc(t[0])}">${icon(t[0], 20)}</button>`;
+        const tip = TOOL_TIPS[t[0]] ? ` data-tip="${tipId(t[0])}" aria-describedby="${tipId(t[0])}"` : "";
+        return `<button type="button" class="ic-tool" aria-label="${esc(label)}" ${aria("aria-pressed", pressed)} data-value="${esc(t[0])}"${tip}>${icon(t[0], 20)}</button>`;
       })
       .join("");
-    return `<aside class="ic-toolrail" aria-label="Alat" data-ic="single" data-name="tool">${tools}</aside>`;
+    /* rich tooltip tool: elemen tersembunyi, ditampilkan dan diposisikan oleh components.js */
+    const tips = spec.tools
+      .filter((/** @type {any} */ t) => t !== "sep")
+      .map((/** @type {any} */ t) => toolTipMarkup(t[0], t[1]))
+      .join("");
+    return `<aside class="ic-toolrail" aria-label="Alat" data-ic="single" data-name="tool">${tools}${tips}</aside>`;
   }
 
   /** @param {any} spec @param {import("./personas/common.js").Ctx} c */
@@ -175,7 +183,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     g.ICUI?.initUI(root);
     /* zoom dipasang sebelum posisi gulir dipulihkan, supaya ukuran isi yang di-zoom sudah benar.
        Persona tanpa tool aktif (mis. Kombinasi tanpa rail) memakai tool Pilih. */
-    zoom.setTool(spec.tools.some((/** @type {any} */ t) => t[0] === currentTool) ? currentTool : "select");
+    zoom.setTool(spec.tools.some((/** @type {any} */ t) => t[0] === currentTool) ? MODE_TOOLS[currentTool] || "select" : "select");
     zoom.attach();
     /* pulihkan tab panel dan lipatan dari render sebelumnya */
     root.querySelectorAll("[data-panel]").forEach((section) => {
@@ -314,15 +322,66 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     }
   });
 
+  /** Tandai tool aktif di rail tanpa render ulang. */
+  const paintRail = () =>
+    root.querySelectorAll(".ic-toolrail .ic-tool").forEach((b) => b.setAttribute("aria-pressed", String(/** @type {HTMLElement} */ (b).dataset.value === currentTool)));
+
+  /** @param {string} panelTab tab panel studio (data-value) yang dibuka */
+  const openStudioTab = (panelTab) => /** @type {HTMLElement | null} */ (root.querySelector(`.ic-studio [role="tab"][data-value="${panelTab}"]`))?.click();
+
+  /**
+   * Tool perintah: dijalankan sekali, lalu rail kembali ke tool mode sebelumnya.
+   * @type {Record<string, () => void>}
+   */
+  const COMMANDS = {
+    "add-main": () => openLibrary("main"),
+    "add-mod": () => openLibrary("mod"),
+    swap: () => openLibrary("main"),
+    combine: () => go({ persona: "kombinasi", edit: null }),
+    deco: () => {
+      if (!ctx) return;
+      if (ctx.route.persona === "builder") return openStudioTab("ikon");
+      libraryUi.target = "deco";
+      render();
+      openStudioTab(ctx.route.edit ? "transform" : "lapisan");
+    },
+    tag: () => {
+      openStudioTab("ikon");
+      /** @type {HTMLElement | null} */ (root.querySelector('[data-name="b-id"] input'))?.focus();
+    },
+    compare: () => {
+      if (!ctx || !ctx.doc || !spec || !spec.control) return;
+      spec.control(ctx, "t-compare", ctx.doc.review && ctx.doc.review.compare === "direct" ? "source" : "direct", root, { toast, go, importText });
+    },
+    eyedropper: () => toast("Ambil warna belum aktif di versi ini. Atur warna lewat panel Warna."),
+  };
+
+  /** @param {"main" | "mod"} target */
+  function openLibrary(target) {
+    libraryUi.target = target;
+    render();
+    openStudioTab("pustaka");
+    /** @type {HTMLElement | null} */ (root.querySelector('[data-name="lib-query"] input'))?.focus();
+  }
+
+  /** @param {string} tool */
+  function pickTool(tool) {
+    if (MODE_TOOLS[tool]) {
+      currentTool = tool;
+      zoom.setTool(MODE_TOOLS[tool]);
+      return paintRail();
+    }
+    paintRail();
+    if (COMMANDS[tool]) COMMANDS[tool]();
+  }
+
   /* pintasan tool: V pilih, H geser tampilan, Z perbesar (tanpa tombol pengubah, di luar isian) */
   document.addEventListener("keydown", (event) => {
     const target = /** @type {HTMLElement} */ (event.target);
     if (event.metaKey || event.ctrlKey || event.altKey || (target.closest && target.closest("input, textarea"))) return;
-    const tool = Object.entries(TOOL_KEYS).find(([, k]) => k.toLowerCase() === event.key.toLowerCase());
-    if (!tool || !spec || !spec.tools.some((/** @type {any} */ t) => t[0] === tool[0])) return;
-    currentTool = tool[0];
-    zoom.setTool(currentTool);
-    root.querySelectorAll(".ic-toolrail .ic-tool").forEach((b) => b.setAttribute("aria-pressed", String(/** @type {HTMLElement} */ (b).dataset.value === currentTool)));
+    if (!spec) return;
+    const tool = spec.tools.find((/** @type {any} */ t) => t !== "sep" && TOOL_KEYS[t[0]] && TOOL_KEYS[t[0]].toLowerCase() === event.key.toLowerCase());
+    if (tool) pickTool(tool[0]);
   });
 
   /* Esc dari mode edit kembali ke ikhtisar, juga saat fokus berada di luar #app */
@@ -357,10 +416,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     if (section && target === section) return void panelTabs.set(section.dataset.panel || "", String(/** @type {CustomEvent} */ (event).detail.value));
     /* slider memancarkan ic-change saat digeser; nilainya diterapkan lewat event change di atas */
     if (target.dataset.ic === "slider") return;
-    if (target.dataset.name === "tool") {
-      currentTool = String(/** @type {CustomEvent} */ (event).detail.value);
-      return zoom.setTool(currentTool);
-    }
+    if (target.dataset.name === "tool") return pickTool(String(/** @type {CustomEvent} */ (event).detail.value));
     if (target.dataset.name) control(target, /** @type {CustomEvent} */ (event).detail.value);
   });
 

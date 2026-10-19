@@ -1,6 +1,6 @@
 /* @module ui/components-behavior
  * Perilaku komponen baku (tab, segmented, dropdown, slider, angka, toggle, tombol pilih,
- * pemilih posisi, lipat panel). Ditulis sebagai IIFE tanpa dependensi supaya bisa:
+ * pemilih posisi, lipat panel, tooltip). Ditulis sebagai IIFE tanpa dependensi supaya bisa:
  *   - dimuat langsung di file:// (docs/design/ui-kit.html), dan
  *   - diimpor dari Vite sebagai efek samping: `import '@icon-studio/ui/components.js'`.
  * Semua komponen diaktifkan lewat atribut data-ic. State selalu ditulis ke atribut ARIA,
@@ -133,6 +133,48 @@
     });
   }
 
+  /* Rich tooltip: pemicu <button data-tip="id" aria-describedby="id" data-tip-side="right|bottom|top">
+     menunjuk <div class="ic-tip" role="tooltip" id="id" hidden>. Muncul setelah kursor diam 450 ms atau saat
+     difokus dengan keyboard; langsung muncul bila tooltip lain baru saja tertutup (berpindah antar tool).
+     Hilang saat kursor keluar, saat diklik, atau dengan Esc. Isinya informatif, tanpa kontrol. */
+  let tipTimer = 0, tipLastHide = 0, tipOpen = null, tipKeysBound = false;
+  function placeTip(trigger, tipEl) {
+    const r = trigger.getBoundingClientRect(), side = trigger.dataset.tipSide || 'right', gap = 8;
+    tipEl.hidden = false;
+    const t = tipEl.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    let x = side === 'right' ? r.right + gap : r.left + r.width / 2 - t.width / 2;
+    let y = side === 'right' ? r.top : side === 'top' ? r.top - gap - t.height : r.bottom + gap;
+    x = Math.max(gap, Math.min(x, vw - t.width - gap));
+    y = Math.max(gap, Math.min(y, vh - t.height - gap));
+    tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
+  }
+  function showTip(trigger) {
+    const tipEl = document.getElementById(trigger.dataset.tip);
+    if (!tipEl) return;
+    if (tipOpen && tipOpen !== tipEl) tipOpen.hidden = true;
+    tipOpen = tipEl;
+    placeTip(trigger, tipEl);
+  }
+  function hideTip() {
+    clearTimeout(tipTimer);
+    if (tipOpen) { tipOpen.hidden = true; tipOpen = null; tipLastHide = Date.now(); }
+  }
+  function tip(trigger) {
+    trigger.addEventListener('pointerenter', () => {
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(() => showTip(trigger), Date.now() - tipLastHide < 800 ? 0 : 450);
+    });
+    trigger.addEventListener('pointerleave', hideTip);
+    trigger.addEventListener('pointerdown', hideTip);
+    trigger.addEventListener('focus', () => { if (trigger.matches(':focus-visible')) showTip(trigger); });
+    trigger.addEventListener('blur', hideTip);
+    if (!tipKeysBound) {
+      tipKeysBound = true;
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
+      document.addEventListener('scroll', hideTip, true);
+    }
+  }
+
   const REGISTRY = { tabs, single, press, switch: switcher, slider, number, select, collapse };
 
   function initUI(root) {
@@ -141,9 +183,14 @@
       const fn = REGISTRY[el.dataset.ic];
       if (fn) { fn(el); el.__icInit = true; }
     });
+    /* tooltip memakai atribut sendiri karena pemicunya sering sudah punya data-ic (mis. tool rail) */
+    (root || document).querySelectorAll('[data-tip]').forEach((el) => {
+      if (el.__icTip) return;
+      tip(el); el.__icTip = true;
+    });
   }
 
-  global.ICUI = { initUI, emit };
+  global.ICUI = { initUI, emit, hideTip };
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => initUI());
     else initUI();

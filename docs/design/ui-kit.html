@@ -48,7 +48,7 @@
     <a href="#slider">Slider &amp; angka</a><a href="#check">Checkbox &amp; toggle</a><a href="#field">Field &amp; pencarian</a><a href="#chips">Chip, tag, stepper</a>
     <a href="#flags">Lencana, flag, peringatan</a><a href="#stats">Statistik</a><a href="#rows">Baris daftar</a><a href="#tiles">Tile pustaka</a>
     <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a>
-    <a href="#misc">Kosong, tooltip, toast</a><a href="#edit">Artboard edit &amp; filmstrip</a><a href="#slides">Grup slide &amp; kartu ikon</a><a href="#sheet">Lembar kontak &amp; uji 32 px</a><a href="#drop">Area drop &amp; field banyak baris</a><a href="#shell">Contoh kerangka penuh</a>
+    <a href="#misc">Kosong, tooltip, toast</a><a href="#tip">Rich tooltip</a><a href="#edit">Artboard edit &amp; filmstrip</a><a href="#slides">Grup slide &amp; kartu ikon</a><a href="#sheet">Lembar kontak &amp; uji 32 px</a><a href="#drop">Area drop &amp; field banyak baris</a><a href="#shell">Contoh kerangka penuh</a>
   </nav>
 
   <main class="kit-main">
@@ -328,6 +328,16 @@
         <div class="kit-cap"><span class="ic-tooltip" style="position: static">X 35.25  Y 12.75</span><code>.ic-tooltip (koordinat kanvas)</code></div>
         <div class="kit-cap"><span class="ic-toast" style="position: static; transform: none">ZIP diunduh</span><code>.ic-toast</code></div>
       </div>
+    </section>
+
+    <section class="kit-sec" id="tip">
+      <h2>Rich tooltip</h2>
+      <p>Penjelasan tool: judul + pintasan, deskripsi, dan daftar gestur dengan kata kerja tebal. Pemicu memakai <code class="ic-mono">data-tip</code> + <code class="ic-mono">aria-describedby</code> yang menunjuk <code class="ic-mono">.ic-tip[role=tooltip]</code>. Muncul setelah kursor diam 450 ms atau saat difokus dengan keyboard, hilang saat kursor keluar, diklik, atau Esc. Isinya informatif saja, tanpa tombol.</p>
+      <div class="kit-demo" style="align-items: flex-start; gap: 24px">
+        <div class="kit-cap"><div class="ic-toolrail" style="width: 56px; border: 0"><button type="button" class="ic-tool" aria-pressed="false" aria-label="Geser tampilan (H)" data-tip="kit-tip-hand" aria-describedby="kit-tip-hand"><i data-icon="hand" data-size="20"></i></button></div><code>arahkan kursor (live)</code></div>
+        <div class="kit-cap"><div class="ic-tip" role="tooltip" style="position: static"><div class="ic-tip__head">Geser tampilan<span class="ic-tip__key">H</span></div><p class="ic-tip__desc">Menggeser kanvas tanpa mengubah isi.</p><ul class="ic-tip__list"><li><b>Seret</b> untuk menggeser kanvas.</li><li><b>Spasi</b> + <b>Seret</b> dari tool lain.</li><li><b>Tombol tengah</b> + <b>Seret</b> juga menggeser.</li></ul></div><code>.ic-tip (keadaan terbuka)</code></div>
+      </div>
+      <div class="ic-tip" role="tooltip" id="kit-tip-hand" hidden><div class="ic-tip__head">Geser tampilan<span class="ic-tip__key">H</span></div><p class="ic-tip__desc">Menggeser kanvas tanpa mengubah isi.</p><ul class="ic-tip__list"><li><b>Seret</b> untuk menggeser kanvas.</li><li><b>Spasi</b> + <b>Seret</b> dari tool lain.</li><li><b>Tombol tengah</b> + <b>Seret</b> juga menggeser.</li></ul></div>
     </section>
 
     <section class="kit-sec" id="edit">

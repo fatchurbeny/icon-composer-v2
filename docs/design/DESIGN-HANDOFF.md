@@ -202,7 +202,8 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Swatch | `.ic-swatches`, `.ic-swatch` `--round` | `single` | `aria-pressed` | palet tinta/isi/latar | |
 | Posisi pengubah | `.ic-anchor` (`--ic-anchor-cols: 2` untuk sticker) | `single` | `aria-pressed`, `disabled` | slot pengubah | |
 | Kosong | `.ic-empty` | | | daftar tanpa isi | |
-| Tooltip | `.ic-tooltip` | | | koordinat kanvas | penjelasan panjang |
+| Tooltip | `.ic-tooltip` | | | koordinat kanvas | penjelasan panjang (pakai `.ic-tip`) |
+| Rich tooltip | `.ic-tip`, `__head`, `__key`, `__desc`, `__list` | `data-tip` + `aria-describedby` pada pemicu | `hidden`, `role=tooltip` | penjelasan tool: judul + pintasan, deskripsi, gestur (kata kerja tebal) | tombol atau tautan di dalamnya (pakai dialog/popover) |
 | Toast | `.ic-toast` | | `hidden` | konfirmasi singkat (1,8 detik) | error yang butuh tindakan |
 | Artboard edit | `.ic-artboard-wrap`, `.ic-artboard`, `__label`, `__art` | | `data-grid="off"` | kanvas Composer · Edit 520 px bergrid 16 sel | pratinjau kecil (pakai `.ic-page`) |
 | Kotak seleksi | `.ic-selbox`, `.ic-selbox__h[data-at]` | | posisi inline (geometri) | lapisan terpilih di artboard, 8 handle | |
