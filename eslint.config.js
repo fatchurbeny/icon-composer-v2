@@ -6,6 +6,7 @@ export default [
   {
     ignores: [
       "dist/**",
+      ".claude/**",
       "legacy/**",
       "releases/**",
       "graphify-out/**",
