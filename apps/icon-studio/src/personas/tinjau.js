@@ -8,7 +8,7 @@ import { buildZip, directFillSvgFile } from "@icon-studio/export";
 import { get } from "@icon-studio/engines";
 import { MODE_INFO, dupMap, exportList, flagsOf, packOf } from "../state/builder-ops.js";
 import { PREVIEW_BACKGROUNDS, SIZETEST_BACKGROUNDS } from "../state/data/preview-backgrounds.js";
-import { MODES, kebab2 } from "../state/document.js";
+import { BUILDER_MODES, kebab2 } from "../state/document.js";
 import { buildSetZipFiles, exportSVG, fileNames, includedOf, loadTags, metaOf, reviewChecks, slug, spriteSVG } from "../state/review-ops.js";
 import { duplicateGroups, nameOf } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, panel, seg, select } from "../ui.js";
@@ -31,7 +31,7 @@ const mutate = (ctx, fn, label) => ctx.app.mutate(ctx.doc.id, fn, label);
 /** @param {import("./common.js").Ctx} ctx */
 const rerender = (ctx) => ctx.doc && mutate(ctx, () => {});
 /** @param {import("./common.js").Ctx} ctx */
-const builderDeps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style });
+const builderDeps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style, mode: ctx.doc.pv });
 
 /**
  * Ikon di lembar kontak beserta label, file, status ikut, dan lencana.
@@ -51,12 +51,12 @@ function cellsOf(ctx) {
       badge: dup.has(it.id) ? ["err", "dobel"] : null,
     }));
   }
-  const dm = dupMap(doc.items),
+  const dm = dupMap(doc.items, doc.pv),
     d = builderDeps(ctx);
   const dir = /** @type {any} */ (MODE_INFO)[doc.pv].dir;
   return doc.items.map((/** @type {any} */ it) => {
     const fl = flagsOf(it, dm, d);
-    const badge = fl.find((f) => f[1] === "Rakitan dobel di pack") ? ["err", "dobel"] : fl.some((f) => f[0] === "err") ? ["err", "masalah"] : fl.length ? ["warn", "cek"] : null;
+    const badge = fl.find((f) => f[1] === "Rakitan dobel di pack") ? ["err", "dobel"] : fl.some((f) => f[0] === "err") ? ["err", "masalah"] : fl.some((f) => f[0] !== "info") ? ["warn", "cek"] : null;
     return { id: it.uid, label: it.id, file: `${it.id}-${dir}.svg`, on: it.on, svg: ctx.renderer.renderManifestItem(it, doc.pv, doc.style, { idp: `tj${it.uid}` }), badge: /** @type {any} */ (badge) };
   });
 }
@@ -126,7 +126,7 @@ function checksBody(ctx) {
   else {
     const d = builderDeps(ctx),
       list = exportList(ctx.doc, ctx.doc.export, d),
-      dm = dupMap(ctx.doc.items);
+      dm = dupMap(ctx.doc.items, ctx.doc.pv);
     const bad = ctx.doc.items.filter((/** @type {any} */ it) => it.on && flagsOf(it, dm, d).some((f) => f[0] === "err")).length;
     const dup = ctx.doc.items.filter((/** @type {any} */ it) => it.on && dm[it.main + "|" + it.mod] > 1).length;
     rows = [
@@ -184,7 +184,7 @@ function zipBody(ctx) {
     const d = builderDeps(ctx),
       o = ctx.doc.export,
       list = exportList(ctx.doc, o, d);
-    const styles = MODES.filter((m) => o.modes[m]);
+    const styles = BUILDER_MODES.filter((m) => o.modes[m]);
     const tree = [`${kebab2(o.name) || "icon-pack"}.zip`, ...styles.map((s) => `├─ ${/** @type {any} */ (MODE_INFO)[s].dir}/  ${list.length} svg · direct fill`), "├─ metadata.csv", "├─ resource-page.html", "└─ manifest-final.json"].join("\n");
     return `<pre class="ic-meta studio-tree">${esc(tree)}</pre>${button("Unduh ZIP Canva", { kind: "primary", block: true, action: "t-download", disabled: !list.length || !styles.length })}<p class="ic-meta" role="status" data-role="export-status">${esc(downloadStatus)}</p>`;
   }

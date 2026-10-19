@@ -64,6 +64,13 @@ Kata gaya untuk tiga gaya baru mengikuti pola "Icon-style" (keputusan pemilik). 
 
 Opsi `exSplit` (`slot-deck/` dan `ekstra/`) tetap berlaku di setiap folder gaya.
 
+**Offset di Builder (Fase 3).** Mode Builder `O` (`MODE_INFO.O`, folder `offset/`) merender ikon manifest dengan mesin offset lewat `renderManifestItem`, lalu `directFillSvgFile` seperti gaya lain. Pengubah tidak dirender. Tinta dan aksen diambil dari gaya manifest, isi warna (`solid`, `white`, `line`) dari `style.engine.offset.mode`, dekorasi memakai bawaan `offsetDeco` (kilat kanan atas + garis tanah). Bila folder `offset/` ikut diekspor:
+- `metadata.csv` memakai kata gaya `Offset Style` / `gaya offset` dan kata kunci gaya sama dengan Tinjau (`offset style`, `line icon`, `two tone icon`); tag pengubah tidak ikut.
+- `metadata-internal.csv` menulis `modifier` = `none` untuk baris `offset`.
+- `submission-profile.json` mendapat `offset_engine`, dan `LICENSES.txt` mendapat satu baris `offset/`.
+- `manifest-final.json` menulis `style.family: "offset"` dan `style.mode` isi warna bila pratinjau aktif Offset.
+Tanpa folder `offset/`, isi ZIP classic/accent tetap identik dengan TIB 1.6.0 (golden).
+
 ```
 <nama-pack>.zip
 ├─ <folder-gaya>/[slot-deck|ekstra/]<id>-<akhiran>.svg

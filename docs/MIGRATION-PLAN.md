@@ -62,13 +62,13 @@ Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affi
 - [x] Port mesin ke kontrak (`docs/engines/offset.md`), termasuk normalisasi kanvas 120 → 48.
 - [x] UI IC: opsi gaya "Offset". Saat aktif, panel pengubah nonaktif dengan teks "Pengubah tidak tersedia pada style ini", dan Kombinasi massal hanya memakai daftar objek.
 - [x] Ukuran objek 84% dan penyesuaian dekorasi (ADR-012).
-- [ ] UI TIB: pratinjau dan gaya ekspor "Offset".
+- [x] UI TIB: pratinjau dan gaya ekspor "Offset".
 - [x] Impor set dari offset-composer lama (migrasi `002-from-offset` dan impor `gaya.json`, lihat `DATA-MODEL.md` bagian 4.3).
 - [x] Lolos `export-canva.spec.js`.
 
 **Kriteria terima:** objek offset berbeda < 1% piksel dari legacy setelah diskalakan ke 84%. Semua dekorasi berada di dalam viewBox. Direct fill valid dan tanpa stroke. Flag info muncul di TIB.
 
-Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.js` (20 ikon Lucide dan Tabler × 3 mode isi, selisih 0% pada ambang warna 48). Dekorasi di dalam viewBox, direct fill valid, dan tanpa stroke lolos lewat `tests/e2e/export-canva.spec.js`. Flag info di TIB menunggu butir UI TIB.
+Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.js` (20 ikon Lucide dan Tabler × 3 mode isi, selisih 0% pada ambang warna 48). Dekorasi di dalam viewBox, direct fill valid, dan tanpa stroke lolos lewat `tests/e2e/export-canva.spec.js`. Flag info di TIB lolos lewat `tests/e2e/studio-builder.spec.js` (mode Offset di Builder: flag info pengubah, ZIP `offset/` direct fill tanpa stroke dan tanpa `stroke-dasharray`, ≤5 warna).
 
 ## Fase 4: Mesin hand-writing
 

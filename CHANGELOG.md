@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 ## Unreleased
 
 ### Ditambahkan
+- Fase 3 selesai: gaya Offset di persona Builder (mode `O`): pratinjau, kontrol Isi warna, flag info "Pengubah tidak tersedia pada style ini", dan ekspor ZIP `offset/` direct fill dengan kata gaya "Offset Style"; ZIP classic/accent tetap identik dengan TIB 1.6.0.
 - Fase 3: impor set offset-composer 1.0.1 ke Icon Studio, lewat migrasi sekali jalan `002-from-offset` (kunci `offset-composer-v1`) dan lewat `gaya.json` yang ditempel atau diseret di area impor; hasilnya set Composer bergaya `family: "offset"`.
 - Kontrol Posisi (`.ic-anchor`) di bilah konteks memakai ukuran ringkas supaya tidak terpotong.
 - Komponen kit baru `.ic-tip` (rich tooltip: judul, pintasan, gestur) dipasang di tool rail Icon Studio; tool perintah (Objek utama, Pengubah, Ganti objek, Dekorasi, Kata kunci, Kombinasi massal, Bandingkan) kini berfungsi dan pintasan V, H, Z aktif.

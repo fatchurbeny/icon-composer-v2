@@ -20,7 +20,7 @@ import {
 } from "@icon-studio/engines/shared";
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
-import { MODES, useStyle } from "./document.js";
+import { MODES, OFFSET_MODE, manifestOffsetStyle, useStyle } from "./document.js";
 import { layerBoxes } from "./edit-ops.js";
 
 /**
@@ -145,8 +145,9 @@ export function createRenderer(options) {
 
   /**
    * Render ikon Builder untuk satu mode (render TIB). Gaya dokumen tidak diubah.
+   * Mode O memakai mesin offset: pengubah tidak dirender, dekorasi dari `offsetDeco` (bawaan kilat + tanah).
    * @param {any} it
-   * @param {string} mode X | A | B | C
+   * @param {string} mode X | A | B | C | O
    * @param {any} style
    * @param {{size?: number | string, idp?: string}} [opt]
    */
@@ -154,6 +155,10 @@ export function createRenderer(options) {
     opt = opt || {};
     if (!MAINS[it.main])
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="${opt.size || 48}" height="${opt.size || 48}"></svg>`;
+    if (mode === OFFSET_MODE) {
+      const engine = get("offset");
+      return engine.compose(engine.adapt(it, style), manifestOffsetStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
+    }
     const s = useStyle({ ...style }, mode);
     if (mode === "X")
       return get("accent").compose(

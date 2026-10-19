@@ -120,6 +120,22 @@ export const PRESET = [
 /** Mode pratinjau dan ekspor Builder: X = aksen, A = garis·solid, B = solid·garis. */
 export const MODES = ["X", "A", "B"];
 
+/** Mode Builder bergaya offset (Fase 3). Pengubah tidak dirender. */
+export const OFFSET_MODE = "O";
+/** Semua mode Builder: classic/accent (golden TIB 1.6.0) lalu offset. */
+export const BUILDER_MODES = [...MODES, OFFSET_MODE];
+export const OFFSET_FILLS = ["solid", "white", "line"];
+
+/**
+ * Gaya set offset dari gaya dokumen Builder: tinta dan aksen manifest, isi warna dari `style.engine.offset.mode`.
+ * Geser dan tebal garis memakai bawaan mesin. Gaya dokumen tidak diubah.
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestOffsetStyle(style){
+  const e = (style && style.engine && style.engine.offset) || {};
+  return {family:"offset", engine:{offset:{...e, mode:OFFSET_FILLS.includes(e.mode) ? e.mode : "solid", acc:style.accent, ink:style.ink}}};
+}
+
 
 /** Patokan per mode: X memakai patokan aksen, A/B/C patokan classic. */
 export const STY = {X:{sw:3.5, gap:1.25, cap:"round", join:"round", scale:{main:88, mod:80, deco:100}}, C:{sw:2, gap:2, cap:"butt", join:"miter", scale:{main:84, mod:100, deco:100}}};
@@ -193,17 +209,22 @@ export function toItem(o, i, SHIFT, rand = () => Math.random().toString(36).slic
 
 /**
  * Gaya dan mode pratinjau dari blok `style` manifest (applyManStyle TIB, tanpa DOM).
+ * `family: "offset"` memilih mode O; `mode` berisi isi warna offset (solid, white, line).
  * @param {any} man
- * @param {any} style diubah langsung (ink, accent)
+ * @param {any} style diubah langsung (ink, accent, engine.offset)
  * @returns {{pv: string, exportModes: Record<string, boolean>}}
  */
 export function manifestStyle(man, style){
   const st = (man && man.style) || {};
   if (/^#[0-9a-f]{6}$/i.test(st.ink || "")) style.ink = st.ink.toUpperCase();
   if (/^#[0-9a-f]{6}$/i.test(st.accent || "")) style.accent = st.accent.toUpperCase();
+  if (st.family === "offset"){
+    style.engine = {...(style.engine || {}), offset:{mode:OFFSET_FILLS.includes(st.mode) ? st.mode : "solid"}};
+    return {pv:OFFSET_MODE, exportModes:{X:false, A:false, B:false, O:true}};
+  }
   const fam = st.family === "classic" ? "classic" : "accent";
   const pv = fam === "classic" ? (["A", "B"].includes(st.mode) ? st.mode : "A") : "X";
-  return {pv, exportModes:{X:fam === "accent", A:pv === "A", B:pv === "B"}};
+  return {pv, exportModes:{X:fam === "accent", A:pv === "A", B:pv === "B", O:false}};
 }
 
 /**
