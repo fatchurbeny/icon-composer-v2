@@ -8,9 +8,9 @@
  */
 import { offsetParams } from "@icon-studio/engines/offset";
 import { ROLES } from "@icon-studio/engines/shared";
-import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
+import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
 
-export { DEFAULT_SET_STYLE, FAMILY_DEFAULT, defaultManifestStyle };
+export { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle };
 
 /** @typedef {{MAINS: Record<string, any>, MODS: Record<string, any>, DECOS: Record<string, any>, SHIFT: Record<string, number[]>, LIB_RE: RegExp, ensure: (key: string, kind: "main" | "mod") => boolean}} Library */
 
@@ -222,6 +222,55 @@ export function importManifest(text, lib, opts = {}){
   const needTb = items.some(it => /^tb:/.test(it.main) || /^tb:/.test(it.mod));
   const needHg = items.some(it => /^hg:/.test(it.main) || /^hg:/.test(it.mod));
   return {manifest:j, style, pv, exportModes, items, needTb, needHg};
+}
+
+/* ---------- impor set offset-composer 1.0.1 ---------- */
+
+/** Field gaya offset-composer yang di Icon Studio berlaku untuk seluruh set. `size` tidak ikut (ADR-012). */
+export const OFFSET_STYLE_FIELDS = ["mode", "acc", "ink", "dx", "dy", "sw"];
+
+/** Ukuran objek offset di Icon Studio (84% kanvas 120, ADR-012). */
+export const OFFSET_SIZE = 100.8;
+
+/**
+ * Kenali data offset-composer: isi localStorage `offset-composer-v1` (`{cur, set}`)
+ * atau `gaya.json` dari ZIP (`{format: "offset-composer", version, icons}`).
+ * @param {any} data
+ * @returns {{icons: any[], version: string, source: "offset-composer-v1" | "gaya.json"} | null}
+ */
+export function offsetComposerSource(data){
+  if (!data || typeof data !== "object") return null;
+  if (data.format === "offset-composer" && Array.isArray(data.icons)) return {icons:data.icons, version:String(data.version || ""), source:"gaya.json"};
+  if (Array.isArray(data.set) && "cur" in data) return {icons:data.set, version:"", source:"offset-composer-v1"};
+  return null;
+}
+
+/**
+ * Ubah set offset-composer menjadi dokumen set Icon Studio bergaya `family: "offset"`.
+ * Parameter gaya diambil dari ikon pertama. Bila ikon lain berbeda, `warnings` berisi
+ * "Gaya diseragamkan mengikuti ikon pertama" (DATA-MODEL bagian 5).
+ * @param {any} data
+ * @param {Library} lib
+ * @param {{uid?: () => string}} [opts]
+ * @returns {{doc: any, warnings: string[], needTb: boolean} | {fatal: string} | null} null bila bukan data offset-composer
+ */
+export function offsetSetFromComposer(data, lib, opts = {}){
+  const src = offsetComposerSource(data);
+  if (!src) return null;
+  const uid = opts.uid || randomUid, D = OFFSET_COMPOSER_DEFAULT;
+  const icons = src.icons.filter(o => o && typeof o === "object" && /^(lu|tb):[a-z0-9-]+$/.test(String(o.key))).map(o => ({...D, ...o}));
+  if (!icons.length) return {fatal:"Set offset-composer tidak berisi ikon Lucide atau Tabler."};
+  const first = icons[0];
+  const num = (/** @type {any} */ v, /** @type {number} */ dflt) => (typeof v === "number" && isFinite(v)) ? v : dflt;
+  const hex = (/** @type {any} */ v, /** @type {string} */ dflt) => /^#[0-9a-f]{6}$/i.test(String(v)) ? String(v).toUpperCase() : dflt;
+  const style = normSetStyle({family:"offset"});
+  style.engine = {offset:{mode:["solid", "white", "line"].includes(first.mode) ? first.mode : D.mode, acc:hex(first.acc, D.acc), ink:hex(first.ink, D.ink),
+    dx:num(first.dx, D.dx), dy:num(first.dy, D.dy), sw:num(first.sw, D.sw), size:OFFSET_SIZE}};
+  const warnings = icons.some(o => OFFSET_STYLE_FIELDS.some(k => String(o[k]).toUpperCase() !== String(first[k]).toUpperCase())) ? ["Gaya diseragamkan mengikuti ikon pertama"] : [];
+  const items = icons.map(o => normItem({name:String(o.name || o.key.split(":")[1]), main:o.key, mod:"none",
+    engine:{offset:{deco:{tick:!!o.dTick, tickPos:o.tickPos === "TL" ? "TL" : "TR", ground:!!o.dGround, cloud:!!o.dCloud, grass:!!o.dGrass}}}}, lib, {uid}));
+  const doc = createSetDocument({name:"Set Offset Composer", style, items, meta:{import:{format:"offset-composer", version:src.version, source:src.source, warnings}}}, uid);
+  return {doc, warnings, needTb:items.some(it => String(it.main).startsWith("tb:"))};
 }
 
 /* ---------- dokumen ---------- */

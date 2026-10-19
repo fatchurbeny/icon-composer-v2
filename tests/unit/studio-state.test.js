@@ -54,6 +54,7 @@ function memoryStorage() {
 
 describe("Icon Studio state/document", () => {
   test("normSetStyle membatasi nilai dan hanya mengenal classic/accent/offset", () => {
+    expect(normSetStyle({ family: "offset" }).family).toBe("offset");
     const s = normSetStyle({
       family: "sticker",
       scale: { main: 10, mod: 999 },

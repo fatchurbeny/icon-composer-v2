@@ -64,19 +64,20 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
 | `template-icon-builder-aksen-v1` | TIB ≤1.6.0 | dibaca sekali untuk migrasi |
 | `icon-studio-v1` | Icon Studio (set Composer dan dokumen Builder) | aktif (ADR-017) |
 | `tib-canva-brand-id` | TIB | tetap, tidak pernah masuk manifest |
-| `offset-composer-v1`, `coret-composer-v1`, `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
+| `offset-composer-v1` | offset-composer 1.0.1 | dibaca sekali oleh migrasi 002, juga bila `icon-studio-v1` sudah ada (bagian 4.3) |
+| `coret-composer-v1`, `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
 
-`icon-studio-v1` menyimpan `schemaVersion`. Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes.
+`icon-studio-v1` menyimpan `schemaVersion` dan `migrations` (daftar id migrasi yang sudah dijalankan pada state ini). Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes. Migrasi 001 hanya berjalan bila `icon-studio-v1` belum ada. Migrasi berikutnya berjalan bila id-nya belum tercatat di `migrations`, lalu dokumennya ditambahkan tanpa menimpa dokumen yang ada.
 
 ### 4.1 Isi `icon-studio-v1`
 
 ```js
-{ schemaVersion: 1, activeId, documents: [
+{ schemaVersion: 1, activeId, migrations: ["002-from-offset"], documents: [
   { id, kind: "set", name, style, items, customs,
     pool: { mains, mods, off }, view: { sort, cols, snap, grid },
     combo: { pos, mode, skipExisting, skip },
     review: { json, html, ko, fmt, bg, size, names, flags, compare, off },
-    meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack? } },
+    meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack?, import? } },
   { id, kind: "manifest", name, manifest, style, pv, items, isSample,
     exportModes, export: { modes, slot, extra, split, skipBad, kw, name, locale, creator, description, sheetCols },
     view: { filter, group, step }, issues, review } ] }
@@ -93,11 +94,38 @@ Berjalan sekali, hanya bila `icon-studio-v1` belum ada. Kunci lama tidak diubah 
 | `icon-composer-meta-v1` | `meta.canva` dokumen set dari IC |
 | `template-icon-builder-aksen-v1` | dokumen Builder: `man` → `manifest`, `items` (lewat `normAcc`), `pv`, `sheetCols`, `isSample`; centang ekspor = mode pratinjau (seperti boot TIB) |
 
+### 4.3 Migrasi 002 (`apps/icon-studio/src/state/migrations/002-from-offset.js`)
+
+Berjalan sekali per state, ditandai `"002-from-offset"` di `migrations`, jadi juga berjalan untuk pengguna yang sudah punya `icon-studio-v1`. Dokumen hasil migrasi ditambahkan di akhir. Dokumen aktif tidak diganti, kecuali state masih kosong. Kunci lama tidak diubah atau dihapus. Konversinya ada di `state/document.js` (`offsetSetFromComposer`), dipakai bersama oleh migrasi dan impor file.
+
+**Format sumber offset-composer 1.0.1** (`legacy/style/offset-composer-v1.0.1.html`):
+
+| Sumber | Bentuk |
+|---|---|
+| localStorage `offset-composer-v1` | `{ cur, set: [ikon] }`. `cur` adalah ikon yang sedang diedit dan tidak ikut diimpor. |
+| `gaya.json` di ZIP "Unduh semua" | `{ format: "offset-composer", version: "1.0.1", icons: [ikon] }` |
+| ikon | `{ key, name, mode, acc, ink, dx, dy, sw, size, dTick, tickPos, dGround, dCloud, dGrass }`. Field yang hilang diisi bawaan legacy (`DEF`). `key` berprefiks `lu:` atau `tb:`. |
+
+**Pemetaan field** (hasilnya satu dokumen set "Set Offset Composer"):
+
+| Field lama | Menjadi |
+|---|---|
+| `key` | `item.main`; `item.mod = "none"` |
+| `name` | `item.name` |
+| `dTick`, `tickPos`, `dGround`, `dCloud`, `dGrass` | `item.engine.offset.deco = { tick, tickPos, ground, cloud, grass }` |
+| `mode`, `acc`, `ink`, `dx`, `dy`, `sw` ikon pertama | `style.engine.offset`, `style.family = "offset"` |
+| `size` | tidak dipakai. `style.engine.offset.size` selalu 100,8 (84% kanvas, ADR-012), legacy memakai 72. |
+| (asal data) | `meta.import = { format: "offset-composer", version, source: "offset-composer-v1" \| "gaya.json", warnings }` |
+
+Ikon dengan `key` di luar `lu:`/`tb:` dilewati. Bila nilai gaya ikon lain berbeda dari ikon pertama, `warnings` berisi "Gaya diseragamkan mengikuti ikon pertama", dan pesan ini ikut muncul di toast.
+
+**Impor file:** teks yang ditempel atau file yang diseret di area impor (`importText` di shell) dicek dulu oleh `app.importOffsetSet`. Bila berformat offset-composer, hasilnya set Composer baru yang aktif dan app pindah ke persona Composer. Teks lain tetap diproses sebagai manifest Builder seperti sebelumnya.
+
 ## 5. Migrasi dari composer gaya lama
 
 | Sumber | Pemetaan ke item kanonik |
 |---|---|
-| offset `{key, name, mode, acc, ink, dx, dy, sw, size, dTick, tickPos, dGround, dCloud, dGrass}` | `main = key`, `mod = "none"`. Field gaya (`mode, acc, ink, dx, dy, sw, size`) diambil dari item pertama → `style.engine.offset`. Dekorasi → `engine.offset.deco`. |
+| offset `{key, name, mode, acc, ink, dx, dy, sw, size, dTick, tickPos, dGround, dCloud, dGrass}` | `main = key`, `mod = "none"`. Field gaya (`mode, acc, ink, dx, dy, sw`) diambil dari item pertama → `style.engine.offset`; `size` diganti 100,8 (ADR-012). Dekorasi → `engine.offset.deco`. Rincian di bagian 4.3. |
 | coret `{main, mod, anchor, ms, blob, seed, name}` + `S` | `main, mod, slot = anchor`, `engine["hand-writing"] = {ms, blob, seed}`, `S` → `style.engine["hand-writing"]`, `family = "hand-writing"`. |
 | sticker `{main:{k,c,s,x,y,fill}, mod:{k,c,s,slot,x,y}, deco, vis}` | `main = main.k`, `mod = mod.k || "none"`, `slot = mod.slot`, `mx/my = main.x/y`, `nx/ny = mod.x/y`, sisanya → `engine.sticker`. |
 

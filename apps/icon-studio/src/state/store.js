@@ -9,12 +9,13 @@ export const STORE_KEY = "icon-studio-v1";
 export const SCHEMA_VERSION = 1;
 
 /**
- * @typedef {{schemaVersion: number, documents: any[], activeId: string | null}} StudioState
+ * `migrations` mencatat migrasi yang sudah dijalankan pada state ini (mis. `002-from-offset`).
+ * @typedef {{schemaVersion: number, documents: any[], activeId: string | null, migrations: string[]}} StudioState
  */
 
 /** @returns {StudioState} */
 export function emptyState() {
-  return { schemaVersion: SCHEMA_VERSION, documents: [], activeId: null };
+  return { schemaVersion: SCHEMA_VERSION, documents: [], activeId: null, migrations: [] };
 }
 
 /** Akses localStorage bisa melempar (data: URL, jendela privat), jadi selalu dibungkus. */
@@ -53,7 +54,10 @@ export function loadState(storage) {
     const activeId = documents.some((/** @type {any} */ d) => d.id === data.activeId)
       ? data.activeId
       : documents[0]?.id || null;
-    return { schemaVersion: SCHEMA_VERSION, documents, activeId };
+    const migrations = Array.isArray(data.migrations)
+      ? data.migrations.filter((/** @type {any} */ m) => typeof m === "string")
+      : [];
+    return { schemaVersion: SCHEMA_VERSION, documents, activeId, migrations };
   } catch {
     return emptyState();
   }
@@ -70,7 +74,12 @@ export function saveState(state, storage) {
     if (!storage) return false;
     storage.setItem(
       STORE_KEY,
-      JSON.stringify({ schemaVersion: SCHEMA_VERSION, documents: state.documents, activeId: state.activeId }),
+      JSON.stringify({
+        schemaVersion: SCHEMA_VERSION,
+        documents: state.documents,
+        activeId: state.activeId,
+        migrations: state.migrations || [],
+      }),
     );
     return true;
   } catch {

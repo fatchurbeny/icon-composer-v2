@@ -63,7 +63,7 @@ Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affi
 - [x] UI IC: opsi gaya "Offset". Saat aktif, panel pengubah nonaktif dengan teks "Pengubah tidak tersedia pada style ini", dan Kombinasi massal hanya memakai daftar objek.
 - [x] Ukuran objek 84% dan penyesuaian dekorasi (ADR-012).
 - [ ] UI TIB: pratinjau dan gaya ekspor "Offset".
-- [ ] Impor set dari offset-composer lama.
+- [x] Impor set dari offset-composer lama (migrasi `002-from-offset` dan impor `gaya.json`, lihat `DATA-MODEL.md` bagian 4.3).
 - [x] Lolos `export-canva.spec.js`.
 
 **Kriteria terima:** objek offset berbeda < 1% piksel dari legacy setelah diskalakan ke 84%. Semua dekorasi berada di dalam viewBox. Direct fill valid dan tanpa stroke. Flag info muncul di TIB.
