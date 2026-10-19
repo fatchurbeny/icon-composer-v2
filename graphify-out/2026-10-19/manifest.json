@@ -54,10 +54,10 @@
     "semantic_hash": ""
   },
   "packages/ui/components.js": {
-    "mtime": 1792249984.0,
-    "seen": 1792252120.8940842,
-    "ast_hash": "cac99d3e8bb537d6f4788f61f163ab66",
-    "semantic_hash": "cac99d3e8bb537d6f4788f61f163ab66"
+    "mtime": 1792371140.0220692,
+    "seen": 1792371402.8377678,
+    "ast_hash": "882b1ff3b7e7f8b90308f4edd0f94527",
+    "semantic_hash": ""
   },
   "packages/ui/package.json": {
     "mtime": 1792250470.0,
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792343523.755053,
-    "seen": 1792343525.901963,
-    "ast_hash": "882b6aa51575f7118b6d5c1d6951a1e3",
+    "mtime": 1792371400.766571,
+    "seen": 1792371402.837813,
+    "ast_hash": "3e9e5b319767f69f33fc75cf1c0b9f9a",
     "semantic_hash": ""
   },
   "README.md": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN-HANDOFF.md": {
-    "mtime": 1792343523.7555764,
-    "seen": 1792343525.901979,
-    "ast_hash": "a19bd920c23106705ab4dbdb58a88866",
+    "mtime": 1792371154.6951227,
+    "seen": 1792371402.837829,
+    "ast_hash": "3f09d1bedab2be199c5414d34ad4f616",
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "docs/design/ui-kit.html": {
-    "mtime": 1792334125.4605863,
-    "seen": 1792334157.6720152,
-    "ast_hash": "4db8ea381508633921948627448e122b",
+    "mtime": 1792371154.6948702,
+    "seen": 1792371402.837833,
+    "ast_hash": "6718520aaf68df55e20a456ae0fe595d",
     "semantic_hash": ""
   },
   "docs/engines/accent.md": {
@@ -678,9 +678,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/shell.js": {
-    "mtime": 1792343399.796815,
-    "seen": 1792343525.901867,
-    "ast_hash": "a968df5e2d75cf22e732bbdcceecd8c0",
+    "mtime": 1792371224.7855644,
+    "seen": 1792371402.837714,
+    "ast_hash": "de28c690cab2e909c819e0012054dc48",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/preview-backgrounds.js": {
@@ -873,6 +873,18 @@
     "mtime": 1792343465.0340056,
     "seen": 1792343525.901954,
     "ast_hash": "754b74e45df7aae974cf580936a642de",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/tool-tips.js": {
+    "mtime": 1792371195.7533548,
+    "seen": 1792371402.8377311,
+    "ast_hash": "c8b466a9887b7c5a3b213a07395fd830",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-tooltip.spec.js": {
+    "mtime": 1792371359.3278446,
+    "seen": 1792371402.8377879,
+    "ast_hash": "9df9076887a5cd9b1058ef44f56eccf1",
     "semantic_hash": ""
   }
 }

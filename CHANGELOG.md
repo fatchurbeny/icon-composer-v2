@@ -8,7 +8,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Kontrol Posisi (`.ic-anchor`) di bilah konteks memakai ukuran ringkas supaya tidak terpotong.
 - Komponen kit baru `.ic-tip` (rich tooltip: judul, pintasan, gestur) dipasang di tool rail Icon Studio; tool perintah (Objek utama, Pengubah, Ganti objek, Dekorasi, Kata kunci, Kombinasi massal, Bandingkan) kini berfungsi dan pintasan V, H, Z aktif.
 - Fase 2 berjalan: paket bersama `core`, `icon-sources`, registry mesin classic/accent, dan pipeline ekspor mulai diekstrak serta dilindungi tes unit dan golden.
-- Fase 2b berjalan: shell awal `Icon Studio` dengan empat persona, routing hash, perilaku komponen UI, dan tes ukuran kerangka handoff.
+- Fase 2b selesai dan disetujui pemilik: shell `Icon Studio` dengan empat persona, routing hash, perilaku komponen UI, dan tes ukuran kerangka handoff.
 - Fase 3 berjalan: mesin `offset` 1.1.0 masuk registry dengan normalisasi ukuran 84%, flag pengubah nonaktif, signature, axes, dan mode warna dasar.
 - Fase 4 berjalan: mesin `hand-writing` 2.0.0 masuk registry, memakai seed deterministik dan mengeluarkan segmen geometri tanpa `stroke-dasharray`.
 - Fase 4 dilanjutkan: migrator payload `coret` ke item kanonik `hand-writing` ditambahkan, termasuk anchor, seed, blob, dan parameter gaya.
