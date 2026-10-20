@@ -68,7 +68,7 @@ Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affi
 
 **Kriteria terima:** objek offset berbeda < 1% piksel dari legacy setelah diskalakan ke 84%. Semua dekorasi berada di dalam viewBox. Direct fill valid dan tanpa stroke. Flag info muncul di TIB.
 
-Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.js` (20 ikon Lucide dan Tabler × 3 mode isi, selisih 0% pada ambang warna 48). Dekorasi di dalam viewBox, direct fill valid, dan tanpa stroke lolos lewat `tests/e2e/export-canva.spec.js`. Flag info di TIB lolos lewat `tests/e2e/studio-builder.spec.js` (mode Offset di Builder: flag info pengubah, ZIP `offset/` direct fill tanpa stroke dan tanpa `stroke-dasharray`, ≤5 warna).
+Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.js` (20 ikon Lucide dan Tabler serta 12 ikon Hugeicons × 3 mode isi, selisih maks 0,002% pada ambang warna 48). Legacy tidak memuat Hugeicons, jadi node Hugeicons disuntikkan ke `compose` legacy asli (alasan di `docs/engines/offset.md`). Dekorasi di dalam viewBox, direct fill valid, dan tanpa stroke lolos lewat `tests/e2e/export-canva.spec.js`. Flag info di TIB lolos lewat `tests/e2e/studio-builder.spec.js` (mode Offset di Builder: flag info pengubah, ZIP `offset/` direct fill tanpa stroke dan tanpa `stroke-dasharray`, ≤5 warna).
 
 ## Fase 4: Mesin hand-writing
 
