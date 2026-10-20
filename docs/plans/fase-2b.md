@@ -134,7 +134,7 @@ Selesai 2026-10-18. Catatan pelaksanaan:
   - kunci lapisan + Ganti;
   - `.ic-anchor` 3×3;
   - Skala, Isi, Celah knockout.
-- Studio: Gaya, Lapisan, dan Transform | Variasi | Riwayat. Variasi diisi `engine.axes()`. Classic dan accent masih kosong, jadi tampil `.ic-empty`.
+- Studio: Gaya, Lapisan | Transform | Pustaka, dan Halaman | Variasi | Riwayat (susunan setelah akordeon, lihat DESIGN-HANDOFF 3.2). Variasi diisi `engine.axes()`. Classic dan accent masih kosong, jadi tampil `.ic-empty`.
 - Keyboard: panah 0,5 unit (Shift 2), Esc, Delete. Logika `getXY`/`setXY` dipindah dari IC.
 - Undo/redo masih backlog. Panel Riwayat hanya menampilkan log perubahan sesi, tanpa tombol undo.
 - **Tinjauan Ika** terhadap `artboard-edit-1600x1000.png`.

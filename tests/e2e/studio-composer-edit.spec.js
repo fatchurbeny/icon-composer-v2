@@ -117,7 +117,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="main"]')
       .click();
-    await openPanel(page, "edit-transform");
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-name="edit-line"] button[data-value="#1A73E8"]')
       .click();
@@ -136,7 +136,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="deco"]')
       .click();
-    await openPanel(page, "edit-transform");
+    await openPanel(page, "edit-layers");
     await page.locator('[data-action="edit-deco"][data-type="star4"]').click();
     await expect(
       page.locator(
@@ -157,7 +157,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="main"]')
       .click();
-    await openPanel(page, "edit-transform");
+    await openPanel(page, "edit-layers");
     const part = page.locator(
       '[data-name="edit-part:0"] button[data-value="acc"]',
     );
@@ -189,14 +189,17 @@ test.describe("Icon Studio · Composer · Edit", () => {
   });
 
   test.describe("panel kontekstual, ubah ukuran, dan putar", () => {
+    /* Lapisan | Transform | Pustaka sepanel; Halaman | Variasi | Riwayat di panel lain */
     const tab = (page, v) =>
       page.locator(
-        `[data-panel="edit-transform"] [role="tab"][data-value="${v}"]`,
+        `[data-panel="${v === "riwayat" ? "edit-pages" : "edit-layers"}"] [role="tab"][data-value="${v}"]`,
+      );
+    const expanded = (page, id) =>
+      page.locator(
+        `[data-panel="${id}"] > .ic-panel__head > .ic-panel__collapse`,
       );
     const scaleIn = (page) =>
-      page.locator(
-        '[data-panel="edit-transform"] [data-name="edit-scale"] input',
-      );
+      page.locator('[data-panel="edit-layers"] [data-name="edit-scale"] input');
     const rotIn = (page) => page.locator('[data-name="edit-rot"] input');
     /** Pusat elemen di layar. */
     const mid = async (loc) => {
@@ -222,8 +225,8 @@ test.describe("Icon Studio · Composer · Edit", () => {
       page,
     }) => {
       await openEdit(page);
-      await tab(page, "riwayat").click();
-      await expect(tab(page, "riwayat")).toHaveAttribute(
+      /* dari daftar Lapisan: tab Transform di panel yang sama terbuka */
+      await expect(tab(page, "lapisan")).toHaveAttribute(
         "aria-selected",
         "true",
       );
@@ -237,9 +240,18 @@ test.describe("Icon Studio · Composer · Edit", () => {
       await expect(
         page.locator('[data-action="edit-deco"]').first(),
       ).toBeVisible();
+      /* dari panel lain (Riwayat): klik di artboard membuka panel Lapisan di tab Transform */
       await tab(page, "riwayat").click();
+      await expect(expanded(page, "edit-layers")).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
       const hit = await mid(page.locator('[data-hit="mod"]'));
       await page.mouse.click(hit.x, hit.y);
+      await expect(expanded(page, "edit-layers")).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
       await expect(tab(page, "transform")).toHaveAttribute(
         "aria-selected",
         "true",
@@ -247,12 +259,13 @@ test.describe("Icon Studio · Composer · Edit", () => {
       await expect(
         page.locator('[data-name="edit-mstyle"], [data-name="edit-x"]').first(),
       ).toBeVisible();
+      /* opsi dimatikan: tab Lapisan tetap terpilih setelah memilih lapisan */
       await page.locator('[data-name="edit-autopanel"]').uncheck();
-      await tab(page, "riwayat").click();
+      await tab(page, "lapisan").click();
       await page
         .locator('[data-action="layer-select"][data-layer="main"]')
         .click();
-      await expect(tab(page, "riwayat")).toHaveAttribute(
+      await expect(tab(page, "lapisan")).toHaveAttribute(
         "aria-selected",
         "true",
       );
@@ -303,7 +316,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
       await expect(page).toHaveURL(/#\/composer\/edit\//);
       await expect(scaleIn(page)).toHaveValue("75");
       await tab(page, "riwayat").click();
-      await expect(page.locator('[data-panel="edit-transform"]')).toContainText(
+      await expect(page.locator('[data-panel="edit-pages"]')).toContainText(
         "Skala objek utama 75% · semua ikon",
       );
     });
@@ -359,7 +372,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
       await page.keyboard.press("BracketRight");
       expect(Number(await rotIn(page).inputValue()) % 15).toBe(0);
       await tab(page, "riwayat").click();
-      await expect(page.locator('[data-panel="edit-transform"]')).toContainText(
+      await expect(page.locator('[data-panel="edit-pages"]')).toContainText(
         "Putar objek utama",
       );
     });

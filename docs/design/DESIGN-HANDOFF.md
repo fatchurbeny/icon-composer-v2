@@ -63,7 +63,7 @@ Render ulang PNG dari artboard: `python3 scripts/render-artboards.py` (butuh Pla
   - Panel terbuka mengisi sisa tinggi kolom. Panel tertutup tinggal kepalanya (34 px); footer panel ikut tersembunyi.
   - Membuka panel (tombol lipat `.ic-panel__collapse`, atau klik tab di kepala panel tertutup) menutup panel lain di kolom itu.
   - Menutup panel yang sedang terbuka membuka panel berikutnya; panel terakhir membuka panel sebelumnya. Kolom tidak pernah kosong, kecuali kolom yang hanya berisi satu panel.
-  - Panel awal: panel utama (`.ic-panel--grow`), kalau tidak ada maka panel pertama. Composer · Set: Halaman; Composer · Edit: Transform; Builder: Ikon; Tinjau: Pemeriksaan; Kombinasi: Pool (kanan) dan Pustaka (kiri).
+  - Panel awal: panel utama (`.ic-panel--grow`), kalau tidak ada maka panel pertama. Composer · Set: Halaman; Composer · Edit: Lapisan (tab Lapisan, Transform, Pustaka); Builder: Ikon; Tinjau: Pemeriksaan; Kombinasi: Pool (kanan) dan Pustaka (kiri).
   - Perintah yang membuka tab lewat program (tool rail Objek utama → Pustaka, Dekorasi, Kata kunci, tombol di peringatan) cukup mengklik tab; akordeon ikut membuka panelnya.
   - Shell mengingat panel terbuka per persona dan kolom selama sesi, jadi bertahan setelah render ulang dan pindah persona atau dokumen.
 - **Zoom dan geser kanvas (seperti Affinity), di semua persona:**
@@ -123,8 +123,11 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
   - **Seret pegangan** mengubah skala set lapisan itu (`style.scale`, berlaku untuk semua ikon). Shift = kelipatan 5%. Objek utama dan dekorasi berskala di pusatnya, pengubah dari sudut atau sisi slotnya. Pegangan pengubah yang berimpit dengan titik tetap disembunyikan.
   - **Seret zona di luar sudut** (kursor putar) memutar lapisan untuk ikon ini saja (`mr`, `nr`, `deco.r`). Shift = kelipatan 15°. Kotak seleksi dan wilayah klik ikut berputar.
   - Esc saat menyeret membatalkan. Tool Geser tampilan dan Spasi tetap menggeser kanvas, bukan pegangan. Gaya offset hanya bisa memilih lapisan (kotak seleksi tanpa pegangan).
-- **Studio:** Gaya (kartu mesin), Lapisan, dan **Transform | Variasi | Riwayat**.
-  - Memilih lapisan (klik di artboard atau di daftar Lapisan) membuka tab Transform yang berisi kontrol lapisan itu. Sakelar "Buka panel ini saat memilih lapisan" di tab Transform mematikannya (`view.panel`).
+- **Studio:** tiga panel di kolom akordeon.
+  1. **Gaya** | Warna (kartu mesin).
+  2. **Lapisan | Transform | Pustaka** (panel utama, `.ic-panel--grow`, terbuka saat masuk Edit di tab Lapisan). Daftar Lapisan dan Transform bergantian di satu panel, jadi panel kontekstual tidak pernah menutup daftar Lapisan lewat akordeon. Pustaka di panel ini mengganti isi lapisan terpilih (tombol "Ganti…").
+  3. **Halaman** | Variasi | Riwayat.
+  - Memilih lapisan (klik di artboard atau di daftar Lapisan) membuka tab Transform yang berisi kontrol lapisan itu, dan membuka panel Lapisan bila sedang tertutup. Untuk memilih lapisan lain dari daftar, kembali ke tab Lapisan. Sakelar "Buka panel ini saat memilih lapisan" di tab Transform mematikannya (`view.panel`).
   - Transform berisi X/Y/W/H, Skala (semua ikon), dan Rotasi (ikon ini).
   - Variasi berisi sumbu mesin aktif dari `engine.axes()`. Nilai yang diblokir tampil `disabled`. Seed planner ditampilkan, dan hasil cek kembaran tampil sebagai `.ic-alert[data-level=ok]`.
 - **Keyboard:** panah menggeser 0,5 unit (Shift = 2), `[` `]` memutar 15° (Shift = 1°), Esc kembali ke ikhtisar, Delete menghapus lapisan pengubah atau dekorasi.

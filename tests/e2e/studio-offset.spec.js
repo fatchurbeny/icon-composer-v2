@@ -114,17 +114,21 @@ test.describe("Icon Studio · gaya Offset", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
-    await expect(page.locator('[data-panel="edit-transform"]')).toContainText(
+    await expect(page.locator('[data-panel="edit-layers"]')).toContainText(
       "Pengubah tidak tersedia pada style ini",
     );
     await expect(page.locator(".ic-context")).toContainText(
       "Pengubah tidak tersedia pada style ini",
     );
     await expect(page.locator('[data-name="edit-x"]')).toHaveCount(0);
+    /* Lapisan dan Transform bergantian di satu panel: kembali ke daftar Lapisan */
+    await page
+      .locator('[data-panel="edit-layers"] [role="tab"][data-value="lapisan"]')
+      .click();
     await page
       .locator('[data-action="layer-select"][data-layer="deco"]')
       .click();
-    await openPanel(page, "edit-transform");
+    await openPanel(page, "edit-layers");
     const art = page.locator(".ic-artboard__art");
     const before = await art.locator("path").count();
     await page.locator('[data-name="edit-odeco:cloud"]').check();
