@@ -117,7 +117,7 @@ const actions = {
     const m = el.dataset.main || "",
       d = el.dataset.mod || "";
     const skip = !ctx.doc.combo.skip[`${m}|${d}`];
-    mutate(ctx, (doc) => setSkip(doc, [[m, d]], skip));
+    mutate(ctx, (doc) => setSkip(doc, [[m, d]], skip), `${skip ? "Lewati" : "Pakai"} ${m} + ${d}`);
   },
   /** @param {import("./common.js").Ctx} ctx @param {HTMLElement} el */
   "k-row"(ctx, el) {
@@ -127,7 +127,7 @@ const actions = {
     if (!row) return;
     const cells = row.cells.filter((c) => c.state === "on" || c.state === "skipped");
     const allOn = cells.every((c) => c.state === "on");
-    mutate(ctx, (doc) => setSkip(doc, cells.map((c) => /** @type {[string, string]} */ ([m, c.mod])), allOn));
+    mutate(ctx, (doc) => setSkip(doc, cells.map((c) => /** @type {[string, string]} */ ([m, c.mod])), allOn), `${allOn ? "Lewati" : "Pakai"} baris ${m}`);
   },
   /** @param {import("./common.js").Ctx} ctx @param {HTMLElement} el */
   "k-col"(ctx, el) {
@@ -135,19 +135,19 @@ const actions = {
     const mx = matrixOf(ctx);
     const cells = mx.rows.map((r) => ({ m: r.main, c: r.cells.find((c) => c.mod === d) })).filter((x) => x.c && (x.c.state === "on" || x.c.state === "skipped"));
     const allOn = cells.every((x) => x.c && x.c.state === "on");
-    mutate(ctx, (doc) => setSkip(doc, cells.map((x) => /** @type {[string, string]} */ ([x.m, d])), allOn));
+    mutate(ctx, (doc) => setSkip(doc, cells.map((x) => /** @type {[string, string]} */ ([x.m, d])), allOn), `${allOn ? "Lewati" : "Pakai"} kolom ${d}`);
   },
   /** @param {import("./common.js").Ctx} ctx */
   "k-all"(ctx) {
     const mains = matrixMains(ctx.doc),
       mods = matrixMods(ctx.doc);
-    mutate(ctx, (doc) => setSkip(doc, mains.flatMap((m) => mods.map((d) => /** @type {[string, string]} */ ([m, d]))), false));
+    mutate(ctx, (doc) => setSkip(doc, mains.flatMap((m) => mods.map((d) => /** @type {[string, string]} */ ([m, d]))), false), "Pakai semua kombinasi");
   },
   /** @param {import("./common.js").Ctx} ctx */
   "k-none"(ctx) {
     const mains = matrixMains(ctx.doc),
       mods = matrixMods(ctx.doc);
-    mutate(ctx, (doc) => setSkip(doc, mains.flatMap((m) => mods.map((d) => /** @type {[string, string]} */ ([m, d]))), true));
+    mutate(ctx, (doc) => setSkip(doc, mains.flatMap((m) => mods.map((d) => /** @type {[string, string]} */ ([m, d]))), true), "Lewati semua kombinasi");
   },
   /** @param {import("./common.js").Ctx} ctx @param {HTMLElement} el */
   "k-pool-remove"(ctx, el) {
@@ -201,16 +201,16 @@ function control(ctx, name, value) {
   if (!isSet(ctx)) return;
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   if (name === "k-family" && READY_ENGINES.includes(value)) return mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${/** @type {any} */ (ENGINE_NAMES)[value]}`);
-  if (name === "k-pos") return mutate(ctx, (doc) => (doc.combo.pos = ["default", "BL", "TR", "BR"].includes(value) ? value : "default"));
-  if (name === "k-mode") return mutate(ctx, (doc) => (doc.combo.mode = value === "all" ? "all" : "set"));
-  if (name === "k-skip-existing") return mutate(ctx, (doc) => (doc.combo.skipExisting = !!value));
+  if (name === "k-pos") return mutate(ctx, (doc) => (doc.combo.pos = ["default", "BL", "TR", "BR"].includes(value) ? value : "default"), "Posisi pengubah kombinasi");
+  if (name === "k-mode") return mutate(ctx, (doc) => (doc.combo.mode = value === "all" ? "all" : "set"), "Cakupan kombinasi");
+  if (name === "k-skip-existing") return mutate(ctx, (doc) => (doc.combo.skipExisting = !!value), "Lewati yang sudah ada");
   if (name.startsWith("pool:")) {
     const [, kind, ...rest] = name.split(":");
     const key = rest.join(":");
     return mutate(ctx, (doc) => {
       if (value) delete doc.pool.off[`${kind}|${key}`];
       else doc.pool.off[`${kind}|${key}`] = true;
-    });
+    }, `Pool ${key} ${value ? "aktif" : "nonaktif"}`);
   }
 }
 

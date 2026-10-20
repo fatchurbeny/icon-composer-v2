@@ -91,7 +91,7 @@ export function createShell({ root, app, renderer }) {
       spec.viewMode
         ? `<div class="ic-persona-group" role="group" aria-label="Mode tampilan">${iconButton("view-single", "Mode satu ikon", { pressed: spec.viewMode === "single", action: "view-single", disabled: !hasSelection })}${iconButton("view-pages", "Mode ikhtisar halaman", { pressed: spec.viewMode === "pages", action: "view-pages" })}</div>`
         : "";
-    return `<header class="ic-topbar">${LOGO}<nav class="ic-persona-group" aria-label="Persona">${nav}</nav>${iconButton("more", "Menu lain", { action: "more" })}${viewMode}<span class="ic-spacer"></span>${spec.info(c)}<span class="ic-sep"></span>${iconButton("undo", "Urungkan", { disabled: true })}${spec.action(c)}${helpButton()}</header>`;
+    return `<header class="ic-topbar">${LOGO}<nav class="ic-persona-group" aria-label="Persona">${nav}</nav>${iconButton("more", "Menu lain", { action: "more" })}${viewMode}<span class="ic-spacer"></span>${spec.info(c)}<span class="ic-sep"></span>${iconButton("undo", "Urungkan", { action: "undo", disabled: !(c.doc && c.app.canUndo(c.doc.id)) })}${iconButton("redo", "Ulangi", { action: "redo", disabled: !(c.doc && c.app.canRedo(c.doc.id)) })}${spec.action(c)}${helpButton()}</header>`;
   }
 
   /** @param {any} spec */
@@ -237,6 +237,18 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
     el.hidden = !active;
   }
 
+  /**
+   * Urungkan atau ulangi satu langkah di dokumen aktif. Seleksi diperbaiki oleh app-state; mode Edit
+   * dengan ikon yang hilang kembali ke ikhtisar lewat context().
+   * @param {"undo" | "redo"} dir
+   */
+  function undoRedo(dir) {
+    const doc = ctx && ctx.doc;
+    if (!doc) return;
+    const label = dir === "undo" ? app.undo(doc.id) : app.redo(doc.id);
+    if (label != null) toast(`${dir === "undo" ? "Diurungkan" : "Diulang"}: ${label}`);
+  }
+
   /** @param {import("./app-state.js").Route} route */
   const go = (route) => {
     const hash = routeHash(route);
@@ -276,6 +288,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
     if (action === "zoom-out") return zoom.zoomOut();
     if (action === "zoom-reset") return zoom.reset();
     if (action === "zoom-fit") return zoom.fit();
+    if (action === "undo" || action === "redo") return undoRedo(action);
     if (spec && spec.actions && spec.actions[action]) return spec.actions[action](c, el, { toast, go, importText });
     if (action === "view-pages") return go({ persona: "composer", edit: null });
     if (action === "view-single") {
@@ -398,6 +411,18 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
     if (!spec) return;
     const tool = spec.tools.find((/** @type {any} */ t) => t !== "sep" && TOOL_KEYS[t[0]] && TOOL_KEYS[t[0]].toLowerCase() === event.key.toLowerCase());
     if (tool) pickTool(tool[0]);
+  });
+
+  /* ⌘/Ctrl+Z urungkan, ⌘/Ctrl+Shift+Z dan Ctrl+Y ulangi. Di isian teks, pintasan milik isian itu. */
+  document.addEventListener("keydown", (event) => {
+    const target = /** @type {HTMLElement} */ (event.target);
+    if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+    if (target.closest && target.closest("input, textarea, [contenteditable]")) return;
+    const key = event.key.toLowerCase();
+    const dir = key === "z" ? (event.shiftKey ? "redo" : "undo") : key === "y" && event.ctrlKey && !event.shiftKey ? "redo" : null;
+    if (!dir) return;
+    event.preventDefault();
+    undoRedo(dir);
   });
 
   /* Esc dari mode edit kembali ke ikhtisar, juga saat fokus berada di luar #app */

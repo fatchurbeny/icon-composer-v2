@@ -409,7 +409,7 @@ export function control(ctx, name, value) {
     return mutate(ctx, (doc) => {
       if (value) delete doc.pool.off[`${kind}|${key}`];
       else doc.pool.off[`${kind}|${key}`] = true;
-    });
+    }, `Pool ${key} ${value ? "aktif" : "nonaktif"}`);
   }
   if (name === "view-sort") return mutate(ctx, (doc) => (doc.view.sort = value));
   if (name === "view-cols") return mutate(ctx, (doc) => (doc.view.cols = Math.max(2, Math.min(12, Math.round(Number(value)) || 8))));

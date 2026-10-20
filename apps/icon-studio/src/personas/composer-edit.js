@@ -174,15 +174,16 @@ const scaleRange = (/** @type {string} */ layer) => ({ min: layer === "main" ? 6
 const autoPanelCheck = (/** @type {import("./common.js").Ctx} */ ctx) => check("Buka panel ini saat memilih lapisan", ctx.doc.view.panel !== false, { name: "edit-autopanel" });
 
 /**
- * Pilih lapisan lalu buka panel yang berhubungan dengannya (tab Transform berisi kontrol lapisan terpilih).
- * Memakai openTab supaya perilaku lipat panel studio ikut berlaku.
+ * Pilih lapisan lalu buka tab Transform (kontrol lapisan terpilih). Tab itu sepanel dengan daftar Lapisan,
+ * jadi keduanya bergantian di satu panel dan akordeon tidak menutup daftar Lapisan. Memakai openTab
+ * supaya panel ikut terbuka bila sedang tertutup.
  * @param {import("./common.js").Ctx} ctx
  * @param {import("../state/edit-ops.js").Layer} layer
  */
 function selectLayer(ctx, layer) {
   libraryUi.target = layer;
   rerender(ctx);
-  if (ctx.doc.view.panel !== false) openTab("edit-transform", "transform");
+  if (ctx.doc.view.panel !== false) openTab("edit-layers", "transform");
 }
 
 /**
@@ -290,13 +291,13 @@ const editActions = {
     selectLayer(ctx, /** @type {any} */ (el.dataset.layer));
   },
   "layer-swap"() {
-    if (layerOf() === "deco") return openTab("edit-transform", "transform");
+    if (layerOf() === "deco") return openTab("edit-layers", "transform");
     openTab("edit-layers", "pustaka");
   },
   /** @param {import("./common.js").Ctx} ctx */
   "edit-colors"(ctx) {
     if (isOffset(ctx.doc)) return openTab("composer-style", "warna");
-    openTab("edit-transform", "transform");
+    openTab("edit-layers", "transform");
   },
   /** @param {import("./common.js").Ctx} ctx */
   "edit-reset"(ctx) {
@@ -567,18 +568,18 @@ export const composerEdit = {
       panel({
         id: "edit-layers",
         label: "Lapisan",
+        grow: true,
         tabs: [
           { id: "lapisan", label: "Lapisan", body: it ? layerList(ctx, it) : empty("Belum ada ikon terpilih."), flush: !!it },
-          { id: "halaman", label: "Halaman", body: halaman, flush: true },
+          { id: "transform", label: "Transform", body: it ? transformBody(ctx, it) : "" },
           { id: "pustaka", label: "Pustaka", body: `${libraryBody(ctx, { target: true, cols: 5 })}${LICENSE_NOTE}` },
         ],
       }),
       panel({
-        id: "edit-transform",
-        label: "Transform",
-        grow: true,
+        id: "edit-pages",
+        label: "Halaman",
         tabs: [
-          { id: "transform", label: "Transform", body: it ? transformBody(ctx, it) : "" },
+          { id: "halaman", label: "Halaman", body: halaman, flush: true },
           {
             id: "variasi",
             label: "Variasi",

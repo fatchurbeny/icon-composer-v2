@@ -28,6 +28,8 @@ const ROLE_NAME = { ink: "Tinta", acc: "Aksen", fillA: "Isi aksen", fill: "Isi t
 const UNDER_NAME = { none: "Tanpa", full: "Penuh", offset: "Geser", half: "Separuh" };
 const ANCHORS = ["TL", "TC", "TR", "ML", "C", "MR", "BL", "BC", "BR"];
 const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis", O: "Offset" };
+/** Nama opsi ekspor untuk Riwayat dan urungkan. */
+const EXPORT_OPTION_LABEL = { slot: "Ikon slot deck", extra: "Ikon ekstra", split: "Pisahkan folder", skipBad: "Lewati ikon bermasalah" };
 const OFFSET_FILL_NAME = [["solid", "Bidang"], ["white", "Putih"], ["line", "Garis"]];
 
 /** Status ekspor terakhir (bukan bagian dokumen). */
@@ -420,7 +422,7 @@ function control(ctx, name, value) {
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   const doc = ctx.doc;
   if (name === "b-filter") return mutate(ctx, () => (doc.view.filter = value));
-  if (name === "b-preview") return mutate(ctx, () => (doc.pv = BUILDER_MODES.includes(value) ? value : doc.pv));
+  if (name === "b-preview") return mutate(ctx, () => (doc.pv = BUILDER_MODES.includes(value) ? value : doc.pv), `Pratinjau ${/** @type {any} */ (PREVIEW_LABEL)[value] || value}`);
   if (name === "b-ofill")
     return mutate(ctx, () => {
       const e = doc.style.engine || {};
@@ -452,9 +454,9 @@ function control(ctx, name, value) {
       it.parts = Object.fromEntries(roles.map((/** @type {string} */ r, /** @type {number} */ j) => [j, r]));
       it.parts[i] = value;
     }, "Warna bagian");
-  if (name.startsWith("b-mode:")) return mutate(ctx, () => (doc.export.modes[name.slice(7)] = !!value));
-  if (name.startsWith("b-ex:")) return mutate(ctx, () => (doc.export[name.slice(5)] = !!value));
-  if (name === "b-name") return mutate(ctx, () => (doc.export.name = String(value).slice(0, 60)));
+  if (name.startsWith("b-mode:")) return mutate(ctx, () => (doc.export.modes[name.slice(7)] = !!value), `Ekspor ${/** @type {any} */ (PREVIEW_LABEL)[name.slice(7)] || name.slice(7)} ${value ? "aktif" : "nonaktif"}`);
+  if (name.startsWith("b-ex:")) return mutate(ctx, () => (doc.export[name.slice(5)] = !!value), `${/** @type {any} */ (EXPORT_OPTION_LABEL)[name.slice(5)] || name.slice(5)} ${value ? "aktif" : "nonaktif"}`);
+  if (name === "b-name") return mutate(ctx, () => (doc.export.name = String(value).slice(0, 60)), "Nama pack");
   if (name === "b-pack-en" || name === "b-pack-id")
     return mutate(ctx, () => {
       const p = packOf(doc.manifest);

@@ -90,6 +90,7 @@
 .ic-iconbtn:hover { background: var(--ic-bg-hover); }
 .ic-iconbtn[aria-pressed="true"] { background: var(--ic-bg-tab-on); color: var(--ic-text-strong); }
 .ic-iconbtn--help { color: var(--ic-link); }
+.ic-iconbtn:disabled { opacity: .45; cursor: not-allowed; background: transparent; }
 
 .ic-tool { width: var(--ic-size-tool); height: var(--ic-size-tool); display: flex; align-items: center; justify-content: center;
   border: 0; border-radius: var(--ic-r-xl); background: transparent; color: var(--ic-text-2); cursor: pointer; padding: 0; }

@@ -260,6 +260,14 @@ async function sweep(page, state, found) {
   const initial = await page
     .locator('.ic-panel [role="tab"][aria-selected="true"]')
     .evaluateAll((els) => els.map((el) => el.id));
+  /* kolom studio akordeon: catat panel yang terbuka, karena klik tab di panel tertutup membukanya */
+  const openPanels = await page
+    .locator(
+      '.ic-panel > .ic-panel__head > .ic-panel__collapse[aria-expanded="true"]',
+    )
+    .evaluateAll((els) =>
+      els.map((el) => el.closest(".ic-panel")?.getAttribute("data-panel")),
+    );
   const tabs = page.locator('.ic-panel [role="tab"]');
   const n = await tabs.count();
   for (let i = 0; i < n; i++) {
@@ -271,6 +279,28 @@ async function sweep(page, state, found) {
   }
   /* kembalikan tab awal agar tombol di tab itu bisa diklik lagi */
   for (const id of initial) await page.locator(`[id="${id}"]`).click();
+  for (const id of openPanels) {
+    const btn = page.locator(
+      `[data-panel="${id}"] > .ic-panel__head > .ic-panel__collapse`,
+    );
+    if ((await btn.getAttribute("aria-expanded")) === "false")
+      await btn.click();
+  }
+}
+
+/**
+ * Tunggu sampai kerangka persona tujuan selesai dirender. Rute berubah lewat hash, dan shell baru merender
+ * saat event hashchange (asinkron), jadi URL bisa sudah berganti sementara DOM masih milik persona lama.
+ * @param {import("@playwright/test").Page} page
+ * @param {string} persona
+ * @param {boolean} [edit] Composer · Edit (artboard tampil)
+ */
+async function rendered(page, persona, edit = false) {
+  await expect(
+    page.locator(`.ic-shell[data-persona="${persona}"]`),
+  ).toHaveCount(1);
+  if (edit) await expect(page.locator(".ic-artboard")).toBeVisible();
+  else await expect(page.locator(".ic-artboard")).toHaveCount(0);
 }
 
 test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
@@ -284,6 +314,7 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
 
     /* Composer kosong, lalu set contoh */
     await page.goto(`${APP}#/composer`);
+    await rendered(page, "composer");
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     await sweep(page, "composer kosong", found);
@@ -293,16 +324,23 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     /* Composer · Edit */
     await page.locator(".ic-page__card[data-open]").nth(2).dblclick();
     await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await rendered(page, "composer", true);
     await sweep(page, "composer edit", found);
 
     /* Kombinasi dan Tinjau dari set contoh */
     await page.goto(`${APP}#/kombinasi`);
+    await rendered(page, "kombinasi");
     await sweep(page, "kombinasi", found);
     await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
     await sweep(page, "tinjau set", found);
 
     /* Gaya Offset di Composer, Edit, Kombinasi, dan Tinjau */
     await page.goto(`${APP}#/composer`);
+    await rendered(page, "composer");
+    await page
+      .locator('[data-panel="composer-style"] [role="tab"][data-value="gaya"]')
+      .click();
     await page.locator('.ic-engine[data-value="offset"]').click();
     await expect(
       page.locator('.ic-engine[data-value="offset"]'),
@@ -310,10 +348,13 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     await sweep(page, "composer offset", found);
     await page.locator(".ic-page__card[data-open]").first().dblclick();
     await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await rendered(page, "composer", true);
     await sweep(page, "composer edit offset", found);
     await page.goto(`${APP}#/kombinasi`);
+    await rendered(page, "kombinasi");
     await sweep(page, "kombinasi offset", found);
     await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
     await sweep(page, "tinjau offset", found);
 
     /* Builder: kosong, manifest contoh, lalu setiap langkah */
@@ -330,6 +371,7 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
       await sweep(page, `builder langkah ${step}`, found);
     }
     await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
     await sweep(page, "tinjau manifest", found);
 
     const report = [...found].map(
@@ -347,8 +389,8 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     expect(englishIn("Zoom in")).toContain("Zoom in");
     expect(englishIn("Additional")).toEqual([]);
     expect(englishIn("= Lucide file-lock")).toEqual([]);
-    expect(englishIn("Delete", "tooltip text <b class=\"\">")).toEqual([]);
-    expect(englishIn("Delete", "statusbar text <b class=\"\">")).toEqual([]);
+    expect(englishIn("Delete", 'tooltip text <b class="">')).toEqual([]);
+    expect(englishIn("Delete", 'statusbar text <b class="">')).toEqual([]);
     expect(englishIn("Delete", "text <button>")).toEqual(["Delete"]);
     expect(englishIn("Pilih File")).toEqual(["File"]);
     expect(englishIn("Edit ikon")).toEqual(["Edit"]);
