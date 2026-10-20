@@ -377,6 +377,9 @@
       cpClose(false);
     });
     window.addEventListener('resize', () => { if (!cp.el.hidden) cpPlace(); });
+    /* ganti tab di isi tambahan mengubah tinggi: tempatkan ulang langsung, ResizeObserver untuk perubahan lain */
+    el.addEventListener('ic-change', () => { if (!cp.el.hidden) cpPlace(); });
+    if (global.ResizeObserver) new ResizeObserver(() => { if (!cp.el.hidden) cpPlace(); }).observe(el);
   }
 
   /* geometri roda dalam piksel CSS: pusat, jari-jari luar, dalam, dan titik sudut segitiga.
@@ -492,21 +495,31 @@
     const f = document.activeElement && box.contains(document.activeElement) ? document.activeElement : null;
     const key = (n) => ['action', 'color', 'value', 'id', 'i', 'kind', 'dir'].map((k) => n.dataset[k] || '').join('|');
     const focusKey = f ? key(f) : null;
+    const scroll = box.scrollTop;
     box.innerHTML = fn({ name: cp.name, value: cp.value === '' ? '' : cpHex(), trigger: cpTrigger() }) || '';
     initUI(box);
     if (tabValue) { const t = box.querySelector('[role="tab"][data-value="' + tabValue + '"]'); if (t && t.getAttribute('aria-selected') !== 'true') t.click(); }
+    box.scrollTop = scroll;
     if (focusKey) { const n = Array.from(box.querySelectorAll('button, [tabindex]')).find((x) => key(x) === focusKey); if (n) n.focus({ preventScroll: true }); }
   }
+  /* Penempatan seperti placeTip: tinggi dibatasi ruang viewport (sisanya digulir di __extra).
+     Utamakan di bawah pemicu (rata kanan); bila kurang, balik ke atas; bila keduanya kurang,
+     geser ke samping pemicu dan rapatkan ke tepi viewport supaya pemicu tidak tertutup. */
   function cpPlace() {
     const t = cpTrigger();
     if (!t) return;
     const r = t.getBoundingClientRect(), el = cp.el, gap = 8, vw = window.innerWidth, vh = window.innerHeight;
+    el.style.maxHeight = Math.max(0, vh - gap * 2) + 'px';
     const w = el.offsetWidth, h = el.offsetHeight;
-    let x = r.right - w, y = r.bottom + gap;
-    if (y + h > vh - gap) y = Math.max(gap, r.top - gap - h);
-    if (y < gap) y = gap;
+    let x = r.right - w, y;
+    if (r.bottom + gap + h <= vh - gap) y = r.bottom + gap;
+    else if (r.top - gap - h >= gap) y = r.top - gap - h;
+    else {
+      y = clamp(r.top + r.height / 2 - h / 2, gap, vh - gap - h);
+      x = r.left - gap - w >= gap ? r.left - gap - w : r.right + gap;
+    }
     x = clamp(x, gap, vw - w - gap);
-    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.left = x + 'px'; el.style.top = Math.max(gap, y) + 'px';
   }
   function cpLoad(t) {
     cp.follow = t.dataset.follow === 'true';

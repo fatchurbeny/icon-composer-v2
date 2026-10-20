@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   "packages/ui/components.js": {
-    "mtime": 1792485896.2277799,
-    "seen": 1792486233.426229,
-    "ast_hash": "ee8dfb9232a6b6ff909945733158bb7c",
+    "mtime": 1792487450.4879572,
+    "seen": 1792487518.416515,
+    "ast_hash": "9a1a1dad45ba222c1bcc9ce218c4139d",
     "semantic_hash": ""
   },
   "packages/ui/package.json": {
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792486174.6308076,
-    "seen": 1792486233.42628,
-    "ast_hash": "e1503ec8d285fbfb8d673121394f4f02",
+    "mtime": 1792487515.8805628,
+    "seen": 1792487518.416571,
+    "ast_hash": "2f77c18e92b002e51cf8ab76904da2ae",
     "semantic_hash": ""
   },
   "README.md": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN-HANDOFF.md": {
-    "mtime": 1792486137.3019829,
-    "seen": 1792486233.426294,
-    "ast_hash": "ed407509e7c7a43573754dae120f22af",
+    "mtime": 1792487515.8794863,
+    "seen": 1792487518.416588,
+    "ast_hash": "fc0b09a4baae485e64797b8b910da09b",
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "docs/design/ui-kit.html": {
-    "mtime": 1792486127.4707224,
-    "seen": 1792486233.4262981,
-    "ast_hash": "8018c8eab41181a6b64fa8ea5ecbdb0f",
+    "mtime": 1792487515.8799343,
+    "seen": 1792487518.416592,
+    "ast_hash": "910ef06cd0642c101284aa5f98d199e1",
     "semantic_hash": ""
   },
   "docs/engines/accent.md": {
@@ -978,9 +978,9 @@
     "semantic_hash": ""
   },
   "tests/e2e/studio-colorpicker.spec.js": {
-    "mtime": 1792486091.2026122,
-    "seen": 1792486233.426244,
-    "ast_hash": "5e99dae29a8bddd9ec3cea4767d5c181",
+    "mtime": 1792487403.915325,
+    "seen": 1792487518.416532,
+    "ast_hash": "b06596a0de9e6ab9aa2da63b3d30b944",
     "semantic_hash": ""
   },
   "tests/unit/studio-color.test.js": {

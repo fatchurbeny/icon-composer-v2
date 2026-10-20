@@ -227,3 +227,81 @@ test.describe("Icon Studio · pemilih warna", () => {
     expect(checks.some((r) => r.accent)).toBe(true);
   });
 });
+
+/** Kotak elemen berada utuh di dalam viewport. @param {import("@playwright/test").Page} page @param {import("@playwright/test").Locator} loc */
+async function expectInViewport(page, loc, what) {
+  const box = await loc.boundingBox();
+  const vp = page.viewportSize();
+  expect(box, what).not.toBeNull();
+  if (!box || !vp) return;
+  expect(box.x, what).toBeGreaterThanOrEqual(0);
+  expect(box.y, what).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width, what).toBeLessThanOrEqual(vp.width + 0.5);
+  expect(box.y + box.height, what).toBeLessThanOrEqual(vp.height + 0.5);
+}
+
+for (const [width, height] of [
+  [1440, 900],
+  [1280, 720],
+]) {
+  test.describe(`pemilih warna di ${width}×${height}`, () => {
+    /** Buka pemilih lalu pastikan popover, roda, dan kolom hex utuh di viewport. @param {import("@playwright/test").Page} page @param {string} name */
+    async function checkPicker(page, name) {
+      await trigger(page, name).click();
+      const picker = page.locator(PICKER);
+      await expect(picker).toBeVisible();
+      await expectInViewport(page, picker, `popover ${name}`);
+      await expectInViewport(page, picker.locator('[data-cp="wheel"]'), `roda ${name}`);
+      await expectInViewport(page, picker.locator('[data-cp="hex"]'), `hex ${name}`);
+      /* pindah ke tab Palet (paling panjang): popover tetap di dalam viewport */
+      await picker.locator('[role="tab"][data-value="palet"]').click();
+      await expectInViewport(page, picker, `popover ${name} tab Palet`);
+      const last = picker.locator('[data-action="cp-palette"]').last();
+      await last.scrollIntoViewIfNeeded();
+      await expectInViewport(page, last, `palet terakhir ${name}`);
+      await expectInViewport(page, picker.locator('[data-cp="wheel"]'), `roda ${name} setelah gulir`);
+      await page.keyboard.press("Escape");
+      await expect(picker).toBeHidden();
+    }
+
+    test("Composer Tinta dan Aksen; palet terakhir bisa dicapai dan diterapkan", async ({ page }) => {
+      await openComposerColors(page);
+      await page.setViewportSize({ width, height });
+      await checkPicker(page, "style:ink");
+      await checkPicker(page, "style:accent");
+      await trigger(page, "style:accent").click();
+      await page.locator(`${PICKER} [role="tab"][data-value="palet"]`).click();
+      const retro = page.locator(`${PICKER} [data-action="cp-palette"][data-id="retro-pop"]`);
+      await retro.scrollIntoViewIfNeeded();
+      await retro.click();
+      await expect(trigger(page, "style:accent")).toHaveAttribute("data-value", "#F05A5A");
+      /* daftar tidak melompat ke atas setelah render ulang */
+      await expectInViewport(page, retro, "Retro Pop setelah diterapkan");
+    });
+
+    test("Composer · Edit Garis dan Isian", async ({ page }) => {
+      await open(page, "#/composer");
+      await page.setViewportSize({ width, height });
+      await page.click('[data-action="load-preset"]');
+      await page.locator(".ic-page__card[data-open]").nth(2).dblclick();
+      await page.locator('[data-action="layer-select"][data-layer="main"]').click();
+      await openPanel(page, "edit-layers");
+      await trigger(page, "edit-line").scrollIntoViewIfNeeded();
+      await checkPicker(page, "edit-line");
+      await trigger(page, "edit-fill").scrollIntoViewIfNeeded();
+      await checkPicker(page, "edit-fill");
+    });
+
+    test("Builder Tinta dan Aksen pack", async ({ page }) => {
+      await open(page, "#/builder");
+      await page.setViewportSize({ width, height });
+      await page.locator('[data-action="import-sample"]').click();
+      await openPanel(page, "builder-icon");
+      await page.click('[data-panel="builder-icon"] [role="tab"][data-value="manifest"]');
+      await trigger(page, "b-color:ink").scrollIntoViewIfNeeded();
+      await checkPicker(page, "b-color:ink");
+      await trigger(page, "b-color:accent").scrollIntoViewIfNeeded();
+      await checkPicker(page, "b-color:accent");
+    });
+  });
+}
