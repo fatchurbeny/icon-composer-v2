@@ -191,8 +191,8 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Langkah | `.ic-steps`, `.ic-step`, `.ic-step__n`, `.ic-steps__line` | | `aria-current="step"`, `data-state="done"` | alur Builder | |
 | Lencana sumber | `.ic-src[data-src=lu\|tb\|hg\|cu]` | | | asal ikon | |
 | Flag | `.ic-flag[data-level=err\|warn\|ok\|info]` | | | status pendek | kalimat |
-| Titik status | `.ic-dot[data-level]` | | | awal baris peringatan | satu-satunya penanda (selalu sertakan teks) |
-| Peringatan | `.ic-alert[data-level]`, `.ic-alert__meta` | | | temuan repetisi/validasi | |
+| Titik status | `.ic-dot[data-level=err\|warn\|ok\|info]` | | | awal baris peringatan | satu-satunya penanda (selalu sertakan teks) |
+| Peringatan | `.ic-alert[data-level=err\|warn\|ok\|info]`, `.ic-alert__meta` | | | temuan repetisi/validasi; `info` (abu netral: `--ic-bg-card`, `--ic-line-4`, `--ic-text-2`, meta dan titik `--ic-text-4`) untuk catatan yang tidak memblokir ekspor, mis. "Pengubah tidak tersedia pada style ini" | jangan pakai `info` untuk masalah yang harus diperbaiki |
 | Statistik | `.ic-stats`, `.ic-stat[data-level]`, `__n`, `__l` | | | ringkasan angka | |
 | Baris | `.ic-list`, `.ic-row` `--sm`, `__thumb`, `__name`, `__sub` | | `aria-selected` | halaman, lapisan, pool, checklist | |
 | Tile pustaka | `.ic-tilegrid`, `.ic-tile`, `__kind`, `__check`, `__note` | `press` | `aria-pressed`, `data-in-pool`, `data-similar` | hasil pustaka | |

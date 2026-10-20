@@ -353,4 +353,49 @@ test.describe("Icon Studio · Builder", () => {
     );
     expect(zip["LICENSES.txt"]).toContain("offset/");
   });
+  test("flag info Offset memakai varian info kit, bukan teks polos", async ({
+    page,
+  }) => {
+    await open(page);
+    const manifest = {
+      format: "tib-manifest",
+      version: 2,
+      deck: { title: "Uji info", slides: 1 },
+      style: { family: "offset", mode: "white", accent: "#B8405A" },
+      icons: [{ id: "house", name: { en: "house", id: "rumah" }, main: "lu:house", mod: "check", anchor: "BR", slides: [1] }],
+    };
+    await page
+      .locator('[data-name="manifest-text"]')
+      .fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    await page.locator(".ic-iconcard[data-select]").first().click();
+    await page.click(
+      '[data-panel="builder-rep"] [role="tab"][data-value="flag"]',
+    );
+    /** @param {import("@playwright/test").Locator} panel */
+    const styleOf = (panel) =>
+      panel.locator('.ic-alert[data-level="info"]').first().evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const dot = el.querySelector('.ic-dot[data-level="info"]');
+        const root = getComputedStyle(document.documentElement);
+        return {
+          bg: cs.backgroundColor,
+          shadow: cs.boxShadow,
+          color: cs.color,
+          dot: dot ? getComputedStyle(dot).backgroundColor : "",
+          card: root.getPropertyValue("--ic-bg-card").trim(),
+        };
+      });
+    const flag = await styleOf(page.locator('[data-panel="builder-rep"]'));
+    /* teks polos: latar transparan, tanpa garis, titik tidak berwarna */
+    expect(flag.bg).toBe("rgb(34, 34, 34)");
+    expect(flag.card.toUpperCase()).toBe("#222222");
+    expect(flag.shadow).not.toBe("none");
+    expect(flag.dot).not.toBe("rgba(0, 0, 0, 0)");
+    expect(flag.color).toBe("rgb(207, 207, 207)");
+
+    await page.locator('.ic-topbar [data-action="export"]').click();
+    const exp = await styleOf(page.locator('[data-panel="builder-export"]'));
+    expect(exp).toEqual(flag);
+  });
 });

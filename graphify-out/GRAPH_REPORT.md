@@ -1,7 +1,7 @@
-# Graph Report - fase-3-offset-builder-d725f4  (2026-10-19)
+# Graph Report - gap-ui-info-level-1b097f  (2026-10-20)
 
 ## Corpus Check
-- 145 files · ~140,349 words
+- 145 files · ~140,600 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 5, .css 5, .csv 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `98e1763f`
+- Built from commit: `f60f117f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
