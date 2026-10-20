@@ -6,6 +6,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 
 ### Ditambahkan
 - Tes `ui-language.spec.js` menegakkan DESIGN-HANDOFF 9.5 (tanpa teks UI berbahasa Inggris di Icon Studio, dengan pengecualian terdokumentasi); tombol "Reset posisi" di Composer · Edit menjadi "Atur ulang posisi".
+- Varian level `info` untuk `.ic-alert` dan `.ic-dot` di kit (abu netral, token yang sudah ada); flag info seperti "Pengubah tidak tersedia pada style ini" di Builder, Composer, Kombinasi, dan Tinjau tidak lagi tampil sebagai teks polos.
 - Fase 3 selesai: gaya Offset di persona Builder (mode `O`): pratinjau, kontrol Isi warna, flag info "Pengubah tidak tersedia pada style ini", dan ekspor ZIP `offset/` direct fill dengan kata gaya "Offset Style"; ZIP classic/accent tetap identik dengan TIB 1.6.0.
 - Fase 3: impor set offset-composer 1.0.1 ke Icon Studio, lewat migrasi sekali jalan `002-from-offset` (kunci `offset-composer-v1`) dan lewat `gaya.json` yang ditempel atau diseret di area impor; hasilnya set Composer bergaya `family: "offset"`.
 - Kontrol Posisi (`.ic-anchor`) di bilah konteks memakai ukuran ringkas supaya tidak terpotong.

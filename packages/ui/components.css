@@ -209,6 +209,7 @@
 .ic-dot[data-level="err"] { background: var(--ic-err); }
 .ic-dot[data-level="warn"] { background: var(--ic-warn); }
 .ic-dot[data-level="ok"] { background: var(--ic-ok); }
+.ic-dot[data-level="info"] { background: var(--ic-text-4); }
 
 /* Baris peringatan (repetisi, validasi) */
 .ic-alert { display: flex; align-items: center; gap: var(--ic-sp-4); padding: var(--ic-sp-4) var(--ic-sp-5); border-radius: var(--ic-r-lg); font-size: var(--ic-fs-sm); }
@@ -218,6 +219,9 @@
 .ic-alert[data-level="err"] { background: var(--ic-err-bg); box-shadow: inset 0 0 0 1px var(--ic-err-line); color: var(--ic-err-text); }
 .ic-alert[data-level="err"] .ic-alert__meta { color: var(--ic-err-meta); }
 .ic-alert[data-level="ok"] { background: var(--ic-ok-bg); color: var(--ic-ok-text); }
+/* Info: abu netral, sama dengan .ic-flag[data-level="info"]; catatan yang tidak memblokir ekspor */
+.ic-alert[data-level="info"] { background: var(--ic-bg-card); box-shadow: inset 0 0 0 1px var(--ic-line-4); color: var(--ic-text-2); }
+.ic-alert[data-level="info"] .ic-alert__meta { color: var(--ic-text-4); }
 
 /* Statistik */
 .ic-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ic-sp-3); }
