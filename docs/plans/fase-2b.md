@@ -102,7 +102,7 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - Kartu Offset dan Hand-writing tampil tetapi nonaktif sampai UI Fase 3 dan 4.
 - Filter Bentuk "Isi" memakai `analyzeLibraryIcon().hasBody` dan di-cache per kunci. Saat filter aktif, hasil dipindai bertahap ("40+ ikon").
 - Tabler dan Hugeicons dimuat saat sumbernya dipilih. "Semua" hanya menampilkan pustaka yang sudah termuat.
-- Belum ada: halaman saran (`.ic-page--ghost`, menunggu Kombinasi), warna per lapisan (langkah 4), undo (backlog), dan tombol Pool berwarna persona (kit hanya mengizinkan warna persona di 4 tempat, jadi dipakai `.ic-btn--block`).
+- Belum ada: halaman saran (`.ic-page--ghost`, menunggu Kombinasi), warna per lapisan (langkah 4), undo (kini ada, lihat catatan undo di bawah), dan tombol Pool berwarna persona (kit hanya mengizinkan warna persona di 4 tempat, jadi dipakai `.ic-btn--block`).
 
 
 - Kanvas `.ic-pagegrid`: satu `.ic-page` per ikon, `.ic-page--new`, dan flag `dobel` dari signature.
@@ -126,7 +126,7 @@ Selesai 2026-10-18. Catatan pelaksanaan:
 - Handle kotak seleksi masih penanda visual. Ukuran diatur lewat Skala (berlaku untuk semua ikon di set, seperti IC).
 - Warna garis/isi lapisan berlaku untuk seluruh set (`style.colors`, seperti IC), dan ini disebut di panel.
 - Rute `#/composer/edit/<id>` mengikuti ikon yang dipilih di filmstrip atau Halaman (`history.replaceState`).
-- Belum ada: unggah dekorasi SVG sendiri (`cleanSvg` + dialog; kit belum punya komponen dialog), "Celah knockout" per ikon (tidak ada padanannya di mesin classic/accent; tidak dipasang), undo (backlog), dan sumbu Variasi (classic/accent tidak punya).
+- Belum ada: unggah dekorasi SVG sendiri (`cleanSvg` + dialog; kit belum punya komponen dialog), "Celah knockout" per ikon (tidak ada padanannya di mesin classic/accent; tidak dipasang), undo (backlog saat itu, kini ada), dan sumbu Variasi (classic/accent tidak punya).
 
 
 - Artboard 520×520 dengan grid 8 unit, seleksi lapisan + handle, tooltip koordinat, filmstrip.
@@ -136,7 +136,7 @@ Selesai 2026-10-18. Catatan pelaksanaan:
   - Skala, Isi, Celah knockout.
 - Studio: Gaya, Lapisan | Transform | Pustaka, dan Halaman | Variasi | Riwayat (susunan setelah akordeon, lihat DESIGN-HANDOFF 3.2). Variasi diisi `engine.axes()`. Classic dan accent masih kosong, jadi tampil `.ic-empty`.
 - Keyboard: panah 0,5 unit (Shift 2), Esc, Delete. Logika `getXY`/`setXY` dipindah dari IC.
-- Undo/redo masih backlog. Panel Riwayat hanya menampilkan log perubahan sesi, tanpa tombol undo.
+- Undo/redo: semula backlog, kini fitur Icon Studio (2026-10-20). Tombol Urungkan dan Ulangi di bilah atas, maks 10 langkah per dokumen, hanya di memori. Panel Riwayat mencatat perubahan sesi termasuk "Urungkan: …" dan "Ulangi: …". Rincian: DATA-MODEL bagian 4.4.
 - **Tinjauan Ika** terhadap `artboard-edit-1600x1000.png`.
 
 ### 5. Persona Builder ✅ (menunggu tinjauan Ika)
@@ -266,5 +266,5 @@ Tes baru per langkah:
 
 - Sticker (Fase 5), sidik jari dan planner (Fase 6), direct fill di ZIP Composer (Fase 5).
 - Penyatuan classic IC ke 1.4.5 (butuh keputusan terpisah).
-- Undo/redo (backlog).
+- Undo/redo (backlog saat Fase 2b; menyusul sebagai fitur Icon Studio 2026-10-20).
 - Menghapus `apps/icon-composer` dan `apps/template-icon-builder`.

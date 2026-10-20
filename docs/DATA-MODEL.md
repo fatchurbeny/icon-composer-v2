@@ -125,6 +125,23 @@ Ikon dengan `key` di luar `lu:`/`tb:` dilewati. Bila nilai gaya ikon lain berbed
 
 **Impor file:** teks yang ditempel atau file yang diseret di area impor (`importText` di shell) dicek dulu oleh `app.importOffsetSet`. Bila berformat offset-composer, hasilnya set Composer baru yang aktif dan app pindah ke persona Composer. Teks lain tetap diproses sebagai manifest Builder seperti sebelumnya.
 
+### 4.4 Urungkan dan ulangi (hanya di memori)
+
+Riwayat urungkan **tidak** disimpan ke `icon-studio-v1`; hilang saat app dimuat ulang. Modul murni `apps/icon-studio/src/state/undo.js` menyimpan per dokumen:
+
+- `base`: salinan isi dokumen pada pencatatan terakhir.
+- `past`: maks **10** langkah `{snap, label}`. Langkah tertua dibuang bila lebih.
+- `future`: langkah yang bisa diulang. Dikosongkan oleh perubahan baru.
+
+Field isi yang disalin (structuredClone): `name`, `items`, `style`, `customs`, `pool`, `combo`, `review`, `meta`, `manifest`, `export`, `pv`. Tidak ikut: `view` (tab, filter, langkah Builder, grid), `issues` (dihitung ulang dengan `validateManifest` setelah dipulihkan), dan seleksi. `meta` ikut karena metadata Canva di Tinjau disimpan di `meta.canva`.
+
+Aturan di `app-state.js`:
+
+- `mutate` dengan label: bila isi berbeda dari `base`, `base` lama menjadi satu langkah berlabel. Perubahan langsung sejak pencatatan terakhir (seret posisi, ukuran, atau putar di Composer · Edit) ikut dalam langkah itu, jadi satu seret = satu langkah.
+- `mutate` tanpa label (render ulang, perubahan tampilan): `base` disamakan tanpa membuat langkah. Karena itu setiap perubahan isi wajib memakai label.
+- Impor manifest, impor set offset, dan dokumen baru menjadi titik awal. `loadPreset` dan `close` mengosongkan riwayat dokumennya.
+- Setelah urungkan atau ulangi: ikon pustaka didaftarkan ulang (`renderer.lib.ensure`, `ensureManifestItem`), dokumen manifest divalidasi ulang, seleksi dipertahankan atau pindah ke item pertama bila itemnya hilang, dan Riwayat sesi mencatat "Urungkan: …" atau "Ulangi: …".
+
 ## 5. Migrasi dari composer gaya lama
 
 | Sumber | Pemetaan ke item kanonik |

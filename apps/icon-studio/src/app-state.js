@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * State app Icon Studio: dokumen terbuka, dokumen aktif, seleksi per dokumen, dan rute.
- * Disimpan ke `icon-studio-v1` lewat `state/store.js`. Seleksi dan rute tidak disimpan.
+ * Disimpan ke `icon-studio-v1` lewat `state/store.js`. Seleksi, rute, dan riwayat urungkan tidak disimpan.
  * Pindah persona tidak menghapus seleksi atau state dokumen (DESIGN-HANDOFF bagian 2).
  */
 import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem, offsetComposerSource, offsetSetFromComposer } from "./state/document.js";
@@ -11,6 +11,7 @@ import { ensureSetFields } from "./state/set-ops.js";
 import { migrateFromLegacy } from "./state/migrations/001-from-legacy.js";
 import { MIGRATION_ID as OFFSET_MIGRATION, migrateFromOffset } from "./state/migrations/002-from-offset.js";
 import { hasState, loadState, saveState } from "./state/store.js";
+import { UNDO_LIMIT, createUndo } from "./state/undo.js";
 
 export const PERSONAS = /** @type {const} */ (["composer", "builder", "tinjau", "kombinasi"]);
 
@@ -110,12 +111,20 @@ export function createAppState(options) {
     ensureReviewFields(doc);
   }
 
-  /** Riwayat perubahan sesi per dokumen (panel Riwayat; bukan undo). */
+  /** Riwayat perubahan sesi per dokumen (panel Riwayat). */
   /** @type {Record<string, {label: string, at: number}[]>} */
   const history = {};
+  /** @param {string} docId @param {string} label */
+  const log = (docId, label) => (history[docId] = history[docId] || []).unshift({ label, at: Date.now() });
 
-  /* ikon pustaka di dokumen tersimpan didaftarkan ulang ke registry */
-  for (const doc of documents) {
+  /** Urungkan dan ulangi per dokumen, maks 10 langkah, hanya di memori. */
+  const undo = createUndo({ limit: UNDO_LIMIT });
+
+  /**
+   * Daftarkan ulang ikon pustaka di item dokumen ke registry (Tabler/Hugeicons dan lainnya).
+   * @param {any} doc
+   */
+  const ensureLibraries = (doc) => {
     for (const it of doc.items) {
       if (doc.kind === "manifest") renderer.ensureManifestItem(it);
       else {
@@ -123,16 +132,51 @@ export function createAppState(options) {
         if (renderer.LIB_RE.test(String(it.mod))) renderer.lib.ensure(it.mod, "mod");
       }
     }
-  }
+  };
+
+  /* ikon pustaka di dokumen tersimpan didaftarkan ulang ke registry */
+  for (const doc of documents) ensureLibraries(doc);
 
   const save = () => saveState({ schemaVersion: 1, documents, activeId, migrations }, options.storage);
   /* dokumen Builder hasil migrasi divalidasi seperti boot TIB */
   for (const doc of documents) if (doc.kind === "manifest" && migratedFrom.length) doc.issues = validateManifest(doc, vocab);
   if (migratedFrom.length) save();
+  /* titik awal urungkan: isi dokumen saat app dibuka */
+  for (const doc of documents) undo.sync(doc.id, doc);
   const notify = () => listeners.forEach((fn) => fn());
 
   /** @param {string | null} id */
   const byId = (id) => documents.find((d) => d.id === id) || null;
+
+  /**
+   * Setelah urungkan atau ulangi: daftarkan ulang pustaka, validasi ulang manifest, dan pertahankan
+   * seleksi. Bila item terpilih hilang, seleksi pindah ke item pertama.
+   * @param {any} doc
+   */
+  function afterRestore(doc) {
+    ensureLibraries(doc);
+    if (doc.kind === "manifest") doc.issues = validateManifest(doc, vocab);
+    const idOf = (/** @type {any} */ it) => (doc.kind === "manifest" ? it.uid : it.id);
+    if (!doc.items.some((/** @type {any} */ it) => idOf(it) === selection[doc.id])) selection[doc.id] = doc.items[0] ? idOf(doc.items[0]) : null;
+  }
+
+  /**
+   * Urungkan atau ulangi satu langkah pada dokumen.
+   * @param {string} docId
+   * @param {"undo" | "redo"} dir
+   * @returns {string | null} label langkah, null bila tidak ada
+   */
+  function step(docId, dir) {
+    const doc = byId(docId);
+    if (!doc) return null;
+    const label = dir === "undo" ? undo.undo(docId, doc) : undo.redo(docId, doc);
+    if (label == null) return null;
+    afterRestore(doc);
+    log(docId, `${dir === "undo" ? "Urungkan" : "Ulangi"}: ${label}`);
+    save();
+    notify();
+    return label;
+  }
 
   /**
    * Dokumen yang dipakai persona. Composer dan Kombinasi bekerja pada set, Builder pada manifest,
@@ -167,7 +211,9 @@ export function createAppState(options) {
       doc.issues = validateManifest(doc, vocab);
     },
     /**
-     * Ubah dokumen lalu simpan dan render ulang. `label` dicatat di Riwayat sesi.
+     * Ubah dokumen lalu simpan dan render ulang. Dengan `label`, perubahan dicatat di Riwayat sesi dan
+     * menjadi satu langkah urungkan (termasuk perubahan langsung sejak pencatatan terakhir, mis. seret).
+     * Tanpa label, isi sekarang menjadi titik awal urungkan tanpa membuat langkah.
      * @param {string} docId
      * @param {(doc: any) => void} fn
      * @param {string} [label]
@@ -176,10 +222,23 @@ export function createAppState(options) {
       const doc = byId(docId);
       if (!doc) return;
       fn(doc);
-      if (label) (history[docId] = history[docId] || []).unshift({ label, at: Date.now() });
+      if (label) {
+        log(docId, label);
+        undo.commit(docId, doc, label);
+      } else undo.sync(docId, doc);
       save();
       notify();
     },
+    /** Urungkan satu langkah. @param {string} docId @returns {string | null} label langkah */
+    undo: (docId) => step(docId, "undo"),
+    /** Ulangi satu langkah. @param {string} docId @returns {string | null} label langkah */
+    redo: (docId) => step(docId, "redo"),
+    /** @param {string} docId */
+    canUndo: (docId) => undo.canUndo(docId),
+    /** @param {string} docId */
+    canRedo: (docId) => undo.canRedo(docId),
+    /** Label langkah urungkan dan ulangi berikutnya. @param {string} docId */
+    undoLabels: (docId) => undo.peek(docId),
     /** @param {() => void} fn */
     subscribe(fn) {
       listeners.add(fn);
@@ -226,6 +285,7 @@ export function createAppState(options) {
       /* validasi seperti runImport TIB: id dobel diberi akhiran, nama tak dikenal diberi saran */
       doc.issues = validateManifest(doc, vocab);
       documents.push(doc);
+      undo.sync(doc.id, doc);
       activeId = doc.id;
       selection[doc.id] = imp.items[0] ? imp.items[0].uid : null;
       save();
@@ -254,6 +314,7 @@ export function createAppState(options) {
       if (!res || "fatal" in res) return res;
       const doc = ensureReviewFields(ensureSetFields(res.doc));
       documents.push(doc);
+      undo.sync(doc.id, doc);
       activeId = doc.id;
       selection[doc.id] = doc.items[0] ? doc.items[0].id : null;
       save();
@@ -265,7 +326,12 @@ export function createAppState(options) {
       const i = documents.findIndex((d) => d.id === id);
       if (i < 0) return;
       documents.splice(i, 1);
-      if (!documents.some((d) => d.kind === "set")) documents.unshift(ensureReviewFields(ensureSetFields(createSetDocument({ name: "Set baru" }))));
+      undo.reset(id);
+      if (!documents.some((d) => d.kind === "set")) {
+        const doc = ensureReviewFields(ensureSetFields(createSetDocument({ name: "Set baru" })));
+        documents.unshift(doc);
+        undo.sync(doc.id, doc);
+      }
       if (activeId === id) activeId = documents[Math.max(0, i - 1)].id;
       delete selection[id];
       save();
@@ -280,6 +346,9 @@ export function createAppState(options) {
       if (!doc || doc.kind !== "set" || doc.items.length) return;
       doc.items = PRESET.map((p) => normItem(p, renderer.lib, { customs: doc.customs }));
       if (doc.name === "Set baru") doc.name = "Set contoh";
+      /* set contoh menjadi titik awal baru: tidak bisa diurungkan kembali ke set kosong */
+      undo.reset(doc.id);
+      undo.sync(doc.id, doc);
       selection[doc.id] = doc.items[0].id;
       save();
       notify();

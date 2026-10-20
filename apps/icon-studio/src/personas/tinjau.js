@@ -309,7 +309,27 @@ function control(ctx, name, value) {
     "t-kw": (doc) => (doc.meta.canva.kw = [10, 15, 20, 25].includes(Number(value)) ? Number(value) : 15),
     "t-desc": (doc) => (doc.meta.canva.desc = String(value)),
   });
-  if (map[name]) mutate(ctx, map[name]);
+  /** Nama pengaturan untuk Riwayat dan urungkan. */
+  const label = /** @type {Record<string, string>} */ ({
+    "t-bg": "Latar lembar kontak",
+    "t-size": "Ukuran pratinjau",
+    "t-names": "Nama file",
+    "t-flags": "Tanda flag",
+    "t-compare": "Bandingkan",
+    "t-fmt": "Format unduhan",
+    "t-ko": "Celah knockout",
+    "t-json": "Sertakan gaya.json",
+    "t-html": "Sertakan lembar pratinjau",
+    "t-meta-on": "Sertakan metadata.csv",
+    "t-artist": "Artis",
+    "t-locale": "Bahasa metadata",
+    "t-nm": "Nama di judul",
+    "t-pack-en": "Nama pack EN",
+    "t-pack-id": "Nama pack ID",
+    "t-kw": "Jumlah kata kunci",
+    "t-desc": "Deskripsi pack",
+  });
+  if (map[name]) mutate(ctx, map[name], label[name]);
 }
 
 /* ---------- persona ---------- */

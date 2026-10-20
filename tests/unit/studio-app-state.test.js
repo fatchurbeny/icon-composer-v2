@@ -130,7 +130,11 @@ describe("Icon Studio app state", () => {
 
     const app = createAppState({ renderer: fakeRenderer(), storage });
     expect(app.migratedFrom).toEqual(["offset-composer-v1"]);
-    expect(app.documents.map((d) => d.kind)).toEqual(["set", "manifest", "set"]);
+    expect(app.documents.map((d) => d.kind)).toEqual([
+      "set",
+      "manifest",
+      "set",
+    ]);
     expect(app.documents[2]).toMatchObject({
       name: "Set Offset Composer",
       style: { family: "offset" },
@@ -163,7 +167,9 @@ describe("Icon Studio app state", () => {
   test("impor gaya.json offset-composer menambah set aktif; teks lain dilewatkan", async () => {
     const storage = memoryStorage();
     const app = createAppState({ renderer: fakeRenderer(), storage });
-    expect(await app.importOffsetSet(JSON.stringify(SAMPLE_MANIFEST))).toBeNull();
+    expect(
+      await app.importOffsetSet(JSON.stringify(SAMPLE_MANIFEST)),
+    ).toBeNull();
     expect(await app.importOffsetSet("{")).toBeNull();
     const res = await app.importOffsetSet(
       JSON.stringify(offsetFixture.gayaJson),
@@ -241,5 +247,65 @@ describe("Icon Studio app state", () => {
     expect(again.documents.map((d) => d.id)).toEqual(
       app.documents.map((d) => d.id),
     );
+  });
+});
+
+describe("Icon Studio urungkan lewat app state", () => {
+  test("mutate berlabel menjadi langkah, tanpa label tidak; Riwayat mencatat urungkan dan ulangi", () => {
+    const app = createAppState({
+      renderer: fakeRenderer(),
+      storage: memoryStorage(),
+    });
+    const doc = app.documents[0];
+    app.loadPreset(doc.id);
+    expect(app.canUndo(doc.id)).toBe(false);
+    app.mutate(doc.id, (d) => (d.view.grid = false));
+    expect(app.canUndo(doc.id)).toBe(false);
+    app.mutate(doc.id, (d) => (d.style.family = "accent"), "Gaya Aksen");
+    expect(app.canUndo(doc.id)).toBe(true);
+    expect(app.undo(doc.id)).toBe("Gaya Aksen");
+    expect(doc.style.family).toBe("classic");
+    expect(doc.view.grid).toBe(false);
+    expect(app.redo(doc.id)).toBe("Gaya Aksen");
+    expect(doc.style.family).toBe("accent");
+    expect(app.history[doc.id].map((h) => h.label).slice(0, 2)).toEqual([
+      "Ulangi: Gaya Aksen",
+      "Urungkan: Gaya Aksen",
+    ]);
+  });
+
+  test("seleksi pindah ke item pertama bila item terpilih hilang setelah urungkan", () => {
+    const app = createAppState({
+      renderer: fakeRenderer(),
+      storage: memoryStorage(),
+    });
+    const doc = app.documents[0];
+    app.loadPreset(doc.id);
+    app.mutate(
+      doc.id,
+      (d) => {
+        d.items.push({ ...structuredClone(d.items[0]), id: "baru" });
+        app.selection[d.id] = "baru";
+      },
+      "Ikon baru",
+    );
+    app.undo(doc.id);
+    expect(doc.items.some((it) => it.id === "baru")).toBe(false);
+    expect(app.selection[doc.id]).toBe(doc.items[0].id);
+  });
+
+  test("dokumen manifest divalidasi ulang setelah dipulihkan", async () => {
+    const app = createAppState({
+      renderer: fakeRenderer(),
+      storage: memoryStorage(),
+    });
+    const { doc } = await app.importManifest(JSON.stringify(SAMPLE_MANIFEST));
+    expect(app.canUndo(doc.id)).toBe(false);
+    const before = doc.issues.length;
+    app.mutate(doc.id, (d) => (d.items[0].id = d.items[1].id), "Ubah id");
+    app.revalidate(doc);
+    expect(doc.issues.length).toBeGreaterThan(before);
+    app.undo(doc.id);
+    expect(doc.issues.length).toBe(before);
   });
 });

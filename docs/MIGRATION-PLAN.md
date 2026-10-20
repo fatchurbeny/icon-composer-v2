@@ -57,6 +57,8 @@ Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/
 
 Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affinity dan rich tooltip tool rail. Dikerjakan di branch `fase-2b-icon-studio`.
 
+Fitur Icon Studio sesudahnya (2026-10-20, disetujui pemilik): urungkan dan ulangi maks 10 langkah per dokumen di semua persona, hanya di memori (`apps/icon-studio/src/state/undo.js`, DATA-MODEL bagian 4.4). Butir backlog "Undo/redo di Composer" selesai lewat fitur ini.
+
 ## Fase 3: Mesin offset
 
 - [x] Port mesin ke kontrak (`docs/engines/offset.md`), termasuk normalisasi kanvas 120 → 48.
@@ -117,5 +119,4 @@ Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.j
 
 - Ledger sidik jari lintas pack dan lintas akun (hashtagben/chital), terhubung ke `canva-submit/.data/history.json`.
 - Pengubah untuk offset.
-- Undo/redo di Composer.
 - Peran otomatis aksen yang lebih akurat (heuristik per objek bawaan).

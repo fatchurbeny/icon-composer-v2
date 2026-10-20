@@ -59,6 +59,7 @@ Render ulang PNG dari artboard: `python3 scripts/render-artboards.py` (butuh Pla
 - Di bawah lebar 1100 px, studio pindah ke bawah kanvas (sudah diatur di `components.css`).
 - Persona Kombinasi memakai `.ic-shell--left-studio`: studio pustaka 300 px di kiri menggantikan tool rail.
 - Hanya kanvas dan isi panel yang bergulir. Bilah atas, konteks, dan status tidak pernah ikut bergulir.
+- **Urungkan dan Ulangi** di bilah atas (semua persona): dua `.ic-iconbtn` (`undo`, `redo`) sebelum tombol aksi, `disabled` bila tidak ada langkah. Pintasan ⌘/Ctrl+Z urungkan, ⌘/Ctrl+Shift+Z atau Ctrl+Y ulangi, tidak aktif saat fokus di isian teks. Maks 10 langkah per dokumen, hanya di memori (hilang saat dimuat ulang). Toast "Diurungkan: <label>" atau "Diulang: <label>", dan Riwayat mencatat "Urungkan: …" atau "Ulangi: …". Seleksi dipertahankan; bila ikonnya hilang, seleksi pindah ke ikon pertama, dan Composer · Edit kembali ke ikhtisar.
 - **Kolom studio adalah akordeon** (`.ic-studio[data-ic="accordion"]`, juga studio kiri Kombinasi). Hanya satu panel terbuka per kolom:
   - Panel terbuka mengisi sisa tinggi kolom. Panel tertutup tinggal kepalanya (34 px); footer panel ikut tersembunyi.
   - Membuka panel (tombol lipat `.ic-panel__collapse`, atau klik tab di kepala panel tertutup) menutup panel lain di kolom itu.
@@ -98,7 +99,7 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 
 | Wilayah | Komponen | Isi dan data |
 |---|---|---|
-| Bilah atas | `.ic-persona-group`, `.ic-persona-group` berisi 2 `.ic-iconbtn` (satu ikon / ikhtisar), `.ic-topbar__info`, `.ic-actionbtn` "Ekspor Canva" | info: `<mesin> <versi>` · `<n> ikon · 48 × 48 · <maks warna> warna` |
+| Bilah atas | `.ic-persona-group`, `.ic-persona-group` berisi 2 `.ic-iconbtn` (satu ikon / ikhtisar), `.ic-topbar__info`, `.ic-iconbtn` Urungkan dan Ulangi, `.ic-actionbtn` "Ekspor Canva" | info: `<mesin> <versi>` · `<n> ikon · 48 × 48 · <maks warna> warna` |
 | Konteks | teks seleksi, `.ic-check` "Snap ke grid", `.ic-btn--sm` "Patokan set…", "Pengaturan app…", `.ic-select` Urut, `.ic-number` Kolom | Urut: Urutan set · Nama A–Z · Per flag |
 | Tool rail | `.ic-tool` ×9: pilih, geser, objek utama, pengubah, dekorasi, kombinasi, ambil warna, geser tampilan, perbesar | |
 | Kanvas | `.ic-pagegrid` dengan `.ic-page` per ikon, `.ic-page--new`, `.ic-page--ghost` (saran) | ikon dirender lewat `engine.compose`; flag dari `packages/repetition` |
@@ -190,7 +191,7 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Persona | `.ic-persona` | (link) | `aria-current="page"` | pindah persona | aksi |
 | Tombol | `.ic-btn` `--primary` `--sm` `--lg` `--block` | | `disabled` | aksi | navigasi (pakai `<a>`) |
 | Tombol aksi atas | `.ic-actionbtn` `--persona` | | | ekspor, aksi utama persona | lebih dari satu per bilah atas |
-| Tombol ikon | `.ic-iconbtn` `--help` | `press` (opsional) | `aria-pressed` | aksi ringkas di footer panel | tanpa `aria-label` |
+| Tombol ikon | `.ic-iconbtn` `--help` | `press` (opsional) | `aria-pressed`, `disabled` | aksi ringkas di footer panel, Urungkan dan Ulangi di bilah atas | tanpa `aria-label` |
 | Tool | `.ic-tool` | `single` (di rail) | `aria-pressed` | alat kanvas | aksi sekali klik |
 | Tab dokumen | `.ic-doctab` | | `aria-selected` | dokumen terbuka | |
 | Panel bertab | `.ic-panel` `__head` `__body` `__foot` `__sub`, `.ic-tab`, `.ic-panel__collapse` | `tabs`, `collapse` | `aria-selected`, `aria-expanded`, `hidden` | studio | dialog |
