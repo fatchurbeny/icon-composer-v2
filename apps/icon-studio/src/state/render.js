@@ -10,6 +10,7 @@ import { get } from "@icon-studio/engines";
 import { createClassicData, decoMarkupClassic, solidLineDiagnostic as solidLineDiagnosticClassic } from "@icon-studio/engines/classic";
 import { modPreviewAccent as modPreviewAccentEngine } from "@icon-studio/engines/accent";
 import { boxesOffset } from "@icon-studio/engines/offset";
+import { boxesSticker, stickerShapes } from "@icon-studio/engines/sticker";
 import {
   ROLES,
   createLibraryShapes,
@@ -20,6 +21,7 @@ import {
 } from "@icon-studio/engines/shared";
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
+import { fillShapeOf } from "@icon-studio/icon-sources/fill-shapes";
 import { MODES, OFFSET_MODE, manifestOffsetStyle, useStyle } from "./document.js";
 import { layerBoxes } from "./edit-ops.js";
 
@@ -94,7 +96,7 @@ export function createRenderer(options) {
   }
 
   /**
-   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset).
+   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset, sticker).
    * Objek bawaan dan ikon yang belum termuat menghasilkan null.
    * @param {string} key
    */
@@ -104,7 +106,8 @@ export function createRenderer(options) {
       idx = src && src.index();
     return (idx && idx.get(key.slice(3))) || null;
   }
-  const offsetCtx = { nodeOf };
+  /** `ctx` mesin yang membaca node pustaka: offset memakai `nodeOf`, sticker juga bentuk isi (`fillShapeOf`). */
+  const offsetCtx = { nodeOf, fillShapeOf };
 
   /**
    * Kotak lapisan ikon set dalam satuan 48 (wilayah klik editor dan cek tepi viewBox).
@@ -112,11 +115,14 @@ export function createRenderer(options) {
    * @param {any} style
    */
   function boxesOf(it, style) {
-    return style.family === "offset" ? boxesOffset(it, style, offsetCtx) : layerBoxes(it, style, data);
+    if (style.family === "offset") return boxesOffset(it, style, offsetCtx);
+    if (style.family === "sticker") return boxesSticker(it);
+    return layerBoxes(it, style, data);
   }
 
   /**
-   * Flag khusus mesin untuk satu ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah).
+   * Flag khusus mesin untuk satu ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah;
+   * sticker: objek bawaan, tanpa bentuk isi, slot dipetakan).
    * @param {any} it
    * @param {any} style
    * @returns {[string, string][]}
@@ -134,8 +140,8 @@ export function createRenderer(options) {
    * @param {any[]} [customs]
    */
   function renderSetItem(it, style, opt, customs = []) {
-    if (style.family === "offset") {
-      const engine = get("offset");
+    if (style.family === "offset" || style.family === "sticker") {
+      const engine = get(style.family);
       return engine.compose(engine.adapt(it, style), style, { ...(opt || {}), ctx: offsetCtx });
     }
     if (style.family === "accent")
@@ -224,6 +230,9 @@ export function createRenderer(options) {
     renderSetItem,
     renderManifestItem,
     nodeOf,
+    fillShapeOf,
+    /** Markup outline dan bentuk isi sticker satu kunci (uji paritas legacy). @param {string} key */
+    stickerShapes: (key) => stickerShapes(key, offsetCtx),
     boxesOf,
     flagsOf,
     modPreviewAccent,

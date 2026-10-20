@@ -7,6 +7,7 @@
  * Registry pustaka dan id acak disuntik lewat `deps`, supaya modul ini bisa dites tanpa browser.
  */
 import { offsetParams } from "@icon-studio/engines/offset";
+import { stickerParams } from "@icon-studio/engines/sticker";
 import { ROLES } from "@icon-studio/engines/shared";
 import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
 
@@ -21,7 +22,12 @@ export const randomUid = () => Math.random().toString(36).slice(2, 9);
 
 
 /** Keluarga gaya yang bisa dipakai set Composer (hand-writing menyusul di Fase 4). */
-export const SET_FAMILIES = ["classic", "accent", "offset"];
+export const SET_FAMILIES = ["classic", "accent", "offset", "sticker"];
+
+/** Keluarga dengan parameter gaya sendiri di `style.engine.<id>`; field classic/accent tidak disentuh. */
+export const ENGINE_PARAMS = {offset:offsetParams, sticker:stickerParams};
+/** @param {string} f */
+const isEngineFamily = (f) => Object.prototype.hasOwnProperty.call(ENGINE_PARAMS, f);
 
 /**
  * Patokan set: warna lapisan, skala, tebal garis, celah knockout, dan ujung garis berlaku untuk semua ikon.
@@ -31,7 +37,10 @@ export const SET_FAMILIES = ["classic", "accent", "offset"];
 export function normSetStyle(o){
   o = o || {}; const d = DEFAULT_SET_STYLE, oc = o.colors || {}, os = o.scale || {};
   const family = SET_FAMILIES.includes(o.family) ? o.family : "classic";
-  const engine = family === "offset" || (o.engine && o.engine.offset) ? {engine:{...(o.engine || {}), offset:offsetParams(o)}} : {};
+  /** @type {Record<string, any>} */
+  const params = {};
+  for (const [id, fn] of Object.entries(ENGINE_PARAMS)) if (family === id || (o.engine && o.engine[id])) params[id] = fn(o);
+  const engine = Object.keys(params).length ? {engine:{...(o.engine || {}), ...params}} : {};
   const col = l => ({line:(oc[l] && oc[l].line) || null, fill:(oc[l] && oc[l].fill) || null});
   const num = (v, dflt, mn, mx) => (typeof v === "number" && isFinite(v)) ? Math.max(mn, Math.min(mx, v)) : dflt;
   return {...d, ...o, ...engine, family, saved:(o.saved && typeof o.saved === "object") ? o.saved : {}, colors:{main:col("main"), mod:col("mod"), deco:col("deco")},
@@ -43,22 +52,22 @@ export function normSetStyle(o){
 
 /**
  * Pindah keluarga gaya. Patokan keluarga lama disimpan di `style.saved`. Mengubah `style` langsung.
- * Offset menyimpan parameternya sendiri di `style.engine.offset`, jadi field classic/accent tidak disentuh
- * dan pulih apa adanya saat kembali.
+ * Offset dan sticker menyimpan parameternya sendiri di `style.engine.<id>`, jadi field classic/accent tidak
+ * disentuh dan pulih apa adanya saat kembali.
  * @param {any} style
- * @param {"classic" | "accent" | "offset"} f
+ * @param {"classic" | "accent" | "offset" | "sticker"} f
  */
 export function applyFamily(style, f){
   if (style.family === f && style.saved && style.saved[f]) return style;
   style.saved = style.saved || {};
   const old = style.family || "classic";
-  if (f === "offset"){
-    if (old !== "offset") style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
-    style.family = "offset";
-    style.engine = {...(style.engine || {}), offset:offsetParams(style)};
+  if (isEngineFamily(f)){
+    if (!isEngineFamily(old)) style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
+    style.family = f;
+    style.engine = {...(style.engine || {}), [f]:/** @type {any} */ (ENGINE_PARAMS)[f](style)};
     return style;
   }
-  if (old !== "offset") style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
+  if (!isEngineFamily(old)) style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
   const p = style.saved[f] || FAMILY_DEFAULT[f];
   Object.assign(style, {family:f, sw:p.sw, gap:p.gap, cap:p.cap, join:p.join, accent:p.accent, scale:{...p.scale}});
   return style;

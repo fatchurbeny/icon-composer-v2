@@ -53,10 +53,14 @@ function memoryStorage() {
 }
 
 describe("Icon Studio state/document", () => {
-  test("normSetStyle membatasi nilai dan hanya mengenal classic/accent/offset", () => {
+  test("normSetStyle membatasi nilai dan hanya mengenal classic/accent/offset/sticker", () => {
     expect(normSetStyle({ family: "offset" }).family).toBe("offset");
+    const st = normSetStyle({ family: "sticker", engine: { sticker: { halo: 9, mode: "fill" } } });
+    expect(st.family).toBe("sticker");
+    expect(st.engine.sticker).toMatchObject({ mode: "fill", halo: 5, sw: 2.4, ink: "#17171B" });
+    expect(st.engine.offset).toBeUndefined();
     const s = normSetStyle({
-      family: "sticker",
+      family: "hand-writing",
       scale: { main: 10, mod: 999 },
       fx: { mode: "glow", color: "#abcdef" },
     });
