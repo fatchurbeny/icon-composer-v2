@@ -189,7 +189,7 @@ function transformBody(ctx, it) {
     `<span class="ic-label">Warna ${LAYER_LABEL[layer].toLowerCase()} · semua ikon di set</span>`,
     colorSwatches("edit-line", accent ? "Tinta" : layer === "deco" ? "Warna" : "Garis", LINE_OPTIONS, c.line, s.ink),
     colorSwatches("edit-fill", "Isian", FILL_OPTIONS, c.fill, s.accent),
-    `<div class="studio-actions">${button("Reset posisi", { size: "sm", action: "edit-reset" })}${button("Warna ikut set", { size: "sm", action: "edit-color-reset", disabled: !c.line && !c.fill })}</div>`,
+    `<div class="studio-actions">${button("Atur ulang posisi", { size: "sm", action: "edit-reset" })}${button("Warna ikut set", { size: "sm", action: "edit-color-reset", disabled: !c.line && !c.fill })}</div>`,
   );
   return out.join("");
 }
@@ -221,7 +221,7 @@ const editActions = {
   },
   /** @param {import("./common.js").Ctx} ctx */
   "edit-reset"(ctx) {
-    mutateItem(ctx, (it) => resetLayer(it, layerOf(), ctx.renderer.data), `Reset posisi ${LAYER_LABEL[layerOf()].toLowerCase()}`);
+    mutateItem(ctx, (it) => resetLayer(it, layerOf(), ctx.renderer.data), `Atur ulang posisi ${LAYER_LABEL[layerOf()].toLowerCase()}`);
   },
   /** @param {import("./common.js").Ctx} ctx */
   "edit-color-reset"(ctx) {
