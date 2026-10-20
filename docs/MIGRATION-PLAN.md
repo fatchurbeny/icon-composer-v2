@@ -59,7 +59,7 @@ Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affi
 
 Fitur Icon Studio sesudahnya (2026-10-20, disetujui pemilik): urungkan dan ulangi maks 10 langkah per dokumen di semua persona, hanya di memori (`apps/icon-studio/src/state/undo.js`, DATA-MODEL bagian 4.4). Butir backlog "Undo/redo di Composer" selesai lewat fitur ini.
 
-## Fase 3: Mesin offset
+## Fase 3: Mesin offset ✅
 
 - [x] Port mesin ke kontrak (`docs/engines/offset.md`), termasuk normalisasi kanvas 120 → 48.
 - [x] UI IC: opsi gaya "Offset". Saat aktif, panel pengubah nonaktif dengan teks "Pengubah tidak tersedia pada style ini", dan Kombinasi massal hanya memakai daftar objek.
@@ -71,6 +71,8 @@ Fitur Icon Studio sesudahnya (2026-10-20, disetujui pemilik): urungkan dan ulang
 **Kriteria terima:** objek offset berbeda < 1% piksel dari legacy setelah diskalakan ke 84%. Semua dekorasi berada di dalam viewBox. Direct fill valid dan tanpa stroke. Flag info muncul di TIB.
 
 Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.js` (20 ikon Lucide dan Tabler serta 12 ikon Hugeicons × 3 mode isi, selisih maks 0,002% pada ambang warna 48). Legacy tidak memuat Hugeicons, jadi node Hugeicons disuntikkan ke `compose` legacy asli (alasan di `docs/engines/offset.md`). Dekorasi di dalam viewBox, direct fill valid, dan tanpa stroke lolos lewat `tests/e2e/export-canva.spec.js`. Flag info di TIB lolos lewat `tests/e2e/studio-builder.spec.js` (mode Offset di Builder: flag info pengubah, ZIP `offset/` direct fill tanpa stroke dan tanpa `stroke-dasharray`, ≤5 warna).
+
+Status 2026-10-20: **selesai.** Semua butir dan kriteria terima lolos. `npm test` (152), `npm run test:e2e` (115), `npm run test:golden` (20), `npm run lint`, dan `npm run lint:ui` lulus di branch `fase-3-offset`. Penutupan fase disetujui Beny.
 
 ## Fase 4: Mesin hand-writing
 
