@@ -275,3 +275,4 @@ Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/
 3. Screenshot persona Composer · Set dibandingkan dengan kerangka contoh di `ui-kit.html`. Selisih piksel area kerangka (di luar kanvas) harus < 2%.
 4. Navigasi keyboard: Tab mencapai semua kontrol, panah berpindah tab panel, dan dropdown bisa dibuka/dipilih/ditutup tanpa tetikus.
 5. Teks: tidak ada string UI berbahasa Inggris selain nama gaya, nama pustaka, dan kunci ikon.
+   - Dites oleh `tests/e2e/ui-language.spec.js`: tes mengunjungi setiap persona dan tab panel (termasuk set contoh, manifest contoh, dan gaya Offset), lalu mencocokkan teks, `aria-label`, `title`, `placeholder`, dan isi `.ic-tip` dengan daftar kata Inggris umum. Pengecualian yang diizinkan beserta alasannya ditulis di `ALLOWED` dalam file tes itu.
