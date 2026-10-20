@@ -6,7 +6,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { openPanel } from "./studio-panels.js";
+import { openPanel, openTransform } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const VENDOR = resolve("tests/fixtures/vendor");
@@ -64,7 +64,7 @@ test.describe("Icon Studio · pemilih warna", () => {
     await page.locator(".ic-page__card[data-open]").nth(2).dblclick();
     await expect(page).toHaveURL(/#\/composer\/edit\//);
     await page.locator('[data-action="layer-select"][data-layer="main"]').click();
-    await openPanel(page, "edit-layers");
+    await openTransform(page);
     await trigger(page, "edit-line").click();
     await expect(page.locator(PICKER)).toBeVisible();
     await expect(page.locator(`${PICKER} [data-cp="follow"]`)).toBeVisible();
@@ -285,7 +285,7 @@ for (const [width, height] of [
       await page.click('[data-action="load-preset"]');
       await page.locator(".ic-page__card[data-open]").nth(2).dblclick();
       await page.locator('[data-action="layer-select"][data-layer="main"]').click();
-      await openPanel(page, "edit-layers");
+      await openTransform(page);
       await trigger(page, "edit-line").scrollIntoViewIfNeeded();
       await checkPicker(page, "edit-line");
       await trigger(page, "edit-fill").scrollIntoViewIfNeeded();
