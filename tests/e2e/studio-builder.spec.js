@@ -401,4 +401,78 @@ test.describe("Icon Studio · Builder", () => {
     const exp = await styleOf(page.locator('[data-panel="builder-export"]'));
     expect(exp).toEqual(flag);
   });
+  test("gaya Hand-writing: pratinjau, flag objek bawaan, dan ZIP direct fill tanpa stroke", async ({ page }) => {
+    test.setTimeout(90_000);
+    await open(page);
+    const keys = ["house", "heart", "luggage", "mail", "calendar", "pizza"];
+    const manifest = {
+      format: "tib-manifest",
+      version: 2,
+      deck: { title: "Uji Hand-writing", slides: 1 },
+      pack: { en: "Finance", id: "Keuangan" },
+      style: { family: "coret", accent: "#F28B82", ink: "#2B1D2E" },
+      icons: [
+        ...keys.map((k, i) => ({ id: k, name: { en: k, id: k }, main: `lu:${k}`, mod: i % 2 ? "none" : "lu:sparkle", anchor: i % 3 ? "BR" : "TL", slides: [1] })),
+        { id: "wajah", name: { en: "face", id: "wajah" }, main: "face", mod: "none", anchor: "BR", slides: [1] },
+      ],
+    };
+    await page.locator('[data-name="manifest-text"]').fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    const cards = page.locator(".ic-iconcard[data-select]");
+    await expect(cards).toHaveCount(keys.length + 1);
+    /* manifest family coret (lama) memilih pratinjau Hand-writing */
+    await expect(page.locator('[data-name="b-preview"] .ic-select__trigger')).toContainText("Hand-writing");
+    /* hanya objek bawaan yang bermasalah; tanpa pengubah bukan masalah di hand-writing */
+    await expect(page.locator(".ic-iconcard .ic-flag")).toHaveCount(1);
+    await expect(page.locator('.ic-iconcard:has-text("wajah") .ic-flag')).toHaveText("masalah");
+    const svg = await cards.first().locator("svg").first().evaluate((el) => el.outerHTML);
+    expect(svg).not.toMatch(/stroke-dasharray|pathLength/);
+    expect(svg).toContain('fill="#F28B82"');
+    await cards.first().click();
+    await expect(page.locator('[data-panel="builder-icon"]')).toContainText("Gaya Hand-writing");
+
+    await page.locator('.ic-topbar [data-action="export"]').click();
+    const exportPanel = page.locator('[data-panel="builder-export"]');
+    await expect(exportPanel.locator('[data-name="b-mode:H"] input')).toBeChecked();
+    await page.evaluate(() => {
+      window.__zip = null;
+      URL.createObjectURL = (blob) => {
+        window.__zip = blob;
+        return "blob:uji";
+      };
+      HTMLAnchorElement.prototype.click = () => {};
+    });
+    await openPanel(page, "builder-export");
+    await page.locator('[data-action="b-export"]').click();
+    await page.waitForFunction(() => window.__zip instanceof Blob, null, { timeout: 30000 }).catch(async () => {
+      throw new Error("ZIP tidak terbuat: " + (await page.locator('[data-role="export-status"]').textContent()));
+    });
+    const zip = await page.evaluate(async () => {
+      const z = await window.JSZip.loadAsync(window.__zip);
+      /** @type {Record<string, string>} */
+      const out = {};
+      for (const n of Object.keys(z.files)) if (!z.files[n].dir) out[n] = await z.files[n].async("string");
+      return out;
+    });
+    const svgs = Object.keys(zip).filter((n) => n.endsWith(".svg"));
+    /* objek bawaan dilewati (Lewati ikon bermasalah) */
+    expect(svgs.sort()).toEqual(keys.map((k) => `hand-writing/slot-deck/${k}-hand-writing.svg`).sort());
+    for (const n of svgs) {
+      const body = zip[n].replace(/^<\?xml[^>]*>\s*/, "");
+      expect(body, n).toContain('viewBox="0 0 48 48"');
+      expect(/\sstroke(?:-|=)/.test(body), n).toBe(false);
+      expect(/stroke-dasharray|<g\b|\stransform=|<mask\b|\smask=/.test(body), n).toBe(false);
+      const colors = new Set([...body.matchAll(/fill="(#[0-9A-Fa-f]{6})"/g)].map((m) => m[1].toUpperCase()));
+      expect(colors.size, n).toBeGreaterThanOrEqual(1);
+      expect(colors.size, n).toBeLessThanOrEqual(3);
+    }
+    expect(zip["metadata.csv"]).toContain("House Finance Hand-writing Style Icon");
+    expect(zip["metadata-internal.csv"]).toContain('"hand-writing"');
+    expect(zip["metadata-internal.csv"]).toContain('"lu:sparkle"');
+    const final = JSON.parse(zip["manifest-final.json"]);
+    expect(final.style).toMatchObject({ family: "hand-writing", engine: { "hand-writing": { acc: "#F28B82", ink: "#2B1D2E", gap: 9 } } });
+    expect(final.icons[0].engine["hand-writing"]).toEqual({ ms: 0.5, blob: "auto", seed: 1 });
+    expect(JSON.parse(zip["submission-profile.json"]).hand_writing_engine).toBe("2.0.0");
+    expect(zip["LICENSES.txt"]).toContain("hand-writing/");
+  });
 });

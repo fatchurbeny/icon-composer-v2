@@ -23,8 +23,8 @@ export const ENGINE_CARDS = [
   ["hand-writing", "Hand-wr."],
 ];
 
-/** Mesin yang sudah bisa dipakai set Composer (hand-writing menyusul di Fase 4). */
-export const READY_ENGINES = ["classic", "accent", "offset"];
+/** Mesin yang sudah bisa dipakai set Composer. */
+export const READY_ENGINES = ["classic", "accent", "offset", "hand-writing"];
 
 /** Nama gaya untuk riwayat dan toast. */
 export const ENGINE_NAMES = { classic: "Klasik", accent: "Aksen", offset: "Offset", "hand-writing": "Hand-writing" };
@@ -32,8 +32,21 @@ export const ENGINE_NAMES = { classic: "Klasik", accent: "Aksen", offset: "Offse
 /** Teks pengganti panel pengubah saat gaya tidak memakai pengubah (docs/engines/offset.md). */
 export const NO_MOD_TEXT = "Pengubah tidak tersedia pada style ini";
 
+/** Teks pengganti lapisan dekorasi saat gaya tidak memakai dekorasi (docs/engines/hand-writing.md). */
+export const NO_DECO_TEXT = "Dekorasi tidak tersedia pada gaya ini";
+
 /** @param {any} doc */
 export const isOffset = (doc) => !!doc && doc.kind === "set" && doc.style.family === "offset";
+
+/** @param {any} doc */
+export const isHandWriting = (doc) => !!doc && doc.kind === "set" && doc.style.family === "hand-writing";
+
+/**
+ * Gaya dengan tata letak dari patokan mesin (offset, hand-writing): lapisan tidak bisa digeser, diskalakan,
+ * atau diputar bebas di editor; posisi pengubah hand-writing diatur lewat titik anchor.
+ * @param {any} doc
+ */
+export const isFixedLayout = (doc) => isOffset(doc) || isHandWriting(doc);
 
 /**
  * Flag mesin per ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah).

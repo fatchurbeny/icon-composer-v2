@@ -33,9 +33,10 @@ import {
   setXY,
   sizeRange,
 } from "../state/edit-ops.js";
-import { clearLayer, setOffsetDeco, setStyleValue } from "../state/set-ops.js";
+import { handWritingItem } from "@icon-studio/engines/hand-writing";
+import { clearLayer, setHandWritingItem, setOffsetDeco, setStyleValue } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, number, panel, seg } from "../ui.js";
-import { NO_MOD_TEXT, docFileName, engineFlags, engineInfo, isOffset, renderSet, setColorCount, statusBar } from "./common.js";
+import { NO_DECO_TEXT, NO_MOD_TEXT, docFileName, engineFlags, engineInfo, isFixedLayout, isHandWriting, isOffset, renderSet, setColorCount, statusBar } from "./common.js";
 import {
   LAYER_LABEL,
   actions as setActions,
@@ -57,6 +58,7 @@ import { colorRow } from "./color-picker.js";
 const ROLE_NAME = { ink: "Tinta", acc: "Aksen", fillA: "Isi aksen", fill: "Isi tinta" };
 const UNDER_NAME = { none: "Tanpa", full: "Penuh", offset: "Geser", half: "Separuh" };
 const ANCHORS = ["TL", "TC", "TR", "ML", "C", "MR", "BL", "BC", "BR"];
+const BLOB_NAME = { auto: "Otomatis", circle: "Lingkaran", none: "Tanpa" };
 
 /** Lapisan terpilih di mode edit (sama dengan target klik pustaka). */
 const layerOf = () => /** @type {import("../state/edit-ops.js").Layer} */ (libraryUi.target);
@@ -135,10 +137,14 @@ const boxesOf = (ctx, it, doc = ctx.doc) => ctx.renderer.boxesOf(it, doc.style);
 
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function layerList(ctx, it) {
-  const off = isOffset(ctx.doc);
+  const off = isOffset(ctx.doc),
+    hw = isHandWriting(ctx.doc);
+  const hp = handWritingItem(it);
   const meta = off
     ? { mod: NO_MOD_TEXT, deco: offsetDecoLabel(it), main: `${it.main} · 84%` }
-    : {
+    : hw
+      ? { mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot} · ${Math.round(hp.ms * 100)}%`, deco: NO_DECO_TEXT, main: `${it.main} · blob ${BLOB_NAME[hp.blob].toLowerCase()}` }
+      : {
         mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot}`,
         deco: it.deco.type === "none" ? "tidak ada" : `${it.deco.type} · ${it.deco.x}, ${it.deco.y}`,
         main: `${it.main} · ${ctx.doc.style.scale.main}%`,
@@ -146,7 +152,7 @@ function layerList(ctx, it) {
   return `<div class="ic-list" role="listbox" aria-label="Lapisan ikon">${["mod", "deco", "main"]
     .map((l) => {
       const only = { ...it, vis: { main: l === "main", mod: l === "mod", deco: l === "deco" } };
-      const present = l === "main" || (off ? l === "deco" && meta.deco !== "tanpa" : l === "mod" ? it.mod !== "none" : it.deco.type !== "none");
+      const present = l === "main" || (off ? l === "deco" && meta.deco !== "tanpa" : l === "mod" ? it.mod !== "none" : !hw && it.deco.type !== "none");
       return `<div class="ic-row" role="option" tabindex="0" data-action="layer-select" data-layer="${l}" ${aria("aria-selected", layerOf() === l)}><span class="ic-row__thumb">${present ? renderSet(ctx, only, `el${l}`) : ""}</span><span class="ic-row__name">${LAYER_LABEL[l]}<span class="ic-row__sub">${esc(meta[l])}</span></span><button type="button" class="ic-iconbtn" data-action="edit-eye" data-layer="${l}" ${aria("aria-pressed", it.vis[l])} aria-label="${it.vis[l] ? "Sembunyikan" : "Tampilkan"} ${LAYER_LABEL[l].toLowerCase()}">${icon(it.vis[l] ? "eye" : "eye-off")}</button></div>`;
     })
     .join("")}</div>`;
@@ -217,6 +223,44 @@ function offsetTransformBody(ctx, it) {
   return out.join("");
 }
 
+/**
+ * Transform untuk gaya hand-writing: tata letak dari patokan mesin (objek 84% bila ada pengubah, pengubah di
+ * salah satu 8 anchor). Per ikon: posisi dan skala pengubah, mode blob, dan acak ulang goresan (seed).
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ */
+function handWritingTransformBody(ctx, it) {
+  const layer = layerOf();
+  const box = boxesOf(ctx, it)[layer];
+  const hp = handWritingItem(it);
+  if (layer === "deco") return `${alert("info", NO_DECO_TEXT)}${autoPanelCheck(ctx)}`;
+  const out = [`<div class="ic-formrow"><span class="ic-label">W × H</span><span class="ic-meta">${r2(box.w)} × ${r2(box.h)}</span></div>`];
+  if (layer === "mod") {
+    if (it.mod === "none") out.push(`<span class="ic-meta">Belum ada pengubah. Pilih dari Pustaka.</span>`);
+    else
+      out.push(
+        `<div class="ic-formrow"><span class="ic-label">Posisi</span>${slotGrid(it)}</div>`,
+        `<div class="ic-formrow"><span class="ic-label">Skala pengubah</span>${number("Skala pengubah", hp.ms, { min: 0.36, max: 0.7, step: 0.02, name: "edit-hw:ms" })}</div>`,
+        `<span class="ic-meta">Objek utama mengecil 84% dan bergeser menjauhi posisi pengubah. Pengubah selalu memakai blob lingkaran.</span>`,
+      );
+  } else
+    out.push(
+      `<div class="ic-formrow"><span class="ic-label">Blob</span>${seg("Mode blob", Object.entries(BLOB_NAME), hp.blob, { name: "edit-hw:blob" })}</div>`,
+      `<div class="ic-formrow"><span class="ic-label">Goresan</span><span class="ic-meta">seed ${hp.seed}</span>${button("Acak ulang goresan", { size: "sm", action: "edit-hw-reroll" })}</div>`,
+      `<span class="ic-meta">Tebal tinta, blob, celah, miring, dan warna diatur di panel Gaya untuk seluruh set.</span>`,
+    );
+  for (const [level, text] of engineFlags(ctx, it)) if (level !== "info") out.push(alert(/** @type {any} */ (level), text));
+  out.push(autoPanelCheck(ctx));
+  return out.join("");
+}
+
+/**
+ * Pemilih posisi pengubah 8 slot (titik tengah nonaktif), dipakai bilah konteks dan Transform.
+ * @param {any} it
+ */
+const slotGrid = (it) =>
+  `<div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="edit-slot">${ANCHORS.map((k) => (k === "C" ? '<button type="button" disabled aria-label="Tengah"></button>' : `<button type="button" data-value="${k}" ${aria("aria-pressed", it.slot === k)} aria-label="Posisi ${k}"></button>`)).join("")}</div>`;
+
 /** Titik acuan panel Transform (`view.anchor`, tidak ikut undo). */
 const anchorOf = (/** @type {import("./common.js").Ctx} */ ctx) => (ANCHOR_POINTS.includes(ctx.doc.view.anchor) ? ctx.doc.view.anchor : DEFAULT_ANCHOR);
 
@@ -258,6 +302,7 @@ function geometryFields(ctx, it, layer) {
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function transformBody(ctx, it) {
   if (isOffset(ctx.doc)) return offsetTransformBody(ctx, it);
+  if (isHandWriting(ctx.doc)) return handWritingTransformBody(ctx, it);
   const layer = layerOf(),
     s = ctx.doc.style,
     accent = s.family === "accent";
@@ -329,7 +374,7 @@ const editActions = {
   },
   /** @param {import("./common.js").Ctx} ctx */
   "edit-colors"(ctx) {
-    if (isOffset(ctx.doc)) return openTab("composer-style", "warna");
+    if (isFixedLayout(ctx.doc)) return openTab("composer-style", "warna");
     openTab("edit-layers", "transform");
   },
   /** @param {import("./common.js").Ctx} ctx */
@@ -346,6 +391,10 @@ const editActions = {
     mutateItem(ctx, (it) => (type === "none" ? clearLayer(it, "deco") : setDeco(it, type, ctx.renderer.data.DECOS)), `Dekorasi ${type}`);
   },
   /** @param {import("./common.js").Ctx} ctx */
+  "edit-hw-reroll"(ctx) {
+    mutateItem(ctx, (it) => setHandWritingItem(it, "seed", Math.floor(Math.random() * 1e6)), "Acak ulang goresan");
+  },
+  /** @param {import("./common.js").Ctx} ctx */
   "edit-parts-auto"(ctx) {
     mutateItem(ctx, (it) => (it.parts = null), "Warna bagian otomatis");
   },
@@ -360,6 +409,11 @@ const editActions = {
  */
 function editControl(ctx, name, value, el, tools) {
   const layer = layerOf();
+  if (name.startsWith("edit-hw:")) {
+    const key = /** @type {any} */ (name.slice(8));
+    const label = key === "blob" ? `Blob ${/** @type {any} */ (BLOB_NAME)[value] || value}` : `Skala pengubah ${value}`;
+    return mutateItem(ctx, (it) => setHandWritingItem(it, key, value), label);
+  }
   if (name.startsWith("edit-odeco:")) {
     const key = /** @type {any} */ (name.slice(11));
     return mutateItem(ctx, (it) => setOffsetDeco(it, key, value), `Dekorasi offset ${key}`);
@@ -404,7 +458,7 @@ let keyboardBound = false;
 /** @param {KeyboardEvent} e */
 function onKey(e) {
   const ctx = liveCtx;
-  if (!ctx || !ctx.route.edit || !ctx.doc || isOffset(ctx.doc)) return;
+  if (!ctx || !ctx.route.edit || !ctx.doc || isFixedLayout(ctx.doc)) return;
   const target = /** @type {HTMLElement} */ (e.target);
   if (target.closest && target.closest("input, textarea, .ic-select, [role=tab], [role=option]")) return;
   const layer = layerOf();
@@ -497,8 +551,8 @@ function mount(root, ctx) {
     if (!handle && !hit) return;
     const layer = /** @type {any} */ (handle ? layerOf() : /** @type {HTMLElement} */ (hit).dataset.hit);
     if (!handle && libraryUi.target !== layer) return selectLayer(ctx, layer);
-    /* offset: posisi lapisan mengikuti patokan gaya, jadi lapisan hanya bisa dipilih */
-    if (isOffset(ctx.doc)) return;
+    /* offset dan hand-writing: posisi lapisan mengikuti patokan gaya, jadi lapisan hanya bisa dipilih */
+    if (isFixedLayout(ctx.doc)) return;
     const box = boxesOf(ctx, it)[layer];
     const [x0, y0] = getXY(it, layer);
     drag = {
@@ -597,10 +651,12 @@ export const composerEdit = {
       const key = layer === "mod" ? "" : layer === "main" ? it.main : offsetDecoLabel(it);
       return `<span class="ic-label">${LAYER_LABEL[layer]}</span>${layer === "mod" ? `<span class="ic-meta">${NO_MOD_TEXT}</span>` : `<label class="ic-field ic-field--mono"><input value="${esc(key)}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${layer === "main" ? button("Ganti…", { size: "sm", action: "layer-swap" }) : ""}`}${paintSwatches(ctx, it, layer)}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
     }
-    const anchor =
-      layer === "mod" && it.mod !== "none"
-        ? `<span class="ic-sep"></span><span class="ic-label">Posisi</span><div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="edit-slot">${ANCHORS.map((k) => (k === "C" ? '<button type="button" disabled aria-label="Tengah"></button>' : `<button type="button" data-value="${k}" ${aria("aria-pressed", it.slot === k)} aria-label="Posisi ${k}"></button>`)).join("")}</div>`
-        : "";
+    const anchor = layer === "mod" && it.mod !== "none" ? `<span class="ic-sep"></span><span class="ic-label">Posisi</span>${slotGrid(it)}` : "";
+    if (isHandWriting(ctx.doc)) {
+      if (layer === "deco") return `<span class="ic-label">${LAYER_LABEL[layer]}</span><span class="ic-meta">${NO_DECO_TEXT}</span>`;
+      const ms = layer === "mod" && it.mod !== "none" ? `<span class="ic-sep"></span><span class="ic-label">Skala</span>${number("Skala pengubah", handWritingItem(it).ms, { min: 0.36, max: 0.7, step: 0.02, name: "edit-hw:ms" })}` : "";
+      return `<span class="ic-label">${LAYER_LABEL[layer]}</span><label class="ic-field ic-field--mono"><input value="${esc(keyOf(it, layer))}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${button("Ganti…", { size: "sm", action: "layer-swap" })}${anchor}${ms}${paintSwatches(ctx, it, layer)}<span class="ic-spacer"></span>${button("Acak ulang goresan", { size: "sm", action: "edit-hw-reroll" })}`;
+    }
     return `<span class="ic-label">${LAYER_LABEL[layer]}</span><label class="ic-field ic-field--mono"><input value="${esc(keyOf(it, layer))}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${button("Ganti…", { size: "sm", action: "layer-swap" })}${anchor}<span class="ic-sep"></span><span class="ic-label">Skala</span>${number(`Skala ${LAYER_LABEL[layer].toLowerCase()}`, ctx.doc.style.scale[layer], { ...scaleRange(layer), step: 1, name: "edit-scale" })}${paintSwatches(ctx, it, layer)}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
   },
   /** @param {import("./common.js").Ctx} ctx */
@@ -608,7 +664,7 @@ export const composerEdit = {
     const it = selectedOf(ctx);
     if (!it) return `<div class="studio-center">${empty("Ikon tidak ditemukan.", "Kembali ke ikhtisar halaman untuk memilih ikon.")}</div>`;
     const boxes = boxesOf(ctx, it);
-    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : isOffset(ctx.doc) ? " · offset" : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(it, boxes, !isOffset(ctx.doc))}${selbox(it, layerOf(), boxes[layerOf()], !isOffset(ctx.doc))}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
+    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : isOffset(ctx.doc) ? " · offset" : isHandWriting(ctx.doc) ? " · hand-writing" : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(it, boxes, !isFixedLayout(ctx.doc))}${selbox(it, layerOf(), boxes[layerOf()], !isFixedLayout(ctx.doc))}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
   },
   /**
    * Filmstrip set di bawah kanvas, di luar area zoom.
@@ -649,7 +705,9 @@ export const composerEdit = {
             label: "Variasi",
             body: isOffset(ctx.doc)
               ? empty("Sumbu variasi offset: posisi kilat dan kombinasi dekorasi.", "Acak ulang dan kunci variasi menyusul bersama planner variasi.")
-              : empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi."),
+              : isHandWriting(ctx.doc)
+                ? empty("Sumbu variasi hand-writing: arah miring, fase celah, dan pola celah.", "Acak ulang goresan mengganti seed ikon ini. Planner variasi menyusul.")
+                : empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi."),
           },
           {
             id: "riwayat",
@@ -665,6 +723,11 @@ export const composerEdit = {
   status(ctx) {
     const items = itemsOf(ctx),
       it = selectedOf(ctx);
+    if (isFixedLayout(ctx.doc))
+      return statusBar(
+        `${it ? items.indexOf(it) + 1 : 0} dari ${items.length}`,
+        `<b>Klik</b> lapisan untuk memilih. Posisi lapisan mengikuti patokan gaya ${isOffset(ctx.doc) ? "Offset" : "Hand-writing"}; ubah lewat panel Transform. <b>Esc</b> kembali ke ikhtisar halaman.`,
+      );
     return statusBar(
       `${it ? items.indexOf(it) + 1 : 0} dari ${items.length}`,
       "<b>Klik</b> lapisan untuk memilih. <b>Seret</b> untuk memindah. <b>Seret sudut</b> mengubah skala set (Shift 5%). <b>Seret di luar sudut</b> memutar ikon ini (Shift 15°). <b>Panah</b> menggeser 0,5 (Shift 2). <b>[ ]</b> memutar 15°. <b>Delete</b> melepas pengubah atau dekorasi. <b>Esc</b> kembali ke ikhtisar halaman.",

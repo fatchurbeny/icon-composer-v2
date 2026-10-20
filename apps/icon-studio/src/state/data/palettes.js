@@ -9,6 +9,12 @@ export const ACCENT_OPTIONS = ["#F05A5A", "#FF7A45", "#FFB547", "#C3DC1E", "#2EB
 /** Pilihan warna aksen gaya offset: patokan offset-composer 1.0.1 lalu pilihan IC. */
 export const OFFSET_ACCENT_OPTIONS = ["#B8405A", ...ACCENT_OPTIONS];
 
+/** Pilihan warna aksen gaya hand-writing: palet coret-composer 1.0.0 (`ACC`). */
+export const HAND_WRITING_ACCENT_OPTIONS = ["#FDBF57", "#7FC4BE", "#F28B82", "#A7C7F2", "#C3A6E8", "#9DCB86"];
+
+/** Pilihan warna tinta gaya hand-writing: palet coret-composer 1.0.0 (`INKS`). */
+export const HAND_WRITING_INK_OPTIONS = ["#2B1D2E", "#141414", "#1F2A37", "#3B2418"];
+
 /** Warna garis lapisan (LINE_OPTS IC). `null` = ikuti warna set. */
 export const LINE_OPTIONS = [null, "#1A1A1A", "#3A3C44", "#1A73E8", "#E2552D", "#FFFFFF"];
 

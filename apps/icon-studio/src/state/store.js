@@ -12,7 +12,7 @@ export const SCHEMA_VERSION = 1;
 export const PRESET_LIMIT = 16;
 
 /**
- * `migrations` mencatat migrasi yang sudah dijalankan pada state ini (mis. `002-from-offset`).
+ * `migrations` mencatat migrasi yang sudah dijalankan pada state ini (mis. `002-from-offset`, `003-from-hand-writing`).
  * `colorPresets` (Preset saya) dan `swatchSource` berlaku untuk seluruh app, bukan per dokumen,
  * dan tidak ikut urungkan. State lama tanpa field ini tetap terbaca dengan nilai bawaan.
  * @typedef {"bawaan" | "preset"} SwatchSource

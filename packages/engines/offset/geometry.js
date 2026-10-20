@@ -54,9 +54,10 @@ export function parsePath(d) {
  * Titik-titik sampel busur elips (rumus parameter pusat, SVG 1.1 lampiran F.6).
  * @param {number} x1 @param {number} y1 @param {number} rx @param {number} ry
  * @param {number} phi derajat @param {number} fa @param {number} fs @param {number} x2 @param {number} y2
+ * @param {number} [steps] jumlah titik sampel; 0 = otomatis sehingga jarak antartitik ≤ 0,25 unit
  * @returns {[number, number][]}
  */
-function arcPoints(x1, y1, rx, ry, phi, fa, fs, x2, y2) {
+export function arcPoints(x1, y1, rx, ry, phi, fa, fs, x2, y2, steps = STEPS) {
   if (x1 === x2 && y1 === y2) return [];
   rx = Math.abs(rx);
   ry = Math.abs(ry);
@@ -100,8 +101,9 @@ function arcPoints(x1, y1, rx, ry, phi, fa, fs, x2, y2) {
   if (fs && dt < 0) dt += 2 * Math.PI;
   /** @type {[number, number][]} */
   const pts = [];
-  for (let i = 1; i <= STEPS; i++) {
-    const t = t1 + (dt * i) / STEPS;
+  const n = steps || Math.max(8, Math.ceil((Math.abs(dt) * Math.max(rx, ry)) / 0.25));
+  for (let i = 1; i <= n; i++) {
+    const t = t1 + (dt * i) / n;
     pts.push([
       cx + rx * Math.cos(t) * cos - ry * Math.sin(t) * sin,
       cy + rx * Math.cos(t) * sin + ry * Math.sin(t) * cos,

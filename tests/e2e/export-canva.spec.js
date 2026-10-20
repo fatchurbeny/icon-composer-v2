@@ -407,3 +407,123 @@ test.describe("Ekspor Canva · classic dan accent diputar dan diskalakan", () =>
     });
   }
 });
+
+/**
+ * Simpan set hand-writing uji (20 ikon Lucide dari KEYS, pengubah pustaka di sebagian ikon) lalu muat ulang.
+ * @param {import("@playwright/test").Page} page
+ * @param {{gap: number}} params
+ */
+async function seedHandWritingSet(page, params) {
+  await page.evaluate(
+    ({ keys, params }) => {
+      const S = /** @type {any} */ (window).__iconStudio;
+      const lib = S.renderer.lib;
+      const slots = ["BR", "TL", "TR", "BL", "MR", "BC", "ML", "TC"];
+      const items = keys.map((/** @type {string} */ k, /** @type {number} */ i) =>
+        S.document.normItem(
+          {
+            main: `lu:${k}`,
+            mod: i % 3 ? "none" : ["lu:plus", "lu:sparkle", "lu:check"][i % 9 / 3],
+            slot: slots[i % slots.length],
+            name: `Uji ${k}`,
+            engine: { "hand-writing": { ms: 0.5, blob: ["auto", "circle", "none"][i % 3], seed: 100 + i } },
+          },
+          lib,
+          { uid: () => `u${i}` },
+        ),
+      );
+      const doc = S.document.createSetDocument(
+        { id: "set-hw", name: "Hand-writing uji", style: { family: "hand-writing", engine: { "hand-writing": params } }, items },
+        () => "x",
+      );
+      S.store.saveState({ schemaVersion: 1, documents: [doc], activeId: doc.id });
+    },
+    { keys: KEYS, params },
+  );
+  await page.reload();
+  await expect(page.locator(".ic-page__card[data-select]")).toHaveCount(KEYS.length);
+}
+
+/**
+ * Raster direct fill tiap file, untuk membandingkan dua ZIP (celah 9% vs tanpa celah).
+ * @param {import("@playwright/test").Page} page
+ * @param {Record<string, string>} files
+ * @returns {Promise<Record<string, number[]>>} tutupan tinta per file (indeks piksel gelap)
+ */
+function inkOfDirectFill(page, files) {
+  return page.evaluate(async (files) => {
+    const S = /** @type {any} */ (window).__iconStudio;
+    /** @type {Record<string, number[]>} */
+    const out = {};
+    for (const [name, svg] of Object.entries(files)) {
+      const body = S.directFillSvgFile(`<?xml version="1.0" encoding="UTF-8"?>\n${svg}`).replace(/^<\?xml[^>]*>\s*/, "").replace(/width="[^"]*" height="[^"]*"/, 'width="192" height="192"');
+      const data = await new Promise((done) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement("canvas");
+          c.width = c.height = 192;
+          const g = /** @type {CanvasRenderingContext2D} */ (c.getContext("2d"));
+          g.fillStyle = "#ffffff";
+          g.fillRect(0, 0, 192, 192);
+          g.drawImage(img, 0, 0, 192, 192);
+          done(g.getImageData(0, 0, 192, 192).data);
+        };
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(body);
+      });
+      const d = /** @type {Uint8ClampedArray} */ (data);
+      const ink = [];
+      /* tinta #2B1D2E: piksel gelap (aksen #FDBF57 dan latar putih terang) */
+      for (let i = 0; i < d.length; i += 4) if (d[i] + d[i + 1] + d[i + 2] < 240) ink.push(i / 4);
+      out[name] = ink;
+    }
+    return out;
+  }, files);
+}
+
+test.describe("Ekspor Canva · hand-writing", () => {
+  test("ZIP Composer hand-writing: direct fill valid, ≤3 warna, hanya fill, tanpa dasharray, celah tetap terlihat", async ({ page }) => {
+    test.setTimeout(180_000);
+    await open(page);
+    await seedHandWritingSet(page, { gap: 9 });
+    const files = await downloadSvgs(page);
+    expect(Object.keys(files)).toHaveLength(KEYS.length);
+    for (const svg of Object.values(files)) {
+      expect(svg).toContain('viewBox="0 0 48 48"');
+      expect(svg).not.toMatch(/stroke-dasharray|pathLength/);
+    }
+    const results = await checkDirectFill(page, files);
+    for (const r of results) {
+      expect(r.error, r.name).toBeNull();
+      expect(r.viewBox, r.name).toBe("0 0 48 48");
+      expect(r.children, r.name).toEqual(["path"]);
+      expect(r.colors.length, r.name).toBeGreaterThanOrEqual(1);
+      expect(r.colors.length, r.name).toBeLessThanOrEqual(3);
+      expect(r.stroke, r.name).toBe(false);
+      expect(r.dash, r.name).toBe(false);
+      expect(r.banned, r.name).toBe(false);
+      const [x0, y0, x1, y1] = /** @type {number[]} */ (r.bbox);
+      expect(x0, r.name).toBeGreaterThanOrEqual(0);
+      expect(y0, r.name).toBeGreaterThanOrEqual(0);
+      expect(x1, r.name).toBeLessThanOrEqual(48);
+      expect(y1, r.name).toBeLessThanOrEqual(48);
+      expect(r.diff, `${r.name} selisih piksel mask vs direct fill`).toBeLessThan(0.015);
+    }
+
+    /* celah terlihat di file direct fill: set yang sama tanpa celah punya tinta lebih banyak di posisi celah */
+    const withGap = await inkOfDirectFill(page, files);
+    await page.locator('.ic-persona[href="#/composer"]').click();
+    await seedHandWritingSet(page, { gap: 0 });
+    const noGapFiles = await downloadSvgs(page);
+    const noGap = await inkOfDirectFill(page, noGapFiles);
+    let gapped = 0;
+    for (const name of Object.keys(files)) {
+      const a = new Set(withGap[name]);
+      /* piksel tinta yang hilang karena celah (tanpa celah ada, dengan celah tidak) */
+      const missing = noGap[name].filter((i) => !a.has(i)).length;
+      if (missing > 20) gapped++;
+    }
+    test.info().annotations.push({ type: "celah", description: `${gapped} dari ${KEYS.length} ikon memperlihatkan celah di direct fill` });
+    /* peluang celah 75% per bagian besar; hampir semua ikon punya minimal satu celah */
+    expect(gapped).toBeGreaterThanOrEqual(KEYS.length - 3);
+  });
+});

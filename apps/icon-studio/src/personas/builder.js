@@ -18,7 +18,7 @@ import {
   packOf,
   sheetGrid,
 } from "../state/builder-ops.js";
-import { BUILDER_MODES, OFFSET_MODE, SPARKS, kebab2, manifestOffsetStyle, sparkHome } from "../state/document.js";
+import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, SPARKS, kebab2, manifestOffsetStyle, sparkHome } from "../state/document.js";
 import { setSlot } from "../state/edit-ops.js";
 import { ACCENT_OPTIONS, INK_OPTIONS } from "../state/data/palettes.js";
 import { setStyleValue } from "../state/set-ops.js";
@@ -30,7 +30,7 @@ import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } f
 const ROLE_NAME = { ink: "Tinta", acc: "Aksen", fillA: "Isi aksen", fill: "Isi tinta" };
 const UNDER_NAME = { none: "Tanpa", full: "Penuh", offset: "Geser", half: "Separuh" };
 const ANCHORS = ["TL", "TC", "TR", "ML", "C", "MR", "BL", "BC", "BR"];
-const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis", O: "Offset" };
+const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis", O: "Offset", H: "Hand-writing" };
 /** Nama opsi ekspor untuk Riwayat dan urungkan. */
 const EXPORT_OPTION_LABEL = { slot: "Ikon slot deck", extra: "Ikon ekstra", split: "Pisahkan folder", skipBad: "Lewati ikon bermasalah" };
 const OFFSET_FILL_NAME = [["solid", "Bidang"], ["white", "Putih"], ["line", "Garis"]];
@@ -47,7 +47,7 @@ function brandId() {
   }
 }
 
-/** Flag mengikuti mode pratinjau: mode O memakai flag offset. @param {import("./common.js").Ctx} ctx */
+/** Flag mengikuti mode pratinjau: mode O memakai flag offset, H flag hand-writing. @param {import("./common.js").Ctx} ctx */
 const deps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style, mode: ctx.doc.pv });
 /** @param {import("./common.js").Ctx} ctx */
 const dmOf = (ctx) => dupMap(ctx.doc.items, ctx.doc.pv);
@@ -187,6 +187,11 @@ function iconBody(ctx, it) {
       `<div class="ic-formrow"><span class="ic-label">Isi warna</span>${seg("Isi warna offset", OFFSET_FILL_NAME, manifestOffsetStyle(ctx.doc.style).engine.offset.mode, { name: "b-ofill" })}</div>`,
       `<span class="ic-meta">Berlaku untuk seluruh pack. Dekorasi offset memakai bawaan: kilat kanan atas dan garis tanah.</span>`,
     );
+  if (ctx.doc.pv === HAND_WRITING_MODE)
+    out.push(
+      `<span class="ic-label">Gaya Hand-writing</span>`,
+      `<span class="ic-meta">Tinta dan aksen mengikuti warna pack. Tebal tinta, blob, celah goresan, dan miring memakai bawaan Hand-writing. Objek dan pengubah harus dari pustaka.</span>`,
+    );
   if (ctx.doc.pv === "X") {
     const info = ctx.renderer.mainInfo(it.main),
       roles = ctx.renderer.rolesOf(it, info),
@@ -260,6 +265,7 @@ const LEGEND = [
   ["err", "Tanpa pengubah: ikon pustaka tanpa tambahan sama saja dengan salinan."],
   ["warn", "Tidak dikenal: nama dari manifest tidak ada di kosakata. Pilih pengganti."],
   ["info", `${NO_MOD_TEXT}: gaya Offset hanya merender objek utama. Pengubah tetap tersimpan di manifest, tidak menghalangi ekspor.`],
+  ["err", "Objek bawaan tidak didukung gaya Hand-writing: ganti objek dengan ikon pustaka (Lucide, Tabler, Hugeicons)."],
 ];
 
 /**

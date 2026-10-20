@@ -60,7 +60,7 @@ test.describe("Icon Studio · gaya Offset", () => {
     ).toHaveCount(1);
     await expect(
       page.locator('.ic-engine[data-value="hand-writing"]'),
-    ).toBeDisabled();
+    ).toBeEnabled();
     await offsetCard(page).click();
     await expect(offsetCard(page)).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator(".ic-topbar__info").first()).toContainText(

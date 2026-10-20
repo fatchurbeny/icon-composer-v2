@@ -276,6 +276,17 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
       toast([`${offset.doc.items.length} ikon offset-composer diimpor`, ...(offset.warnings || [])].join(". "));
       return;
     }
+    /* gaya.json coret-composer 1.0.0 (`family: "coret"`) menjadi set Composer bergaya Hand-writing */
+    const hw = await app.importHandWritingSet(text);
+    if (hw) {
+      if (hw.fatal) {
+        if (message) message.textContent = hw.fatal;
+        return;
+      }
+      go({ persona: "composer", edit: null });
+      toast([`${hw.doc.items.length} ikon hand-writing diimpor`, ...(hw.warnings || [])].join(". "));
+      return;
+    }
     const result = await app.importManifest(text, opts);
     if (result.fatal) {
       if (message) message.textContent = result.fatal;

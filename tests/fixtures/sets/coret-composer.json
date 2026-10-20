@@ -1,0 +1,24 @@
+{
+  "$comment": "Data coret-composer 1.0.0 (legacy/style/coret-composer-v1.0.0.html): isi localStorage coret-composer-v1 ({S, set, cur}) dan gaya.json dari ZIP ekspor ({family: \"coret\", version, style, icons}). Dipakai tes migrasi 003 dan impor gaya.json Fase 4.",
+  "storage": {
+    "coret-composer-v1": {
+      "S": { "acc": "#7FC4BE", "ink": "#141414", "sw": 2.6, "puff": 1.5, "off": 1, "gap": 12, "rot": 4, "ko": 1.5 },
+      "set": [
+        { "id": 1761000000001, "name": "pizza", "main": "lu:pizza", "mod": null, "anchor": "BR", "ms": 0.5, "blob": "auto", "seed": 482910 },
+        { "id": 1761000000002, "name": "wallet-plus-coret", "main": "lu:wallet", "mod": "lu:plus", "anchor": "TR", "ms": 0.56, "blob": "circle", "seed": 77 },
+        { "id": 1761000000003, "name": "backpack", "main": "tb:backpack", "mod": null, "anchor": "BR", "ms": 0.5, "blob": "none", "seed": 1203 }
+      ],
+      "cur": 1
+    }
+  },
+  "gayaJson": {
+    "family": "coret",
+    "version": "1.0.0",
+    "style": { "acc": "#F28B82", "ink": "#2B1D2E", "sw": 2.3, "puff": 2, "off": 1.25, "gap": 9, "rot": 5, "ko": 1.25 },
+    "icons": [
+      { "name": "piggy-bank-sparkle", "main": "lu:piggy-bank", "mod": "lu:sparkle", "anchor": "BL", "ms": 0.5, "blob": "auto", "seed": 31337 },
+      { "name": "alarm-clock", "main": "lu:alarm-clock", "mod": null, "anchor": "BR", "ms": 0.5, "blob": "auto", "seed": 9 },
+      { "name": "rusak", "main": "face", "mod": null, "anchor": "BR", "ms": 0.5, "blob": "auto", "seed": 1 }
+    ]
+  }
+}

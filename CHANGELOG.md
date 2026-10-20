@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 ## Unreleased
 
 ### Ditambahkan
+- Fase 4 selesai: mesin `hand-writing` 2.0.0 diport penuh dari coret-composer 1.0.0 (pengubah di 8 anchor, knockout, blob, rotasi; dash dipanggang dengan skala pathLength versi Skia, paritas 32 ikon maks 0,18%), gaya Hand-writing di Composer, Edit, Kombinasi, Tinjau, dan Builder (mode H, folder `hand-writing/`), migrasi sekali `003-from-hand-writing` dari `coret-composer-v1` dan impor `gaya.json` `family:"coret"`, uji paritas, ekspor Canva (celah tetap terlihat di direct fill), dan ADR-018.
 - Fase 3 ditutup: semua kriteria terima mesin offset lolos dan seluruh rangkaian tes (unit, e2e, golden, lint, lint:ui) lulus.
 - Composer · Edit: memilih lapisan kini membuka tab Lapisan dengan baris tersorot (Transform satu klik di sebelahnya, sakelar menjadi "Buka daftar Lapisan saat memilih lapisan"), dan swatch bilah konteks mengikuti peran lapisan di mode warna aktif (`layerPaints`): lapisan garis "Garis" dengan warna garis, lapisan solid "Isi", lapisan garis dan isi dua swatch; contoh lu:card-sim mode A kini menampilkan Garis hitam, bukan Isi hijau.
 - Composer · Edit: tab Transform bergaya Affinity: titik acuan 3×3 (`view.anchor`) menentukan titik kotak lapisan yang dibaca dan ditulis X/Y, W dan H bisa diketik dan mengubah skala set dengan rasio selalu terkunci (tombol rantai nonaktif), R memutar ikon ini, tanpa shear; kolom Skala di Transform diganti W/H (tetap ada di bilah konteks). Ikon kit baru `link` dan `unlink` dari lucide-static 1.52.0.

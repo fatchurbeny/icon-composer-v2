@@ -8,9 +8,15 @@ import {
 } from "../../apps/icon-studio/src/state/migrations/001-from-legacy.js";
 import { SAMPLE_MANIFEST } from "../../apps/icon-studio/src/state/data/sample-manifest.js";
 import {
+  handWritingSetFromComposer,
   importManifest,
   offsetSetFromComposer,
 } from "../../apps/icon-studio/src/state/document.js";
+import {
+  HAND_WRITING_LEGACY_KEY,
+  MIGRATION_ID as HW_MIGRATION_ID,
+  migrateFromHandWriting,
+} from "../../apps/icon-studio/src/state/migrations/003-from-hand-writing.js";
 import {
   MIGRATION_ID,
   OFFSET_KEY,
@@ -29,6 +35,12 @@ const mixed = JSON.parse(
 const offsetFixture = JSON.parse(
   readFileSync(
     new URL("../fixtures/sets/offset-composer.json", import.meta.url),
+    "utf8",
+  ),
+);
+const hwFixture = JSON.parse(
+  readFileSync(
+    new URL("../fixtures/sets/coret-composer.json", import.meta.url),
     "utf8",
   ),
 );
@@ -293,5 +305,62 @@ describe("Icon Studio migrasi 002 dari offset-composer", () => {
     /* state lama tanpa field migrations dibaca sebagai daftar kosong */
     store.setItem(STORE_KEY, JSON.stringify({ schemaVersion: 1, documents: [], activeId: null }));
     expect(loadState(store).migrations).toEqual([]);
+  });
+});
+
+describe("Icon Studio migrasi 003 dari coret-composer (gaya hand-writing)", () => {
+  test("id migrasi dan kunci lama", () => {
+    expect(HW_MIGRATION_ID).toBe("003-from-hand-writing");
+    expect(HAND_WRITING_LEGACY_KEY).toBe("coret-composer-v1");
+  });
+
+  test("tanpa kunci lama, kunci rusak, atau set kosong tidak ada migrasi", () => {
+    expect(migrateFromHandWriting(storage(), { lib })).toBeNull();
+    expect(migrateFromHandWriting(storage({ [HAND_WRITING_LEGACY_KEY]: "{rusak" }), { lib })).toBeNull();
+    expect(migrateFromHandWriting(storage({ [HAND_WRITING_LEGACY_KEY]: { S: {}, set: [], cur: 0 } }), { lib })).toBeNull();
+  });
+
+  test("set coret-composer menjadi dokumen set bergaya hand-writing", () => {
+    let n = 0;
+    const res = migrateFromHandWriting(storage(hwFixture.storage), { lib, uid: () => `h${++n}` });
+    expect(res?.sources).toEqual([HAND_WRITING_LEGACY_KEY]);
+    expect(res?.warnings).toEqual([]);
+    const doc = /** @type {any} */ (res).documents[0];
+    expect(doc).toMatchObject({
+      kind: "set",
+      name: "Set Hand-writing",
+      meta: { import: { format: "coret-composer", source: HAND_WRITING_LEGACY_KEY, warnings: [] } },
+    });
+    expect(doc.style.family).toBe("hand-writing");
+    expect(doc.style.engine["hand-writing"]).toEqual({ acc: "#7FC4BE", ink: "#141414", sw: 2.6, puff: 1.5, off: 1, gap: 12, rot: 4, ko: 1.5 });
+    expect(doc.items.map((/** @type {any} */ it) => [it.name, it.main, it.mod, it.slot])).toEqual([
+      ["pizza", "lu:pizza", "none", "BR"],
+      ["wallet-plus-coret", "lu:wallet", "lu:plus", "TR"],
+      ["backpack", "tb:backpack", "none", "BR"],
+    ]);
+    expect(doc.items.map((/** @type {any} */ it) => it.engine["hand-writing"])).toEqual([
+      { ms: 0.5, blob: "auto", seed: 482910 },
+      { ms: 0.56, blob: "circle", seed: 77 },
+      { ms: 0.5, blob: "none", seed: 1203 },
+    ]);
+  });
+
+  test("gaya.json family coret: ikon bukan pustaka dilewati dengan peringatan", () => {
+    const res = /** @type {any} */ (handWritingSetFromComposer(hwFixture.gayaJson, lib, { uid: () => "g" }));
+    expect(res.doc.style.family).toBe("hand-writing");
+    expect(res.doc.style.engine["hand-writing"].acc).toBe("#F28B82");
+    expect(res.doc.items).toHaveLength(2);
+    expect(res.doc.items[0]).toMatchObject({ main: "lu:piggy-bank", mod: "lu:sparkle", slot: "BL" });
+    expect(res.warnings).toEqual(["1 ikon dilewati: bukan ikon pustaka"]);
+    expect(res.doc.meta.import).toMatchObject({ format: "coret-composer", version: "1.0.0", source: "gaya.json" });
+  });
+
+  test("data lain bukan coret-composer; set tanpa ikon pustaka ditolak", () => {
+    expect(handWritingSetFromComposer(SAMPLE_MANIFEST, lib)).toBeNull();
+    expect(handWritingSetFromComposer(offsetFixture.gayaJson, lib)).toBeNull();
+    expect(handWritingSetFromComposer(null, lib)).toBeNull();
+    expect(handWritingSetFromComposer({ family: "coret", icons: [{ main: "face" }] }, lib)).toEqual({
+      fatal: "Set coret-composer tidak berisi ikon Lucide, Tabler, atau Hugeicons.",
+    });
   });
 });

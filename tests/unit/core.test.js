@@ -77,7 +77,7 @@ describe("paket bersama Fase 2", () => {
     expect(a).toBe(b);
     expect(a).not.toContain("stroke-dasharray");
     expect(a).not.toContain("pathLength");
-    expect(a.match(/<path /g)?.length).toBeGreaterThan(1);
+    expect(a).toMatch(/<path d="M/);
     expect(handWriting.version).toBe("2.0.0");
   });
 

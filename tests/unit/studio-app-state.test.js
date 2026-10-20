@@ -10,6 +10,12 @@ import { SAMPLE_MANIFEST } from "../../apps/icon-studio/src/state/data/sample-ma
 import { STORE_KEY } from "../../apps/icon-studio/src/state/store.js";
 import { readFileSync } from "node:fs";
 
+const hwFixture = JSON.parse(
+  readFileSync(
+    new URL("../fixtures/sets/coret-composer.json", import.meta.url),
+    "utf8",
+  ),
+);
 const offsetFixture = JSON.parse(
   readFileSync(
     new URL("../fixtures/sets/offset-composer.json", import.meta.url),
@@ -145,6 +151,7 @@ describe("Icon Studio app state", () => {
     expect(app.activeId).toBe(manifest.id);
     expect(JSON.parse(storage.map.get(STORE_KEY)).migrations).toEqual([
       "002-from-offset",
+      "003-from-hand-writing",
     ]);
 
     const again = createAppState({ renderer: fakeRenderer(), storage });
@@ -179,6 +186,36 @@ describe("Icon Studio app state", () => {
     expect(app.documentFor("composer")).toBe(res?.doc);
     expect(app.selection[res?.doc.id]).toBe(res?.doc.items[0].id);
     expect(JSON.parse(storage.map.get(STORE_KEY)).documents).toHaveLength(2);
+  });
+
+  test("migrasi coret-composer berjalan sekali dan menambah set Hand-writing", () => {
+    const storage = memoryStorage();
+    storage.setItem("coret-composer-v1", JSON.stringify(hwFixture.storage["coret-composer-v1"]));
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.migratedFrom).toEqual(["coret-composer-v1"]);
+    expect(app.documents).toHaveLength(1);
+    expect(app.documents[0]).toMatchObject({ name: "Set Hand-writing", style: { family: "hand-writing" } });
+    expect(app.documents[0].items).toHaveLength(3);
+    expect(app.activeId).toBe(app.documents[0].id);
+    expect(JSON.parse(storage.map.get(STORE_KEY)).migrations).toContain("003-from-hand-writing");
+    const again = createAppState({ renderer: fakeRenderer(), storage });
+    expect(again.migratedFrom).toEqual([]);
+    expect(again.documents).toHaveLength(1);
+    /* kunci lama tidak diubah atau dihapus */
+    expect(JSON.parse(storage.map.get("coret-composer-v1"))).toEqual(hwFixture.storage["coret-composer-v1"]);
+  });
+
+  test("impor gaya.json family coret menambah set Hand-writing aktif; teks lain dilewatkan", async () => {
+    const storage = memoryStorage();
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(await app.importHandWritingSet(JSON.stringify(SAMPLE_MANIFEST))).toBeNull();
+    expect(await app.importHandWritingSet(JSON.stringify(offsetFixture.gayaJson))).toBeNull();
+    expect(await app.importHandWritingSet("{")).toBeNull();
+    const res = await app.importHandWritingSet(JSON.stringify(hwFixture.gayaJson));
+    expect(res?.warnings).toEqual(["1 ikon dilewati: bukan ikon pustaka"]);
+    expect(res?.doc.style.family).toBe("hand-writing");
+    expect(app.activeId).toBe(res?.doc.id);
+    expect(app.selection[res?.doc.id]).toBe(res?.doc.items[0].id);
   });
 
   test("impor manifest rusak tidak menambah dokumen", async () => {
