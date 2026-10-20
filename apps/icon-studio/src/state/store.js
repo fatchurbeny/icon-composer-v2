@@ -8,15 +8,40 @@
 export const STORE_KEY = "icon-studio-v1";
 export const SCHEMA_VERSION = 1;
 
+/** Maksimal warna di Preset saya (berlaku untuk semua set). */
+export const PRESET_LIMIT = 16;
+
 /**
  * `migrations` mencatat migrasi yang sudah dijalankan pada state ini (mis. `002-from-offset`).
- * @typedef {{schemaVersion: number, documents: any[], activeId: string | null, migrations: string[]}} StudioState
+ * `colorPresets` (Preset saya) dan `swatchSource` berlaku untuk seluruh app, bukan per dokumen,
+ * dan tidak ikut urungkan. State lama tanpa field ini tetap terbaca dengan nilai bawaan.
+ * @typedef {"bawaan" | "preset"} SwatchSource
+ * @typedef {{schemaVersion: number, documents: any[], activeId: string | null, migrations: string[], colorPresets: string[], swatchSource: SwatchSource}} StudioState
  */
 
 /** @returns {StudioState} */
 export function emptyState() {
-  return { schemaVersion: SCHEMA_VERSION, documents: [], activeId: null, migrations: [] };
+  return { schemaVersion: SCHEMA_VERSION, documents: [], activeId: null, migrations: [], colorPresets: [], swatchSource: "bawaan" };
 }
+
+/**
+ * Rapikan Preset saya: hanya hex `#RRGGBB` huruf besar, tanpa ganda, maks PRESET_LIMIT.
+ * @param {unknown} list
+ * @returns {string[]}
+ */
+export function normColorPresets(list) {
+  if (!Array.isArray(list)) return [];
+  /** @type {string[]} */
+  const out = [];
+  for (const c of list) {
+    const hex = /^#?[0-9a-f]{6}$/i.test(String(c)) ? `#${String(c).replace("#", "").toUpperCase()}` : null;
+    if (hex && !out.includes(hex)) out.push(hex);
+  }
+  return out.slice(0, PRESET_LIMIT);
+}
+
+/** @param {unknown} value @returns {SwatchSource} */
+export const normSwatchSource = (value) => (value === "preset" ? "preset" : "bawaan");
 
 /** Akses localStorage bisa melempar (data: URL, jendela privat), jadi selalu dibungkus. */
 function defaultStorage() {
@@ -57,7 +82,14 @@ export function loadState(storage) {
     const migrations = Array.isArray(data.migrations)
       ? data.migrations.filter((/** @type {any} */ m) => typeof m === "string")
       : [];
-    return { schemaVersion: SCHEMA_VERSION, documents, activeId, migrations };
+    return {
+      schemaVersion: SCHEMA_VERSION,
+      documents,
+      activeId,
+      migrations,
+      colorPresets: normColorPresets(data.colorPresets),
+      swatchSource: normSwatchSource(data.swatchSource),
+    };
   } catch {
     return emptyState();
   }
@@ -79,6 +111,8 @@ export function saveState(state, storage) {
         documents: state.documents,
         activeId: state.activeId,
         migrations: state.migrations || [],
+        colorPresets: normColorPresets(state.colorPresets),
+        swatchSource: normSwatchSource(state.swatchSource),
       }),
     );
     return true;

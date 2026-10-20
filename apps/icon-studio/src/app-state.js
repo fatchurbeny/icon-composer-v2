@@ -10,7 +10,7 @@ import { ensureReviewFields } from "./state/review-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
 import { migrateFromLegacy } from "./state/migrations/001-from-legacy.js";
 import { MIGRATION_ID as OFFSET_MIGRATION, migrateFromOffset } from "./state/migrations/002-from-offset.js";
-import { hasState, loadState, saveState } from "./state/store.js";
+import { PRESET_LIMIT, hasState, loadState, normColorPresets, normSwatchSource, saveState } from "./state/store.js";
 import { UNDO_LIMIT, createUndo } from "./state/undo.js";
 
 export const PERSONAS = /** @type {const} */ (["composer", "builder", "tinjau", "kombinasi"]);
@@ -81,6 +81,9 @@ export function createAppState(options) {
   /** @type {any[]} */
   const documents = loaded.documents;
   let activeId = loaded.activeId;
+  /* Preset saya dan sumber swatch: berlaku untuk semua set, di luar dokumen dan di luar urungkan */
+  let colorPresets = normColorPresets(loaded.colorPresets);
+  let swatchSource = normSwatchSource(loaded.swatchSource);
   /** @type {Record<string, string | null>} */
   const selection = {};
   const listeners = new Set();
@@ -137,7 +140,7 @@ export function createAppState(options) {
   /* ikon pustaka di dokumen tersimpan didaftarkan ulang ke registry */
   for (const doc of documents) ensureLibraries(doc);
 
-  const save = () => saveState({ schemaVersion: 1, documents, activeId, migrations }, options.storage);
+  const save = () => saveState({ schemaVersion: 1, documents, activeId, migrations, colorPresets, swatchSource }, options.storage);
   /* dokumen Builder hasil migrasi divalidasi seperti boot TIB */
   for (const doc of documents) if (doc.kind === "manifest" && migratedFrom.length) doc.issues = validateManifest(doc, vocab);
   if (migratedFrom.length) save();
@@ -226,6 +229,31 @@ export function createAppState(options) {
         log(docId, label);
         undo.commit(docId, doc, label);
       } else undo.sync(docId, doc);
+      save();
+      notify();
+    },
+    /** Preset saya (hex `#RRGGBB`, urutan sesuai tampilan). */
+    get colorPresets() {
+      return colorPresets;
+    },
+    /** Sumber swatch di panel warna: palet bawaan atau Preset saya. */
+    get swatchSource() {
+      return swatchSource;
+    },
+    /**
+     * Ganti Preset saya lalu simpan. Tidak masuk riwayat urungkan dokumen.
+     * @param {unknown[]} list
+     * @returns {boolean} false bila daftar dipotong karena melebihi batas
+     */
+    setColorPresets(list) {
+      colorPresets = normColorPresets(list);
+      save();
+      notify();
+      return Array.isArray(list) && list.length <= PRESET_LIMIT;
+    },
+    /** @param {unknown} source "bawaan" atau "preset" */
+    setSwatchSource(source) {
+      swatchSource = normSwatchSource(source);
       save();
       notify();
     },

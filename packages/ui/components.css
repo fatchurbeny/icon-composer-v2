@@ -307,6 +307,44 @@
 .ic-swatch { width: 22px; height: 22px; border: 0; border-radius: var(--ic-r-sm); padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px var(--ic-line-swatch); }
 .ic-swatch--round { border-radius: 50%; width: 20px; height: 20px; }
 .ic-swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ic-bg-panel), 0 0 0 3.5px var(--ic-accent); }
+/* pemicu pemilih warna: lingkar hue, atau warna aktif (inline) bila warna itu tidak ada di daftar swatch */
+.ic-formrow .ic-swatches { flex-wrap: wrap; min-width: 0; }
+.ic-swatch--custom { background: var(--ic-hue-ring); flex: none; }
+.ic-swatch--custom[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--ic-bg-panel), 0 0 0 3.5px var(--ic-text-2); }
+
+/* ===== Pemilih warna: popover dari swatch (roda hue + segitiga, H S L, hex) ===== */
+/* tinggi maks ditulis components.js sesuai ruang viewport; bagian atas (roda, kolom) tetap, hanya __extra yang digulir */
+.ic-colorpicker { position: fixed; z-index: 75; width: var(--ic-w-colorpicker); max-height: calc(100vh - 16px); overflow: hidden;
+  display: flex; flex-direction: column; gap: var(--ic-sp-5); padding: var(--ic-sp-6); border-radius: var(--ic-r-xl);
+  background: var(--ic-bg-panel); box-shadow: var(--ic-shadow-menu); color: var(--ic-text-1); font-size: var(--ic-fs-sm); }
+.ic-colorpicker[hidden], .ic-colorpicker [hidden] { display: none; }
+.ic-colorpicker__head { display: flex; align-items: center; gap: var(--ic-sp-4); }
+.ic-colorpicker__head .ic-iconbtn { width: var(--ic-h-control); height: var(--ic-h-control); }
+.ic-colorpicker__title { flex: 1; min-width: 0; font-size: var(--ic-fs-md); color: var(--ic-text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ic-colorpicker__wheel { position: relative; width: var(--ic-size-colorwheel); height: var(--ic-size-colorwheel); margin: 0 auto; touch-action: none; cursor: crosshair; flex: none; }
+.ic-colorpicker__canvas { display: block; width: 100%; height: 100%; }
+.ic-colorpicker__mark { position: absolute; width: var(--ic-size-colormark); height: var(--ic-size-colormark); margin: calc(var(--ic-size-colormark) / -2) 0 0 calc(var(--ic-size-colormark) / -2);
+  border-radius: 50%; box-shadow: 0 0 0 2px var(--ic-text-strong), 0 0 0 3px var(--ic-line-strong); pointer-events: none; }
+.ic-colorpicker .ic-colorpicker__mark:focus-visible { box-shadow: 0 0 0 2px var(--ic-text-strong), 0 0 0 4px var(--ic-accent); }
+.ic-colorpicker__fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.7fr); gap: var(--ic-sp-3); }
+.ic-colorpicker__f { display: flex; flex-direction: column; gap: var(--ic-sp-1); min-width: 0; }
+.ic-colorpicker__f .ic-field { padding: 0 var(--ic-sp-3); }
+.ic-colorpicker__f input[aria-invalid="true"] { color: var(--ic-err-text); }
+.ic-colorpicker > * { flex: none; }
+.ic-colorpicker > .ic-colorpicker__extra { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.ic-colorpicker__extra { display: flex; flex-direction: column; gap: var(--ic-sp-4); padding-top: var(--ic-sp-5); border-top: 1px solid var(--ic-line-4); }
+.ic-colorpicker__extra:empty { display: none; }
+/* tab tetap terlihat saat daftar di bawahnya digulir */
+.ic-colorpicker__tabs { display: flex; gap: var(--ic-sp-1); position: sticky; top: 0; z-index: 1; padding-bottom: var(--ic-sp-2); background: var(--ic-bg-panel); }
+.ic-colorpicker .ic-swatches { flex-wrap: wrap; }
+/* baris palet kurasi atau harmoni: chip warna + nama, seluruh baris bisa diklik */
+.ic-colorpicker__row { display: flex; align-items: center; gap: var(--ic-sp-4); width: 100%; min-height: 28px; padding: var(--ic-sp-1) var(--ic-sp-3);
+  border: 0; border-radius: var(--ic-r-sm); background: transparent; color: var(--ic-text-1); font: inherit; font-size: var(--ic-fs-sm); text-align: left; cursor: pointer; }
+.ic-colorpicker__row:hover { background: var(--ic-bg-hover); }
+.ic-colorpicker__chips { display: flex; flex: none; border-radius: var(--ic-r-xs); overflow: hidden; box-shadow: inset 0 0 0 1px var(--ic-line-swatch); }
+.ic-colorpicker__chip { width: 14px; height: 14px; }
+.ic-colorpicker__group { display: flex; flex-direction: column; gap: var(--ic-sp-2); }
+.ic-colorpicker__actions { display: flex; flex-wrap: wrap; gap: var(--ic-sp-2); }
 
 /* Pemilih posisi pengubah (2×2 atau 3×3) */
 .ic-anchor { display: grid; grid-template-columns: repeat(var(--ic-anchor-cols, 3), 11px); gap: 3px; padding: var(--ic-sp-2); border-radius: var(--ic-r-sm); background: var(--ic-bg-input); border: 1px solid var(--ic-line-4); }

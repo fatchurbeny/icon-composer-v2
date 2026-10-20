@@ -74,7 +74,9 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
 ### 4.1 Isi `icon-studio-v1`
 
 ```js
-{ schemaVersion: 1, activeId, migrations: ["002-from-offset"], documents: [
+{ schemaVersion: 1, activeId, migrations: ["002-from-offset"],
+  colorPresets: ["#3A7BFF", …], swatchSource: "bawaan" | "preset",
+  documents: [
   { id, kind: "set", name, style, items, customs,
     pool: { mains, mods, off }, view: { sort, cols, snap, grid, panel, anchor },
     combo: { pos, mode, skipExisting, skip },
@@ -88,6 +90,27 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
 `view.anchor` (bawaan `TL`, salah satu `TL TC TR ML C MR BL BC BR`) adalah titik acuan kotak lapisan yang dibaca dan ditulis kolom X/Y di tab Transform Composer · Edit. Seperti seluruh `view`, nilainya tidak ikut undo.
 
 Dokumen manifest bergaya offset (Fase 3): `pv = "O"`, `export.modes.O`, dan isi warna di `style.engine.offset.mode` (`solid`, `white`, `line`). Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
+
+### 4.1.1 Preset saya dan sumber swatch (app-level)
+
+`colorPresets` dan `swatchSource` berlaku untuk seluruh app (semua set dan dokumen Builder), bukan per dokumen:
+
+- `colorPresets`: maks 16 warna `#RRGGBB` huruf besar, tanpa ganda, urutan sesuai tampilan (`normColorPresets` di `state/store.js`). Tanpa opacity, karena warna Canva dan direct fill selalu solid.
+- `swatchSource`: `"bawaan"` (palet `state/data/palettes.js`) atau `"preset"` (baris swatch panel memakai 8 preset pertama). Bila preset kosong, panel tetap memakai palet bawaan.
+- Keduanya tidak ikut urungkan dokumen dan diubah lewat `app.setColorPresets` dan `app.setSwatchSource`.
+- `schemaVersion` tetap 1: state lama tanpa kedua field ini terbaca dengan nilai bawaan (`[]` dan `"bawaan"`), dan nilai yang tidak sah dirapikan saat dimuat.
+
+Warna yang dipilih lewat pemilih warna ditulis ke field gaya yang sudah ada, jadi format dokumen tidak berubah:
+
+| Kontrol | Field |
+|---|---|
+| Composer, Warna: Tinta, Aksen (klasik/aksen) | `style.ink`, `style.accent` |
+| Composer, Warna: Tinta, Aksen (offset) | `style.engine.offset.ink`, `style.engine.offset.acc` |
+| Composer · Edit: Garis/Tinta, Isian per lapisan | `style.colors[layer].line`, `style.colors[layer].fill` (`null` = ikuti warna set) |
+| Builder, tab Manifest: Tinta, Aksen | `style.ink`, `style.accent` dokumen manifest (juga dipakai mode Offset lewat `manifestOffsetStyle`) |
+| Palet kurasi dan harmoni (`applyStyleColors`) | tinta → `ink`, aksen → `accent`, isi → `style.colors.main.fill` (klasik/aksen); offset dan Builder hanya tinta dan aksen. Peran latar palet hanya contoh dan tidak ditulis. |
+
+Setiap perubahan warna dokumen memakai `mutate` berlabel (mis. "Warna aksen #E2552D", "Palet Laut Dalam", "Harmoni komplementer"), jadi satu langkah urungkan.
 
 ### 4.2 Migrasi 001 (`apps/icon-studio/src/state/migrations/001-from-legacy.js`)
 

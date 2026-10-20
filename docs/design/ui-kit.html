@@ -47,7 +47,7 @@
     <a href="#tools">Tool &amp; tombol ikon</a><a href="#tabs">Panel bertab</a><a href="#accordion">Akordeon panel</a><a href="#seg">Segmented</a><a href="#select">Dropdown</a>
     <a href="#slider">Slider &amp; angka</a><a href="#check">Checkbox &amp; toggle</a><a href="#field">Field &amp; pencarian</a><a href="#chips">Chip, tag, stepper</a>
     <a href="#flags">Lencana, flag, peringatan</a><a href="#stats">Statistik</a><a href="#rows">Baris daftar</a><a href="#tiles">Tile pustaka</a>
-    <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a>
+    <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a><a href="#colorpicker">Pemilih warna</a>
     <a href="#misc">Kosong, tooltip, toast</a><a href="#tip">Rich tooltip</a><a href="#edit">Artboard edit &amp; filmstrip</a><a href="#slides">Grup slide &amp; kartu ikon</a><a href="#sheet">Lembar kontak &amp; uji 32 px</a><a href="#drop">Area drop &amp; field banyak baris</a><a href="#shell">Contoh kerangka penuh</a>
   </nav>
 
@@ -365,6 +365,16 @@
       </div>
     </section>
 
+    <section class="kit-sec" id="colorpicker">
+      <h2>Pemilih warna</h2>
+      <p><code>.ic-colorpicker</code>: popover dari swatch "Warna lain…" (<code>.ic-swatch--custom</code>, <code>data-ic="colorpicker"</code>). Roda hue (hue 0 di kanan, searah jarum jam) dan segitiga saturasi/kecerahan seperti Affinity, kolom H S L dan hex, tombol "Ikuti warna set" bila <code>data-follow="true"</code>. Tanpa opacity: warna Canva dan direct fill selalu solid. Pemicu memakai lingkar hue <code>--ic-hue-ring</code>, atau warna aktif bila warna itu tidak ada di daftar swatch (<code>aria-pressed="true"</code>). Tinggi popover dibatasi viewport: roda dan kolom tetap terlihat, daftar Preset/Palet/Harmoni digulir sendiri; popover membalik ke atas atau bergeser ke samping pemicu bila ruang di bawah kurang. Keyboard: Enter membuka, panah mengubah hue atau saturasi/kecerahan (Shift = 10), Esc menutup dan mengembalikan fokus. Hasil: <code>ic-change</code> dari pemicu dengan hex atau "" (ikuti warna set). Isi tambahan dari <code>ICUI.colorpickerExtra()</code>: tombol <code>[data-color]</code> memilih warna, tombol <code>[data-action]</code> memancarkan <code>ic-colorpicker-action</code>.</p>
+      <div class="kit-demo">
+        <div class="kit-cap"><div class="ic-formrow"><span class="ic-label">Aksen</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Aksen"><button type="button" class="ic-swatch ic-swatch--round" aria-pressed="true" style="background: #3A7BFF" aria-label="Aksen #3A7BFF"></button><button type="button" class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #F05A5A" aria-label="Aksen #F05A5A"></button><button type="button" class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #C3DC1E" aria-label="Aksen #C3DC1E"></button></div><button type="button" class="ic-swatch ic-swatch--custom ic-swatch--round" data-ic="colorpicker" data-name="kit-aksen" data-value="#3A7BFF" data-label="Aksen" data-follow="false" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false" aria-label="Aksen: warna lain" title="Warna lain…"></button></div><code>pemicu lingkar hue (warna ada di daftar)</code></div>
+        <div class="kit-cap"><div class="ic-formrow"><span class="ic-label">Garis</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Garis"><button type="button" class="ic-swatch" aria-pressed="false" style="background: #1A1A1A" aria-label="Garis ikuti warna set"></button><button type="button" class="ic-swatch" aria-pressed="false" style="background: #1A73E8" aria-label="Garis #1A73E8"></button></div><button type="button" class="ic-swatch ic-swatch--custom" data-ic="colorpicker" data-name="kit-garis" data-value="#B8405A" data-fallback="#1A1A1A" data-label="Garis" data-follow="true" style="background: #B8405A" aria-pressed="true" aria-haspopup="dialog" aria-expanded="false" aria-label="Garis: warna lain #B8405A" title="Warna lain…"></button></div><code>warna custom aktif + "Ikuti warna set"</code></div>
+        <div class="kit-cap"><span class="ic-meta" data-kit="cp-out">ic-change: belum ada</span><code>keluaran</code></div>
+      </div>
+    </section>
+
     <section class="kit-sec" id="misc">
       <h2>Kosong, tooltip, toast</h2>
       <div class="kit-demo" style="align-items: flex-start">
@@ -549,6 +559,22 @@
 <script src="../../packages/ui/icons.js"></script>
 <script src="../../packages/ui/components.js"></script>
 <script>
+  // Contoh isi tambahan pemilih warna (di app diisi dari Preset saya, palet kurasi, dan harmoni).
+  ICUI.colorpickerExtra = function (info) {
+    var presets = ['#1A1A1A', '#3A7BFF', '#E2552D', '#2EB67D'];
+    return '<div class="ic-colorpicker__group"><span class="ic-label">Preset saya</span><div class="ic-swatches" role="group" aria-label="Preset saya">' +
+      presets.map(function (c) { return '<button type="button" class="ic-swatch" data-color="' + c + '" style="background: ' + c + '" aria-pressed="' + (c === info.value) + '" aria-label="Preset ' + c + '"></button>'; }).join('') +
+      '</div></div><div class="ic-colorpicker__group"><span class="ic-label">Palet kurasi</span><button type="button" class="ic-colorpicker__row" data-action="demo-palette"><span class="ic-colorpicker__chips" aria-hidden="true"><span class="ic-colorpicker__chip" style="background: #14213D"></span><span class="ic-colorpicker__chip" style="background: #1A73E8"></span><span class="ic-colorpicker__chip" style="background: #5BA8FF"></span><span class="ic-colorpicker__chip" style="background: #EEF4FB"></span></span>Laut Dalam</button></div>';
+  };
+  document.addEventListener('ic-change', function (e) {
+    var t = e.target;
+    if (t.dataset && t.dataset.ic === 'colorpicker') {
+      document.querySelector('[data-kit="cp-out"]').textContent = 'ic-change: ' + (e.detail.value || '"" (ikuti warna set)');
+      t.dataset.value = e.detail.value;
+      if (e.detail.value) { t.style.background = e.detail.value; t.setAttribute('aria-pressed', 'true'); }
+      ICUI.syncColorpicker();
+    }
+  });
   // Daftar token warna dibaca langsung dari tokens.css.
   (function () {
     // getComputedStyle dipakai karena cssRules tidak bisa dibaca dari file:// di Chrome.
