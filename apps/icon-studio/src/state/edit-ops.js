@@ -5,6 +5,7 @@
  */
 import { geomClassic } from "@icon-studio/engines/classic";
 import { ROLES } from "@icon-studio/engines/shared";
+import { STYLE_RANGES } from "./set-ops.js";
 
 /** Kunci posisi per lapisan (KEYS IC). */
 export const LAYER_KEYS = { main: ["mx", "my"], mod: ["nx", "ny"], deco: ["x", "y"] };
@@ -15,7 +16,13 @@ export const LAYERS = /** @type {const} */ (["main", "mod", "deco"]);
 /**
  * @typedef {"main" | "mod" | "deco"} Layer
  * @typedef {{x: number, y: number, w: number, h: number}} Box
+ * @typedef {{x: number, y: number}} Pt
  */
+
+/** Kunci rotasi per ikon (derajat). Objek utama dan pengubah memakai field baru, dekorasi memakai `deco.r` IC. */
+export const ROT_KEYS = { main: "mr", mod: "nr", deco: "r" };
+/** Rentang rotasi lapisan (derajat). */
+export const ROT_RANGE = [-180, 180];
 
 /**
  * Posisi lapisan dalam satuan kanvas 48.
@@ -98,16 +105,19 @@ export function setSlot(it, slot, SHIFT) {
 }
 
 /**
- * Kembalikan posisi lapisan ke bawaan (tombol reset IC).
+ * Kembalikan posisi dan rotasi lapisan ke bawaan (tombol reset IC).
  * @param {any} it
  * @param {Layer} layer
  * @param {{SHIFT: Record<string, number[]>, DECOS: Record<string, any>}} lib
  */
 export function resetLayer(it, layer, lib) {
-  if (layer === "main") [it.mx, it.my] = it.mod !== "none" ? lib.SHIFT[it.slot] : [0, 0];
-  else if (layer === "mod") {
+  if (layer === "main") {
+    [it.mx, it.my] = it.mod !== "none" ? lib.SHIFT[it.slot] : [0, 0];
+    delete it.mr;
+  } else if (layer === "mod") {
     it.nx = 0;
     it.ny = 0;
+    delete it.nr;
   } else {
     const h = lib.DECOS[it.deco.type] ? lib.DECOS[it.deco.type].home : [9, 9];
     Object.assign(it.deco, { x: h[0], y: h[1], s: 100, r: 0 });
@@ -142,4 +152,113 @@ export function setPartRole(it, info, roles, i, role) {
   it.parts = Object.fromEntries(roles.map((r, j) => [j, r]));
   it.parts[i] = role;
   return it;
+}
+
+/* ---------- ubah ukuran dan putar (pegangan kotak seleksi) ---------- */
+
+/**
+ * Rotasi lapisan dalam derajat (0 bila belum diatur).
+ * @param {any} it
+ * @param {Layer} layer
+ */
+export function getRot(it, layer) {
+  const v = layer === "deco" ? it.deco.r : it[ROT_KEYS[layer]];
+  return Number(v) || 0;
+}
+
+/**
+ * Atur rotasi lapisan per ikon. Sudut dibungkus ke -180..180 lalu dibulatkan ke 1 derajat,
+ * atau ke kelipatan 15 derajat bila `snap` (Shift). Rotasi 0 pada objek utama dan pengubah
+ * menghapus field-nya, supaya item tanpa rotasi tetap sama dengan data IC 1.5.1.
+ * @param {any} it
+ * @param {Layer} layer
+ * @param {number} deg
+ * @param {{snap?: boolean}} [opts]
+ */
+export function setRot(it, layer, deg, opts = {}) {
+  if (!Number.isFinite(Number(deg))) return it;
+  const step = opts.snap ? 15 : 1;
+  let v = Math.round(Number(deg) / step) * step;
+  v = ((((v + 180) % 360) + 360) % 360) - 180;
+  if (v === -180 && Number(deg) > 0) v = 180;
+  v = v || 0;
+  if (layer === "deco") it.deco.r = v;
+  else if (v) it[ROT_KEYS[layer]] = v;
+  else delete it[ROT_KEYS[layer]];
+  return it;
+}
+
+/**
+ * Putar titik `p` mengelilingi `c` sebesar `deg` derajat.
+ * @param {Pt} p @param {Pt} c @param {number} deg
+ * @returns {Pt}
+ */
+export function rotatePt(p, c, deg) {
+  const a = (deg * Math.PI) / 180,
+    dx = p.x - c.x,
+    dy = p.y - c.y;
+  return { x: c.x + dx * Math.cos(a) - dy * Math.sin(a), y: c.y + dx * Math.sin(a) + dy * Math.cos(a) };
+}
+
+/**
+ * Pusat rotasi lapisan dalam satuan 48, sama dengan transform mesin classic/accent:
+ * objek utama di pusat objek, pengubah di pusat kotaknya, dekorasi di titik (x, y).
+ * @param {any} it
+ * @param {Layer} layer
+ * @param {Box} box kotak lapisan (layerBoxes)
+ * @returns {Pt}
+ */
+export function rotCenter(it, layer, box) {
+  if (layer === "main") return { x: 24 + it.mx, y: 24 + it.my };
+  if (layer === "deco") return { x: it.deco.x, y: it.deco.y };
+  return { x: box.x + box.w / 2, y: box.y + box.h / 2 };
+}
+
+/**
+ * Titik tetap saat skala lapisan berubah (satuan 48, sudah diputar). Objek utama dan dekorasi
+ * berskala di pusatnya. Pengubah berskala dari sudut atau sisi slotnya, seperti `anchoredModifierGeometry`.
+ * @param {any} it
+ * @param {Layer} layer
+ * @param {Box} box
+ * @returns {Pt}
+ */
+export function scalePivot(it, layer, box) {
+  const c = rotCenter(it, layer, box);
+  if (layer !== "mod") return c;
+  const row = it.slot[0],
+    col = it.slot[1];
+  const p = { x: (col === "L" ? 2 : col === "R" ? 46 : 24) + it.nx, y: (row === "T" ? 2 : row === "B" ? 46 : 24) + it.ny };
+  return rotatePt(p, c, getRot(it, layer));
+}
+
+/**
+ * Skala set baru dari seretan pegangan: perbandingan jarak kursor ke titik tetap sebelum dan sesudah.
+ * Hasilnya dibulatkan ke 1% (Shift: kelipatan 5%) dan dibatasi rentang `scale.<layer>` di STYLE_RANGES.
+ * @param {Layer} layer
+ * @param {number} s0 skala awal (%)
+ * @param {Pt} pivot
+ * @param {Pt} p0 titik awal seretan
+ * @param {Pt} p1 titik sekarang
+ * @param {{snap?: boolean}} [opts]
+ */
+export function scaleFromDrag(layer, s0, pivot, p0, p1, opts = {}) {
+  const [min, max] = /** @type {any} */ (STYLE_RANGES)[`scale.${layer}`];
+  const d0 = Math.hypot(p0.x - pivot.x, p0.y - pivot.y);
+  if (d0 < 0.01) return s0;
+  const step = opts.snap ? 5 : 1;
+  const v = Math.round((s0 * Math.hypot(p1.x - pivot.x, p1.y - pivot.y)) / d0 / step) * step;
+  return Math.max(min, Math.min(max, v));
+}
+
+/**
+ * Sudut baru dari seretan zona putar: sudut awal ditambah selisih arah kursor terhadap pusat.
+ * @param {number} r0
+ * @param {Pt} c
+ * @param {Pt} p0
+ * @param {Pt} p1
+ */
+export function angleFromDrag(r0, c, p0, p1) {
+  const a0 = Math.atan2(p0.y - c.y, p0.x - c.x),
+    a1 = Math.atan2(p1.y - c.y, p1.x - c.x);
+  return r0 + ((a1 - a0) * 180) / Math.PI;
 }

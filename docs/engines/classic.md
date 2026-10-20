@@ -25,3 +25,7 @@
 ## Sumbu variasi (`axes`)
 
 Tidak ada. Classic deterministik penuh dan tidak memakai seed. Repetisi dicegah oleh L1 dan L2 saja.
+
+## Rotasi per ikon
+
+`item.mr` memutar objek utama di pusatnya (`translate(24+mx 24+my) rotate(mr) scale(ms) translate(-24 -24)`). `item.nr` memutar pengubah di pusat kotaknya (`rotate(nr cx cy)` di depan transform pengubah, termasuk siluet knockout). `deco.r` memutar dekorasi seperti di IC. Bagian `rotate` hanya ditulis bila sudutnya tidak 0, jadi keluaran tanpa rotasi tetap identik dengan legacy (golden). Ekspor Canva tetap valid karena `directFillSvgFile` memanggang transform.

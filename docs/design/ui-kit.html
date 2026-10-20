@@ -343,18 +343,19 @@
     <section class="kit-sec" id="edit">
       <h2>Artboard edit, kotak seleksi, filmstrip</h2>
     
-    <p><code>.ic-artboard</code> 520 × 520 dengan grid, <code>.ic-selbox</code> + 8 <code>.ic-selbox__h</code>, tooltip koordinat <code>.ic-tooltip</code> yang sudah ada, dan <code>.ic-filmstrip</code> 84 px.</p>
+    <p><code>.ic-artboard</code> 520 × 520 dengan grid, <code>.ic-selbox</code> + 8 <code>.ic-selbox__h</code> (pegangan ubah ukuran, kursor dari <code class="ic-mono">data-cur</code>) + 4 <code>.ic-selbox__rot</code> (zona putar transparan di luar sudut, kursor <code class="ic-mono">--ic-cursor-rotate</code>), tooltip koordinat atau nilai <code>.ic-tooltip</code>, dan <code>.ic-filmstrip</code> 84 px. Rotasi lapisan lewat <code class="ic-mono">--ic-selbox-r</code> dan <code class="ic-mono">transform-origin</code> inline. Garis dan pegangan dibagi <code class="ic-mono">--ic-zoom</code> supaya ukurannya tetap di layar saat kanvas di-zoom. Pegangan yang tidak berlaku diberi atribut <code class="ic-mono">hidden</code>.</p>
     <div class="kit-demo kit-demo--col" style="padding: 0; overflow: hidden">
       <div style="display: flex; justify-content: center; padding: 30px">
         <div class="ic-artboard-wrap">
           <span class="ic-artboard__label">koper-siap <span class="ic-meta">· 48 × 48</span></span>
           <div class="ic-artboard">
             <img class="ic-artboard__art" src="assets/s01-koper-siap.svg" alt="koper-siap">
-            <div class="ic-selbox" style="left: 292px; top: 48px; width: 180px; height: 180px">
-              <span class="ic-selbox__h" data-at="nw"></span><span class="ic-selbox__h" data-at="n"></span><span class="ic-selbox__h" data-at="ne"></span><span class="ic-selbox__h" data-at="e"></span>
-              <span class="ic-selbox__h" data-at="se"></span><span class="ic-selbox__h" data-at="s"></span><span class="ic-selbox__h" data-at="sw"></span><span class="ic-selbox__h" data-at="w"></span>
+            <div class="ic-selbox" style="left: 292px; top: 48px; width: 180px; height: 180px; --ic-selbox-r: 15deg; transform-origin: 50% 50%">
+              <span class="ic-selbox__rot" data-at="nw"></span><span class="ic-selbox__rot" data-at="ne"></span><span class="ic-selbox__rot" data-at="se"></span><span class="ic-selbox__rot" data-at="sw"></span>
+              <span class="ic-selbox__h" data-at="nw" data-cur="nwse"></span><span class="ic-selbox__h" data-at="n" data-cur="ns"></span><span class="ic-selbox__h" data-at="ne" data-cur="nesw"></span><span class="ic-selbox__h" data-at="e" data-cur="ew"></span>
+              <span class="ic-selbox__h" data-at="se" data-cur="nwse"></span><span class="ic-selbox__h" data-at="s" data-cur="ns"></span><span class="ic-selbox__h" data-at="sw" data-cur="nesw"></span><span class="ic-selbox__h" data-at="w" data-cur="ew"></span>
             </div>
-            <span class="ic-tooltip" style="left: 486px; top: 236px">X 35.25  Y 12.75</span>
+            <span class="ic-tooltip" style="left: 486px; top: 236px">15°</span>
           </div>
         </div>
       </div>

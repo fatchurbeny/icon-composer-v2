@@ -111,11 +111,15 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 ### 3.2 Composer · Edit ikon
 
 - **Konteks:** jenis lapisan terpilih, kunci (`.ic-field--mono`) + tombol "Ganti…", `.ic-anchor` (2×2 untuk sticker, 3×3 untuk mesin lain), `.ic-number` Skala, swatch Isi, `.ic-check` Celah knockout, tombol "Acak ulang variasi" dan "Kunci variasi".
-- **Kanvas:** `.ic-artboard` 520×520 putih dengan grid 16 sel (tiap 3 unit kanvas 48, sesuai artboard). Seleksi lapisan: `.ic-selbox` (bingkai biru 1,5 px + 8 handle 9 px). Tooltip koordinat (`.ic-tooltip`) dalam satuan 48. `.ic-filmstrip` 84 px di bawah kanvas.
+- **Kanvas:** `.ic-artboard` 520×520 putih dengan grid 16 sel (tiap 3 unit kanvas 48, sesuai artboard). Seleksi lapisan: `.ic-selbox` (bingkai biru 1,5 px + 8 handle 9 px, ukurannya tetap di layar saat zoom). Tooltip koordinat (`.ic-tooltip`) dalam satuan 48, atau nilai skala/sudut saat menyeret pegangan. `.ic-filmstrip` 84 px di bawah kanvas.
+  - **Seret pegangan** mengubah skala set lapisan itu (`style.scale`, berlaku untuk semua ikon). Shift = kelipatan 5%. Objek utama dan dekorasi berskala di pusatnya, pengubah dari sudut atau sisi slotnya. Pegangan pengubah yang berimpit dengan titik tetap disembunyikan.
+  - **Seret zona di luar sudut** (kursor putar) memutar lapisan untuk ikon ini saja (`mr`, `nr`, `deco.r`). Shift = kelipatan 15°. Kotak seleksi dan wilayah klik ikut berputar.
+  - Esc saat menyeret membatalkan. Tool Geser tampilan dan Spasi tetap menggeser kanvas, bukan pegangan. Gaya offset hanya bisa memilih lapisan (kotak seleksi tanpa pegangan).
 - **Studio:** Gaya (kartu mesin), Lapisan, dan **Transform | Variasi | Riwayat**.
-  - Transform berisi X/Y/W/H.
+  - Memilih lapisan (klik di artboard atau di daftar Lapisan) membuka tab Transform yang berisi kontrol lapisan itu. Sakelar "Buka panel ini saat memilih lapisan" di tab Transform mematikannya (`view.panel`).
+  - Transform berisi X/Y/W/H, Skala (semua ikon), dan Rotasi (ikon ini).
   - Variasi berisi sumbu mesin aktif dari `engine.axes()`. Nilai yang diblokir tampil `disabled`. Seed planner ditampilkan, dan hasil cek kembaran tampil sebagai `.ic-alert[data-level=ok]`.
-- **Keyboard:** panah menggeser 0,5 unit (Shift = 2), Esc kembali ke ikhtisar, Delete menghapus lapisan pengubah atau dekorasi.
+- **Keyboard:** panah menggeser 0,5 unit (Shift = 2), `[` `]` memutar 15° (Shift = 1°), Esc kembali ke ikhtisar, Delete menghapus lapisan pengubah atau dekorasi.
 
 ### 3.3 Builder · Periksa pack
 
@@ -206,7 +210,7 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Rich tooltip | `.ic-tip`, `__head`, `__key`, `__desc`, `__list` | `data-tip` + `aria-describedby` pada pemicu | `hidden`, `role=tooltip` | penjelasan tool: judul + pintasan, deskripsi, gestur (kata kerja tebal) | tombol atau tautan di dalamnya (pakai dialog/popover) |
 | Toast | `.ic-toast` | | `hidden` | konfirmasi singkat (1,8 detik) | error yang butuh tindakan |
 | Artboard edit | `.ic-artboard-wrap`, `.ic-artboard`, `__label`, `__art` | | `data-grid="off"` | kanvas Composer · Edit 520 px bergrid 16 sel | pratinjau kecil (pakai `.ic-page`) |
-| Kotak seleksi | `.ic-selbox`, `.ic-selbox__h[data-at]` | | posisi inline (geometri) | lapisan terpilih di artboard, 8 handle | |
+| Kotak seleksi | `.ic-selbox`, `.ic-selbox__h[data-at][data-cur]`, `.ic-selbox__rot[data-at]` | | posisi inline (geometri), `--ic-selbox-r` + `transform-origin` (rotasi), `--ic-zoom` dari kanvas, `hidden` | lapisan terpilih di artboard: 8 pegangan ubah ukuran, 4 zona putar di luar sudut (kursor `--ic-cursor-rotate`) | |
 | Filmstrip | `.ic-filmstrip`, `.ic-filmstrip__item` (`role=option`) | | `aria-selected` | strip set di bawah kanvas edit | |
 | Grup slide | `.ic-slidegrid`, `.ic-slidegroup`, `__head`, `__no`, `__title` | | `--ic-cols` | pengelompokan ikon per slide (Builder) | |
 | Kartu ikon | `.ic-cardgrid`, `.ic-iconcard`, `__art`, `__id` | | `aria-selected`, `data-level="err"` | kartu ikon Builder (id mono di bawah) | halaman set (pakai `.ic-page`) |

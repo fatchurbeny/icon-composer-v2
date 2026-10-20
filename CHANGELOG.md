@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 ## Unreleased
 
 ### Ditambahkan
+- Composer · Edit: memilih lapisan membuka tab Transform (bisa dimatikan lewat "Buka panel ini saat memilih lapisan"); pegangan sudut `.ic-selbox` mengubah skala set lapisan (Shift 5%) dan zona putar `.ic-selbox__rot` di luar sudut memutar lapisan per ikon (`mr`, `nr`, `deco.r`, Shift 15°), juga lewat kolom Rotasi dan `[` `]`; mesin classic/accent menulis `rotate` hanya bila sudut tidak 0, jadi golden tetap identik.
 - Fase 3 selesai: gaya Offset di persona Builder (mode `O`): pratinjau, kontrol Isi warna, flag info "Pengubah tidak tersedia pada style ini", dan ekspor ZIP `offset/` direct fill dengan kata gaya "Offset Style"; ZIP classic/accent tetap identik dengan TIB 1.6.0.
 - Fase 3: impor set offset-composer 1.0.1 ke Icon Studio, lewat migrasi sekali jalan `002-from-offset` (kunci `offset-composer-v1`) dan lewat `gaya.json` yang ditempel atau diseret di area impor; hasilnya set Composer bergaya `family: "offset"`.
 - Kontrol Posisi (`.ic-anchor`) di bilah konteks memakai ukuran ringkas supaya tidak terpotong.

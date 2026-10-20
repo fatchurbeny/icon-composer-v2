@@ -26,7 +26,7 @@ export function modAccent(it, g, mAcc, mode, id, ctx) {
   const small = Math.max(g.W, g.H) < 20, msw = S.sw * (small ? 0.75 : 1);
   const cx = g.L + g.W / 2, cy = g.T + g.H / 2, r = Math.min(g.W, g.H) / 2;
   const k = sh.badge ? ((fill ? 1.1 : 1.6) * r) / Math.max(U.w, U.h) : Math.min(g.W / U.w, g.H / U.h);
-  const T = `translate(${r3(cx - (U.x + U.w / 2) * k)} ${r3(cy - (U.y + U.h / 2) * k)}) scale(${r3(k)})`;
+  const T = `${it.nr ? `rotate(${r3(it.nr)} ${r3(cx)} ${r3(cy)}) ` : ""}translate(${r3(cx - (U.x + U.w / 2) * k)} ${r3(cy - (U.y + U.h / 2) * k)}) scale(${r3(k)})`;
   const lw = r3(msw / k), kw = r3((msw + 2 * S.gap) / k);
   const paint = (/** @type {string} */ s, /** @type {string} */ c) => s.replace(/INK/g, c);
   const bodyS = sh.body.map((/** @type {any} */ b) => b.svg).join(""), detS = sh.det.map((/** @type {any} */ d) => d.svg).join("");

@@ -326,12 +326,28 @@
 .ic-artboard[data-grid="off"] { background-image: none; }
 .ic-artboard__art { position: absolute; inset: 0; width: 100%; height: 100%; }
 /* kotak seleksi lapisan: posisi dan ukuran ditulis inline (geometri, bukan gaya) */
-.ic-selbox { position: absolute; box-shadow: inset 0 0 0 1.5px var(--ic-accent); }
-.ic-selbox__h { position: absolute; width: 9px; height: 9px; background: var(--ic-bg-artboard); border: 1.5px solid var(--ic-accent); box-sizing: border-box; }
-.ic-selbox__h[data-at="nw"] { left: -5px; top: -5px; }      .ic-selbox__h[data-at="n"] { left: calc(50% - 4.5px); top: -5px; }
-.ic-selbox__h[data-at="ne"] { right: -5px; top: -5px; }     .ic-selbox__h[data-at="e"] { right: -5px; top: calc(50% - 4.5px); }
-.ic-selbox__h[data-at="se"] { right: -5px; bottom: -5px; }  .ic-selbox__h[data-at="s"] { left: calc(50% - 4.5px); bottom: -5px; }
-.ic-selbox__h[data-at="sw"] { left: -5px; bottom: -5px; }   .ic-selbox__h[data-at="w"] { left: -5px; top: calc(50% - 4.5px); }
+/* kotak seleksi: --ic-zoom (diisi kanvas) menjaga garis dan pegangan tetap berukuran sama di layar.
+   Rotasi lapisan lewat --ic-selbox-r; pusat putar ditulis inline (transform-origin). */
+.ic-selbox { --ic-selbox-hs: calc(var(--ic-size-selbox-h) / var(--ic-zoom, 1)); --ic-selbox-bw: calc(1.5px / var(--ic-zoom, 1));
+  position: absolute; box-shadow: inset 0 0 0 var(--ic-selbox-bw) var(--ic-accent); transform: rotate(var(--ic-selbox-r, 0deg)); }
+.ic-selbox__h { position: absolute; z-index: 1; width: var(--ic-selbox-hs); height: var(--ic-selbox-hs); background: var(--ic-bg-artboard);
+  border: var(--ic-selbox-bw) solid var(--ic-accent); box-sizing: border-box; pointer-events: auto; }
+.ic-selbox__h[data-at="nw"] { left: calc(var(--ic-selbox-hs) / -2); top: calc(var(--ic-selbox-hs) / -2); }
+.ic-selbox__h[data-at="n"] { left: calc(50% - var(--ic-selbox-hs) / 2); top: calc(var(--ic-selbox-hs) / -2); }
+.ic-selbox__h[data-at="ne"] { right: calc(var(--ic-selbox-hs) / -2); top: calc(var(--ic-selbox-hs) / -2); }
+.ic-selbox__h[data-at="e"] { right: calc(var(--ic-selbox-hs) / -2); top: calc(50% - var(--ic-selbox-hs) / 2); }
+.ic-selbox__h[data-at="se"] { right: calc(var(--ic-selbox-hs) / -2); bottom: calc(var(--ic-selbox-hs) / -2); }
+.ic-selbox__h[data-at="s"] { left: calc(50% - var(--ic-selbox-hs) / 2); bottom: calc(var(--ic-selbox-hs) / -2); }
+.ic-selbox__h[data-at="sw"] { left: calc(var(--ic-selbox-hs) / -2); bottom: calc(var(--ic-selbox-hs) / -2); }
+.ic-selbox__h[data-at="w"] { left: calc(var(--ic-selbox-hs) / -2); top: calc(50% - var(--ic-selbox-hs) / 2); }
+/* kursor ubah ukuran mengikuti arah pegangan setelah rotasi (data-cur ditulis aplikasi) */
+.ic-selbox__h[data-cur="ns"] { cursor: ns-resize; }     .ic-selbox__h[data-cur="ew"] { cursor: ew-resize; }
+.ic-selbox__h[data-cur="nwse"] { cursor: nwse-resize; } .ic-selbox__h[data-cur="nesw"] { cursor: nesw-resize; }
+/* zona putar transparan tepat di luar tiap sudut, seperti Figma/Affinity */
+.ic-selbox__rot { --ic-selbox-rs: calc(var(--ic-size-selbox-rot) / var(--ic-zoom, 1));
+  position: absolute; width: var(--ic-selbox-rs); height: var(--ic-selbox-rs); cursor: var(--ic-cursor-rotate); pointer-events: auto; }
+.ic-selbox__rot[data-at="nw"] { right: 100%; bottom: 100%; } .ic-selbox__rot[data-at="ne"] { left: 100%; bottom: 100%; }
+.ic-selbox__rot[data-at="se"] { left: 100%; top: 100%; }     .ic-selbox__rot[data-at="sw"] { right: 100%; top: 100%; }
 
 /* filmstrip set di bawah kanvas edit */
 .ic-filmstrip { display: flex; align-items: center; gap: var(--ic-sp-4); height: var(--ic-h-filmstrip); padding: 0 var(--ic-sp-8);
