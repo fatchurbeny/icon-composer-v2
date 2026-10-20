@@ -288,6 +288,21 @@ async function sweep(page, state, found) {
   }
 }
 
+/**
+ * Tunggu sampai kerangka persona tujuan selesai dirender. Rute berubah lewat hash, dan shell baru merender
+ * saat event hashchange (asinkron), jadi URL bisa sudah berganti sementara DOM masih milik persona lama.
+ * @param {import("@playwright/test").Page} page
+ * @param {string} persona
+ * @param {boolean} [edit] Composer · Edit (artboard tampil)
+ */
+async function rendered(page, persona, edit = false) {
+  await expect(
+    page.locator(`.ic-shell[data-persona="${persona}"]`),
+  ).toHaveCount(1);
+  if (edit) await expect(page.locator(".ic-artboard")).toBeVisible();
+  else await expect(page.locator(".ic-artboard")).toHaveCount(0);
+}
+
 test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
   test("tidak ada kata Inggris umum di semua persona dan tab panel", async ({
     page,
@@ -299,6 +314,7 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
 
     /* Composer kosong, lalu set contoh */
     await page.goto(`${APP}#/composer`);
+    await rendered(page, "composer");
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     await sweep(page, "composer kosong", found);
@@ -308,16 +324,20 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     /* Composer · Edit */
     await page.locator(".ic-page__card[data-open]").nth(2).dblclick();
     await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await rendered(page, "composer", true);
     await sweep(page, "composer edit", found);
 
     /* Kombinasi dan Tinjau dari set contoh */
     await page.goto(`${APP}#/kombinasi`);
+    await rendered(page, "kombinasi");
     await sweep(page, "kombinasi", found);
     await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
     await sweep(page, "tinjau set", found);
 
     /* Gaya Offset di Composer, Edit, Kombinasi, dan Tinjau */
     await page.goto(`${APP}#/composer`);
+    await rendered(page, "composer");
     await page
       .locator('[data-panel="composer-style"] [role="tab"][data-value="gaya"]')
       .click();
@@ -328,10 +348,13 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     await sweep(page, "composer offset", found);
     await page.locator(".ic-page__card[data-open]").first().dblclick();
     await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await rendered(page, "composer", true);
     await sweep(page, "composer edit offset", found);
     await page.goto(`${APP}#/kombinasi`);
+    await rendered(page, "kombinasi");
     await sweep(page, "kombinasi offset", found);
     await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
     await sweep(page, "tinjau offset", found);
 
     /* Builder: kosong, manifest contoh, lalu setiap langkah */
@@ -348,6 +371,7 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
       await sweep(page, `builder langkah ${step}`, found);
     }
     await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
     await sweep(page, "tinjau manifest", found);
 
     const report = [...found].map(
