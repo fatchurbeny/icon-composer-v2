@@ -36,8 +36,10 @@ const LOGO = `<svg class="ic-logo" viewBox="0 0 30 30" aria-hidden="true"><rect 
 export function createShell({ root, app, renderer }) {
   /** tab panel studio yang terakhir dipilih, per id panel */
   const panelTabs = new Map();
-  /** panel studio yang dilipat */
-  const collapsed = new Set();
+  /** panel studio yang terbuka per kolom akordeon, kunci `persona[:edit]:label kolom` */
+  const openPanels = new Map();
+  /** ic-change dari pemulihan setelah render ulang tidak dicatat sebagai pilihan pengguna */
+  let restoring = false;
   let toastTimer = 0,
     toastUntil = 0,
     toastMessage = "";
@@ -172,9 +174,9 @@ export function createShell({ root, app, renderer }) {
     root.innerHTML = `<div class="ic-shell ic-app${left ? " ic-shell--left-studio" : ""}" data-persona="${c.route.persona}">
 ${topbar(spec, c)}
 <div class="ic-context" role="toolbar" aria-label="Kontrol ${esc(c.route.persona)}">${spec.context(c)}</div>
-${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">${spec.leftPanels(c).join("")}</aside>` : toolrail(spec)}
+${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" data-ic="accordion">${spec.leftPanels(c).join("")}</aside>` : toolrail(spec)}
 <main class="ic-workspace">${doctabs(spec, c)}<div class="ic-canvas" tabindex="-1" data-tool="${esc(currentTool)}"><div class="studio-zoom" style="zoom: ${zoom.get()}">${spec.canvas(c)}</div></div>${spec.canvasFoot ? spec.canvasFoot(c) : ""}</main>
-<aside class="ic-studio" aria-label="Studio">${spec.panels(c).join("")}</aside>
+<aside class="ic-studio" aria-label="Studio" data-ic="accordion">${spec.panels(c).join("")}</aside>
 <footer class="ic-statusbar">${spec.status(c)}${zoomBar()}</footer>
 <div class="ic-toast" role="status" hidden></div>
 </div>`;
@@ -185,13 +187,19 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
        Persona tanpa tool aktif (mis. Kombinasi tanpa rail) memakai tool Pilih. */
     zoom.setTool(spec.tools.some((/** @type {any} */ t) => t[0] === currentTool) ? MODE_TOOLS[currentTool] || "select" : "select");
     zoom.attach();
-    /* pulihkan tab panel dan lipatan dari render sebelumnya */
+    /* pulihkan tab panel dan panel terbuka dari render sebelumnya. Klik tab di panel tertutup ikut membuka
+       panelnya (akordeon), jadi panel terbuka dipulihkan sesudahnya. Tanpa catatan, kit memilih panel awal. */
+    restoring = true;
     root.querySelectorAll("[data-panel]").forEach((section) => {
-      const id = /** @type {HTMLElement} */ (section).dataset.panel || "";
-      const tab = panelTabs.get(id);
+      const tab = panelTabs.get(/** @type {HTMLElement} */ (section).dataset.panel || "");
       if (tab) /** @type {HTMLElement | null} */ (section.querySelector(`[role="tab"][data-value="${CSS.escape(tab)}"]`))?.click();
-      if (collapsed.has(id)) /** @type {HTMLElement | null} */ (section.querySelector(".ic-panel__collapse"))?.click();
     });
+    root.querySelectorAll('[data-ic="accordion"]').forEach((column) => {
+      const id = openPanels.get(columnKey(/** @type {HTMLElement} */ (column)));
+      const section = id && column.querySelector(`:scope > [data-panel="${CSS.escape(id)}"]`);
+      if (section) g.ICUI?.openPanel(section);
+    });
+    restoring = false;
     if (focusKey) /** @type {HTMLElement | null} */ (root.querySelector(focusKey))?.focus();
     if (focusName) {
       const el = /** @type {HTMLElement | null} */ (root.querySelector(`[data-name="${CSS.escape(focusName)}"]`));
@@ -317,12 +325,6 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     }
     const actionEl = /** @type {HTMLElement | null} */ (target.closest("[data-action]"));
     if (actionEl && !(/** @type {HTMLButtonElement} */ (actionEl).disabled)) runAction(actionEl.dataset.action || "", actionEl);
-    const collapse = /** @type {HTMLElement | null} */ (target.closest(".ic-panel__collapse"));
-    if (collapse && event.isTrusted) {
-      const id = /** @type {HTMLElement | null} */ (collapse.closest("[data-panel]"))?.dataset.panel || "";
-      if (collapse.getAttribute("aria-expanded") === "false") collapsed.add(id);
-      else collapsed.delete(id);
-    }
   });
 
   root.addEventListener("keydown", (event) => {
@@ -337,7 +339,10 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
   const paintRail = () =>
     root.querySelectorAll(".ic-toolrail .ic-tool").forEach((b) => b.setAttribute("aria-pressed", String(/** @type {HTMLElement} */ (b).dataset.value === currentTool)));
 
-  /** @param {string} panelTab tab panel studio (data-value) yang dibuka */
+  /** @param {HTMLElement} column kolom akordeon `.ic-studio` */
+  const columnKey = (column) => `${ctx ? ctx.route.persona + (ctx.route.edit ? ":edit" : "") : "awal"}:${column.getAttribute("aria-label")}`;
+
+  /** @param {string} panelTab tab panel studio (data-value) yang dibuka; panelnya ikut terbuka (akordeon) */
   const openStudioTab = (panelTab) => /** @type {HTMLElement | null} */ (root.querySelector(`.ic-studio [role="tab"][data-value="${panelTab}"]`))?.click();
 
   /**
@@ -424,6 +429,10 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
   root.addEventListener("ic-change", (event) => {
     const target = /** @type {HTMLElement} */ (event.target);
     const section = /** @type {HTMLElement | null} */ (target.closest("[data-panel]"));
+    if (target.dataset.ic === "accordion") {
+      if (!restoring) openPanels.set(columnKey(target), String(/** @type {CustomEvent} */ (event).detail.value));
+      return;
+    }
     if (section && target === section) return void panelTabs.set(section.dataset.panel || "", String(/** @type {CustomEvent} */ (event).detail.value));
     /* slider memancarkan ic-change saat digeser; nilainya diterapkan lewat event change di atas */
     if (target.dataset.ic === "slider") return;

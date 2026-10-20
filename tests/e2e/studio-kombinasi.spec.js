@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 
@@ -87,6 +88,7 @@ test.describe("Icon Studio · Kombinasi", () => {
     await page.locator('[data-name="k-mode"] button[data-value="all"]').click();
     await expect(addButton(page)).toHaveText(`Tambahkan ${on * 3} ke set`);
     await page.locator('[data-name="k-mode"] button[data-value="set"]').click();
+    await openPanel(page, "kombinasi-result");
     await addButton(page).click();
     await expect(cells(page, "on")).toHaveCount(0);
     await page.locator('.ic-persona[href="#/composer"]').click();

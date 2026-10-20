@@ -44,7 +44,7 @@
     <h1>Icon Studio UI Kit</h1>
     <p class="ic-meta">v1.0 · tokens.css + components.css + components.js + icons.js</p>
     <a href="#tokens">Token warna</a><a href="#type">Tipografi</a><a href="#persona">Persona &amp; bilah atas</a><a href="#buttons">Tombol</a>
-    <a href="#tools">Tool &amp; tombol ikon</a><a href="#tabs">Panel bertab</a><a href="#seg">Segmented</a><a href="#select">Dropdown</a>
+    <a href="#tools">Tool &amp; tombol ikon</a><a href="#tabs">Panel bertab</a><a href="#accordion">Akordeon panel</a><a href="#seg">Segmented</a><a href="#select">Dropdown</a>
     <a href="#slider">Slider &amp; angka</a><a href="#check">Checkbox &amp; toggle</a><a href="#field">Field &amp; pencarian</a><a href="#chips">Chip, tag, stepper</a>
     <a href="#flags">Lencana, flag, peringatan</a><a href="#stats">Statistik</a><a href="#rows">Baris daftar</a><a href="#tiles">Tile pustaka</a>
     <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a>
@@ -150,6 +150,45 @@
           </div>
           <div class="ic-panel__foot"><button class="ic-iconbtn" aria-label="Ikon baru"><i data-icon="plus"></i></button><button class="ic-iconbtn" aria-label="Duplikat"><i data-icon="duplicate"></i></button><span class="ic-spacer"></span><button class="ic-iconbtn" aria-label="Hapus"><i data-icon="trash"></i></button></div>
         </section>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="accordion">
+      <h2>Akordeon panel</h2>
+      <p>Kolom studio memakai <code class="ic-mono">data-ic="accordion"</code> di wadahnya. Hanya satu panel terbuka dan mengisi sisa tinggi kolom; panel lain tinggal kepala 34 px. Membuka panel lewat tombol lipat atau klik tab di kepalanya menutup panel lain. Menutup panel terbuka membuka panel berikutnya. Panel awal: panel <code class="ic-mono">--grow</code>, kalau tidak ada panel pertama.</p>
+      <div class="kit-demo" style="padding: 0; overflow: hidden; width: 330px">
+        <aside class="ic-studio" aria-label="Contoh akordeon" data-ic="accordion" style="width: 330px; height: 320px">
+          <section class="ic-panel" data-ic="tabs">
+            <div class="ic-panel__head" role="tablist" aria-label="Panel gaya">
+              <button class="ic-tab" role="tab" aria-selected="true" aria-controls="ka-a">Gaya</button>
+              <button class="ic-tab" role="tab" aria-selected="false" aria-controls="ka-b" tabindex="-1">Warna</button>
+              <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="ka-1" aria-label="Lipat panel Gaya"><i data-icon="chevron-down" data-size="13"></i></button>
+            </div>
+            <div id="ka-1">
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-a"><span class="ic-label">Isi tab Gaya</span></div>
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-b" hidden><span class="ic-label">Isi tab Warna</span></div>
+            </div>
+          </section>
+          <section class="ic-panel ic-panel--grow" data-ic="tabs">
+            <div class="ic-panel__head" role="tablist" aria-label="Panel halaman">
+              <button class="ic-tab" role="tab" aria-selected="true" aria-controls="ka-c">Halaman</button>
+              <button class="ic-tab" role="tab" aria-selected="false" aria-controls="ka-d" tabindex="-1">Pustaka</button>
+              <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="ka-2" aria-label="Lipat panel Halaman"><i data-icon="chevron-down" data-size="13"></i></button>
+            </div>
+            <div id="ka-2">
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-c"><span class="ic-label">Isi tab Halaman (panel awal karena --grow)</span></div>
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-d" hidden><span class="ic-label">Isi tab Pustaka</span></div>
+            </div>
+            <div class="ic-panel__foot"><button class="ic-iconbtn" aria-label="Ikon baru"><i data-icon="plus"></i></button></div>
+          </section>
+          <section class="ic-panel" data-ic="tabs">
+            <div class="ic-panel__head" role="tablist" aria-label="Panel repetisi">
+              <button class="ic-tab" role="tab" aria-selected="true" aria-controls="ka-e">Repetisi</button>
+              <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="ka-3" aria-label="Lipat panel Repetisi"><i data-icon="chevron-down" data-size="13"></i></button>
+            </div>
+            <div id="ka-3"><div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-e"><span class="ic-label">Isi tab Repetisi</span></div></div>
+          </section>
+        </aside>
       </div>
     </section>
 

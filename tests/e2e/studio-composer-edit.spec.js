@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 
@@ -71,6 +72,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await page.keyboard.press("Shift+ArrowDown");
     expect(await xy(page)).toEqual(["3.5", "-1"]);
     await page.reload();
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
@@ -81,6 +83,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     page,
   }) => {
     await openEdit(page);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
@@ -105,6 +108,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     page,
   }) => {
     await openEdit(page);
+    await openPanel(page, "edit-layers");
     await page.locator('[data-action="edit-eye"][data-layer="mod"]').click();
     await expect(
       page.locator('[data-action="edit-eye"][data-layer="mod"]'),
@@ -113,6 +117,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="main"]')
       .click();
+    await openPanel(page, "edit-transform");
     await page
       .locator('[data-name="edit-line"] button[data-value="#1A73E8"]')
       .click();
@@ -127,9 +132,11 @@ test.describe("Icon Studio · Composer · Edit", () => {
 
   test("dekorasi: pilih jenis dan rotasi", async ({ page }) => {
     await openEdit(page);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="deco"]')
       .click();
+    await openPanel(page, "edit-transform");
     await page.locator('[data-action="edit-deco"][data-type="star4"]').click();
     await expect(
       page.locator(
@@ -144,12 +151,15 @@ test.describe("Icon Studio · Composer · Edit", () => {
 
   test("gaya Aksen: peran bagian dan isi bidang", async ({ page }) => {
     await openEdit(page);
+    await openPanel(page, "composer-style");
     await page
       .locator('[data-name="engine"] button[data-value="accent"]')
       .click();
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="main"]')
       .click();
+    await openPanel(page, "edit-transform");
     const part = page.locator(
       '[data-name="edit-part:0"] button[data-value="acc"]',
     );

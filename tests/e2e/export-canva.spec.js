@@ -8,6 +8,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const VENDOR = resolve("tests/fixtures/vendor");
@@ -153,6 +154,7 @@ async function downloadSvgs(page) {
     };
     HTMLAnchorElement.prototype.click = () => {};
   });
+  await openPanel(page, "tinjau-zip");
   await page.locator('[data-action="t-download"]').click();
   await page.waitForFunction(
     () => /** @type {any} */ (window).__dl instanceof Blob,

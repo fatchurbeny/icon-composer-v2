@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 ## Unreleased
 
 ### Ditambahkan
+- Perilaku kit baru `data-ic="accordion"`: kolom studio Icon Studio (semua persona, termasuk studio kiri Kombinasi) hanya membuka satu panel; panel terbuka mengisi sisa tinggi, panel lain tinggal kepala 34 px, dan perintah yang membuka tab ikut membuka panelnya.
 - Fase 3 selesai: gaya Offset di persona Builder (mode `O`): pratinjau, kontrol Isi warna, flag info "Pengubah tidak tersedia pada style ini", dan ekspor ZIP `offset/` direct fill dengan kata gaya "Offset Style"; ZIP classic/accent tetap identik dengan TIB 1.6.0.
 - Fase 3: impor set offset-composer 1.0.1 ke Icon Studio, lewat migrasi sekali jalan `002-from-offset` (kunci `offset-composer-v1`) dan lewat `gaya.json` yang ditempel atau diseret di area impor; hasilnya set Composer bergaya `family: "offset"`.
 - Kontrol Posisi (`.ic-anchor`) di bilah konteks memakai ukuran ringkas supaya tidak terpotong.

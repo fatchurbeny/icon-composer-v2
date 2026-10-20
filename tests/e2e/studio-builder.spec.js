@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const VENDOR = resolve("tests/fixtures/vendor");
@@ -173,6 +174,7 @@ test.describe("Icon Studio · Builder", () => {
       };
       HTMLAnchorElement.prototype.click = () => {};
     });
+    await openPanel(page, "builder-export");
     await page.locator('[data-action="b-export"]').click();
     await page
       .waitForFunction(() => window.__zip instanceof Blob, null, {
@@ -276,6 +278,7 @@ test.describe("Icon Studio · Builder", () => {
       };
       HTMLAnchorElement.prototype.click = () => {};
     });
+    await openPanel(page, "builder-export");
     await page.locator('[data-action="b-export"]').click();
     await page
       .waitForFunction(() => window.__zip instanceof Blob, null, {

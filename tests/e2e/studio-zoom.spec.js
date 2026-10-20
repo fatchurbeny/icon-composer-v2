@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const MOD = process.platform === "darwin" ? "Meta" : "Control";
@@ -148,6 +149,7 @@ test.describe("Icon Studio · zoom kanvas", () => {
     await expect(page.locator(".ic-filmstrip")).toBeVisible();
     const film = await page.locator(".ic-filmstrip").boundingBox();
     expect(film?.height).toBe(84);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();

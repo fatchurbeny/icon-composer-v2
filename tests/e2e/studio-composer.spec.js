@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 
@@ -65,6 +66,7 @@ test.describe("Icon Studio · Composer · Set", () => {
     page,
   }) => {
     await open(page);
+    await openPanel(page, "composer-style");
     await page
       .locator('[data-name="engine"] button[data-value="accent"]')
       .click();

@@ -24,6 +24,7 @@ Kalau terjadi konflik:
 | State aktif | kelas `.on` | atribut ARIA (`aria-pressed`, `aria-selected`, `aria-current`) | State dan aksesibilitas selalu sama |
 | Ikon UI | SVG digambar tangan | Lucide lewat `uiIcon(name)` | Satu set ikon, versi terkunci |
 | Logo | gambar SVG inline | `.ic-logo` + `.ic-logo__dot` ikut warna persona | Konsisten di semua persona |
+| Panel studio | semua panel terbuka bersamaan | akordeon: satu panel terbuka per kolom, panel lain tinggal kepala 34 px | Permintaan pemilik: panel yang dipakai mendapat tinggi penuh |
 
 ### Isi folder `docs/design/`
 
@@ -58,6 +59,13 @@ Render ulang PNG dari artboard: `python3 scripts/render-artboards.py` (butuh Pla
 - Di bawah lebar 1100 px, studio pindah ke bawah kanvas (sudah diatur di `components.css`).
 - Persona Kombinasi memakai `.ic-shell--left-studio`: studio pustaka 300 px di kiri menggantikan tool rail.
 - Hanya kanvas dan isi panel yang bergulir. Bilah atas, konteks, dan status tidak pernah ikut bergulir.
+- **Kolom studio adalah akordeon** (`.ic-studio[data-ic="accordion"]`, juga studio kiri Kombinasi). Hanya satu panel terbuka per kolom:
+  - Panel terbuka mengisi sisa tinggi kolom. Panel tertutup tinggal kepalanya (34 px); footer panel ikut tersembunyi.
+  - Membuka panel (tombol lipat `.ic-panel__collapse`, atau klik tab di kepala panel tertutup) menutup panel lain di kolom itu.
+  - Menutup panel yang sedang terbuka membuka panel berikutnya; panel terakhir membuka panel sebelumnya. Kolom tidak pernah kosong, kecuali kolom yang hanya berisi satu panel.
+  - Panel awal: panel utama (`.ic-panel--grow`), kalau tidak ada maka panel pertama. Composer · Set: Halaman; Composer · Edit: Transform; Builder: Ikon; Tinjau: Pemeriksaan; Kombinasi: Pool (kanan) dan Pustaka (kiri).
+  - Perintah yang membuka tab lewat program (tool rail Objek utama → Pustaka, Dekorasi, Kata kunci, tombol di peringatan) cukup mengklik tab; akordeon ikut membuka panelnya.
+  - Shell mengingat panel terbuka per persona dan kolom selama sesi, jadi bertahan setelah render ulang dan pindah persona atau dokumen.
 - **Zoom dan geser kanvas (seperti Affinity), di semua persona:**
   - Ctrl/⌘ + roda atau pinch trackpad: zoom di titik kursor, 10–800%. Roda biasa menggulir, Shift + roda menggulir mendatar.
   - Spasi + seret, tool Geser tampilan (H), atau tombol tengah mouse: geser kanvas.
@@ -179,6 +187,7 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Tool | `.ic-tool` | `single` (di rail) | `aria-pressed` | alat kanvas | aksi sekali klik |
 | Tab dokumen | `.ic-doctab` | | `aria-selected` | dokumen terbuka | |
 | Panel bertab | `.ic-panel` `__head` `__body` `__foot` `__sub`, `.ic-tab`, `.ic-panel__collapse` | `tabs`, `collapse` | `aria-selected`, `aria-expanded`, `hidden` | studio | dialog |
+| Akordeon panel | wadah `.ic-studio` berisi `.ic-panel` | `accordion` (di wadah) | `aria-expanded` tombol lipat; `ic-change` dari wadah dengan `value` = `data-panel` panel terbuka; `ICUI.openPanel(section)` membuka tanpa event | kolom studio | panel di luar kolom |
 | Segmented | `.ic-seg` `--inline` | `single` | `aria-pressed` | 2–5 opsi pendek | lebih dari 5 opsi |
 | Dropdown | `.ic-select`, `.ic-select__trigger`, `.ic-menu`, `.ic-menu__item`, `.ic-menu__sep` | `select` | `aria-expanded`, `aria-selected`, `aria-disabled` | 4+ opsi, label panjang | aksi (pakai menu tombol) |
 | Slider | `.ic-slider` (range + `.ic-field`) | `slider` | | parameter kontinu gaya | nilai diskret (pakai seg) |
