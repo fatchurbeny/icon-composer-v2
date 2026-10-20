@@ -6,6 +6,7 @@
   "exports": {
     ".": "./index.js",
     "./catalog": "./catalog.js",
-    "./custom": "./custom.js"
+    "./custom": "./custom.js",
+    "./fill-shapes": "./fill-shapes.js"
   }
 }
