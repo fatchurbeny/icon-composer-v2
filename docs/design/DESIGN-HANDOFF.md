@@ -217,6 +217,7 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Kartu gaya | `.ic-engines`, `.ic-engine`, `__pv` | `single` | `aria-pressed` | pilih mesin | |
 | Sel matriks | `.ic-matrix`, `.ic-cell[data-state]` | | `data-state` | Kombinasi | |
 | Swatch | `.ic-swatches`, `.ic-swatch` `--round` | `single` | `aria-pressed` | palet tinta/isi/latar | |
+| Pemilih warna | pemicu `.ic-swatch--custom`; popover `.ic-colorpicker`, `__head`, `__title`, `__wheel`, `__canvas`, `__mark`, `__fields`, `__f`, `__extra`, `__tabs`, `__group`, `__row`, `__chips`, `__chip`, `__actions` | `colorpicker` (di pemicu) | pemicu: `aria-expanded`, `aria-pressed` (warna aktif di luar daftar swatch), `data-value`, `data-follow`, `data-label`; penanda `role=slider` dengan `aria-valuenow`/`aria-valuetext`; `ic-change` dari pemicu (hex atau "") saat seret dilepas, kolom selesai, atau 400 ms setelah panah; `ICUI.syncColorpicker()` setelah render ulang; isi tambahan lewat `ICUI.colorpickerExtra` | warna bebas di samping swatch: roda hue + segitiga, H S L, hex, Preset saya, palet kurasi, harmoni | opacity (Canva solid), lebih dari satu popover terbuka |
 | Posisi pengubah | `.ic-anchor` (`--ic-anchor-cols: 2` untuk sticker) | `single` | `aria-pressed`, `disabled` | slot pengubah | |
 | Kosong | `.ic-empty` | | | daftar tanpa isi | |
 | Tooltip | `.ic-tooltip` | | | koordinat kanvas | penjelasan panjang (pakai `.ic-tip`) |
@@ -232,9 +233,9 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Area drop | `.ic-dropzone`, `__title`, `__actions` | | `data-dragover="true"` | impor manifest (Builder) | daftar kosong (pakai `.ic-empty`) |
 | Field banyak baris | `.ic-field--area` + `<textarea>` | | `:focus-within` | tempel JSON manifest | teks satu baris |
 
-Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/design/proposals/komponen-fase-2b.md` (disetujui 2026-10-18).
+Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/design/proposals/komponen-fase-2b.md` (disetujui 2026-10-18). Pemilih warna ditambahkan lewat usulan sesi pemilih warna (disetujui pemilik 2026-10-20), dengan token `--ic-w-colorpicker`, `--ic-size-colorwheel`, `--ic-size-colormark`, dan `--ic-hue-ring`.
 
-**Warna data** (warna isi ikon, warna pool, swatch palet mesin) adalah data mesin, bukan warna UI. Warna ini boleh ditulis inline (`style="background: #E5484D"`) dan harus berasal dari palet di `packages/engines/<id>`.
+**Warna data** (warna isi ikon, warna pool, swatch palet mesin) adalah data mesin, bukan warna UI. Warna ini boleh ditulis inline (`style="background: #E5484D"`) dan harus berasal dari palet di `packages/engines/<id>` atau `apps/icon-studio/src/state/data/palettes.js`, atau dari warna yang dipilih pengguna lewat pemilih warna (Preset saya, palet kurasi, harmoni). Warna pilihan pengguna hanya ditulis lewat atribut `style` hasil render, tidak pernah sebagai literal di kode UI.
 
 ## 5. Ikon
 

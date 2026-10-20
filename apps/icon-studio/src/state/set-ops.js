@@ -146,8 +146,8 @@ export const STYLE_RANGES = {
 /**
  * Ubah satu nilai gaya set. Nilai angka dibatasi rentang slider.
  * @param {any} style
- * @param {string} key sw, gap, cap, pref, fx, accent, family, scale.main, scale.mod, scale.deco,
- *   offset.mode, offset.acc, offset.dx, offset.dy, offset.sw
+ * @param {string} key sw, gap, cap, pref, fx, ink, accent, family, scale.main, scale.mod, scale.deco,
+ *   offset.mode, offset.acc, offset.ink, offset.dx, offset.dy, offset.sw
  * @param {any} value
  */
 export function setStyleValue(style, key, value) {
@@ -173,8 +173,37 @@ export function setStyleValue(style, key, value) {
     style.join = style.cap === "round" ? "round" : "miter";
   } else if (key === "pref" && ["A", "B", "C"].includes(value)) style.pref = value;
   else if (key === "fx" && ["none", "soft", "shadow"].includes(value)) style.fx = { ...style.fx, mode: value };
-  else if (key === "accent" && /^#[0-9a-f]{6}$/i.test(value)) style.accent = String(value).toUpperCase();
+  else if ((key === "accent" || key === "ink") && /^#[0-9a-f]{6}$/i.test(value)) style[key] = String(value).toUpperCase();
   return style;
+}
+
+/**
+ * Terapkan palet (kurasi atau harmoni) ke gaya set atau gaya manifest Builder.
+ * - Klasik/Aksen: `ink` → `style.ink`, `accent` → `style.accent`, `fill` → `style.colors.main.fill` (isi objek utama).
+ * - Offset: `ink` → `style.engine.offset.ink`, `accent` → `style.engine.offset.acc`; isi tidak dipakai.
+ * - Manifest (tanpa `style.colors`): hanya tinta dan aksen.
+ * Peran yang tidak diisi tidak diubah. Warna yang bukan hex diabaikan.
+ * @param {any} style
+ * @param {{ink?: string, accent?: string, fill?: string}} colors
+ * @returns {{fill: boolean}} fill: apakah isi ikut diterapkan
+ */
+export function applyStyleColors(style, colors) {
+  const hex = (/** @type {unknown} */ v) => (typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v.toUpperCase() : null);
+  const ink = hex(colors.ink),
+    accent = hex(colors.accent),
+    fill = hex(colors.fill);
+  if (style.family === "offset") {
+    if (ink) setStyleValue(style, "offset.ink", ink);
+    if (accent) setStyleValue(style, "offset.acc", accent);
+    return { fill: false };
+  }
+  if (ink) style.ink = ink;
+  if (accent) style.accent = accent;
+  if (fill && style.colors && style.colors.main) {
+    style.colors = { ...style.colors, main: { ...style.colors.main, fill } };
+    return { fill: true };
+  }
+  return { fill: false };
 }
 
 /**

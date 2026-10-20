@@ -5,7 +5,8 @@
  * Composer · Edit ada di ./composer-edit.js.
  */
 import { get } from "@icon-studio/engines";
-import { ACCENT_OPTIONS, OFFSET_ACCENT_OPTIONS } from "../state/data/palettes.js";
+import { ACCENT_OPTIONS, INK_OPTIONS, OFFSET_ACCENT_OPTIONS } from "../state/data/palettes.js";
+import { colorRow } from "./color-picker.js";
 import {
   STYLE_RANGES,
   addItem,
@@ -111,9 +112,8 @@ function offsetStyleTabs(ctx) {
   ].join("");
   const n = setColorCount(ctx);
   const warna = [
-    `<div class="ic-formrow"><span class="ic-label">Aksen</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Warna aksen offset" data-name="style:offset.acc">${OFFSET_ACCENT_OPTIONS.map(
-      (c) => `<button type="button" class="ic-swatch ic-swatch--round" data-value="${c}" style="background: ${c}" ${aria("aria-pressed", String(o.acc).toUpperCase() === c)} aria-label="Aksen ${c}"></button>`,
-    ).join("")}</div></div>`,
+    colorRow(ctx, { name: "style:offset.ink", label: "Tinta", value: o.ink, options: INK_OPTIONS, fallback: o.ink, round: true }),
+    colorRow(ctx, { name: "style:offset.acc", label: "Aksen", value: o.acc, options: OFFSET_ACCENT_OPTIONS, fallback: o.acc, round: true }),
     n > 5 ? alert("warn", `${n} warna di set`, "Canva maks 5") : `<span class="ic-meta">${n} warna di set · maks 5 untuk Canva</span>`,
   ].join("");
   return { gaya, warna };
@@ -145,9 +145,8 @@ export function stylePanel(ctx) {
     classic
       ? `<div class="ic-formrow"><span class="ic-label">Mode warna</span>${seg("Mode warna", [["A", "Garis·solid"], ["B", "Solid·garis"], ["C", "Garis·garis"]], s.pref, { name: "style:pref" })}</div>`
       : "",
-    `<div class="ic-formrow"><span class="ic-label">Aksen</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Warna aksen" data-name="style:accent">${ACCENT_OPTIONS.map(
-      (c) => `<button type="button" class="ic-swatch ic-swatch--round" data-value="${c}" style="background: ${c}" ${aria("aria-pressed", s.accent.toUpperCase() === c)} aria-label="Aksen ${c}"></button>`,
-    ).join("")}</div></div>`,
+    colorRow(ctx, { name: "style:ink", label: "Tinta", value: s.ink, options: INK_OPTIONS, fallback: s.ink, round: true }),
+    colorRow(ctx, { name: "style:accent", label: "Aksen", value: s.accent, options: ACCENT_OPTIONS, fallback: s.accent, round: true }),
     classic
       ? `<div class="ic-formrow"><span class="ic-label">Efek</span>${seg("Efek objek utama", [["none", "Tanpa"], ["soft", "Isian lembut"], ["shadow", "Bayangan"]], s.fx.mode, { name: "style:fx" })}</div>`
       : "",
@@ -401,7 +400,8 @@ export function control(ctx, name, value) {
   }
   if (name.startsWith("style:")) {
     const key = name.slice(6);
-    return mutate(ctx, (doc) => setStyleValue(doc.style, key, value), `Gaya: ${key} = ${value}`);
+    const colorName = /** @type {Record<string, string>} */ ({ ink: "tinta", accent: "aksen", "offset.ink": "tinta", "offset.acc": "aksen" })[key];
+    return mutate(ctx, (doc) => setStyleValue(doc.style, key, value), colorName ? `Warna ${colorName} ${value}` : `Gaya: ${key} = ${value}`);
   }
   if (name.startsWith("pool:")) {
     const [, kind, ...rest] = name.split(":");

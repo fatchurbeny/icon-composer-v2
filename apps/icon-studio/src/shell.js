@@ -7,6 +7,7 @@
 import { parseRoute, routeHash } from "./app-state.js";
 import { builder } from "./personas/builder.js";
 import { helpButton } from "./personas/common.js";
+import { colorActions, pickerExtra } from "./personas/color-picker.js";
 import { composerSet } from "./personas/composer.js";
 import { composerEdit } from "./personas/composer-edit.js";
 import { kombinasi } from "./personas/kombinasi.js";
@@ -34,6 +35,9 @@ const LOGO = `<svg class="ic-logo" viewBox="0 0 30 30" aria-hidden="true"><rect 
  * @param {{root: HTMLElement, app: ReturnType<typeof import("./app-state.js").createAppState>, renderer: any}} options
  */
 export function createShell({ root, app, renderer }) {
+  /* isi popover pemilih warna (Preset saya, palet kurasi, harmoni) dibaca dari state app saat dibuka */
+  const ui = /** @type {any} */ (globalThis).ICUI;
+  if (ui) ui.colorpickerExtra = (/** @type {{name: string, value: string}} */ info) => pickerExtra(app, info);
   /** tab panel studio yang terakhir dipilih, per id panel */
   const panelTabs = new Map();
   /** panel studio yang terbuka per kolom akordeon, kunci `persona[:edit]:label kolom` */
@@ -216,6 +220,8 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
       if (el && leftPos) el.scrollLeft = Number(leftPos);
     }
     showToast();
+    /* popover pemilih warna di luar #app: cari pemicu barunya dan baca ulang warna setelah render */
+    g.ICUI?.syncColorpicker?.();
     if (spec.mount) spec.mount(root, c, { toast, go, importText });
   }
 
@@ -289,6 +295,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
     if (action === "zoom-reset") return zoom.reset();
     if (action === "zoom-fit") return zoom.fit();
     if (action === "undo" || action === "redo") return undoRedo(action);
+    if (colorActions[action]) return colorActions[action](c, el, { toast });
     if (spec && spec.actions && spec.actions[action]) return spec.actions[action](c, el, { toast, go, importText });
     if (action === "view-pages") return go({ persona: "composer", edit: null });
     if (action === "view-single") {
@@ -428,7 +435,7 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
   /* Esc dari mode edit kembali ke ikhtisar, juga saat fokus berada di luar #app */
   document.addEventListener("keydown", (event) => {
     const target = /** @type {HTMLElement} */ (event.target);
-    if (event.key === "Escape" && ctx && ctx.route.edit && !target.closest?.(".ic-select")) go({ persona: "composer", edit: null });
+    if (event.key === "Escape" && ctx && ctx.route.edit && !target.closest?.(".ic-select, .ic-colorpicker")) go({ persona: "composer", edit: null });
   });
 
   /**
@@ -463,6 +470,12 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
     if (target.dataset.ic === "slider") return;
     if (target.dataset.name === "tool") return pickTool(String(/** @type {CustomEvent} */ (event).detail.value));
     if (target.dataset.name) control(target, /** @type {CustomEvent} */ (event).detail.value);
+  });
+
+  /* tombol di dalam popover pemilih warna (preset, palet, harmoni) dipancarkan dari pemicunya */
+  root.addEventListener("ic-colorpicker-action", (event) => {
+    const detail = /** @type {CustomEvent} */ (event).detail;
+    if (detail && detail.action) runAction(String(detail.action), detail.el);
   });
 
   /* pencarian pustaka: ketik langsung memfilter tanpa menunggu Enter */

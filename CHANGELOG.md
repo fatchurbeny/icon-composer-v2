@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 ## Unreleased
 
 ### Ditambahkan
+- Pemilih warna custom di Icon Studio (komponen kit `.ic-colorpicker`): roda hue + segitiga saturasi/kecerahan seperti Affinity, kolom H S L dan hex, bisa dipakai dengan keyboard; dibuka dari swatch "Warna lain…" di Composer (Tinta dan Aksen, juga offset), Composer · Edit (Garis/Tinta dan Isian lapisan), dan Builder (Tinta dan Aksen pack); berisi Preset saya global (`colorPresets`, `swatchSource` di `icon-studio-v1`, bisa menggantikan palet bawaan), 10 palet kurasi, dan harmoni komplementer/analog/triadik; perubahan warna bisa diurungkan dan panel memperingatkan bila set atau pack melebihi 5 warna Canva.
 - Urungkan dan ulangi di Icon Studio (semua persona): tombol Urungkan dan Ulangi di bilah atas, pintasan ⌘/Ctrl+Z, ⌘/Ctrl+Shift+Z, dan Ctrl+Y, maks 10 langkah per dokumen dan hanya di memori; satu seret di Composer · Edit menjadi satu langkah, dan perubahan isi di Builder, Tinjau, dan Kombinasi yang dulu tanpa label kini tercatat di Riwayat.
 - Composer · Edit: tab Transform kini sepanel dengan daftar Lapisan (Lapisan | Transform | Pustaka), Halaman | Variasi | Riwayat pindah ke panel ketiga, sehingga memilih lapisan tidak lagi menutup daftar Lapisan lewat akordeon.
 - Tes `ui-language.spec.js` menegakkan DESIGN-HANDOFF 9.5 (tanpa teks UI berbahasa Inggris di Icon Studio, dengan pengecualian terdokumentasi); tombol "Reset posisi" di Composer · Edit menjadi "Atur ulang posisi".

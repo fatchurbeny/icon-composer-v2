@@ -3,7 +3,7 @@
  * Persona Builder · Periksa pack (DESIGN-HANDOFF 3.3): Impor → Periksa → Ekspor.
  * Logika validasi, flag, dan isi ZIP ada di state/builder-ops.js (dari Template Icon Builder 1.6.0).
  */
-import { buildZip } from "@icon-studio/export";
+import { buildZip, packColors } from "@icon-studio/export";
 import { ROLES } from "@icon-studio/engines/shared";
 import {
   BRAND_KEY,
@@ -20,6 +20,9 @@ import {
 } from "../state/builder-ops.js";
 import { BUILDER_MODES, OFFSET_MODE, SPARKS, kebab2, manifestOffsetStyle, sparkHome } from "../state/document.js";
 import { setSlot } from "../state/edit-ops.js";
+import { ACCENT_OPTIONS, INK_OPTIONS } from "../state/data/palettes.js";
+import { setStyleValue } from "../state/set-ops.js";
+import { colorRow } from "./color-picker.js";
 import { alert, aria, button, check, empty, esc, icon, panel, seg, select } from "../ui.js";
 import { NO_MOD_TEXT, docFileName, statusBar } from "./common.js";
 import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } from "./library-panel.js";
@@ -203,6 +206,15 @@ function iconBody(ctx, it) {
   return out.join("");
 }
 
+/**
+ * Penjaga batas Canva: jumlah warna pack pada gaya pratinjau (maks 5 per SVG).
+ * @param {import("./common.js").Ctx} ctx
+ */
+function packColorNote(ctx) {
+  const n = ctx.doc.items.length ? packColors(ctx.doc.items, (/** @type {any} */ it) => render(ctx, it, ctx.doc.pv, "cc")).size : 0;
+  return n > 5 ? alert("warn", `${n} warna di pack`, "Canva maks 5") : `<span class="ic-meta">${n} warna di pack · maks 5 untuk Canva</span>`;
+}
+
 /** @param {import("./common.js").Ctx} ctx */
 function manifestBody(ctx) {
   const doc = ctx.doc,
@@ -214,6 +226,10 @@ function manifestBody(ctx) {
     doc.isSample ? alert("warn", "Ini data contoh, bukan manifest Anda.", "contoh") : "",
     `<div class="ic-stats"><div class="ic-stat"><div class="ic-stat__n">${doc.items.length}</div><div class="ic-stat__l">Ikon</div></div><div class="ic-stat"><div class="ic-stat__n">${slots}</div><div class="ic-stat__l">Slot deck</div></div><div class="ic-stat"${bad ? ' data-level="err"' : ' data-level="ok"'}><div class="ic-stat__n">${bad}</div><div class="ic-stat__l">Perlu dicek</div></div></div>`,
     `<span class="ic-meta">${esc((doc.manifest.deck && doc.manifest.deck.title) || "Tanpa judul")} · tema pack ${esc(packOf(doc.manifest).en || "–")} · tinta ${esc(doc.style.ink)} · aksen ${esc(doc.style.accent)}</span>`,
+    `<span class="ic-label">Warna pack · semua gaya</span>`,
+    colorRow(ctx, { name: "b-color:ink", label: "Tinta", value: doc.style.ink, options: INK_OPTIONS, fallback: doc.style.ink, round: true }),
+    colorRow(ctx, { name: "b-color:accent", label: "Aksen", value: doc.style.accent, options: ACCENT_OPTIONS, fallback: doc.style.accent, round: true }),
+    packColorNote(ctx),
     ...issues.map(([lv, t, fix], n) => `${alert(/** @type {any} */ (lv), t)}${fix ? button(`Pakai saran ${esc(fix.to)}`, { size: "sm", action: "b-fix", label: `Pakai saran ${fix.to}` }).replace("<button", `<button data-i="${n}"`) : ""}`),
     `<div class="studio-actions">${button("Impor manifest lain…", { size: "sm", action: "b-step", label: "Impor manifest lain" }).replace("<button", '<button data-step="import"')}</div>`,
   ].join("");
@@ -421,6 +437,10 @@ function control(ctx, name, value) {
   if (!ctx.doc) return;
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   const doc = ctx.doc;
+  if (name === "b-color:ink" || name === "b-color:accent") {
+    const key = name.slice(8);
+    return mutate(ctx, () => setStyleValue(doc.style, key, value), `Warna ${key === "ink" ? "tinta" : "aksen"} ${value}`);
+  }
   if (name === "b-filter") return mutate(ctx, () => (doc.view.filter = value));
   if (name === "b-preview") return mutate(ctx, () => (doc.pv = BUILDER_MODES.includes(value) ? value : doc.pv), `Pratinjau ${/** @type {any} */ (PREVIEW_LABEL)[value] || value}`);
   if (name === "b-ofill")

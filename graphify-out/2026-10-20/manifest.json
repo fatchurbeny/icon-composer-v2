@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792473528.7460809,
-    "seen": 1792473577.7132108,
-    "ast_hash": "db4a9752e3256b45a9a03b11f639ef9c",
+    "mtime": 1792473956.2652967,
+    "seen": 1792474014.623001,
+    "ast_hash": "28f2e0dba34840280b7c942b343245bf",
     "semantic_hash": ""
   },
   "README.md": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "docs/DATA-MODEL.md": {
-    "mtime": 1792473348.007106,
-    "seen": 1792473577.713218,
-    "ast_hash": "3af8fa06fe258e96ed8fd644f259a728",
+    "mtime": 1792473961.206295,
+    "seen": 1792474014.623008,
+    "ast_hash": "02af78ec4bac1a2274a5f37aa0e34d93",
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docs/MIGRATION-PLAN.md": {
-    "mtime": 1792473348.0089417,
-    "seen": 1792473577.713223,
-    "ast_hash": "9600b0c6cc87e5e7fc41d2c78cd24a03",
+    "mtime": 1792473956.264246,
+    "seen": 1792474014.623015,
+    "ast_hash": "9877619a1411717a537ac187297846d9",
     "semantic_hash": ""
   },
   "docs/PRODUCT.md": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN-HANDOFF.md": {
-    "mtime": 1792473528.7456403,
-    "seen": 1792473577.713226,
-    "ast_hash": "650e651834cd6fb85e26c47683e667f9",
+    "mtime": 1792473792.1382668,
+    "seen": 1792474014.623019,
+    "ast_hash": "3b5c20dcd7c16e3bd58bc5af56551923",
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "docs/design/ui-kit.html": {
-    "mtime": 1792473348.0276766,
-    "seen": 1792473577.7132301,
-    "ast_hash": "3422f9970cdbb0dafae8c34dd916f63b",
+    "mtime": 1792473774.0684628,
+    "seen": 1792474014.623023,
+    "ast_hash": "6c2a5af926c5f7889a4e739c6de23469",
     "semantic_hash": ""
   },
   "docs/engines/accent.md": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "docs/plans/fase-2b.md": {
-    "mtime": 1792473528.745918,
-    "seen": 1792473577.713235,
-    "ast_hash": "2a60bec42633e461e9f8d15ed9c991a7",
+    "mtime": 1792473965.2149866,
+    "seen": 1792474014.623029,
+    "ast_hash": "5b89c740dd9bede4b3ef25d5a5bdf40a",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/sample-manifest.js": {
@@ -642,15 +642,15 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/app-state.js": {
-    "mtime": 1792473347.993049,
-    "seen": 1792473577.713094,
-    "ast_hash": "4dad21fe249e5a9a2a699cd87651c743",
+    "mtime": 1792473699.263507,
+    "seen": 1792474014.6228569,
+    "ast_hash": "934524b6cc8207f6f7edc40ca29f2c9c",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/builder.js": {
-    "mtime": 1792473347.9935627,
-    "seen": 1792473577.7130969,
-    "ast_hash": "722cf3909e89e1944993fd16d093d6a8",
+    "mtime": 1792473752.8745244,
+    "seen": 1792474014.622862,
+    "ast_hash": "b3dc1b2b69557b5d34e78a1efcafa666",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/common.js": {
@@ -660,27 +660,27 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/composer.js": {
-    "mtime": 1792473347.995718,
-    "seen": 1792473577.7131,
-    "ast_hash": "b1aab5fb085bc96d30e1eace0e807f49",
+    "mtime": 1792473752.8738072,
+    "seen": 1792474014.6228669,
+    "ast_hash": "839712fbc613979c18b09f4299807180",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/kombinasi.js": {
-    "mtime": 1792473347.9968514,
-    "seen": 1792473577.7131011,
-    "ast_hash": "adc53d31045f084a320e788486877721",
+    "mtime": 1792473752.8741553,
+    "seen": 1792474014.622868,
+    "ast_hash": "092d71d0a17752ee34eeb3f7b42dd2a9",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/tinjau.js": {
-    "mtime": 1792473347.9972908,
-    "seen": 1792473577.713103,
-    "ast_hash": "23b7c26f7c588f9ef029256948cdc29c",
+    "mtime": 1792473767.259945,
+    "seen": 1792474014.622871,
+    "ast_hash": "ed6502d8a4b93d27d09c644fb0dda92c",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/shell.js": {
-    "mtime": 1792473347.997899,
-    "seen": 1792473577.7131038,
-    "ast_hash": "db5eca785c44e4f6c707d91be8cd7996",
+    "mtime": 1792473712.8679943,
+    "seen": 1792474014.622872,
+    "ast_hash": "737dce876193817171f942507d1da141",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/data/preview-backgrounds.js": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "tests/unit/studio-app-state.test.js": {
-    "mtime": 1792473348.0373783,
-    "seen": 1792473577.713202,
-    "ast_hash": "dfec673e1e9309bddd8e3f80d7f26268",
+    "mtime": 1792473886.1471808,
+    "seen": 1792474014.622989,
+    "ast_hash": "1077744b9a6bbaef86aca8198f256236",
     "semantic_hash": ""
   },
   "docs/design/proposals/komponen-fase-2b.html": {
@@ -945,6 +945,24 @@
     "mtime": 1792473347.9950492,
     "seen": 1792473577.713184,
     "ast_hash": "ce7d80f50b797cdce2f856d39c062310",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/undo.js": {
+    "mtime": 1792473767.2600644,
+    "seen": 1792474014.622895,
+    "ast_hash": "7a6ffd67e7babd4c813bfd8254747db2",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-undo.spec.js": {
+    "mtime": 1792473929.7816246,
+    "seen": 1792474014.6229708,
+    "ast_hash": "9f935e98fba0f4c9da6f261e9244a887",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-undo.test.js": {
+    "mtime": 1792473886.1308336,
+    "seen": 1792474014.622998,
+    "ast_hash": "96cc96fe5412089da5d588ccfa9cd8b4",
     "semantic_hash": ""
   }
 }

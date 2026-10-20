@@ -46,6 +46,7 @@ import {
   stylePanel,
 } from "./composer.js";
 import { LICENSE_NOTE, libraryBody, libraryUi } from "./library-panel.js";
+import { colorRow } from "./color-picker.js";
 
 const ROLE_NAME = { ink: "Tinta", acc: "Aksen", fillA: "Isi aksen", fill: "Isi tinta" };
 const UNDER_NAME = { none: "Tanpa", full: "Penuh", offset: "Geser", half: "Separuh" };
@@ -152,20 +153,22 @@ function layerList(ctx, it) {
 }
 
 /**
- * Swatch warna lapisan (berlaku untuk semua ikon di set, seperti IC).
+ * Baris warna lapisan (berlaku untuk semua ikon di set, seperti IC): swatch bawaan atau Preset saya,
+ * plus pemilih warna. Kosong = ikuti warna set.
+ * @param {import("./common.js").Ctx} ctx
  * @param {string} name
  * @param {string} label
  * @param {(string | null)[]} options
  * @param {string | null} current
  * @param {string} fallback warna set
  */
-const colorSwatches = (name, label, options, current, fallback) =>
-  `<div class="ic-formrow"><span class="ic-label">${esc(label)}</span><div class="ic-swatches" data-ic="single" role="group" aria-label="${esc(label)}" data-name="${name}">${options
-    .map(
-      (c) =>
-        `<button type="button" class="ic-swatch" data-value="${c || ""}" style="background: ${c || fallback}" ${aria("aria-pressed", (current || null) === c)} aria-label="${c ? `${label} ${c}` : `${label} ikuti warna set`}"></button>`,
-    )
-    .join("")}</div></div>`;
+const colorSwatches = (ctx, name, label, options, current, fallback) => colorRow(ctx, { name, label, value: current, options, fallback, follow: true });
+
+/** Penjaga batas Canva: peringatan bila set memakai lebih dari 5 warna. @param {import("./common.js").Ctx} ctx */
+const colorCountNote = (ctx) => {
+  const n = setColorCount(ctx);
+  return n > 5 ? alert("warn", `${n} warna di set`, "Canva maks 5") : `<span class="ic-meta">${n} warna di set · maks 5 untuk Canva</span>`;
+};
 
 /** Rentang skala set lapisan (STYLE_RANGES), sama dengan kolom Skala di bilah konteks. */
 const scaleRange = (/** @type {string} */ layer) => ({ min: layer === "main" ? 60 : 50, max: layer === "main" ? 100 : layer === "mod" ? 150 : 200 });
@@ -262,8 +265,9 @@ function transformBody(ctx, it) {
   const c = s.colors[layer];
   out.push(
     `<span class="ic-label">Warna ${LAYER_LABEL[layer].toLowerCase()} · semua ikon di set</span>`,
-    colorSwatches("edit-line", accent ? "Tinta" : layer === "deco" ? "Warna" : "Garis", LINE_OPTIONS, c.line, s.ink),
-    colorSwatches("edit-fill", "Isian", FILL_OPTIONS, c.fill, s.accent),
+    colorSwatches(ctx, "edit-line", accent ? "Tinta" : layer === "deco" ? "Warna" : "Garis", LINE_OPTIONS, c.line, s.ink),
+    colorSwatches(ctx, "edit-fill", "Isian", FILL_OPTIONS, c.fill, s.accent),
+    colorCountNote(ctx),
     `<div class="studio-actions">${button("Atur ulang posisi", { size: "sm", action: "edit-reset" })}${button("Warna ikut set", { size: "sm", action: "edit-color-reset", disabled: !c.line && !c.fill })}</div>`,
     autoPanelCheck(ctx),
   );
