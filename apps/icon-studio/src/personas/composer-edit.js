@@ -11,8 +11,11 @@ import { offsetParams } from "@icon-studio/engines/offset";
 import { ROLES } from "@icon-studio/engines/shared";
 import { FILL_OPTIONS, LINE_OPTIONS } from "../state/data/palettes.js";
 import {
-  LAYER_RANGE,
+  ANCHOR_POINTS,
+  DEFAULT_ANCHOR,
   ROT_RANGE,
+  anchorRange,
+  anchorXY,
   angleFromDrag,
   getRot,
   getXY,
@@ -21,11 +24,14 @@ import {
   rotatePt,
   scaleFromDrag,
   scalePivot,
+  scaleForSize,
+  setAnchorXY,
   setDeco,
   setPartRole,
   setRot,
   setSlot,
   setXY,
+  sizeRange,
 } from "../state/edit-ops.js";
 import { clearLayer, setOffsetDeco, setStyleValue } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, number, panel, seg } from "../ui.js";
@@ -215,21 +221,51 @@ function offsetTransformBody(ctx, it) {
   return out.join("");
 }
 
+/** Titik acuan panel Transform (`view.anchor`, tidak ikut undo). */
+const anchorOf = (/** @type {import("./common.js").Ctx} */ ctx) => (ANCHOR_POINTS.includes(ctx.doc.view.anchor) ? ctx.doc.view.anchor : DEFAULT_ANCHOR);
+
+const ANCHOR_NAME = { TL: "kiri atas", TC: "tengah atas", TR: "kanan atas", ML: "kiri tengah", C: "tengah", MR: "kanan tengah", BL: "kiri bawah", BC: "tengah bawah", BR: "kanan bawah" };
+
+/** Label dan kolom angka panel Transform, satu sel `.ic-tilegrid`. @param {string} label @param {string} control */
+const cell = (label, control) => `<div class="studio-row"><span class="ic-label">${label}</span>${control}</div>`;
+
+/**
+ * Kolom geometri gaya Affinity: titik acuan 3×3 di kiri, X, Y, W, H, dan R di kanan. X/Y membaca dan
+ * menulis titik acuan kotak lapisan (satuan 48). W/H mengubah skala set (rasio selalu terkunci,
+ * karena mesin hanya mengenal skala seragam). R memutar lapisan untuk ikon ini.
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ * @param {import("../state/edit-ops.js").Layer} layer
+ */
+function geometryFields(ctx, it, layer) {
+  const name = LAYER_LABEL[layer].toLowerCase(),
+    anchor = anchorOf(ctx),
+    s0 = ctx.doc.style.scale[layer];
+  const box = boxesOf(ctx, it)[layer];
+  const [ax, ay] = anchorXY(box, anchor);
+  const range = anchorRange(it, layer, box, anchor);
+  const wr = sizeRange(layer, s0, box.w),
+    hr = sizeRange(layer, s0, box.h);
+  const empty = !box.w;
+  const anchors = `<div class="ic-anchor" data-ic="single" role="group" aria-label="Titik acuan" data-name="edit-anchor">${ANCHOR_POINTS.map((k) => `<button type="button" data-value="${k}" ${aria("aria-pressed", anchor === k)} aria-label="Titik acuan ${ANCHOR_NAME[k]}" title="Titik acuan ${ANCHOR_NAME[k]}"></button>`).join("")}</div>`;
+  const chain = `<button type="button" class="ic-iconbtn" ${aria("aria-pressed", true)} disabled aria-label="Rasio selalu terkunci" title="Rasio selalu terkunci: mesin hanya mengenal skala seragam">${icon("link")}</button>`;
+  return `<div class="studio-row">${anchors}<div class="ic-tilegrid studio-grow" style="--ic-cols: 2">${[
+    cell("X", number(`X ${name}`, r2(ax), { min: r2(range.x[0]), max: r2(range.x[1]), step: 0.5, name: "edit-x" })),
+    cell("W", empty ? `<span class="ic-meta">0</span>` : number(`W ${name}`, r2(box.w), { min: r2(wr[0]), max: r2(wr[1]), step: 0.5, name: "edit-w" })),
+    cell("Y", number(`Y ${name}`, r2(ay), { min: r2(range.y[0]), max: r2(range.y[1]), step: 0.5, name: "edit-y" })),
+    cell("H", empty ? `<span class="ic-meta">0</span>` : number(`H ${name}`, r2(box.h), { min: r2(hr[0]), max: r2(hr[1]), step: 0.5, name: "edit-h" })),
+    cell("R", number(`R ${name}`, getRot(it, layer), { min: ROT_RANGE[0], max: ROT_RANGE[1], step: 1, name: "edit-rot" })),
+    cell("", chain),
+  ].join("")}</div></div>`;
+}
+
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function transformBody(ctx, it) {
   if (isOffset(ctx.doc)) return offsetTransformBody(ctx, it);
   const layer = layerOf(),
     s = ctx.doc.style,
     accent = s.family === "accent";
-  const [x, y] = getXY(it, layer);
-  const [min, max] = LAYER_RANGE[layer];
-  const box = boxesOf(ctx, it)[layer];
-  const out = [
-    `<div class="ic-formrow"><span class="ic-label">X</span>${number(`X ${LAYER_LABEL[layer].toLowerCase()}`, x, { min, max, step: 0.5, name: "edit-x" })}<span class="ic-label">Y</span>${number(`Y ${LAYER_LABEL[layer].toLowerCase()}`, y, { min, max, step: 0.5, name: "edit-y" })}</div>`,
-    `<div class="ic-formrow"><span class="ic-label">W × H</span><span class="ic-meta">${r2(box.w)} × ${r2(box.h)}</span></div>`,
-    `<div class="ic-formrow"><span class="ic-label">Skala</span>${number(`Skala ${LAYER_LABEL[layer].toLowerCase()} semua ikon`, s.scale[layer], { ...scaleRange(layer), step: 1, name: "edit-scale" })}<span class="ic-label">Rotasi</span>${number(`Rotasi ${LAYER_LABEL[layer].toLowerCase()}`, getRot(it, layer), { min: ROT_RANGE[0], max: ROT_RANGE[1], step: 1, name: "edit-rot" })}</div>`,
-    `<span class="ic-meta">Skala berlaku untuk semua ikon di set. Rotasi hanya untuk ikon ini.</span>`,
-  ];
+  const out = [geometryFields(ctx, it, layer), `<span class="ic-meta">W dan H mengubah skala ${LAYER_LABEL[layer].toLowerCase()} untuk semua ikon di set (${s.scale[layer]}%). R hanya untuk ikon ini.</span>`];
   if (layer === "deco") {
     const D = ctx.renderer.data.DECOS;
     out.push(
@@ -333,11 +369,22 @@ function editControl(ctx, name, value, el, tools) {
   }
   if (name === "edit-slot") return mutateItem(ctx, (it) => setSlot(it, String(value), ctx.renderer.data.SHIFT), `Posisi pengubah ${value}`);
   if (name === "edit-scale") return mutate(ctx, (doc) => setStyleValue(doc.style, `scale.${layer}`, value), `Skala ${LAYER_LABEL[layer].toLowerCase()} ${value}`);
+  if (name === "edit-anchor") return mutate(ctx, (doc) => (doc.view.anchor = String(value)), "");
   if (name === "edit-x" || name === "edit-y")
     return mutateItem(ctx, (it) => {
-      const [x, y] = getXY(it, layer);
-      setXY(it, layer, name === "edit-x" ? Number(value) : x, name === "edit-y" ? Number(value) : y, { snap: ctx.doc.view.snap });
+      const box = boxesOf(ctx, it)[layer],
+        anchor = anchorOf(ctx);
+      const [ax, ay] = anchorXY(box, anchor);
+      setAnchorXY(it, layer, box, anchor, name === "edit-x" ? Number(value) : ax, name === "edit-y" ? Number(value) : ay, { snap: ctx.doc.view.snap });
     }, `Geser ${LAYER_LABEL[layer].toLowerCase()}`);
+  if (name === "edit-w" || name === "edit-h") {
+    const it = selectedOf(ctx);
+    if (!it) return;
+    const box = boxesOf(ctx, it)[layer],
+      s0 = ctx.doc.style.scale[layer];
+    const v = scaleForSize(layer, s0, name === "edit-w" ? box.w : box.h, Number(value));
+    return mutate(ctx, (doc) => setStyleValue(doc.style, `scale.${layer}`, v), `Skala ${LAYER_LABEL[layer].toLowerCase()} ${v}`);
+  }
   if (name === "edit-rot")
     return mutateItem(ctx, (it) => setRot(it, layer, Math.max(ROT_RANGE[0], Math.min(ROT_RANGE[1], Number(value)))), `Putar ${LAYER_LABEL[layer].toLowerCase()} ${r2(Number(value)) || 0}°`);
   if (name === "edit-autopanel") return mutate(ctx, (doc) => (doc.view.panel = !!value), "");

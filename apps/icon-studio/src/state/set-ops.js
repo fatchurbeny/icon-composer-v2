@@ -11,7 +11,7 @@ import { SET_FAMILIES, applyFamily, blankItem, normItem } from "./document.js";
 export const DEFAULT_POOL = { mains: ["face", "doc", "cart"], mods: ["bubble", "lock", "plus", "card"], off: {} };
 
 /** Preferensi tampilan set bawaan. */
-export const DEFAULT_VIEW = { sort: "set", cols: 8, snap: true, grid: true, panel: true };
+export const DEFAULT_VIEW = { sort: "set", cols: 8, snap: true, grid: true, panel: true, anchor: "TL" };
 
 /**
  * Lengkapi field set yang ditambahkan Icon Studio (pool, tampilan).

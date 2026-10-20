@@ -33,6 +33,9 @@ const xy = async (page) => [
   await page.locator('[data-name="edit-x"] input').inputValue(),
   await page.locator('[data-name="edit-y"] input').inputValue(),
 ];
+/** Pergeseran X/Y (titik acuan) terhadap `from`, dibulatkan 0,01. */
+const dxy = async (page, /** @type {string[]} */ from) =>
+  (await xy(page)).map((v, i) => Math.round((Number(v) - Number(from[i])) * 100) / 100);
 
 test.describe("Icon Studio · Composer · Edit", () => {
   test("artboard 520 px, kotak seleksi, dan filmstrip tampil", async ({
@@ -56,7 +59,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await expect(
       page.locator('[data-action="layer-select"][data-layer="mod"]'),
     ).toHaveAttribute("aria-selected", "true");
-    expect(await xy(page)).toEqual(["0", "0"]);
+    const start = await xy(page);
     const box = await page.locator('[data-hit="mod"]').boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
@@ -67,16 +70,69 @@ test.describe("Icon Studio · Composer · Edit", () => {
     );
     await expect(page.locator('[data-role="tooltip"]')).toBeVisible();
     await page.mouse.up();
-    expect(await xy(page)).toEqual(["4", "-3"]);
+    expect(await dxy(page, start)).toEqual([4, -3]);
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("Shift+ArrowDown");
-    expect(await xy(page)).toEqual(["3.5", "-1"]);
+    expect(await dxy(page, start)).toEqual([3.5, -1]);
     await page.reload();
     await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
-    expect(await xy(page)).toEqual(["3.5", "-1"]);
+    expect(await dxy(page, start)).toEqual([3.5, -1]);
+  });
+
+  test("Transform gaya Affinity: titik acuan, W/H terkunci, R, lalu urungkan", async ({
+    page,
+  }) => {
+    await openEdit(page);
+    await openPanel(page, "edit-layers");
+    await page
+      .locator('[data-action="layer-select"][data-layer="main"]')
+      .click();
+    const num = (n) => page.locator(`[data-name="edit-${n}"] input`);
+    const val = async (n) => Number(await num(n).inputValue());
+    const chain = page.locator('[data-panel="edit-layers"] .ic-iconbtn[aria-label="Rasio selalu terkunci"]');
+    await expect(chain).toHaveAttribute("aria-pressed", "true");
+    await expect(chain).toBeDisabled();
+    await expect(page.locator('[data-name="edit-s"]')).toHaveCount(0);
+    const tl = [await val("x"), await val("y")];
+    const w0 = await val("w"),
+      h0 = await val("h");
+    /* titik acuan kanan bawah: X/Y = sudut kanan bawah kotak */
+    await page.locator('[data-name="edit-anchor"] button[data-value="BR"]').click();
+    await expect(
+      page.locator('[data-name="edit-anchor"] button[data-value="BR"]'),
+    ).toHaveAttribute("aria-pressed", "true");
+    const br = [await val("x"), await val("y")];
+    expect(br[0]).toBeCloseTo(tl[0] + w0, 1);
+    expect(br[1]).toBeCloseTo(tl[1] + h0, 1);
+    await num("x").fill(String(br[0] - 2));
+    await num("x").press("Enter");
+    await expect.poll(() => val("x")).toBeCloseTo(br[0] - 2, 1);
+    expect(await val("y")).toBeCloseTo(br[1], 1);
+    /* W mengubah skala set, H ikut */
+    const scale0 = await page.locator('.ic-context [data-name="edit-scale"] input').inputValue();
+    await num("w").fill(String(Math.round(w0 * 0.8 * 10) / 10));
+    await num("w").press("Enter");
+    await expect.poll(() => val("w")).toBeLessThan(w0 - 1);
+    expect(await val("h")).toBeCloseTo((h0 * (await val("w"))) / w0, 1);
+    await expect(page.locator('.ic-context [data-name="edit-scale"] input')).not.toHaveValue(scale0);
+    await num("rot").fill("30");
+    await num("rot").press("Enter");
+    await expect(num("rot")).toHaveValue("30");
+    /* ⌘Z mengembalikan R, lalu W/H, lalu X */
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement)?.blur());
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(num("rot")).toHaveValue("0");
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(() => val("w")).toBeCloseTo(w0, 1);
+    await expect(page.locator('.ic-context [data-name="edit-scale"] input')).toHaveValue(scale0);
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(() => val("x")).toBeCloseTo(br[0], 1);
+    await expect(
+      page.locator('[data-name="edit-anchor"] button[data-value="BR"]'),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   test("posisi pengubah lewat pemilih jangkar, Delete melepas pengubah", async ({
@@ -199,7 +255,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
         `[data-panel="${id}"] > .ic-panel__head > .ic-panel__collapse`,
       );
     const scaleIn = (page) =>
-      page.locator('[data-panel="edit-layers"] [data-name="edit-scale"] input');
+      page.locator('.ic-context [data-name="edit-scale"] input');
     const rotIn = (page) => page.locator('[data-name="edit-rot"] input');
     /** Pusat elemen di layar. */
     const mid = async (loc) => {

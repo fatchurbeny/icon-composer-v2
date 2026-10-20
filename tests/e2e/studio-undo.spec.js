@@ -212,7 +212,7 @@ test.describe("Icon Studio · urungkan dan ulangi", () => {
   test("Edit: seret ukuran dan putar bisa diurungkan", async ({ page }) => {
     await openEdit(page);
     const scaleIn = page.locator(
-      '[data-panel="edit-layers"] [data-name="edit-scale"] input',
+      '.ic-context [data-name="edit-scale"] input',
     );
     const rotIn = page.locator('[data-name="edit-rot"] input');
     await expect(scaleIn).toHaveValue("84");

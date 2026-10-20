@@ -129,7 +129,10 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
   2. **Lapisan | Transform | Pustaka** (panel utama, `.ic-panel--grow`, terbuka saat masuk Edit di tab Lapisan). Daftar Lapisan dan Transform bergantian di satu panel, jadi panel kontekstual tidak pernah menutup daftar Lapisan lewat akordeon. Pustaka di panel ini mengganti isi lapisan terpilih (tombol "Ganti…").
   3. **Halaman** | Variasi | Riwayat.
   - Memilih lapisan (klik di artboard atau di daftar Lapisan) membuka tab Transform yang berisi kontrol lapisan itu, dan membuka panel Lapisan bila sedang tertutup. Untuk memilih lapisan lain dari daftar, kembali ke tab Lapisan. Sakelar "Buka panel ini saat memilih lapisan" di tab Transform mematikannya (`view.panel`).
-  - Transform berisi X/Y/W/H, Skala (semua ikon), dan Rotasi (ikon ini).
+  - Transform bergaya panel Transform Affinity: `.ic-anchor` 3×3 di kiri (semua titik aktif) sebagai titik acuan, lalu `.ic-tilegrid` 2 kolom berisi `.ic-number` X, W, Y, H, R dan `.ic-iconbtn` rantai (`link`, `aria-pressed="true"`, nonaktif, tooltip "Rasio selalu terkunci: mesin hanya mengenal skala seragam"). Tanpa kolom S (shear). Satuan unit kanvas 48.
+    - X/Y adalah titik acuan kotak lapisan (kotak sebelum rotasi, `layerBoxes`): kiri atas, tengah, kanan bawah, dst. Mengetik X/Y menggeser lapisan lewat `setAnchorXY`, jadi rentang `LAYER_RANGE` dan snap tetap berlaku. Pilihan titik acuan disimpan di `view.anchor` (bawaan `TL`) dan tidak ikut undo.
+    - W/H mengubah skala set lapisan (`style.scale`, berlaku untuk semua ikon, rentang sama dengan kolom Skala di bilah konteks); H ikut W dan sebaliknya. R memutar lapisan untuk ikon ini saja (`mr`, `nr`, `deco.r`). Catatan singkat di bawah kolom menyebut keduanya.
+    - Gaya offset tetap hanya bisa memilih lapisan (W × H sebagai teks).
   - Variasi berisi sumbu mesin aktif dari `engine.axes()`. Nilai yang diblokir tampil `disabled`. Seed planner ditampilkan, dan hasil cek kembaran tampil sebagai `.ic-alert[data-level=ok]`.
 - **Keyboard:** panah menggeser 0,5 unit (Shift = 2), `[` `]` memutar 15° (Shift = 1°), Esc kembali ke ikhtisar, Delete menghapus lapisan pengubah atau dekorasi.
 
