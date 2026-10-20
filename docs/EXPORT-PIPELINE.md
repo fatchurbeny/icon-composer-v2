@@ -53,7 +53,7 @@ Folder per gaya mengikuti `MODE_INFO`. Gaya baru menambah entri:
 
 | Gaya | Folder | Akhiran file | Kata gaya (judul EN) | Kata gaya (judul ID) |
 |---|---|---|---|---|
-| accent | `aksen/` | `-aksen.svg` | Accent Line | aksen garis |
+| accent | `aksen/` | `-aksen.svg` | Accent Line | garis aksen |
 | classic A | `garis-solid/` | `-garis-solid.svg` | Two Tone | dua warna |
 | classic B | `solid-garis/` | `-solid-garis.svg` | Solid Two Tone | solid dua warna |
 | offset | `offset/` | `-offset.svg` | Offset Style | gaya offset |
