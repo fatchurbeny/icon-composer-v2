@@ -6,7 +6,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { openPanel } from "./studio-panels.js";
+import { openPanel, openTransform } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 
@@ -114,6 +114,7 @@ test.describe("Icon Studio · gaya Offset", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
+    await openTransform(page);
     await expect(page.locator('[data-panel="edit-layers"]')).toContainText(
       "Pengubah tidak tersedia pada style ini",
     );
@@ -128,7 +129,7 @@ test.describe("Icon Studio · gaya Offset", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="deco"]')
       .click();
-    await openPanel(page, "edit-layers");
+    await openTransform(page);
     const art = page.locator(".ic-artboard__art");
     const before = await art.locator("path").count();
     await page.locator('[data-name="edit-odeco:cloud"]').check();

@@ -10,6 +10,7 @@ import {
   geomClassic,
 } from "@icon-studio/engines/classic";
 import {
+  layerPaints,
   anchorFrac,
   anchorRange,
   anchorXY,
@@ -254,5 +255,53 @@ describe("Icon Studio edit-ops · Transform gaya Affinity", () => {
     expect(scaleForSize("deco", 100, 9, 1)).toBe(50);
     expect(scaleForSize("mod", 100, 0, 10)).toBe(100);
     expect(sizeRange("mod", 100, 10)).toEqual([5, 15]);
+  });
+});
+
+describe("Icon Studio edit-ops · peran warna lapisan", () => {
+  const kinds = (/** @type {any[]} */ ps) => ps.map((p) => `${p.label}:${p.slot}`);
+  const libOf = (o = {}) => ({ PREFS: data.PREFS, DECOS: data.DECOS, ...o });
+  test("classic mengikuti PREFS mode A, B, C", () => {
+    const style = normSetStyle();
+    style.family = "classic";
+    const it = item({ deco: { type: "star4", x: 9, y: 9 } });
+    const cases = { A: ["Garis:line", "Isi:fill"], B: ["Isi:fill", "Garis:line"], C: ["Garis:line", "Garis:line"] };
+    for (const [mode, [main, mod]] of Object.entries(cases)) {
+      style.pref = mode;
+      expect(kinds(layerPaints(it, "main", style, libOf()))).toEqual([main]);
+      expect(kinds(layerPaints(it, "mod", style, libOf()))).toEqual([mod]);
+    }
+    expect(kinds(layerPaints(it, "deco", style, libOf()))).toEqual(["Isi:fill"]);
+    it.pref = "B";
+    style.pref = "A";
+    expect(kinds(layerPaints(it, "main", style, libOf()))).toEqual(["Isi:fill"]);
+    style.colors.main = { line: "#123456", fill: null };
+    it.pref = "set";
+    expect(layerPaints(it, "main", style, libOf())[0].color).toBe("#123456");
+    expect(kinds(layerPaints({ ...it, deco: { ...it.deco, type: "spark" } }, "deco", style, libOf()))).toEqual(["Garis:line"]);
+  });
+
+  test("accent: tinta dan aksen objek utama, pengubah memakai warna aksen", () => {
+    const style = normSetStyle();
+    style.family = "accent";
+    const it = item();
+    expect(kinds(layerPaints(it, "main", style, libOf({ roles: ["ink", "ink"] })))).toEqual(["Garis:line"]);
+    expect(kinds(layerPaints(it, "main", style, libOf({ roles: ["ink", "acc"] })))).toEqual(["Garis:line", "Isi:fill"]);
+    expect(kinds(layerPaints(it, "main", style, libOf({ roles: ["fillA"] })))).toEqual(["Isi:fill"]);
+    expect(kinds(layerPaints({ ...it, under: "full" }, "main", style, libOf({ roles: ["ink"], bodies: true })))).toEqual(["Garis:line", "Isi:fill"]);
+    expect(kinds(layerPaints(it, "mod", style, libOf()))).toEqual(["Garis:fill"]);
+    expect(kinds(layerPaints({ ...it, mstyle: "fill" }, "mod", style, libOf()))).toEqual(["Isi:fill"]);
+  });
+
+  test("offset: objek utama tinta dan aksen, dekorasi tinta, pengubah tanpa swatch", () => {
+    const style = normSetStyle();
+    style.family = "offset";
+    style.engine = { offset: { mode: "solid", acc: "#ffcc00", ink: "#111111" } };
+    const it = item();
+    const main = layerPaints(it, "main", style, libOf());
+    expect(kinds(main)).toEqual(["Garis:line", "Isi:fill"]);
+    expect(main.map((p) => p.color)).toEqual(["#111111", "#FFCC00"]);
+    expect(kinds(layerPaints(it, "deco", style, libOf()))).toEqual(["Garis:line"]);
+    expect(layerPaints(it, "mod", style, libOf())).toEqual([]);
   });
 });

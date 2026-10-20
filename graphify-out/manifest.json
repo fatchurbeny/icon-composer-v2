@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792483099.8383615,
-    "seen": 1792483153.986679,
-    "ast_hash": "7c3811c67fc7b4585956fcd950b86c4b",
+    "mtime": 1792485737.3293695,
+    "seen": 1792485740.107564,
+    "ast_hash": "aa6daed68e7b2b61d86a4c780b92d100",
     "semantic_hash": ""
   },
   "README.md": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN-HANDOFF.md": {
-    "mtime": 1792483092.6079235,
-    "seen": 1792483153.986696,
-    "ast_hash": "f257df2945c6123651b22cf97fe60249",
+    "mtime": 1792485737.3271117,
+    "seen": 1792485740.107581,
+    "ast_hash": "5d7555a977cd08fccd41fca12707225e",
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
@@ -744,27 +744,27 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/personas/composer-edit.js": {
-    "mtime": 1792482934.972133,
-    "seen": 1792483153.986569,
-    "ast_hash": "5f7d4352a2fc9a4608ca2dae4cafcbea",
+    "mtime": 1792485445.9652839,
+    "seen": 1792485740.1074402,
+    "ast_hash": "a5db6b5c2db55adc4e035fbd80bb5e4d",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/edit-ops.js": {
-    "mtime": 1792482892.9376729,
-    "seen": 1792483153.9865851,
-    "ast_hash": "7ed6e86fba5a4a3bd7c7b518d60dfcec",
+    "mtime": 1792485412.7735634,
+    "seen": 1792485740.107457,
+    "ast_hash": "ced72ceb1616276b44b7500ae6a23bea",
     "semantic_hash": ""
   },
   "tests/e2e/studio-composer-edit.spec.js": {
-    "mtime": 1792483027.9186497,
-    "seen": 1792483153.986644,
-    "ast_hash": "07c9206b06b485d338b9542adcca4f5e",
+    "mtime": 1792485726.2087731,
+    "seen": 1792485740.107525,
+    "ast_hash": "fd8df3a8ca705d98e3e8ddc2cfdeb051",
     "semantic_hash": ""
   },
   "tests/unit/studio-edit-ops.test.js": {
-    "mtime": 1792482957.4833064,
-    "seen": 1792483153.9866712,
-    "ast_hash": "f8db6d7d0ebebf93204f4b5d6cfe0a2b",
+    "mtime": 1792485660.0982182,
+    "seen": 1792485740.107556,
+    "ast_hash": "7a263361d9d1f9a3f0154c06c521b0a3",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/builder-ops.js": {
@@ -906,9 +906,9 @@
     "semantic_hash": ""
   },
   "tests/e2e/studio-offset.spec.js": {
-    "mtime": 1792482760.5909297,
-    "seen": 1792483153.986648,
-    "ast_hash": "5e15be375a1be1dca3d3ca11c789cd3b",
+    "mtime": 1792485612.1019332,
+    "seen": 1792485740.1075299,
+    "ast_hash": "11f1203cdfb4787e85f4dce6005146a5",
     "semantic_hash": ""
   },
   "tests/unit/engines-offset.test.js": {
@@ -942,9 +942,9 @@
     "semantic_hash": ""
   },
   "tests/e2e/studio-panels.js": {
-    "mtime": 1792482760.591164,
-    "seen": 1792483153.986649,
-    "ast_hash": "ce7d80f50b797cdce2f856d39c062310",
+    "mtime": 1792485612.0723972,
+    "seen": 1792485740.107531,
+    "ast_hash": "ee7e20cbe5e17d86c12f3f744b85a0d0",
     "semantic_hash": ""
   },
   "apps/icon-studio/src/state/undo.js": {

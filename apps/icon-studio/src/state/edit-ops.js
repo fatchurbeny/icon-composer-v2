@@ -3,7 +3,8 @@
  * Operasi Composer · Edit pada satu ikon (posisi lapisan, kotak lapisan, slot, warna bagian aksen).
  * Dipindah dari Icon Composer 1.5.1 (`boxes`, `getXY`, `setXY`, `cycleRole`, handler slot dan reset).
  */
-import { geomClassic } from "@icon-studio/engines/classic";
+import { fillOfClassic, geomClassic, lineOfClassic, modeOfClassic } from "@icon-studio/engines/classic";
+import { offsetParams } from "@icon-studio/engines/offset";
 import { ROLES } from "@icon-studio/engines/shared";
 import { STYLE_RANGES } from "./set-ops.js";
 
@@ -352,4 +353,55 @@ export function scaleForSize(layer, s0, size0, size1) {
 export function sizeRange(layer, s0, size0) {
   const [min, max] = /** @type {any} */ (STYLE_RANGES)[`scale.${layer}`];
   return [(size0 * min) / s0, (size0 * max) / s0];
+}
+
+/* ---------- peran warna lapisan (swatch bilah konteks) ---------- */
+
+/**
+ * Satu warna yang dipakai lapisan: `slot` menunjuk warna set yang dipakai (`line` = garis atau tinta,
+ * `fill` = isi atau aksen), `label` peran gambarnya di mode warna aktif.
+ * @typedef {{slot: "line" | "fill", label: "Garis" | "Isi", color: string}} LayerPaint
+ */
+
+/**
+ * Peran warna lapisan dalam mode warna aktif, sama dengan cara mesin menggambarnya.
+ * - classic: objek utama dan pengubah mengikuti PREFS mode aktif (`outline` = Garis, `solid` = Isi).
+ *   Dekorasi bintang terisi warna isi, dekorasi lain digaris warna garis.
+ * - accent: objek utama Garis bila ada bagian tinta, Isi bila ada bagian aksen atau isi bidang.
+ *   Pengubah selalu memakai warna isi (aksen): Garis bila penanda garis, Isi bila penanda isi.
+ * - offset: objek utama Garis (tinta) dan Isi (aksen), dekorasi Garis, pengubah tidak dirender.
+ * Dekorasi unggahan mengikuti warnanya (`accent` = Isi, `orig` = warna asli tanpa swatch, lainnya Garis).
+ * @param {any} it
+ * @param {Layer} layer
+ * @param {any} style gaya set
+ * @param {{PREFS: Record<string, any>, DECOS: Record<string, any>, roles?: string[], bodies?: boolean}} lib
+ *   `roles` dan `bodies` hanya untuk objek utama accent (rolesOf dan ada bagian badan).
+ * @returns {LayerPaint[]}
+ */
+export function layerPaints(it, layer, style, lib) {
+  const ctx = /** @type {any} */ ({ style, PREFS: lib.PREFS });
+  if (style.family === "offset") {
+    const p = offsetParams(style);
+    const line = /** @type {LayerPaint} */ ({ slot: "line", label: "Garis", color: p.ink });
+    if (layer === "mod") return [];
+    return layer === "main" ? [line, { slot: "fill", label: "Isi", color: p.acc }] : [line];
+  }
+  const line = /** @type {LayerPaint} */ ({ slot: "line", label: "Garis", color: lineOfClassic(it, ctx, layer) });
+  const fill = /** @type {LayerPaint} */ ({ slot: "fill", label: "Isi", color: fillOfClassic(it, ctx, layer) });
+  const accent = style.family === "accent";
+  if (layer === "deco") {
+    const d = it.deco;
+    if (String(d.type).startsWith("c:")) return d.color === "orig" ? [] : d.color === "accent" ? [fill] : [line];
+    return lib.DECOS[d.type] && lib.DECOS[d.type].star ? [fill] : [line];
+  }
+  if (accent && layer === "mod") return [{ ...fill, label: it.mstyle === "fill" ? "Isi" : "Garis" }];
+  if (accent) {
+    const roles = lib.roles || [];
+    const out = [];
+    if (!roles.length || roles.some((r) => r === "ink" || r === "fill")) out.push(line);
+    if (roles.some((r) => r === "acc" || r === "fillA") || (it.under && it.under !== "none" && lib.bodies)) out.push(fill);
+    return out;
+  }
+  const P = lib.PREFS[modeOfClassic(it, ctx)] || lib.PREFS.A;
+  return [P[layer] === "solid" ? fill : line];
 }
