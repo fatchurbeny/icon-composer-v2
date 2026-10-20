@@ -50,6 +50,8 @@ const NAMES = {
   edit: "pencil",
   swap: "arrow-left-right",
   drag: "grip-vertical",
+  link: "link",
+  unlink: "unlink",
 };
 const out = {};
 for (const [name, file] of Object.entries(NAMES)) {

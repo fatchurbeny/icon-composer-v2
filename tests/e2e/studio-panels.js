@@ -15,3 +15,13 @@ export async function openPanel(page, id) {
   );
   if ((await btn.getAttribute("aria-expanded")) === "false") await btn.click();
 }
+
+/**
+ * Buka tab Transform di panel Lapisan Composer · Edit. Memilih lapisan membuka tab Lapisan,
+ * jadi tes yang memakai kontrol Transform berpindah tab lebih dulu.
+ * @param {import("@playwright/test").Page} page
+ */
+export async function openTransform(page) {
+  await openPanel(page, "edit-layers");
+  await page.click('[data-panel="edit-layers"] [role="tab"][data-value="transform"]');
+}

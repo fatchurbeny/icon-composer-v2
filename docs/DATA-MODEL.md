@@ -76,7 +76,7 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
 ```js
 { schemaVersion: 1, activeId, migrations: ["002-from-offset"], documents: [
   { id, kind: "set", name, style, items, customs,
-    pool: { mains, mods, off }, view: { sort, cols, snap, grid, panel },
+    pool: { mains, mods, off }, view: { sort, cols, snap, grid, panel, anchor },
     combo: { pos, mode, skipExisting, skip },
     review: { json, html, ko, fmt, bg, size, names, flags, compare, off },
     meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack?, import? } },
@@ -84,6 +84,8 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
     exportModes, export: { modes, slot, extra, split, skipBad, kw, name, locale, creator, description, sheetCols },
     view: { filter, group, step }, issues, review } ] }
 ```
+
+`view.anchor` (bawaan `TL`, salah satu `TL TC TR ML C MR BL BC BR`) adalah titik acuan kotak lapisan yang dibaca dan ditulis kolom X/Y di tab Transform Composer · Edit. Seperti seluruh `view`, nilainya tidak ikut undo.
 
 Dokumen manifest bergaya offset (Fase 3): `pv = "O"`, `export.modes.O`, dan isi warna di `style.engine.offset.mode` (`solid`, `white`, `line`). Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
 

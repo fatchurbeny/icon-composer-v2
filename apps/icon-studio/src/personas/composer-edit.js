@@ -1,31 +1,37 @@
 // @ts-check
 /**
  * Persona Composer · Edit (DESIGN-HANDOFF 3.2): satu ikon di artboard 520 px.
- * Pilih lapisan dengan klik (panel Transform ikut terbuka), seret untuk memindah, seret pegangan sudut
+ * Pilih lapisan dengan klik (daftar Lapisan ikut terbuka), seret untuk memindah, seret pegangan sudut
  * untuk skala set, seret di luar sudut untuk memutar per ikon, panah 0,5 unit (Shift 2), [ ] memutar 15°,
  * Delete melepas pengubah atau dekorasi, Esc kembali ke ikhtisar. Logika dari editor Icon Composer 1.5.1.
  */
 import { r2 } from "@icon-studio/core";
-import { fillOfClassic, modeOfClassic } from "@icon-studio/engines/classic";
-import { offsetParams } from "@icon-studio/engines/offset";
+import { modeOfClassic } from "@icon-studio/engines/classic";
 import { ROLES } from "@icon-studio/engines/shared";
 import { FILL_OPTIONS, LINE_OPTIONS } from "../state/data/palettes.js";
 import {
-  LAYER_RANGE,
+  ANCHOR_POINTS,
+  DEFAULT_ANCHOR,
   ROT_RANGE,
+  anchorRange,
+  anchorXY,
   angleFromDrag,
   getRot,
   getXY,
+  layerPaints,
   resetLayer,
   rotCenter,
   rotatePt,
   scaleFromDrag,
   scalePivot,
+  scaleForSize,
+  setAnchorXY,
   setDeco,
   setPartRole,
   setRot,
   setSlot,
   setXY,
+  sizeRange,
 } from "../state/edit-ops.js";
 import { clearLayer, setOffsetDeco, setStyleValue } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, number, panel, seg } from "../ui.js";
@@ -53,12 +59,6 @@ const ANCHORS = ["TL", "TC", "TR", "ML", "C", "MR", "BL", "BC", "BR"];
 
 /** Lapisan terpilih di mode edit (sama dengan target klik pustaka). */
 const layerOf = () => /** @type {import("../state/edit-ops.js").Layer} */ (libraryUi.target);
-
-/** @param {import("./common.js").Ctx} ctx */
-const classicCtx = (ctx) => ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS });
-
-/** @param {import("./common.js").Ctx} ctx @param {any} it @param {string} layer */
-const fillOf = (ctx, it, layer) => fillOfClassic(it, /** @type {any} */ (classicCtx(ctx)), layer);
 
 /** @param {any} it @param {string} layer */
 const keyOf = (it, layer) => (layer === "main" ? it.main : layer === "mod" ? it.mod : it.deco.type);
@@ -170,20 +170,19 @@ const colorSwatches = (name, label, options, current, fallback) =>
 /** Rentang skala set lapisan (STYLE_RANGES), sama dengan kolom Skala di bilah konteks. */
 const scaleRange = (/** @type {string} */ layer) => ({ min: layer === "main" ? 60 : 50, max: layer === "main" ? 100 : layer === "mod" ? 150 : 200 });
 
-/** Opsi: buka panel Transform saat lapisan dipilih (bawaan menyala, disimpan di `view.panel`). */
-const autoPanelCheck = (/** @type {import("./common.js").Ctx} */ ctx) => check("Buka panel ini saat memilih lapisan", ctx.doc.view.panel !== false, { name: "edit-autopanel" });
+/** Opsi: buka daftar Lapisan saat lapisan dipilih (bawaan menyala, disimpan di `view.panel`). */
+const autoPanelCheck = (/** @type {import("./common.js").Ctx} */ ctx) => check("Buka daftar Lapisan saat memilih lapisan", ctx.doc.view.panel !== false, { name: "edit-autopanel" });
 
 /**
- * Pilih lapisan lalu buka tab Transform (kontrol lapisan terpilih). Tab itu sepanel dengan daftar Lapisan,
- * jadi keduanya bergantian di satu panel dan akordeon tidak menutup daftar Lapisan. Memakai openTab
- * supaya panel ikut terbuka bila sedang tertutup.
+ * Pilih lapisan lalu buka tab Lapisan dengan baris lapisan itu tersorot. Tab Transform sepanel, satu klik
+ * di sebelahnya. Memakai openTab supaya panel ikut terbuka bila sedang tertutup.
  * @param {import("./common.js").Ctx} ctx
  * @param {import("../state/edit-ops.js").Layer} layer
  */
 function selectLayer(ctx, layer) {
   libraryUi.target = layer;
   rerender(ctx);
-  if (ctx.doc.view.panel !== false) openTab("edit-layers", "transform");
+  if (ctx.doc.view.panel !== false) openTab("edit-layers", "lapisan");
 }
 
 /**
@@ -215,21 +214,51 @@ function offsetTransformBody(ctx, it) {
   return out.join("");
 }
 
+/** Titik acuan panel Transform (`view.anchor`, tidak ikut undo). */
+const anchorOf = (/** @type {import("./common.js").Ctx} */ ctx) => (ANCHOR_POINTS.includes(ctx.doc.view.anchor) ? ctx.doc.view.anchor : DEFAULT_ANCHOR);
+
+const ANCHOR_NAME = { TL: "kiri atas", TC: "tengah atas", TR: "kanan atas", ML: "kiri tengah", C: "tengah", MR: "kanan tengah", BL: "kiri bawah", BC: "tengah bawah", BR: "kanan bawah" };
+
+/** Label dan kolom angka panel Transform, satu sel `.ic-tilegrid`. @param {string} label @param {string} control */
+const cell = (label, control) => `<div class="studio-row"><span class="ic-label">${label}</span>${control}</div>`;
+
+/**
+ * Kolom geometri gaya Affinity: titik acuan 3×3 di kiri, X, Y, W, H, dan R di kanan. X/Y membaca dan
+ * menulis titik acuan kotak lapisan (satuan 48). W/H mengubah skala set (rasio selalu terkunci,
+ * karena mesin hanya mengenal skala seragam). R memutar lapisan untuk ikon ini.
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ * @param {import("../state/edit-ops.js").Layer} layer
+ */
+function geometryFields(ctx, it, layer) {
+  const name = LAYER_LABEL[layer].toLowerCase(),
+    anchor = anchorOf(ctx),
+    s0 = ctx.doc.style.scale[layer];
+  const box = boxesOf(ctx, it)[layer];
+  const [ax, ay] = anchorXY(box, anchor);
+  const range = anchorRange(it, layer, box, anchor);
+  const wr = sizeRange(layer, s0, box.w),
+    hr = sizeRange(layer, s0, box.h);
+  const empty = !box.w;
+  const anchors = `<div class="ic-anchor" data-ic="single" role="group" aria-label="Titik acuan" data-name="edit-anchor">${ANCHOR_POINTS.map((k) => `<button type="button" data-value="${k}" ${aria("aria-pressed", anchor === k)} aria-label="Titik acuan ${ANCHOR_NAME[k]}" title="Titik acuan ${ANCHOR_NAME[k]}"></button>`).join("")}</div>`;
+  const chain = `<button type="button" class="ic-iconbtn" ${aria("aria-pressed", true)} disabled aria-label="Rasio selalu terkunci" title="Rasio selalu terkunci: mesin hanya mengenal skala seragam">${icon("link")}</button>`;
+  return `<div class="studio-row">${anchors}<div class="ic-tilegrid studio-grow" style="--ic-cols: 2">${[
+    cell("X", number(`X ${name}`, r2(ax), { min: r2(range.x[0]), max: r2(range.x[1]), step: 0.5, name: "edit-x" })),
+    cell("W", empty ? `<span class="ic-meta">0</span>` : number(`W ${name}`, r2(box.w), { min: r2(wr[0]), max: r2(wr[1]), step: 0.5, name: "edit-w" })),
+    cell("Y", number(`Y ${name}`, r2(ay), { min: r2(range.y[0]), max: r2(range.y[1]), step: 0.5, name: "edit-y" })),
+    cell("H", empty ? `<span class="ic-meta">0</span>` : number(`H ${name}`, r2(box.h), { min: r2(hr[0]), max: r2(hr[1]), step: 0.5, name: "edit-h" })),
+    cell("R", number(`R ${name}`, getRot(it, layer), { min: ROT_RANGE[0], max: ROT_RANGE[1], step: 1, name: "edit-rot" })),
+    cell("", chain),
+  ].join("")}</div></div>`;
+}
+
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function transformBody(ctx, it) {
   if (isOffset(ctx.doc)) return offsetTransformBody(ctx, it);
   const layer = layerOf(),
     s = ctx.doc.style,
     accent = s.family === "accent";
-  const [x, y] = getXY(it, layer);
-  const [min, max] = LAYER_RANGE[layer];
-  const box = boxesOf(ctx, it)[layer];
-  const out = [
-    `<div class="ic-formrow"><span class="ic-label">X</span>${number(`X ${LAYER_LABEL[layer].toLowerCase()}`, x, { min, max, step: 0.5, name: "edit-x" })}<span class="ic-label">Y</span>${number(`Y ${LAYER_LABEL[layer].toLowerCase()}`, y, { min, max, step: 0.5, name: "edit-y" })}</div>`,
-    `<div class="ic-formrow"><span class="ic-label">W × H</span><span class="ic-meta">${r2(box.w)} × ${r2(box.h)}</span></div>`,
-    `<div class="ic-formrow"><span class="ic-label">Skala</span>${number(`Skala ${LAYER_LABEL[layer].toLowerCase()} semua ikon`, s.scale[layer], { ...scaleRange(layer), step: 1, name: "edit-scale" })}<span class="ic-label">Rotasi</span>${number(`Rotasi ${LAYER_LABEL[layer].toLowerCase()}`, getRot(it, layer), { min: ROT_RANGE[0], max: ROT_RANGE[1], step: 1, name: "edit-rot" })}</div>`,
-    `<span class="ic-meta">Skala berlaku untuk semua ikon di set. Rotasi hanya untuk ikon ini.</span>`,
-  ];
+  const out = [geometryFields(ctx, it, layer), `<span class="ic-meta">W dan H mengubah skala ${LAYER_LABEL[layer].toLowerCase()} untuk semua ikon di set (${s.scale[layer]}%). R hanya untuk ikon ini.</span>`];
   if (layer === "deco") {
     const D = ctx.renderer.data.DECOS;
     out.push(
@@ -333,11 +362,22 @@ function editControl(ctx, name, value, el, tools) {
   }
   if (name === "edit-slot") return mutateItem(ctx, (it) => setSlot(it, String(value), ctx.renderer.data.SHIFT), `Posisi pengubah ${value}`);
   if (name === "edit-scale") return mutate(ctx, (doc) => setStyleValue(doc.style, `scale.${layer}`, value), `Skala ${LAYER_LABEL[layer].toLowerCase()} ${value}`);
+  if (name === "edit-anchor") return mutate(ctx, (doc) => (doc.view.anchor = String(value)), "");
   if (name === "edit-x" || name === "edit-y")
     return mutateItem(ctx, (it) => {
-      const [x, y] = getXY(it, layer);
-      setXY(it, layer, name === "edit-x" ? Number(value) : x, name === "edit-y" ? Number(value) : y, { snap: ctx.doc.view.snap });
+      const box = boxesOf(ctx, it)[layer],
+        anchor = anchorOf(ctx);
+      const [ax, ay] = anchorXY(box, anchor);
+      setAnchorXY(it, layer, box, anchor, name === "edit-x" ? Number(value) : ax, name === "edit-y" ? Number(value) : ay, { snap: ctx.doc.view.snap });
     }, `Geser ${LAYER_LABEL[layer].toLowerCase()}`);
+  if (name === "edit-w" || name === "edit-h") {
+    const it = selectedOf(ctx);
+    if (!it) return;
+    const box = boxesOf(ctx, it)[layer],
+      s0 = ctx.doc.style.scale[layer];
+    const v = scaleForSize(layer, s0, name === "edit-w" ? box.w : box.h, Number(value));
+    return mutate(ctx, (doc) => setStyleValue(doc.style, `scale.${layer}`, v), `Skala ${LAYER_LABEL[layer].toLowerCase()} ${v}`);
+  }
   if (name === "edit-rot")
     return mutateItem(ctx, (it) => setRot(it, layer, Math.max(ROT_RANGE[0], Math.min(ROT_RANGE[1], Number(value)))), `Putar ${LAYER_LABEL[layer].toLowerCase()} ${r2(Number(value)) || 0}°`);
   if (name === "edit-autopanel") return mutate(ctx, (doc) => (doc.view.panel = !!value), "");
@@ -511,6 +551,28 @@ function mount(root, ctx) {
 
 /* ---------- persona ---------- */
 
+/**
+ * Swatch warna lapisan di bilah konteks, sesuai peran lapisan di mode warna aktif (layerPaints):
+ * lapisan garis menampilkan "Garis", lapisan solid "Isi", lapisan garis dan isi keduanya.
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ * @param {import("../state/edit-ops.js").Layer} layer
+ */
+function paintSwatches(ctx, it, layer) {
+  const D = ctx.renderer.data;
+  const info = ctx.doc.style.family === "accent" && layer === "main" ? ctx.renderer.mainInfo(it.main) : null;
+  const paints = layerPaints(it, layer, ctx.doc.style, {
+    PREFS: D.PREFS,
+    DECOS: D.DECOS,
+    roles: info ? ctx.renderer.rolesOf(it, info) : undefined,
+    bodies: info ? info.parts.some((/** @type {any} */ p) => p.body) : false,
+  });
+  const name = LAYER_LABEL[layer].toLowerCase();
+  return paints
+    .map((p) => `<span class="ic-label">${p.label}</span><button type="button" class="ic-swatch" data-action="edit-colors" data-slot="${p.slot}" style="background: ${p.color}" aria-label="${p.label} ${name} ${p.color}, ubah warna"></button>`)
+    .join("");
+}
+
 export const composerEdit = {
   ...composerSet,
   viewMode: "single",
@@ -528,16 +590,14 @@ export const composerEdit = {
     if (!it) return "";
     const layer = layerOf();
     if (isOffset(ctx.doc)) {
-      const acc = offsetParams(ctx.doc.style).acc;
       const key = layer === "mod" ? "" : layer === "main" ? it.main : offsetDecoLabel(it);
-      return `<span class="ic-label">${LAYER_LABEL[layer]}</span>${layer === "mod" ? `<span class="ic-meta">${NO_MOD_TEXT}</span>` : `<label class="ic-field ic-field--mono"><input value="${esc(key)}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${layer === "main" ? button("Ganti…", { size: "sm", action: "layer-swap" }) : ""}`}<span class="ic-sep"></span><span class="ic-label">Isi</span><button type="button" class="ic-swatch" data-action="edit-colors" style="background: ${acc}" aria-label="Aksen offset ${acc}, ubah warna"></button><span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
+      return `<span class="ic-label">${LAYER_LABEL[layer]}</span>${layer === "mod" ? `<span class="ic-meta">${NO_MOD_TEXT}</span>` : `<label class="ic-field ic-field--mono"><input value="${esc(key)}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${layer === "main" ? button("Ganti…", { size: "sm", action: "layer-swap" }) : ""}`}${paintSwatches(ctx, it, layer)}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
     }
     const anchor =
       layer === "mod" && it.mod !== "none"
         ? `<span class="ic-sep"></span><span class="ic-label">Posisi</span><div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="edit-slot">${ANCHORS.map((k) => (k === "C" ? '<button type="button" disabled aria-label="Tengah"></button>' : `<button type="button" data-value="${k}" ${aria("aria-pressed", it.slot === k)} aria-label="Posisi ${k}"></button>`)).join("")}</div>`
         : "";
-    const fill = fillOf(ctx, it, layer);
-    return `<span class="ic-label">${LAYER_LABEL[layer]}</span><label class="ic-field ic-field--mono"><input value="${esc(keyOf(it, layer))}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${button("Ganti…", { size: "sm", action: "layer-swap" })}${anchor}<span class="ic-sep"></span><span class="ic-label">Skala</span>${number(`Skala ${LAYER_LABEL[layer].toLowerCase()}`, ctx.doc.style.scale[layer], { ...scaleRange(layer), step: 1, name: "edit-scale" })}<span class="ic-label">Isi</span><button type="button" class="ic-swatch" data-action="edit-colors" style="background: ${fill}" aria-label="Isi ${LAYER_LABEL[layer].toLowerCase()} ${fill}, ubah warna"></button><span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
+    return `<span class="ic-label">${LAYER_LABEL[layer]}</span><label class="ic-field ic-field--mono"><input value="${esc(keyOf(it, layer))}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${button("Ganti…", { size: "sm", action: "layer-swap" })}${anchor}<span class="ic-sep"></span><span class="ic-label">Skala</span>${number(`Skala ${LAYER_LABEL[layer].toLowerCase()}`, ctx.doc.style.scale[layer], { ...scaleRange(layer), step: 1, name: "edit-scale" })}${paintSwatches(ctx, it, layer)}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
   },
   /** @param {import("./common.js").Ctx} ctx */
   canvas(ctx) {
