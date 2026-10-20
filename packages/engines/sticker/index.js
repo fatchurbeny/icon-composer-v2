@@ -45,7 +45,11 @@ export const STICKER_INKS = Object.freeze([
   "#5A2E1F",
   "#FFFFFF",
 ]);
-const WHITE = "#FFFFFF";
+/** Warna halo putih (juga warna ke-4 di batas Canva). */
+export const STICKER_HALO = "#FFFFFF";
+const WHITE = STICKER_HALO;
+/** Isi pengubah bawaan (kuning legacy). */
+export const STICKER_MOD_FILL = "#F9D84A";
 
 /** Patokan gaya set (DEFAULT_STYLE legacy). */
 export const STICKER_DEFAULTS = Object.freeze({
@@ -183,7 +187,7 @@ export function stickerParams(raw = {}) {
 export function defaultColors(main) {
   const i = hash(concept(String(main || ""))) % 8;
   const c = STICKER_PALETTE[i];
-  const mod = c === "#F9D84A" ? STICKER_PALETTE[(i + 3) % 8] : "#F9D84A";
+  const mod = c === STICKER_MOD_FILL ? STICKER_PALETTE[(i + 3) % 8] : STICKER_MOD_FILL;
   return { main: c, mod };
 }
 

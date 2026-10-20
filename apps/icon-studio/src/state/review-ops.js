@@ -7,6 +7,7 @@
  */
 import { get } from "@icon-studio/engines";
 import { modeOfClassic } from "@icon-studio/engines/classic";
+import { STICKER_HALO } from "@icon-studio/engines/sticker";
 import { createTagIndex, directFillSvgFile, metadataCsv, packColors, styleWord, titleCase, trID } from "@icon-studio/export";
 import { MAIN_ALIAS, MOD_ALIAS, libNameOf } from "@icon-studio/icon-sources";
 import { SET_LICENSES, previewSheetHTML } from "./data/export/preview-sheet.js";
@@ -172,7 +173,7 @@ export function reviewChecks(doc, inc, renderer){
   /* sticker: warna isi per ikon, jadi batas Canva dicek per file; jumlah isi di pack hanya saran (legacy: > 6 terasa ramai) */
   if (sticker) {
     const ink = String((style.engine && style.engine.sticker && style.engine.sticker.ink) || "").toUpperCase();
-    const fills = [...pc].filter(c => c !== "#FFFFFF" && c !== ink).length;
+    const fills = [...pc].filter(c => c !== STICKER_HALO && c !== ink).length;
     out.push({ ok: fills <= 6, text: "Warna isi di seluruh pack (lebih dari 6 terasa ramai)", meta: `${fills} warna isi` });
   } else out.push({ ok: pc.size <= 5, text: "Maksimal 5 warna di seluruh pack", meta: `${pc.size} warna` });
   if (offset || sticker) {

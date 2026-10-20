@@ -7,7 +7,7 @@
  * Registry pustaka dan id acak disuntik lewat `deps`, supaya modul ini bisa dites tanpa browser.
  */
 import { offsetParams } from "@icon-studio/engines/offset";
-import { STICKER_PALETTE, stickerItem, stickerParams } from "@icon-studio/engines/sticker";
+import { STICKER_MOD_FILL, STICKER_PALETTE, stickerItem, stickerParams } from "@icon-studio/engines/sticker";
 import { ROLES } from "@icon-studio/engines/shared";
 import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
 
@@ -159,7 +159,7 @@ export function manifestStickerStyle(style){
 export function manifestStickerItem(it, style){
   const acc = /^#[0-9a-f]{6}$/i.test(style.accent || "") ? String(style.accent).toUpperCase() : STICKER_PALETTE[0];
   const i = STICKER_PALETTE.indexOf(acc);
-  const mod = acc === "#F9D84A" ? STICKER_PALETTE[((i < 0 ? 3 : i) + 3) % 8] : "#F9D84A";
+  const mod = acc === STICKER_MOD_FILL ? STICKER_PALETTE[((i < 0 ? 3 : i) + 3) % 8] : STICKER_MOD_FILL;
   return {...it, mx:0, my:0, nx:0, ny:0, vis:{main:true, mod:true, deco:true}, engine:{...(it.engine || {}), sticker:{main:{c:acc}, mod:{c:mod}}}};
 }
 
