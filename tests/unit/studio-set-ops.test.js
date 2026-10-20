@@ -59,7 +59,7 @@ describe("Icon Studio set-ops", () => {
       b = ensureSetFields({});
     expect(a.pool).toEqual(DEFAULT_POOL);
     expect(a.pool).not.toBe(b.pool);
-    expect(a.view).toEqual({ sort: "set", cols: 8, snap: true, grid: true });
+    expect(a.view).toEqual({ sort: "set", cols: 8, snap: true, grid: true, panel: true });
     expect(ensureSetFields({ view: { cols: 4 } }).view.cols).toBe(4);
   });
 

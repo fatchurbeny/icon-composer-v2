@@ -20,7 +20,8 @@ Basisnya model item IC 1.5.1, ditambah blok `engine` untuk data khusus mesin.
   main: "lu:luggage",          // kunci objek utama
   mod: "lu:check" | "none",    // kunci pengubah
   slot: "BR",                  // TL TC TR ML MR BL BC BR
-  nx, ny, mx, my, ms, size,    // geser pengubah, geser objek, skala
+  nx, ny, mx, my, ms, size,    // geser pengubah, geser objek, skala (ms dan size tidak dibaca mesin)
+  mr, nr,                      // rotasi objek utama dan pengubah (derajat, opsional)
   deco: { type, x, y, s, r, color },     // dekorasi classic/accent
   pref, parts, under, mstyle,            // classic/accent
   colors: { main, mod, deco },           // override warna lapisan
@@ -37,6 +38,7 @@ Di TIB, item juga punya field Builder: `uid, idRaw, name:{en,id}, slides, role, 
 
 Aturan:
 - `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada. Pengecualian offset: `engine.offset` tidak ditulis oleh `normItem`; bawaannya (kilat kanan atas + garis tanah) diisi `offsetDeco` saat `adapt`, dan field baru ditulis hanya saat pengguna mengubah dekorasi. Alasannya, `gaya.json` set classic/accent harus tetap sama dengan IC 1.5.1 (golden).
+- Rotasi per ikon: `mr` (objek utama, di pusat objek), `nr` (pengubah, di pusat kotaknya), dan `deco.r` (dekorasi, di titik `deco.x/y`). Rentang −180..180 derajat. `mr` dan `nr` hanya disimpan bila tidak 0 (`normItem` menghapus nilai 0 atau tidak valid), sehingga item tanpa rotasi tetap sama dengan IC 1.5.1. Skala tetap di tingkat set (`style.scale`). Dibaca mesin classic dan accent. Offset mengabaikannya.
 - Pindah gaya tidak menghapus `engine.<id>` milik gaya lain.
 - `engine.<id>` hanya dibaca oleh mesin `<id>`, lewat `adapt`.
 
@@ -74,7 +76,7 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
 ```js
 { schemaVersion: 1, activeId, migrations: ["002-from-offset"], documents: [
   { id, kind: "set", name, style, items, customs,
-    pool: { mains, mods, off }, view: { sort, cols, snap, grid },
+    pool: { mains, mods, off }, view: { sort, cols, snap, grid, panel },
     combo: { pos, mode, skipExisting, skip },
     review: { json, html, ko, fmt, bg, size, names, flags, compare, off },
     meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack?, import? } },

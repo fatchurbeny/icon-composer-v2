@@ -327,3 +327,83 @@ test.describe("Ekspor Canva · offset", () => {
     });
   }
 });
+
+test.describe("Ekspor Canva · classic dan accent diputar dan diskalakan", () => {
+  for (const family of ["classic", "accent"]) {
+    test(`ZIP Composer ${family} dengan rotasi per lapisan dan skala set: direct fill valid, ≤5 warna, hanya fill`, async ({
+      page,
+    }) => {
+      test.setTimeout(120_000);
+      await open(page);
+      await page.evaluate((family) => {
+        const S = /** @type {any} */ (window).__iconStudio;
+        const lib = S.renderer.lib;
+        const rows = [
+          {
+            main: "face",
+            mod: "bubble",
+            slot: "BL",
+            mr: 30,
+            nr: -45,
+            deco: { type: "spark", x: 9, y: 9, r: 60 },
+          },
+          {
+            main: "clock",
+            mod: "card",
+            slot: "BR",
+            mr: -90,
+            mx: -3,
+            my: -3,
+            deco: { type: "star4", x: 40, y: 8, r: 15 },
+          },
+          { main: "bell", mod: "mail", slot: "TR", nr: 120, mx: -3, my: 3 },
+          {
+            main: "heart",
+            mod: "plus",
+            slot: "TL",
+            mr: 180,
+            nr: 90,
+            deco: { type: "speed", x: 6, y: 36, r: -30 },
+          },
+        ];
+        const items = rows.map((o, i) =>
+          S.document.normItem({ ...o, name: `Putar ${i}` }, lib, {
+            uid: () => `p${i}`,
+          }),
+        );
+        const doc = S.document.createSetDocument(
+          {
+            id: "set-putar",
+            name: "Putar uji",
+            style: { family, scale: { main: 70, mod: 120, deco: 150 } },
+            items,
+          },
+          () => "x",
+        );
+        S.store.saveState({
+          schemaVersion: 1,
+          documents: [doc],
+          activeId: doc.id,
+        });
+      }, family);
+      await page.reload();
+      await expect(page.locator(".ic-page__card[data-select]")).toHaveCount(4);
+      const files = await downloadSvgs(page);
+      expect(Object.keys(files)).toHaveLength(4);
+      for (const svg of Object.values(files)) expect(svg).toContain("rotate(");
+      const results = await checkDirectFill(page, files);
+      for (const r of results) {
+        expect(r.error, r.name).toBeNull();
+        expect(r.children, r.name).toEqual(["path"]);
+        expect(r.colors.length, r.name).toBeLessThanOrEqual(5);
+        expect(r.stroke, r.name).toBe(false);
+        expect(r.dash, r.name).toBe(false);
+        expect(r.banned, r.name).toBe(false);
+        expect(
+          r.diff,
+          `${r.name} selisih piksel mask vs direct fill`,
+        ).toBeLessThan(0.02);
+      }
+    });
+  }
+});

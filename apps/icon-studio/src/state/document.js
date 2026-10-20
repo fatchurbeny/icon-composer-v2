@@ -92,6 +92,8 @@ export function normItem(o, lib, opts = {}){
   if (!["none","full","offset","half"].includes(it.under)) it.under = "none";
   if (!["line","fill"].includes(it.mstyle)) it.mstyle = "line";
   if (it.parts && typeof it.parts === "object"){ const p = {}; for (const [k, v] of Object.entries(it.parts)) if (/^\d+$/.test(k) && ROLES.includes(v)) p[k] = v; it.parts = Object.keys(p).length ? p : null; } else it.parts = null;
+  /* rotasi per ikon objek utama (mr) dan pengubah (nr): hanya disimpan bila tidak 0 */
+  for (const k of ["mr", "nr"]) { const v = Number(it[k]); if (Number.isFinite(v) && v) it[k] = Math.max(-180, Math.min(180, v)); else delete it[k]; }
   it.name = String(it.name || "").slice(0, 60);
   it.id = it.id || uid();
   return it;

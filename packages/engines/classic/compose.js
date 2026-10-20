@@ -33,7 +33,9 @@ export function geomClassic(it, ctx) {
   const { style, MODS } = ctx;
   const md = it.mod !== "none" && it.vis.mod ? MODS[it.mod] : null;
   const ms = style.scale.main / 100;
-  const mainT = `translate(${r3(24 + it.mx)} ${r3(24 + it.my)}) scale(${r3(ms)}) translate(-24 -24)`;
+  /* rotasi per ikon (`mr`) di pusat objek; tanpa rotasi string transform sama dengan IC 1.5.1 */
+  const rot = it.mr ? ` rotate(${r3(it.mr)})` : "";
+  const mainT = `translate(${r3(24 + it.mx)} ${r3(24 + it.my)})${rot} scale(${r3(ms)}) translate(-24 -24)`;
   const g = { md, ms, mainT };
   if (it.mod !== "none" && MODS[it.mod]) {
     Object.assign(g, anchoredModifierGeometry(it, MODS[it.mod], style.scale.mod / 100));
