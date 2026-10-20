@@ -62,7 +62,7 @@ function cellsOf(ctx) {
 }
 
 /**
- * SVG direct fill untuk mode Bandingkan dan pemeriksaan (hanya pratinjau; ZIP Composer tetap SVG asli sampai Fase 5).
+ * SVG direct fill untuk mode Bandingkan dan pemeriksaan. ZIP Composer memakai direct fill yang sama (ADR-011).
  * @param {string} svg
  * @returns {{svg: string, error: string | null}}
  */
@@ -194,11 +194,13 @@ function zipBody(ctx) {
   const base = slug(ctx.doc.name || "set-ikon");
   const tree =
     r.fmt === "zip"
-      ? [`${base}.zip`, ...files.slice(0, 2).map((f) => `├─ ${f.file}`), files.length > 2 ? `├─ … ${files.length - 2} file lain` : "", "├─ LICENSES.txt", r.json ? "├─ gaya.json" : "", r.html ? "├─ pratinjau.html" : "", ctx.doc.meta.canva.on ? "└─ metadata.csv" : ""].filter(Boolean).join("\n")
+      ? [`${base}.zip`, ...files.slice(0, 2).map((f) => `├─ ${f.file}`), files.length > 2 ? `├─ … ${files.length - 2} file lain · direct fill` : "", r.asli ? `├─ svg-asli/  ${files.length} svg · stroke` : "", "├─ LICENSES.txt", r.json ? "├─ gaya.json" : "", r.html ? "├─ pratinjau.html" : "", ctx.doc.meta.canva.on ? "└─ metadata.csv" : ""].filter(Boolean).join("\n")
       : `${base}-sprite.svg\n└─ ${files.length} <symbol>`;
   return [
     `<div class="ic-formrow"><span class="ic-label">Format</span>${seg("Format unduhan", [["zip", "ZIP berisi SVG"], ["sprite", "Sprite SVG"]], r.fmt, { name: "t-fmt" })}</div>`,
-    `<div class="ic-formrow"><span class="ic-label">Celah knockout</span>${seg("Celah knockout", [["mask", "Mask, transparan"], ["white", "Latar putih"]], r.ko, { name: "t-ko" })}</div>`,
+    `<span class="ic-meta">SVG untuk Canva selalu direct fill: semua stroke jadi outline, satu bidang isi per warna.</span>`,
+    check("Sertakan SVG asli (folder svg-asli/, untuk Illustrator atau Figma)", r.asli, { name: "t-asli" }),
+    `<div class="ic-formrow"><span class="ic-label">Celah knockout</span>${seg("Celah knockout SVG asli dan sprite", [["mask", "Mask, transparan"], ["white", "Latar putih"]], r.ko, { name: "t-ko" })}</div>`,
     check("Sertakan gaya.json", r.json, { name: "t-json" }),
     check("Sertakan lembar pratinjau HTML", r.html, { name: "t-html" }),
     `<pre class="ic-meta studio-tree">${esc(tree)}</pre>`,
@@ -298,6 +300,7 @@ function control(ctx, name, value) {
     "t-compare": (doc) => (doc.review.compare = value === "direct" ? "direct" : "source"),
     "t-fmt": (doc) => (doc.review.fmt = value === "sprite" ? "sprite" : "zip"),
     "t-ko": (doc) => (doc.review.ko = value === "white" ? "white" : "mask"),
+    "t-asli": (doc) => (doc.review.asli = !!value),
     "t-json": (doc) => (doc.review.json = !!value),
     "t-html": (doc) => (doc.review.html = !!value),
     "t-meta-on": (doc) => (doc.meta.canva.on = !!value),
@@ -318,6 +321,7 @@ function control(ctx, name, value) {
     "t-compare": "Bandingkan",
     "t-fmt": "Format unduhan",
     "t-ko": "Celah knockout",
+    "t-asli": "Sertakan SVG asli",
     "t-json": "Sertakan gaya.json",
     "t-html": "Sertakan lembar pratinjau",
     "t-meta-on": "Sertakan metadata.csv",

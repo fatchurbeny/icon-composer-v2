@@ -7,7 +7,7 @@
  * Registry pustaka dan id acak disuntik lewat `deps`, supaya modul ini bisa dites tanpa browser.
  */
 import { offsetParams } from "@icon-studio/engines/offset";
-import { stickerParams } from "@icon-studio/engines/sticker";
+import { STICKER_PALETTE, stickerItem, stickerParams } from "@icon-studio/engines/sticker";
 import { ROLES } from "@icon-studio/engines/shared";
 import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
 
@@ -133,9 +133,35 @@ export const MODES = ["X", "A", "B"];
 
 /** Mode Builder bergaya offset (Fase 3). Pengubah tidak dirender. */
 export const OFFSET_MODE = "O";
-/** Semua mode Builder: classic/accent (golden TIB 1.6.0) lalu offset. */
-export const BUILDER_MODES = [...MODES, OFFSET_MODE];
+/** Mode Builder bergaya sticker (Fase 5). Pengubah dirender di 4 sudut. */
+export const STICKER_MODE = "S";
+/** Semua mode Builder: classic/accent (golden TIB 1.6.0), offset, lalu sticker. */
+export const BUILDER_MODES = [...MODES, OFFSET_MODE, STICKER_MODE];
 export const OFFSET_FILLS = ["solid", "white", "line"];
+export const STICKER_FILLS = ["sticker", "fill", "line"];
+
+/**
+ * Gaya set sticker dari gaya dokumen Builder: tinta manifest, mode warna dari `style.engine.sticker.mode`.
+ * Garis, halo, geser isi, dan dekorasi memakai bawaan mesin. Gaya dokumen tidak diubah.
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestStickerStyle(style){
+  const e = (style && style.engine && style.engine.sticker) || {};
+  return {family:"sticker", engine:{sticker:stickerParams({mode:STICKER_FILLS.includes(e.mode) ? e.mode : "sticker", ink:style.ink})}};
+}
+
+/**
+ * Item Builder untuk mesin sticker: isi objek = aksen manifest, isi pengubah kuning sticker
+ * (digeser +3 di palet bila sama dengan aksen, aturan legacy). Seed dekorasi dari id ikon (stabil per ikon).
+ * @param {any} it item Builder
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestStickerItem(it, style){
+  const acc = /^#[0-9a-f]{6}$/i.test(style.accent || "") ? String(style.accent).toUpperCase() : STICKER_PALETTE[0];
+  const i = STICKER_PALETTE.indexOf(acc);
+  const mod = acc === "#F9D84A" ? STICKER_PALETTE[((i < 0 ? 3 : i) + 3) % 8] : "#F9D84A";
+  return {...it, mx:0, my:0, nx:0, ny:0, vis:{main:true, mod:true, deco:true}, engine:{...(it.engine || {}), sticker:{main:{c:acc}, mod:{c:mod}}}};
+}
 
 /**
  * Gaya set offset dari gaya dokumen Builder: tinta dan aksen manifest, isi warna dari `style.engine.offset.mode`.
@@ -221,6 +247,7 @@ export function toItem(o, i, SHIFT, rand = () => Math.random().toString(36).slic
 /**
  * Gaya dan mode pratinjau dari blok `style` manifest (applyManStyle TIB, tanpa DOM).
  * `family: "offset"` memilih mode O; `mode` berisi isi warna offset (solid, white, line).
+ * `family: "sticker"` memilih mode S; `mode` berisi mode warna sticker (sticker, fill, line).
  * @param {any} man
  * @param {any} style diubah langsung (ink, accent, engine.offset)
  * @returns {{pv: string, exportModes: Record<string, boolean>}}
@@ -232,6 +259,10 @@ export function manifestStyle(man, style){
   if (st.family === "offset"){
     style.engine = {...(style.engine || {}), offset:{mode:OFFSET_FILLS.includes(st.mode) ? st.mode : "solid"}};
     return {pv:OFFSET_MODE, exportModes:{X:false, A:false, B:false, O:true}};
+  }
+  if (st.family === "sticker"){
+    style.engine = {...(style.engine || {}), sticker:{mode:STICKER_FILLS.includes(st.mode) ? st.mode : "sticker"}};
+    return {pv:STICKER_MODE, exportModes:{X:false, A:false, B:false, O:false, S:true}};
   }
   const fam = st.family === "classic" ? "classic" : "accent";
   const pv = fam === "classic" ? (["A", "B"].includes(st.mode) ? st.mode : "A") : "X";
@@ -303,6 +334,71 @@ export function offsetSetFromComposer(data, lib, opts = {}){
     engine:{offset:{deco:{tick:!!o.dTick, tickPos:o.tickPos === "TL" ? "TL" : "TR", ground:!!o.dGround, cloud:!!o.dCloud, grass:!!o.dGrass}}}}, lib, {uid}));
   const doc = createSetDocument({name:"Set Offset Composer", style, items, meta:{import:{format:"offset-composer", version:src.version, source:src.source, warnings}}}, uid);
   return {doc, warnings, needTb:items.some(it => String(it.main).startsWith("tb:"))};
+}
+
+/* ---------- impor set sticker-composer ---------- */
+
+/** Faktor kanvas sticker-composer 64 → kanvas kanonik 48. */
+const STICKER_K = 48 / 64;
+
+/**
+ * Kenali data sticker-composer: isi localStorage `sticker-composer-v1` (`{style, set, pools}`)
+ * atau `gaya.json` dari ZIP (`{kanvas: 64, style, ikon}`).
+ * @param {any} data
+ * @returns {{icons: any[], style: any, pools: any, source: "sticker-composer-v1" | "gaya.json"} | null}
+ */
+export function stickerComposerSource(data){
+  if (!data || typeof data !== "object") return null;
+  if (data.kanvas === 64 && Array.isArray(data.ikon)) return {icons:data.ikon, style:data.style || {}, pools:null, source:"gaya.json"};
+  if (Array.isArray(data.set) && !("cur" in data) && data.set.every((/** @type {any} */ o) => o && typeof o === "object" && o.main && typeof o.main === "object"))
+    return {icons:data.set, style:data.style || {}, pools:data.pools || null, source:"sticker-composer-v1"};
+  return null;
+}
+
+/**
+ * Ubah set sticker-composer menjadi dokumen set Icon Studio bergaya `family: "sticker"` (DATA-MODEL bagian 4.5).
+ * Gaya set legacy sudah berlaku untuk seluruh set, jadi tidak ada peringatan penyeragaman. Posisi 64 diskalakan
+ * ke kanvas kanonik 48 (`mx/my`, `nx/ny`); warna, skala, isi, dan dekorasi ke `item.engine.sticker`.
+ * @param {any} data
+ * @param {Library} lib
+ * @param {{uid?: () => string}} [opts]
+ * @returns {{doc: any, warnings: string[], needTb: boolean} | {fatal: string} | null} null bila bukan data sticker-composer
+ */
+export function stickerSetFromComposer(data, lib, opts = {}){
+  const src = stickerComposerSource(data);
+  if (!src) return null;
+  const uid = opts.uid || randomUid;
+  const KEY = /^(lu|tb):[a-z0-9-]+$/;
+  const icons = src.icons.filter(o => o && o.main && KEY.test(String(o.main.k)));
+  if (!icons.length) return {fatal:"Set sticker-composer tidak berisi ikon Lucide atau Tabler."};
+  const warnings = icons.length < src.icons.length ? [`${src.icons.length - icons.length} ikon tanpa objek Lucide atau Tabler dilewati`] : [];
+  const style = normSetStyle({family:"sticker", engine:{sticker:stickerParams(src.style)}});
+  const n = (/** @type {any} */ v) => (typeof v === "number" && isFinite(v) ? Math.round(v * STICKER_K * 10000) / 10000 : 0);
+  const items = icons.map(o => {
+    const m = o.main, d = o.mod || {}, dc = o.deco || {}, vis = o.vis || {};
+    const mod = KEY.test(String(d.k)) ? d.k : "none";
+    const it = normItem({
+      name:String(o.name || ""), main:m.k, mod, slot:["TL", "TR", "BL", "BR"].includes(d.slot) ? d.slot : "TR",
+      mx:n(m.x), my:n(m.y), nx:n(d.x), ny:n(d.y),
+      vis:{main:vis.main !== false, mod:vis.mod !== false, deco:dc.on !== false},
+      engine:{sticker:{main:{c:m.c, s:m.s, fill:m.fill}, mod:{c:d.c, s:d.s}, deco:{seed:dc.seed, s:dc.s, x:dc.x, y:dc.y}}},
+    }, lib, {uid});
+    /* nilai di luar rentang atau warna tidak sah dirapikan seperti saat dirender */
+    const e = stickerItem(it);
+    it.engine.sticker = {main:e.main, mod:e.mod, deco:e.deco};
+    return it;
+  });
+  const doc = createSetDocument({name:"Set Sticker Composer", style, items, meta:{import:{format:"sticker-composer", version:"", source:src.source, warnings}}}, uid);
+  const pools = src.pools;
+  if (pools && Array.isArray(pools.main) && Array.isArray(pools.mod)) {
+    const keys = (/** @type {any[]} */ list) => list.filter(p => p && KEY.test(String(p.k)));
+    /** @type {Record<string, boolean>} */
+    const off = {};
+    for (const p of keys(pools.main)) if (!p.on) off[`main|${p.k}`] = true;
+    for (const p of keys(pools.mod)) if (!p.on) off[`mod|${p.k}`] = true;
+    doc.pool = {mains:keys(pools.main).map(p => p.k), mods:keys(pools.mod).map(p => p.k), off};
+  }
+  return {doc, warnings, needTb:items.some(it => String(it.main).startsWith("tb:") || String(it.mod).startsWith("tb:"))};
 }
 
 /* ---------- dokumen ---------- */

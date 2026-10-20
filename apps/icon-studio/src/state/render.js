@@ -22,7 +22,7 @@ import {
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
 import { fillShapeOf } from "@icon-studio/icon-sources/fill-shapes";
-import { MODES, OFFSET_MODE, manifestOffsetStyle, useStyle } from "./document.js";
+import { MODES, OFFSET_MODE, STICKER_MODE, manifestOffsetStyle, manifestStickerItem, manifestStickerStyle, useStyle } from "./document.js";
 import { layerBoxes } from "./edit-ops.js";
 
 /**
@@ -152,6 +152,7 @@ export function createRenderer(options) {
   /**
    * Render ikon Builder untuk satu mode (render TIB). Gaya dokumen tidak diubah.
    * Mode O memakai mesin offset: pengubah tidak dirender, dekorasi dari `offsetDeco` (bawaan kilat + tanah).
+   * Mode S memakai mesin sticker: isi objek = aksen manifest (`manifestStickerItem`), slot dipetakan ke 4 sudut.
    * @param {any} it
    * @param {string} mode X | A | B | C | O
    * @param {any} style
@@ -164,6 +165,10 @@ export function createRenderer(options) {
     if (mode === OFFSET_MODE) {
       const engine = get("offset");
       return engine.compose(engine.adapt(it, style), manifestOffsetStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
+    }
+    if (mode === STICKER_MODE) {
+      const engine = get("sticker");
+      return engine.compose(engine.adapt(manifestStickerItem(it, style), style), manifestStickerStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
     }
     const s = useStyle({ ...style }, mode);
     if (mode === "X")

@@ -4,6 +4,7 @@
  * Status sel mengikuti DESIGN-HANDOFF 3.5: on, skipped, exists, library. Status `similar`
  * (sidik jari) menyusul di Fase 6.
  */
+import { slot4 } from "@icon-studio/engines/sticker";
 import { normItem } from "./document.js";
 
 /** Pilihan matriks bawaan. `pos`: default = slot bawaan pengubah; `mode`: set = mode warna set, all = A, B, C. */
@@ -34,20 +35,26 @@ export function activePool(pool) {
  */
 export const objectsOnly = (doc) => doc.style.family === "offset";
 
-/** Kunci ikon pustaka (lu, tb, hg, cu). Objek bawaan tidak didukung gaya offset. */
+/** Kunci ikon pustaka (lu, tb, hg, cu). Objek bawaan tidak didukung gaya offset dan sticker. */
 const LIB_KEY = /^(lu|tb|hg|cu):/;
 
 /**
- * Baris matriks: objek aktif. Gaya offset melewati objek bawaan karena tidak bisa dirender.
+ * Gaya yang hanya merender ikon pustaka (objek dan pengubah bawaan dilewati).
  * @param {any} doc
  */
-export const matrixMains = (doc) => activePool(doc.pool).mains.filter((m) => !objectsOnly(doc) || LIB_KEY.test(m));
+export const libraryOnly = (doc) => doc.style.family === "offset" || doc.style.family === "sticker";
 
 /**
- * Kolom matriks: pengubah aktif, atau satu kolom "none" untuk gaya tanpa pengubah.
+ * Baris matriks: objek aktif. Gaya offset dan sticker melewati objek bawaan karena tidak bisa dirender.
  * @param {any} doc
  */
-export const matrixMods = (doc) => (objectsOnly(doc) ? ["none"] : activePool(doc.pool).mods);
+export const matrixMains = (doc) => activePool(doc.pool).mains.filter((m) => !libraryOnly(doc) || LIB_KEY.test(m));
+
+/**
+ * Kolom matriks: pengubah aktif, atau satu kolom "none" untuk gaya tanpa pengubah. Sticker melewati pengubah bawaan.
+ * @param {any} doc
+ */
+export const matrixMods = (doc) => (objectsOnly(doc) ? ["none"] : activePool(doc.pool).mods.filter((d) => !libraryOnly(doc) || LIB_KEY.test(d)));
 
 /**
  * Item hasil kombinasi (batchItem IC).
@@ -56,15 +63,20 @@ export const matrixMods = (doc) => (objectsOnly(doc) ? ["none"] : activePool(doc
  * @param {{pos: string}} combo
  * @param {string | null} pref mode warna (A/B/C) atau null = ikuti set
  * @param {any} lib registry
+ * @param {string} [family] keluarga gaya set (sticker: 4 sudut, objek tidak digeser slot)
  */
-export function comboItem(m, d, combo, pref, lib) {
+export function comboItem(m, d, combo, pref, lib, family) {
   if (d === "none") {
     const M = lib.MAINS[m];
     return normItem({ main: m, mod: "none", mx: 0, my: 0, pref: pref || "set", name: M ? M.n : m }, lib);
   }
-  const slot = combo.pos === "default" ? (lib.MODS[d] && lib.MODS[d].slot) || "BL" : combo.pos;
   const M = lib.MAINS[m],
     D = lib.MODS[d];
+  if (family === "sticker") {
+    const slot = slot4(combo.pos === "default" ? (D && D.slot) || "TR" : combo.pos);
+    return normItem({ main: m, mod: d, slot, mx: 0, my: 0, name: `${M ? M.n : m} + ${D ? String(D.n).toLowerCase() : d}` }, lib);
+  }
+  const slot = combo.pos === "default" ? (lib.MODS[d] && lib.MODS[d].slot) || "BL" : combo.pos;
   return normItem(
     { main: m, mod: d, slot, mx: lib.SHIFT[slot][0], my: lib.SHIFT[slot][1], pref: pref || "set", name: `${M ? M.n : m} + ${D ? String(D.n).toLowerCase() : d}${pref ? " (" + pref + ")" : ""}` },
     lib,
@@ -86,7 +98,7 @@ export const comboPrefs = (doc) => (doc.combo.mode === "all" && doc.style.family
  * @returns {{state: "on" | "skipped" | "exists" | "library", flag: string, item: any}}
  */
 export function cellState(doc, m, d, deps) {
-  const item = comboItem(m, d, doc.combo, null, deps.lib);
+  const item = comboItem(m, d, doc.combo, null, deps.lib, doc.style.family);
   const hits = deps.collisions(item);
   if (hits.length) return { state: "library", flag: `= ${hits[0]}`, item };
   if (doc.combo.skipExisting && deps.existing.has(deps.signature(item))) return { state: "exists", flag: "di set", item };
@@ -122,7 +134,7 @@ export function addCombos(doc, deps) {
     for (const c of r.cells) {
       if (c.state !== "on") continue;
       for (const p of comboPrefs(doc)) {
-        const it = comboItem(r.main, c.mod, doc.combo, p, deps.lib);
+        const it = comboItem(r.main, c.mod, doc.combo, p, deps.lib, doc.style.family);
         doc.items.push(it);
         added.push(it);
       }

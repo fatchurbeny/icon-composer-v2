@@ -5,7 +5,8 @@
  * Logika di state/combo-ops.js (kombinasi massal Icon Composer 1.5.1).
  */
 import { get } from "@icon-studio/engines";
-import { activePool, addCombos, comboMatrix, comboPrefs, matrixMains, matrixMods, objectsOnly, setSkip, togglePool } from "../state/combo-ops.js";
+import { activePool, addCombos, comboMatrix, comboPrefs, libraryOnly, matrixMains, matrixMods, objectsOnly, setSkip, togglePool } from "../state/combo-ops.js";
+import { slot4 } from "@icon-studio/engines/sticker";
 import { setStyleValue } from "../state/set-ops.js";
 import { alert, button, check, empty, esc, panel, seg, select } from "../ui.js";
 import { ENGINE_NAMES, NO_MOD_TEXT, READY_ENGINES, docFileName, engineInfo, statusBar } from "./common.js";
@@ -53,13 +54,13 @@ function canvas(ctx) {
   if (!isSet(ctx)) return `<div class="studio-center">${empty("Kombinasi bekerja pada set Composer.", "Buka sebuah set di Composer lebih dulu.")}</div>`;
   const mx = matrixOf(ctx);
   if (!mx.mains.length || !mx.mods.length)
-    return `<div class="studio-center">${empty("Matriks kombinasi masih kosong.", objectsOnly(ctx.doc) ? "Gaya Offset memakai objek dari pustaka. Tambahkan objek dari Pustaka di kiri." : "Pilih minimal satu objek utama dan satu pengubah di Pool, atau tambahkan dari Pustaka di kiri.")}</div>`;
+    return `<div class="studio-center">${empty("Matriks kombinasi masih kosong.", libraryOnly(ctx.doc) ? `Gaya ${get(ctx.doc.style.family).label} memakai objek dari pustaka. Tambahkan objek dari Pustaka di kiri.` : "Pilih minimal satu objek utama dan satu pengubah di Pool, atau tambahkan dari Pustaka di kiri.")}</div>`;
   const head = mx.mods
     .map((d) => {
       if (d === "none")
         return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="none" aria-label="Pilih atau lewati semua objek"><span class="ic-mono">objek saja</span><span class="ic-meta">${esc(NO_MOD_TEXT)}</span></button>`;
       const D = ctx.renderer.lib.MODS[d];
-      return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="${esc(d)}" aria-label="Pilih atau lewati semua dengan pengubah ${esc(d)}">${headIcon(ctx, d, "mod")}<span class="ic-mono">${esc(d)}</span><span class="ic-meta">${esc(ctx.doc.combo.pos === "default" ? (D && D.slot) || "BL" : ctx.doc.combo.pos)}</span></button>`;
+      return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="${esc(d)}" aria-label="Pilih atau lewati semua dengan pengubah ${esc(d)}">${headIcon(ctx, d, "mod")}<span class="ic-mono">${esc(d)}</span><span class="ic-meta">${esc(ctx.doc.style.family === "sticker" ? slot4(ctx.doc.combo.pos === "default" ? (D && D.slot) || "TR" : ctx.doc.combo.pos) : ctx.doc.combo.pos === "default" ? (D && D.slot) || "BL" : ctx.doc.combo.pos)}</span></button>`;
     })
     .join("");
   const rows = mx.rows
@@ -83,13 +84,13 @@ function poolBody(ctx) {
   const pool = ctx.doc.pool;
   const act = activePool(pool);
   const only = objectsOnly(ctx.doc);
-  const builtin = only ? act.mains.filter((k) => !ctx.renderer.LIB_RE.test(k)).length : 0;
+  const builtin = libraryOnly(ctx.doc) ? act.mains.filter((k) => !ctx.renderer.LIB_RE.test(k)).length + (only ? 0 : act.mods.filter((k) => !ctx.renderer.LIB_RE.test(k)).length) : 0;
   const row = (/** @type {"main" | "mod"} */ kind, /** @type {string} */ key) => {
     const src = /^(lu|tb|hg|cu):/.exec(key);
     const D = kind === "mod" ? ctx.renderer.lib.MODS[key] : null;
     return `<div class="ic-row ic-row--sm"><label class="ic-check" data-name="pool:${kind}:${esc(key)}"><input type="checkbox"${pool.off[`${kind}|${key}`] ? "" : " checked"} aria-label="${esc(key)} ikut kombinasi"></label>${src ? `<span class="ic-src" data-src="${src[1]}">${src[1]}</span>` : '<span class="ic-src">IC</span>'}<span class="ic-row__name ic-mono">${esc(key)}</span>${D ? `<span class="ic-meta">${esc(D.slot)}</span>` : ""}<button type="button" class="ic-iconbtn" data-action="k-pool-remove" data-kind="${kind}" data-key="${esc(key)}" aria-label="Keluarkan ${esc(key)} dari pool">${/** @type {any} */ (globalThis).ICONS_UI.uiIcon("x", 13)}</button></div>`;
   };
-  return `<div class="ic-panel__sub"><span class="ic-label">Objek utama</span><span class="ic-meta">${act.mains.length} dari ${pool.mains.length} aktif</span></div>${builtin ? `<div class="studio-pad">${alert("err", `${builtin} objek bawaan dilewati: tidak didukung gaya Offset.`)}</div>` : ""}${pool.mains.map((k) => row("main", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada objek. Tambahkan dari Pustaka.</span></div>'}<div class="ic-panel__sub"><span class="ic-label">Pengubah</span><span class="ic-meta">${only ? "tidak dipakai" : `${act.mods.length} dari ${pool.mods.length} aktif`}</span></div>${only ? `<div class="studio-pad">${alert("info", `${NO_MOD_TEXT}. Kombinasi memakai daftar objek saja.`)}</div>` : pool.mods.map((k) => row("mod", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada pengubah. Tambahkan dari Pustaka.</span></div>'}`;
+  return `<div class="ic-panel__sub"><span class="ic-label">Objek utama</span><span class="ic-meta">${act.mains.length} dari ${pool.mains.length} aktif</span></div>${builtin ? `<div class="studio-pad">${alert("err", `${builtin} objek atau pengubah bawaan dilewati: tidak didukung gaya ${get(ctx.doc.style.family).label}.`)}</div>` : ""}${pool.mains.map((k) => row("main", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada objek. Tambahkan dari Pustaka.</span></div>'}<div class="ic-panel__sub"><span class="ic-label">Pengubah</span><span class="ic-meta">${only ? "tidak dipakai" : `${act.mods.length} dari ${pool.mods.length} aktif`}</span></div>${only ? `<div class="studio-pad">${alert("info", `${NO_MOD_TEXT}. Kombinasi memakai daftar objek saja.`)}</div>` : pool.mods.map((k) => row("mod", k)).join("") || '<div class="studio-pad"><span class="ic-meta">Belum ada pengubah. Tambahkan dari Pustaka.</span></div>'}`;
 }
 
 /** Arti status sel (DESIGN-HANDOFF 3.5). */

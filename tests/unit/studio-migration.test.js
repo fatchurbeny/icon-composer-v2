@@ -10,7 +10,13 @@ import { SAMPLE_MANIFEST } from "../../apps/icon-studio/src/state/data/sample-ma
 import {
   importManifest,
   offsetSetFromComposer,
+  stickerSetFromComposer,
 } from "../../apps/icon-studio/src/state/document.js";
+import {
+  MIGRATION_ID as STICKER_MIGRATION_ID,
+  STICKER_KEY,
+  migrateFromSticker,
+} from "../../apps/icon-studio/src/state/migrations/004-from-sticker.js";
 import {
   MIGRATION_ID,
   OFFSET_KEY,
@@ -29,6 +35,12 @@ const mixed = JSON.parse(
 const offsetFixture = JSON.parse(
   readFileSync(
     new URL("../fixtures/sets/offset-composer.json", import.meta.url),
+    "utf8",
+  ),
+);
+const stickerFixture = JSON.parse(
+  readFileSync(
+    new URL("../fixtures/sets/sticker-composer.json", import.meta.url),
     "utf8",
   ),
 );
@@ -293,5 +305,74 @@ describe("Icon Studio migrasi 002 dari offset-composer", () => {
     /* state lama tanpa field migrations dibaca sebagai daftar kosong */
     store.setItem(STORE_KEY, JSON.stringify({ schemaVersion: 1, documents: [], activeId: null }));
     expect(loadState(store).migrations).toEqual([]);
+  });
+});
+
+describe("Icon Studio migrasi 004 dari sticker-composer", () => {
+  test("tanpa kunci sticker-composer-v1 atau set kosong tidak ada migrasi", () => {
+    expect(STICKER_MIGRATION_ID).toBe("004-from-sticker");
+    expect(migrateFromSticker(storage(), { lib })).toBeNull();
+    expect(
+      migrateFromSticker(storage({ [STICKER_KEY]: { style: {}, set: [] } }), { lib }),
+    ).toBeNull();
+    /* data offset-composer ({cur, set}) bukan sticker-composer */
+    expect(migrateFromSticker(storage({ [STICKER_KEY]: offsetFixture.storage["offset-composer-v1"] }), { lib })).toBeNull();
+  });
+
+  test("set sticker-composer menjadi dokumen set bergaya sticker", () => {
+    const res = /** @type {any} */ (
+      migrateFromSticker(storage(stickerFixture.storage), { lib, uid: () => "s" })
+    );
+    expect(res.sources).toEqual([STICKER_KEY]);
+    expect(res.warnings).toEqual([]);
+    const doc = res.documents[0];
+    expect(doc).toMatchObject({
+      kind: "set",
+      name: "Set Sticker Composer",
+      meta: { import: { format: "sticker-composer", source: STICKER_KEY, warnings: [] } },
+    });
+    expect(doc.style.family).toBe("sticker");
+    expect(doc.style.engine.sticker).toEqual({ mode: "fill", sw: 2.8, halo: 3.25, off: 1.2, spk: 4, rays: false, curl: true, ink: "#2B3A67" });
+    const [a, b, c] = doc.items;
+    expect(a).toMatchObject({ name: "Koper siap", main: "lu:luggage", mod: "tb:circle-check", slot: "TR", mx: 0, my: 0.75, nx: 0, ny: 0 });
+    expect(a.engine.sticker).toEqual({
+      main: { c: "#E5484D", s: 1.8, fill: "auto" },
+      mod: { c: "#6BD88A", s: 0.9 },
+      deco: { seed: 7, s: 1, x: 0, y: 0 },
+    });
+    /* posisi 64 → 48, deco.on dan vis legacy ke vis kanonik */
+    expect(b).toMatchObject({ main: "tb:camera", mod: "tb:heart", slot: "BL", mx: -3, my: 1.5, nx: 1.5, ny: -1.5 });
+    expect(b.vis).toEqual({ main: true, mod: false, deco: false });
+    expect(b.engine.sticker.main.fill).toBe("plate");
+    expect(b.engine.sticker.deco).toEqual({ seed: 33, s: 1.2, x: 4, y: -4 });
+    /* nilai tidak sah dirapikan, pengubah kosong = none */
+    expect(c.mod).toBe("none");
+    expect(c.engine.sticker.main).toMatchObject({ s: 2.3, fill: "auto" });
+    expect(c.engine.sticker.main.c).toMatch(/^#[0-9A-F]{6}$/);
+    expect(c.engine.sticker.deco.seed).toBe(60);
+    /* pool Kombinasi dari pools legacy */
+    expect(doc.pool).toEqual({
+      mains: ["lu:luggage", "tb:camera"],
+      mods: ["tb:circle-plus", "tb:sun"],
+      off: { "main|tb:camera": true, "mod|tb:sun": true },
+    });
+  });
+
+  test("gaya.json dari ZIP: ikon tanpa objek pustaka dilewati dengan peringatan", () => {
+    const res = /** @type {any} */ (stickerSetFromComposer(stickerFixture.gayaJson, lib, { uid: () => "g" }));
+    expect(res.doc.meta.import.source).toBe("gaya.json");
+    expect(res.doc.items).toHaveLength(1);
+    expect(res.doc.items[0]).toMatchObject({ main: "tb:umbrella", mod: "tb:sun", slot: "TR" });
+    expect(res.warnings).toEqual(["1 ikon tanpa objek Lucide atau Tabler dilewati"]);
+    expect(res.needTb).toBe(true);
+  });
+
+  test("data lain bukan sticker-composer; set tanpa ikon pustaka ditolak", () => {
+    expect(stickerSetFromComposer(SAMPLE_MANIFEST, lib)).toBeNull();
+    expect(stickerSetFromComposer(offsetFixture.gayaJson, lib)).toBeNull();
+    expect(stickerSetFromComposer(null, lib)).toBeNull();
+    expect(stickerSetFromComposer({ kanvas: 64, ikon: [{ main: { k: "face" } }] }, lib)).toEqual({
+      fatal: "Set sticker-composer tidak berisi ikon Lucide atau Tabler.",
+    });
   });
 });

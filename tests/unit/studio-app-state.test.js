@@ -10,6 +10,9 @@ import { SAMPLE_MANIFEST } from "../../apps/icon-studio/src/state/data/sample-ma
 import { STORE_KEY } from "../../apps/icon-studio/src/state/store.js";
 import { readFileSync } from "node:fs";
 
+const stickerFixture = JSON.parse(
+  readFileSync(new URL("../fixtures/sets/sticker-composer.json", import.meta.url), "utf8"),
+);
 const offsetFixture = JSON.parse(
   readFileSync(
     new URL("../fixtures/sets/offset-composer.json", import.meta.url),
@@ -145,6 +148,7 @@ describe("Icon Studio app state", () => {
     expect(app.activeId).toBe(manifest.id);
     expect(JSON.parse(storage.map.get(STORE_KEY)).migrations).toEqual([
       "002-from-offset",
+      "004-from-sticker",
     ]);
 
     const again = createAppState({ renderer: fakeRenderer(), storage });
@@ -179,6 +183,30 @@ describe("Icon Studio app state", () => {
     expect(app.documentFor("composer")).toBe(res?.doc);
     expect(app.selection[res?.doc.id]).toBe(res?.doc.items[0].id);
     expect(JSON.parse(storage.map.get(STORE_KEY)).documents).toHaveLength(2);
+  });
+
+  test("migrasi sticker-composer menambah set bergaya sticker sekali", () => {
+    const storage = memoryStorage();
+    storage.setItem("sticker-composer-v1", JSON.stringify(stickerFixture.storage["sticker-composer-v1"]));
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.migratedFrom).toEqual(["sticker-composer-v1"]);
+    expect(app.documents).toHaveLength(1);
+    expect(app.documents[0]).toMatchObject({ name: "Set Sticker Composer", style: { family: "sticker" } });
+    expect(app.documents[0].items).toHaveLength(3);
+    const again = createAppState({ renderer: fakeRenderer(), storage });
+    expect(again.migratedFrom).toEqual([]);
+    expect(again.documents).toHaveLength(1);
+  });
+
+  test("impor gaya.json sticker-composer menambah set aktif; teks lain dilewatkan", async () => {
+    const storage = memoryStorage();
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(await app.importStickerSet(JSON.stringify(SAMPLE_MANIFEST))).toBeNull();
+    expect(await app.importStickerSet(JSON.stringify(offsetFixture.gayaJson))).toBeNull();
+    const res = await app.importStickerSet(JSON.stringify(stickerFixture.gayaJson));
+    expect(res?.doc.style.family).toBe("sticker");
+    expect(app.activeId).toBe(res?.doc.id);
+    expect(app.documentFor("composer")).toBe(res?.doc);
   });
 
   test("impor manifest rusak tidak menambah dokumen", async () => {

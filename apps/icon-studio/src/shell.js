@@ -276,6 +276,17 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" d
       toast([`${offset.doc.items.length} ikon offset-composer diimpor`, ...(offset.warnings || [])].join(". "));
       return;
     }
+    /* gaya.json sticker-composer menjadi set Composer bergaya Sticker */
+    const sticker = await app.importStickerSet(text);
+    if (sticker) {
+      if (sticker.fatal) {
+        if (message) message.textContent = sticker.fatal;
+        return;
+      }
+      go({ persona: "composer", edit: null });
+      toast([`${sticker.doc.items.length} ikon sticker-composer diimpor`, ...(sticker.warnings || [])].join(". "));
+      return;
+    }
     const result = await app.importManifest(text, opts);
     if (result.fatal) {
       if (message) message.textContent = result.fatal;

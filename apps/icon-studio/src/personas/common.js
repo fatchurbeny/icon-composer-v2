@@ -15,25 +15,38 @@ import { esc, iconButton, panel } from "../ui.js";
  * }} Ctx
  */
 
-/** Mesin yang tampil di kartu gaya (ADR-017: sticker menyusul di Fase 5). */
+/** Mesin yang tampil di kartu gaya (ADR-017; sticker sejak Fase 5). */
 export const ENGINE_CARDS = [
   ["classic", "Klasik"],
   ["accent", "Aksen"],
   ["offset", "Offset"],
   ["hand-writing", "Hand-wr."],
+  ["sticker", "Sticker"],
 ];
 
 /** Mesin yang sudah bisa dipakai set Composer (hand-writing menyusul di Fase 4). */
-export const READY_ENGINES = ["classic", "accent", "offset"];
+export const READY_ENGINES = ["classic", "accent", "offset", "sticker"];
 
 /** Nama gaya untuk riwayat dan toast. */
-export const ENGINE_NAMES = { classic: "Klasik", accent: "Aksen", offset: "Offset", "hand-writing": "Hand-writing" };
+export const ENGINE_NAMES = { classic: "Klasik", accent: "Aksen", offset: "Offset", "hand-writing": "Hand-writing", sticker: "Sticker" };
 
 /** Teks pengganti panel pengubah saat gaya tidak memakai pengubah (docs/engines/offset.md). */
 export const NO_MOD_TEXT = "Pengubah tidak tersedia pada style ini";
 
 /** @param {any} doc */
 export const isOffset = (doc) => !!doc && doc.kind === "set" && doc.style.family === "offset";
+
+/** @param {any} doc */
+export const isSticker = (doc) => !!doc && doc.kind === "set" && doc.style.family === "sticker";
+
+/**
+ * Ringkasan dekorasi sticker (berlaku untuk seluruh set lewat panel Gaya), seperti daftar lapisan legacy.
+ * @param {any} style gaya set
+ */
+export function stickerDecoLabel(style) {
+  const s = (style.engine && style.engine.sticker) || {};
+  return [`sparkle ${s.spk ?? 3}`, s.rays !== false ? "sinar" : "", s.curl !== false ? "ikal" : ""].filter(Boolean).join(" · ");
+}
 
 /**
  * Flag mesin per ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah).
@@ -46,7 +59,7 @@ export const engineFlags = (ctx, it) => (ctx.doc && ctx.doc.kind === "set" ? ctx
 /** @param {string} family */
 export const engineInfo = (family) => {
   const engine = get(family);
-  return `${({ classic: "Klasik", accent: "Aksen", offset: "Offset", "hand-writing": "Hand-writing" })[engine.id] || engine.label} ${engine.version}`;
+  return `${({ classic: "Klasik", accent: "Aksen", offset: "Offset", "hand-writing": "Hand-writing", sticker: "Sticker" })[engine.id] || engine.label} ${engine.version}`;
 };
 
 /**
@@ -58,11 +71,13 @@ export const engineInfo = (family) => {
 export const renderSet = (ctx, it, idp) => ctx.renderer.renderSetItem(it, ctx.doc.style, { idp }, ctx.doc.customs);
 
 /**
- * Jumlah warna terlihat seluruh set (maks 5 untuk Canva).
+ * Jumlah warna untuk batas Canva (maks 5 per file). Gaya dengan warna seragam: warna terlihat seluruh set.
+ * Sticker (warna isi per ikon): jumlah warna terbanyak di satu ikon.
  * @param {Ctx} ctx
  */
 export function setColorCount(ctx) {
   if (!ctx.doc || !ctx.doc.items.length) return 0;
+  if (isSticker(ctx.doc)) return Math.max(...ctx.doc.items.map((/** @type {any} */ it) => packColors([it], (x) => renderSet(ctx, x, "cc")).size));
   return packColors(ctx.doc.items, (it) => renderSet(ctx, it, "cc")).size;
 }
 
