@@ -4,6 +4,11 @@
  * objek offset berbeda < 1% piksel dari legacy offset-composer 1.0.1 setelah objek legacy diskalakan ke 84%.
  * Dekorasi dikecualikan dari perbandingan piksel (diuji terpisah lewat kotak di tests/unit/engines-offset.test.js
  * dan tests/e2e/export-canva.spec.js).
+ *
+ * Hugeicons: legacy hanya memuat Lucide dan Tabler (`nodeOf` legacy), tetapi `compose` legacy tidak bergantung
+ * pada sumber setelah node didapat. Node Hugeicons yang sama dengan yang dipakai Icon Studio (sudah lewat
+ * `hgAttrs`) disuntikkan ke peta `TB` legacy, lalu `compose` legacy asli dipanggil. Alasannya dicatat di
+ * docs/engines/offset.md bagian "Normalisasi kanvas".
  */
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
@@ -37,6 +42,28 @@ const KEYS = [
   "tb:heart",
   "tb:coffee",
 ];
+/**
+ * Ikon Hugeicons: body tunggal, body lingkaran dan elips, banyak bidang, garis terbuka tanpa bidang,
+ * dan bagian berisi (`fill`) yang dibuang `partStr`.
+ */
+const HG_KEYS = [
+  "hg:home-01",
+  "hg:favourite",
+  "hg:mail-01",
+  "hg:shopping-cart-01",
+  "hg:camera-01",
+  "hg:calendar-03",
+  "hg:coffee-01",
+  "hg:user",
+  "hg:bubble-chat",
+  "hg:delivery-truck-01",
+  "hg:rocket",
+  "hg:music",
+];
+const ALL_KEYS = [...KEYS, ...HG_KEYS];
+/** Kunci Hugeicons di peta `TB` legacy, supaya `nodeOf` legacy menemukannya. */
+const legacyKey = (/** @type {string} */ key) =>
+  key.startsWith("hg:") ? `tb:hg~${key.slice(3)}` : key;
 const MODES = ["solid", "white", "line"];
 
 /* objek legacy: ox = 24, oy = ox - 6, sisi 72. Objek baru: 9,6 di kanvas 120, sisi 100,8 (84%). */
@@ -51,35 +78,7 @@ const LEGACY_VIEWBOX = [
 test("@golden objek offset < 1% piksel dari legacy setelah diskalakan ke 84%", async ({
   browser,
 }) => {
-  test.setTimeout(120_000);
-  /* legacy: compose() asli di offset-composer 1.0.1, dekorasi dimatikan */
-  const legacyPage = await browser.newPage();
-  await openHtml(legacyPage, "legacy/style/offset-composer-v1.0.1.html");
-  const legacy = await legacyPage.evaluate(
-    async ({ keys, modes }) => {
-      const w = /** @type {any} */ (window);
-      /* DEF dideklarasikan const di skrip legacy, jadi dibaca lewat eval global */
-      const DEF = (0, eval)("DEF");
-      await w.loadTabler();
-      /** @type {Record<string, string>} */
-      const out = {};
-      for (const key of keys)
-        for (const mode of modes)
-          out[`${key}|${mode}`] = w.compose({
-            ...DEF,
-            key,
-            mode,
-            dTick: false,
-            dGround: false,
-            dCloud: false,
-            dGrass: false,
-          });
-      return out;
-    },
-    { keys: KEYS, modes: MODES },
-  );
-  await legacyPage.close();
-
+  test.setTimeout(180_000);
   /* Icon Studio: renderer app (mesin offset + pustaka), tanpa dekorasi */
   const page = await browser.newPage();
   await page.route("**/*", (route) => {
@@ -96,13 +95,65 @@ test("@golden objek offset < 1% piksel dari legacy setelah diskalakan ke 84%", a
         contentType: "application/json",
         headers: H,
       });
+    if (url.includes("core-free-icons"))
+      return route.fulfill({
+        path: `${VENDOR}/hugeicons.mjs`,
+        contentType: "application/javascript",
+        headers: H,
+      });
     return route.abort();
   });
   await page.goto(`${APP}#/composer`);
+  /* node Hugeicons persis seperti yang dibaca mesin offset (ctx.nodeOf) */
+  const hgNodes = await page.evaluate(async (keys) => {
+    const S = /** @type {any} */ (window).__iconStudio;
+    await S.renderer.loadTabler();
+    await S.renderer.loadHugeicons();
+    return Object.fromEntries(
+      keys.map((/** @type {string} */ k) => [k, S.renderer.nodeOf(k)]),
+    );
+  }, HG_KEYS);
+  for (const key of HG_KEYS) expect(hgNodes[key], key).toBeTruthy();
+
+  /* legacy: compose() asli di offset-composer 1.0.1, dekorasi dimatikan */
+  const legacyPage = await browser.newPage();
+  await openHtml(legacyPage, "legacy/style/offset-composer-v1.0.1.html");
+  const legacy = await legacyPage.evaluate(
+    async ({ keys, modes, hgNodes, legacyKeys }) => {
+      const w = /** @type {any} */ (window);
+      /* DEF dan TB dideklarasikan const/let di skrip legacy, jadi dibaca lewat eval global */
+      const DEF = (0, eval)("DEF");
+      await w.loadTabler();
+      const TB = (0, eval)("TB");
+      for (const [key, node] of Object.entries(hgNodes))
+        TB.set(legacyKeys[key].slice(3), node);
+      /** @type {Record<string, string>} */
+      const out = {};
+      for (const key of keys)
+        for (const mode of modes)
+          out[`${key}|${mode}`] = w.compose({
+            ...DEF,
+            key: legacyKeys[key],
+            mode,
+            dTick: false,
+            dGround: false,
+            dCloud: false,
+            dGrass: false,
+          });
+      return out;
+    },
+    {
+      keys: ALL_KEYS,
+      modes: MODES,
+      hgNodes,
+      legacyKeys: Object.fromEntries(ALL_KEYS.map((k) => [k, legacyKey(k)])),
+    },
+  );
+  await legacyPage.close();
+
   const results = await page.evaluate(
     async ({ keys, modes, legacy, viewBox }) => {
       const S = /** @type {any} */ (window).__iconStudio;
-      await S.renderer.loadTabler();
       const raster = (/** @type {string} */ svg) =>
         new Promise((done, fail) => {
           const img = new Image();
@@ -177,7 +228,7 @@ test("@golden objek offset < 1% piksel dari legacy setelah diskalakan ke 84%", a
         }
       return out;
     },
-    { keys: KEYS, modes: MODES, legacy, viewBox: LEGACY_VIEWBOX },
+    { keys: ALL_KEYS, modes: MODES, legacy, viewBox: LEGACY_VIEWBOX },
   );
   await page.close();
   for (const r of results) {
@@ -193,5 +244,12 @@ test("@golden objek offset < 1% piksel dari legacy setelah diskalakan ke 84%", a
   test.info().annotations.push({
     type: "selisih",
     description: `maks ${(Math.max(...results.map((r) => r.diff)) * 100).toFixed(3)}% dari kanvas, maks ${(Math.max(...results.map((r) => r.diffInk)) * 100).toFixed(2)}% dari piksel bergambar, min ${(Math.min(...results.map((r) => r.inked)) * 100).toFixed(1)}% kanvas bergambar`,
+  });
+  test.info().annotations.push({
+    type: "selisih Hugeicons",
+    description: results
+      .filter((r) => r.key.startsWith("hg:"))
+      .map((r) => `${r.key} ${r.mode} ${(r.diff * 100).toFixed(3)}%`)
+      .join(", "),
   });
 });
