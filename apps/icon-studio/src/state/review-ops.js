@@ -109,10 +109,10 @@ export function metaOf(doc, it, renderer){
 /* format yang dibaca Chrome extension (mode CSV): dicocokkan per nama file SVG */
 export const META_COLUMNS = ["filename","title","keywords","Artist","locale","description"];
 
-/** @param {any} doc @param {any[]} list @param {any} renderer */
-export function metadataCSV(doc, list, renderer){
+/** @param {any} doc @param {any[]} list @param {any} renderer @param {Set<string>} [skip] file yang tidak ikut ZIP Canva */
+export function metadataCSV(doc, list, renderer, skip){
   const rMeta = doc.meta.canva;
-  const rows = fileNames(list, renderer.lib, doc.style.family).map(({it, file}) => { const m = metaOf(doc, it, renderer); return {filename:file, title:m.title, keywords:m.keywords, Artist:rMeta.artist, locale:rMeta.locale, description:rMeta.desc.trim()}; });
+  const rows = fileNames(list, renderer.lib, doc.style.family).filter(({file}) => !skip || !skip.has(file)).map(({it, file}) => { const m = metaOf(doc, it, renderer); return {filename:file, title:m.title, keywords:m.keywords, Artist:rMeta.artist, locale:rMeta.locale, description:rMeta.desc.trim()}; });
   return metadataCsv(rows, META_COLUMNS);
 }
 
@@ -134,28 +134,48 @@ export function canvaSVG(renderer, doc, it, i, directFill = directFillSvgFile){
 }
 
 /**
- * Isi ZIP Composer (buildZip IC). SVG di akar = direct fill Canva; `svg-asli/` = SVG asli IC bila `review.asli`.
- * Ikon yang gagal direct fill menghentikan ZIP dengan pesan berisi nama filenya.
+ * Isi ZIP Composer (buildZip IC) beserta ikon yang gagal direct fill. SVG di akar = direct fill Canva;
+ * `svg-asli/` = SVG asli IC bila `review.asli`. Ikon yang gagal direct fill (mis. objek bawaan "ticket" yang
+ * memakai garis putus-putus) tidak masuk akar ZIP dan metadata.csv, karena Canva hanya menerima bidang fill;
+ * SVG aslinya tetap ikut `svg-asli/`.
  * @param {any} doc
  * @param {any[]} list
  * @param {any} renderer
  * @param {{directFill?: (svg: string) => string}} [opts] direct fill tiruan untuk tes tanpa browser
+ * @returns {Promise<{files: Record<string, string>, failed: {file: string, error: string}[]}>}
  */
-export async function buildSetZipFiles(doc, list, renderer, opts = {}){
+export async function buildSetZip(doc, list, renderer, opts = {}){
   const directFill = opts.directFill || directFillSvgFile;
   /** @type {Record<string, string>} */
   const files = {};
+  /** @type {{file: string, error: string}[]} */
+  const failed = [];
   const names = fileNames(list, renderer.lib, doc.style.family);
   names.forEach(({it, file}, i) => {
     try { files[file] = canvaSVG(renderer, doc, it, i, directFill); }
-    catch (e) { throw new Error(`Direct fill gagal untuk ${file}: ${(/** @type {Error} */ (e)).message}`); }
+    catch (e) { failed.push({file, error:(/** @type {Error} */ (e)).message}); }
   });
   if (doc.review.asli) names.forEach(({it, file}, i) => { files[ORIGINAL_DIR + file] = exportSVG(renderer, doc, it, i); });
   files["LICENSES.txt"] = SET_LICENSES;
   if (doc.review.json) files["gaya.json"] = JSON.stringify({grid:48, ...doc.style, export:doc.review.ko, icons:list.map((it) => { const r = {...it}; delete r.id; return r; })}, null, 2);
   if (doc.review.html) files["pratinjau.html"] = previewSheetHTML(fileNames(list, renderer.lib, doc.style.family).map(({it, file}, i) => ({label: nameOf(it, renderer.lib, doc.style.family), file, svg: exportSVG(renderer, doc, it, i)})));
-  if (doc.meta.canva.on){ await loadTags(); files["metadata.csv"] = metadataCSV(doc, list, renderer); }
-  return files;
+  if (doc.meta.canva.on){
+    await loadTags();
+    const bad = new Set(failed.map(f => f.file));
+    files["metadata.csv"] = metadataCSV(doc, list, renderer, bad);
+  }
+  return {files, failed};
+}
+
+/**
+ * Isi ZIP Composer saja (lihat `buildSetZip`).
+ * @param {any} doc
+ * @param {any[]} list
+ * @param {any} renderer
+ * @param {{directFill?: (svg: string) => string}} [opts]
+ */
+export async function buildSetZipFiles(doc, list, renderer, opts = {}){
+  return (await buildSetZip(doc, list, renderer, opts)).files;
 }
 
 /**

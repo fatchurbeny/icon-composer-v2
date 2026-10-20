@@ -205,7 +205,7 @@ export function stickerItem(it) {
   const dflt = defaultColors(it && it.main);
   const seed = Math.round(
     num(
-      dc.seed,
+      dc.seed ?? e.seed,
       3 + (hash(String((it && it.id) || (it && it.main) || "")) % 50),
       R.seed[0],
       R.seed[1],

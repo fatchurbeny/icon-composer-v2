@@ -29,6 +29,9 @@ Garis yang tebalnya 0 setelah outline (misalnya titik `h.01` di Lucide) harus te
 
 - **Template Icon Builder:** sudah memakai pipeline ini sejak v1.5.0.
 - **Icon Composer:** **dinyalakan** (keputusan pemilik, menggantikan catatan "ditunda" di Project Knowledge bagian 15). Ekspor ZIP untuk Canva memakai direct fill. Opsi "SVG asli (stroke, untuk diedit di Illustrator/Figma)" tetap tersedia sebagai pilihan kedua dan masuk ke folder terpisah `svg-asli/`, supaya tidak tertukar saat upload ke Canva.
+  - Diterapkan di Fase 5 (`review-ops.buildSetZip`): SVG Canva = render mode `mask` → `directFillSvgFile`. Opsi Tinjau "Sertakan SVG asli" (`review.asli`, bawaan mati) menambah `svg-asli/<nama>.svg` yang identik dengan keluaran IC 1.5.1; pilihan Celah knockout (`review.ko`) hanya berlaku untuk SVG asli dan sprite.
+  - Garis putus-putus yang masih ada di objek bawaan (`ticket` classic, placeholder ikon hilang) dipanggang jadi geometri oleh `outlineSvgFile` (`bakeDashArrays`): satu sub-path terbuka per dash dengan ujung garis yang sama, jadi pikselnya setara dan tidak ada `stroke-dasharray` di keluaran. Render UI dan golden tidak berubah karena pemanggangan hanya di jalur ekspor. Berlaku juga untuk Builder.
+  - Ikon yang tetap gagal direct fill tidak masuk akar ZIP dan `metadata.csv`; status unduhan menyebut nama filenya, dan SVG aslinya tetap ikut `svg-asli/` bila aktif. Unduhan lain tidak dibatalkan.
 
 ## 2. Kompatibilitas per mesin
 
@@ -38,7 +41,7 @@ Garis yang tebalnya 0 setelah outline (misalnya titik `h.01` di Lucide) harus te
 | offset | stroke + fill biasa, tanpa mask | uji fixture |
 | hand-writing | `stroke-dasharray` diabaikan IconOutline (garis jadi utuh) | **dash dipanggang** di mesin (lihat `engines/hand-writing.md`) |
 | hand-writing | rotasi + mask knockout | uji fixture; rotasi harus ikut diratakan |
-| sticker | halo putih = warna ke-4; stroke halo sangat tebal | uji fixture; pastikan halo tidak menutup isi saat diratakan |
+| sticker | halo putih = warna ke-4; stroke halo sangat tebal | mode `mask` memotong setiap bagian dengan siluet bagian di atasnya, sehingga warna tidak bertumpuk saat diratakan (`engines/sticker.md`); lolos `export-canva.spec.js` (≤4 warna, di dalam viewBox, selisih < 1,5%) |
 
 Tes wajib: `tests/e2e/export-canva.spec.js` merender 20 ikon per mesin, menjalankan `directFillSvgFile`, dan memeriksa:
 1. tidak ada exception;
@@ -71,6 +74,8 @@ Opsi `exSplit` (`slot-deck/` dan `ekstra/`) tetap berlaku di setiap folder gaya.
 - `manifest-final.json` menulis `style.family: "offset"` dan `style.mode` isi warna bila pratinjau aktif Offset.
 Tanpa folder `offset/`, isi ZIP classic/accent tetap identik dengan TIB 1.6.0 (golden).
 
+**Sticker di Builder (Fase 5).** Mode Builder `S` (`MODE_INFO.S`, folder `sticker/`) merender ikon manifest dengan mesin sticker: pengubah dirender di 4 sudut (slot 8 dipetakan), tinta dari `style.ink`, isi objek dari `style.accent`, isi pengubah kuning, mode warna dari `style.engine.sticker.mode`, dekorasi dan gaya lain bawaan mesin. Flag: objek/pengubah tidak dikenal, flag mesin sticker, nama gabungan sama dengan pustaka, dan dobel objek + pengubah. Bila folder `sticker/` ikut diekspor: kata gaya `Sticker Style` / `gaya sticker`, `submission-profile.json` mendapat `sticker_engine`, `LICENSES.txt` mendapat satu baris `sticker/`, dan `manifest-final.json` menulis `style.family: "sticker"` bila pratinjau aktif Sticker.
+
 ```
 <nama-pack>.zip
 ├─ <folder-gaya>/[slot-deck|ekstra/]<id>-<akhiran>.svg
@@ -85,10 +90,12 @@ Tanpa folder `offset/`, isi ZIP classic/accent tetap identik dengan TIB 1.6.0 (g
 
 ```
 <nama>.zip
-├─ <nama>-<akhiran>.svg
+├─ <nama>-<akhiran>.svg    direct fill untuk Canva (hanya path fill)
+├─ svg-asli/<nama>.svg     opsional (review.asli): SVG asli IC dengan stroke
+├─ LICENSES.txt
 ├─ gaya.json        {format:"icon-composer", version, family, engine:{id,version}, style, icons:[...]}
 ├─ metadata.csv     filename,title,keywords,Artist,locale,description (BOM + CRLF)
-└─ pratinjau.html   (dari sticker legacy: lembar kontak)
+└─ pratinjau.html   lembar kontak (sheetHTML IC 1.5.1; dipakai juga untuk set sticker)
 ```
 
 ## 4. Judul metadata (pola "Icon-style")

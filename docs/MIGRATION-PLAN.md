@@ -83,15 +83,19 @@ Status 2026-10-20: **selesai.** Semua butir dan kriteria terima lolos. `npm test
 
 **Kriteria terima:** celah terlihat di file direct fill. Selisih piksel terhadap legacy < 1% pada fixture yang ikonnya ada di kedua versi pustaka.
 
-## Fase 5: Mesin sticker
+## Fase 5: Mesin sticker ✅
 
-- [ ] `scripts/build-icon-data.mjs` menghasilkan bentuk isi (`fill-shapes.json`).
-- [ ] Port mesin. Pemetaan slot 8 → 4. Warna per item lewat `engine.sticker`.
-- [ ] Tambah lembar kontak `pratinjau.html` ke ekspor IC.
-- [ ] Ekspor Canva IC memakai direct fill (semua stroke jadi outline) + folder opsional `svg-asli/` (ADR-011).
-- [ ] Impor set dari sticker-composer lama.
+- [x] `scripts/build-icon-data.mjs` menghasilkan bentuk isi (`fill-shapes.json`).
+- [x] Port mesin. Pemetaan slot 8 → 4. Warna per item lewat `engine.sticker`.
+- [x] Tambah lembar kontak `pratinjau.html` ke ekspor IC.
+- [x] Ekspor Canva IC memakai direct fill (semua stroke jadi outline) + folder opsional `svg-asli/` (ADR-011).
+- [x] Impor set dari sticker-composer lama.
 
 **Kriteria terima:** ≤4 warna per SVG, direct fill valid, golden visual terhadap legacy < 1,5% (selisih versi pustaka dicatat).
+
+Status kriteria: ≤4 warna per SVG dan direct fill valid (hanya path fill, tanpa stroke, di dalam viewBox, selisih mask vs direct fill < 1,5%) lolos lewat `tests/e2e/export-canva.spec.js` (20 ikon × 4 gaya) dan `tests/e2e/studio-builder.spec.js` (mode `S`). Golden visual lolos lewat `tests/e2e/sticker-parity.spec.js`: selisih maks 0,047% (mask) dan 0% (white) terhadap `compose` legacy dengan bentuk yang sama; selisih versi pustaka dicatat di `docs/engines/sticker.md`. Set contoh lengkap (termasuk `ticket` bergaris putus-putus yang kini dipanggang jadi geometri di jalur ekspor) lolos direct fill untuk classic dan accent. `pratinjau.html` sudah ada di ZIP Composer sejak port IC 1.5.1 dan kini juga dipakai set sticker. Selain butir di atas, gaya Sticker dipasang di Composer, Composer · Edit, Kombinasi, Tinjau, dan Builder (mode `S`).
+
+Status 2026-10-20: **selesai di branch `claude/fase-5-sticker-612d7e`**, menunggu persetujuan. Pertanyaan terbuka untuk pemilik: aturan bentuk isi Lucide (30 ikon seperti `heart` kini memakai lingkaran) dan warna isi sticker di Builder (aksen manifest + kuning). Lihat `docs/engines/sticker.md` dan ADR-018.
 
 ## Fase 6: Anti-repetisi
 

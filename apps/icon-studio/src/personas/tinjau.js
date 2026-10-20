@@ -9,7 +9,7 @@ import { get } from "@icon-studio/engines";
 import { MODE_INFO, dupMap, exportList, flagsOf, packOf } from "../state/builder-ops.js";
 import { PREVIEW_BACKGROUNDS, SIZETEST_BACKGROUNDS } from "../state/data/preview-backgrounds.js";
 import { BUILDER_MODES, kebab2 } from "../state/document.js";
-import { buildSetZipFiles, exportSVG, fileNames, includedOf, loadTags, metaOf, reviewChecks, slug, spriteSVG } from "../state/review-ops.js";
+import { buildSetZip, exportSVG, fileNames, includedOf, loadTags, metaOf, reviewChecks, slug, spriteSVG } from "../state/review-ops.js";
 import { duplicateGroups, nameOf } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, panel, seg, select } from "../ui.js";
 import { builder } from "./builder.js";
@@ -272,7 +272,13 @@ const actions = {
         if (!JSZip) throw new Error("Pembuat ZIP tidak termuat.");
         downloadStatus = "Menyusun ZIP…";
         rerender(ctx);
-        saveFile(`${base}.zip`, await buildZip(JSZip, await buildSetZipFiles(doc, inc, ctx.renderer)));
+        const { files, failed } = await buildSetZip(doc, inc, ctx.renderer);
+        saveFile(`${base}.zip`, await buildZip(JSZip, files));
+        const ok = inc.length - failed.length;
+        downloadStatus = `${ok} ikon diunduh${doc.items.length - inc.length ? `, ${doc.items.length - inc.length} dikeluarkan` : ""}.${failed.length ? ` ${failed.length} ikon gagal direct fill dan tidak masuk SVG Canva: ${failed.map((f) => f.file).join(", ")}${doc.review.asli ? " (SVG aslinya ada di svg-asli/)" : ""}.` : ""}`;
+        tools.toast("Unduhan dibuat");
+        rerender(ctx);
+        return;
       }
       downloadStatus = `${inc.length} ikon diunduh${doc.items.length - inc.length ? `, ${doc.items.length - inc.length} dikeluarkan` : ""}.`;
       tools.toast("Unduhan dibuat");
