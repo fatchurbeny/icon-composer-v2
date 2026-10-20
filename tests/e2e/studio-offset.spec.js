@@ -6,6 +6,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 
@@ -50,6 +51,7 @@ test.describe("Icon Studio · gaya Offset", () => {
   }) => {
     await open(page);
     await page.click('[data-action="load-preset"]');
+    await openPanel(page, "composer-style");
     await expect(offsetCard(page)).toBeEnabled();
     await expect(
       offsetCard(page).locator(
@@ -93,6 +95,7 @@ test.describe("Icon Studio · gaya Offset", () => {
     page,
   }) => {
     await open(page);
+    await openPanel(page, "composer-style");
     await offsetCard(page).click();
     await addLibraryIcon(page, "house");
     await addLibraryIcon(page, "mail");
@@ -100,12 +103,14 @@ test.describe("Icon Studio · gaya Offset", () => {
     const card = page.locator(".ic-page__card[data-select]").first();
     await expect(card.locator("svg path")).toHaveCount(5); // isi rumah, garis rumah, pintu, kilat, tanah
     /* parameter gaya berlaku untuk seluruh set */
+    await openPanel(page, "composer-style");
     await page
       .locator('[data-name="style:offset.mode"] button[data-value="white"]')
       .click();
     await expect(card.locator('svg g[fill="#FFFFFF"]')).toHaveCount(1);
     await card.dblclick();
     await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
@@ -119,6 +124,7 @@ test.describe("Icon Studio · gaya Offset", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="deco"]')
       .click();
+    await openPanel(page, "edit-transform");
     const art = page.locator(".ic-artboard__art");
     const before = await art.locator("path").count();
     await page.locator('[data-name="edit-odeco:cloud"]').check();

@@ -1,0 +1,10 @@
+CHANGELOG.md
+docs/MIGRATION-PLAN.md
+docs/engines/offset.md
+graphify-out/.rebuild.lock
+graphify-out/cache/ast/v0.9.92-s17-g0fcafffe3c00/3a942ae2054334371faa0d52b993052b357c8273303c1a9088d32ea58a1aab74.json
+graphify-out/cache/ast/v0.9.92-s17-g0fcafffe3c00/b16f82f6dba4728388e7184615990cb07dd83a87ddc558946f0253d3c37b2b28.json
+graphify-out/cache/ast/v0.9.92-s17-g0fcafffe3c00/cd180ad2c7db501d04ac64362378e0faa708bbd2edc20b15091edc3957c2016a.json
+graphify-out/cache/ast/v0.9.92-s17-g0fcafffe3c00/d99437015c221f2c9a211aa89bd730ee224ba6aa3bd56465e9d4cd1702c4eb67.json
+graphify-out/graph.json
+tests/e2e/offset-parity.spec.js

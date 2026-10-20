@@ -127,13 +127,6 @@ body {
   white-space: pre;
   overflow-x: auto;
 }
-/* panel studio yang tidak tumbuh dibatasi tingginya supaya panel utama (--grow) tetap terlihat */
-.ic-studio > .ic-panel:not(.ic-panel--grow) > .studio-panel-body {
-  max-height: 34vh;
-}
-.ic-studio > .ic-panel--grow {
-  min-height: 160px;
-}
 /* lencana flag di sel lembar kontak Tinjau */
 .studio-cellflag {
   position: absolute;

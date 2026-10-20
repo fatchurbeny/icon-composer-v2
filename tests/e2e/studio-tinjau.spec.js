@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const VENDOR = resolve("tests/fixtures/vendor");
@@ -164,6 +165,7 @@ test.describe("Icon Studio · Tinjau", () => {
 
   test("metadata Canva mengubah contoh judul", async ({ page }) => {
     await open(page);
+    await openPanel(page, "tinjau-meta");
     const field = page.locator('[data-name="t-pack-en"] input');
     await field.fill("Customer Service");
     await field.press("Enter");
@@ -188,6 +190,7 @@ test.describe("Icon Studio · Tinjau", () => {
       (await cells.nth(0).locator(".ic-sheet__file").textContent()) || "";
     await cells.nth(0).click();
     await interceptDownload(page);
+    await openPanel(page, "tinjau-zip");
     await page.locator('[data-action="t-download"]').click();
     await page.waitForFunction(() => window.__dl instanceof Blob);
     const names = await page.evaluate(async () =>
@@ -220,6 +223,7 @@ test.describe("Icon Studio · Tinjau", () => {
       page.locator(".ic-doctab[aria-selected='true']"),
     ).toContainText(".manifest · Lembar kontak");
     await interceptDownload(page);
+    await openPanel(page, "tinjau-zip");
     await page.locator('[data-action="t-download"]').click();
     await page.waitForFunction(() => window.__dl instanceof Blob);
     const names = await page.evaluate(async () =>

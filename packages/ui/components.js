@@ -1,6 +1,6 @@
 /* @module ui/components-behavior
  * Perilaku komponen baku (tab, segmented, dropdown, slider, angka, toggle, tombol pilih,
- * pemilih posisi, lipat panel, tooltip). Ditulis sebagai IIFE tanpa dependensi supaya bisa:
+ * pemilih posisi, lipat panel, akordeon panel, tooltip). Ditulis sebagai IIFE tanpa dependensi supaya bisa:
  *   - dimuat langsung di file:// (docs/design/ui-kit.html), dan
  *   - diimpor dari Vite sebagai efek samping: `import '@icon-studio/ui/components.js'`.
  * Semua komponen diaktifkan lewat atribut data-ic. State selalu ditulis ke atribut ARIA,
@@ -133,6 +133,56 @@
     });
   }
 
+  /* Akordeon panel: <aside class="ic-studio" data-ic="accordion"> berisi beberapa .ic-panel yang punya
+     tombol lipat. Hanya satu panel terbuka; panel itu mengisi sisa tinggi kolom, panel lain tinggal kepalanya.
+     - Membuka satu panel (tombol lipat atau klik tab di kepala panel tertutup) menutup panel lain.
+     - Menutup panel yang sedang terbuka membuka panel berikutnya (panel terakhir membuka panel sebelumnya),
+       supaya kolom tidak pernah kosong. Kolom berisi satu panel boleh tertutup semua.
+     - Panel awal: panel --grow (panel utama), kalau tidak ada maka panel pertama.
+     Setiap perubahan memancarkan ic-change dari wadah dengan value = data-panel (atau id) panel terbuka. */
+  const panelBtn = (p) => p.querySelector(':scope > .ic-panel__head > .ic-panel__collapse');
+  function setPanelOpen(p, open) {
+    const btn = panelBtn(p);
+    if (!btn) return;
+    btn.setAttribute('aria-expanded', String(open));
+    const body = document.getElementById(btn.getAttribute('aria-controls'));
+    if (body) body.hidden = !open;
+  }
+  const panelKey = (p) => (p ? p.dataset.panel || p.id || '' : '');
+  function accordion(root) {
+    const panels = () => Array.from(root.children).filter((el) => el.classList.contains('ic-panel') && panelBtn(el));
+    const show = (target, silent) => {
+      panels().forEach((p) => setPanelOpen(p, p === target));
+      if (!silent) emit(root, panelKey(target));
+    };
+    root.__icAccordion = show;
+    const list = panels();
+    const open = list.filter((p) => panelBtn(p).getAttribute('aria-expanded') !== 'false');
+    if (open.length !== 1 && list.length) show(list.find((p) => p.classList.contains('ic-panel--grow')) || list[0], true);
+    root.addEventListener('click', (e) => {
+      const panel = e.target.closest('.ic-panel');
+      if (!panel || panel.parentElement !== root) return;
+      const btn = e.target.closest('.ic-panel__collapse');
+      if (btn && btn === panelBtn(panel)) {
+        /* collapse() pada tombol sudah membalik aria-expanded sebelum event ini sampai ke wadah */
+        if (btn.getAttribute('aria-expanded') === 'true') return show(panel);
+        const all = panels(), i = all.indexOf(panel);
+        const next = all[i + 1] || all[i - 1];
+        if (next) show(next);
+        else emit(root, '');
+        return;
+      }
+      if (e.target.closest('[role="tab"]') && panelBtn(panel).getAttribute('aria-expanded') === 'false') show(panel);
+    });
+  }
+  /* Buka panel lewat program tanpa memancarkan ic-change (mis. memulihkan status setelah render ulang). */
+  function openPanel(panel) {
+    if (!panel) return;
+    const root = panel.parentElement && panel.parentElement.closest('[data-ic="accordion"]');
+    if (root && root.__icAccordion) root.__icAccordion(panel, true);
+    else setPanelOpen(panel, true);
+  }
+
   /* Rich tooltip: pemicu <button data-tip="id" aria-describedby="id" data-tip-side="right|bottom|top">
      menunjuk <div class="ic-tip" role="tooltip" id="id" hidden>. Muncul setelah kursor diam 450 ms atau saat
      difokus dengan keyboard; langsung muncul bila tooltip lain baru saja tertutup (berpindah antar tool).
@@ -175,7 +225,7 @@
     }
   }
 
-  const REGISTRY = { tabs, single, press, switch: switcher, slider, number, select, collapse };
+  const REGISTRY = { tabs, single, press, switch: switcher, slider, number, select, collapse, accordion };
 
   function initUI(root) {
     (root || document).querySelectorAll('[data-ic]').forEach((el) => {
@@ -190,7 +240,7 @@
     });
   }
 
-  global.ICUI = { initUI, emit, hideTip };
+  global.ICUI = { initUI, emit, hideTip, openPanel };
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => initUI());
     else initUI();
