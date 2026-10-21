@@ -14,9 +14,14 @@ import {
 import {
   HAND_WRITING_MODE,
   OFFSET_MODE,
+  importManifest,
   manifestHandWritingStyle,
   manifestOffsetStyle,
+  manifestStickerFills,
+  manifestStickerItem,
   manifestStyle,
+  setStickerColor,
+  stickerColorsOf,
 } from "../../apps/icon-studio/src/state/document.js";
 
 const vocab = /** @type {any} */ ({
@@ -280,6 +285,80 @@ describe("Icon Studio builder-ops", () => {
       /* mode lain tidak menulis engine (golden TIB 1.6.0) */
       const classic = finalManifest({ manifest: {}, pv: "A", style: st }, [], "2026-01-01");
       expect(classic.style.engine).toBeUndefined();
+    });
+  });
+  describe("warna sticker Builder (mode S)", () => {
+    /** Item Builder minimal untuk manifest-final.json. @param {string} id @param {any} [extra] */
+    const item = (id, extra = {}) => ({ id, name: { en: id, id }, main: `lu:${id}`, mod: "lu:plus", slot: "TR", mx: 0, my: 0, nx: 0, ny: 0, under: "none", mstyle: "line", slides: [1], role: "slot", keywords: { en: [], id: [] }, ...extra });
+    const fillsOf = (/** @type {any} */ it, /** @type {any} */ style) => {
+      const e = manifestStickerItem(it, style).engine.sticker;
+      return [e.main.c, e.mod.c];
+    };
+
+    test("bawaan tetap aksen manifest + kuning, termasuk geser +3 bila aksen kuning", () => {
+      expect(fillsOf(item("a"), { accent: "#5AA9F8" })).toEqual(["#5AA9F8", "#F9D84A"]);
+      expect(fillsOf(item("a"), { accent: "#F9D84A" })).toEqual(["#F9D84A", "#4A9A78"]);
+      expect(manifestStickerFills({ accent: "#5AA9F8" })).toEqual({ main: "#5AA9F8", mod: "#F9D84A" });
+    });
+
+    test("pilihan pack lalu pilihan per ikon menimpa bawaan; kosong kembali ke bawaan tanpa sisa field", () => {
+      const style = { ink: "#17171B", accent: "#5AA9F8", engine: { sticker: { mode: "fill" } } };
+      setStickerColor(style, "main", "#e5484d");
+      setStickerColor(style, "mod", "#6BD88A");
+      expect(style.engine.sticker).toEqual({ mode: "fill", main: { c: "#E5484D" }, mod: { c: "#6BD88A" } });
+      const it = /** @type {any} */ (item("b"));
+      expect(fillsOf(it, style)).toEqual(["#E5484D", "#6BD88A"]);
+      setStickerColor(it, "mod", "#B58BEA");
+      expect(fillsOf(it, style)).toEqual(["#E5484D", "#B58BEA"]);
+      expect(stickerColorsOf(it)).toEqual({ main: null, mod: "#B58BEA" });
+      /* warna tidak sah atau kosong menghapus pilihan, blok kosong dihapus */
+      setStickerColor(it, "mod", "");
+      expect(it.engine).toBeUndefined();
+      setStickerColor(style, "main", null);
+      setStickerColor(style, "mod", "bukan-warna");
+      expect(style.engine).toEqual({ sticker: { mode: "fill" } });
+      expect(fillsOf(it, style)).toEqual(["#5AA9F8", "#F9D84A"]);
+      /* bagian lain tidak dikenal diabaikan */
+      setStickerColor(style, "deco", "#FFFFFF");
+      expect(style.engine).toEqual({ sticker: { mode: "fill" } });
+    });
+
+    test("isi objek per ikon kuning menggeser isi pengubah bawaan, pilihan pengubah pack tetap dipakai", () => {
+      const it = setStickerColor(/** @type {any} */ (item("c")), "main", "#F9D84A");
+      expect(fillsOf(it, { accent: "#5AA9F8" })).toEqual(["#F9D84A", "#4A9A78"]);
+      const style = setStickerColor({ accent: "#5AA9F8" }, "mod", "#F9D84A");
+      expect(fillsOf(it, style)).toEqual(["#F9D84A", "#F9D84A"]);
+    });
+
+    test("manifest-final.json membawa warna sticker pack dan per ikon, lalu terbaca ulang oleh impor", () => {
+      const style = setStickerColor(setStickerColor({ ink: "#17171B", accent: "#5AA9F8", engine: { sticker: { mode: "sticker" } } }, "main", "#E5484D"), "mod", "#6BD88A");
+      const a = setStickerColor(/** @type {any} */ (item("house")), "mod", "#B58BEA");
+      const b = item("heart");
+      const fm = finalManifest({ manifest: { style: { family: "sticker", engine: { sticker: { main: { c: "#000000" } } } } }, pv: "S", style }, [a, b], "2026-10-21");
+      expect(fm.style).toEqual({ family: "sticker", mode: "sticker", ink: "#17171B", accent: "#5AA9F8", engine: { sticker: { main: { c: "#E5484D" }, mod: { c: "#6BD88A" } } } });
+      expect(fm.icons[0].engine).toEqual({ sticker: { mod: { c: "#B58BEA" } } });
+      expect(fm.icons[1].engine).toBeUndefined();
+      const back = /** @type {any} */ (importManifest(JSON.stringify(fm), { SHIFT: {}, DECOS: {} }, { rand: () => "x" }));
+      expect(back.pv).toBe("S");
+      expect(stickerColorsOf(back.style)).toEqual({ main: "#E5484D", mod: "#6BD88A" });
+      expect(back.style.engine.sticker.mode).toBe("sticker");
+      expect(stickerColorsOf(back.items[0])).toEqual({ main: null, mod: "#B58BEA" });
+      expect(back.items[1].engine).toBeUndefined();
+      expect(fillsOf(back.items[0], back.style)).toEqual(["#E5484D", "#B58BEA"]);
+    });
+
+    test("tanpa pilihan warna, manifest-final.json sama dengan sebelumnya; warna dikembalikan ke bawaan tidak muncul lagi", () => {
+      const style = { ink: "#17171B", accent: "#5AA9F8", engine: { sticker: { mode: "line" } } };
+      const fm = finalManifest({ manifest: { style: { family: "sticker", engine: { sticker: { main: { c: "#E5484D" } } } } }, pv: "S", style }, [item("a")], "2026-10-21");
+      expect(fm.style).toEqual({ family: "sticker", mode: "line", ink: "#17171B", accent: "#5AA9F8" });
+      expect(fm.icons[0].engine).toBeUndefined();
+      /* warna sticker juga ikut di pratinjau lain, berdampingan dengan blok hand-writing */
+      setStickerColor(style, "mod", "#6BD88A");
+      const hw = finalManifest({ manifest: {}, pv: "H", style }, [], "2026-10-21");
+      expect(hw.style.engine.sticker).toEqual({ mod: { c: "#6BD88A" } });
+      expect(hw.style.engine["hand-writing"]).toBeDefined();
+      const classic = finalManifest({ manifest: { style: { engine: { lain: 1 } } }, pv: "A", style }, [], "2026-10-21");
+      expect(classic.style.engine).toEqual({ lain: 1, sticker: { mod: { c: "#6BD88A" } } });
     });
   });
 });

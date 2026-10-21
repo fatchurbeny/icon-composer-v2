@@ -29,3 +29,14 @@ Tidak ada. Classic deterministik penuh dan tidak memakai seed. Repetisi dicegah 
 ## Rotasi per ikon
 
 `item.mr` memutar objek utama di pusatnya (`translate(24+mx 24+my) rotate(mr) scale(ms) translate(-24 -24)`). `item.nr` memutar pengubah di pusat kotaknya (`rotate(nr cx cy)` di depan transform pengubah, termasuk siluet knockout). `deco.r` memutar dekorasi seperti di IC. Bagian `rotate` hanya ditulis bila sudutnya tidak 0, jadi keluaran tanpa rotasi tetap identik dengan legacy (golden). Ekspor Canva tetap valid karena `directFillSvgFile` memanggang transform.
+
+### Rotasi pada aturan Solid·garis 1.4.5 (Builder)
+
+Aturan Solid·garis 1.4.5 (`ctx.solidV145`, dipakai persona Builder dan TIB) mengepas ulang pengubah garis pada mode B supaya sisi terpanjangnya maksimal 18 satuan. Untuk pengubah yang diputar (`nr` bukan 0), pengepasan memakai kotak setelah rotasi (`rotatedBoxSize`: `W·|cos| + H·|sin|` × `W·|sin| + H·|cos|`):
+
+- Skala dihitung dari sisi terpanjang kotak terputar, jadi pengubah yang diputar tidak lagi melebar sampai sekitar 23 satuan pada 45°.
+- Pengubah ditambatkan ulang (`anchoredModifierGeometry(it, md, sc, {rotated: true})`) sehingga tepi kotak terputar menempel di tepi slot (2 dan 46), seperti kotak tanpa rotasi. Rotasi tetap di pusat kotak. Tanpa aturan ini pengubah di sudut bisa keluar dari viewBox 48.
+- Overlap dengan badan objek utama (penentu celah knockout) memakai kotak pengubah terputar (`modifierBox`) dan kotak badan setelah rotasi `mr` (`bodyBox`).
+
+Bila `nr` dan `mr` kosong atau 0, rumus dan keluaran sama persis dengan mesin 1.4.5 (golden TIB 1.6.0). Composer serta mode A dan C tidak memakai aturan ini: pengubah yang diputar tetap ditambatkan dengan kotak yang belum diputar, sama seperti di Composer · Edit. Versi mesin tetap 1.4.5 karena dicatat di `submission-profile.json` golden.
+

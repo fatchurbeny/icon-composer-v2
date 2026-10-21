@@ -272,4 +272,52 @@ test.describe("Icon Studio · urungkan dan ulangi", () => {
       "Ekspor",
     );
   });
+
+  test("Tinjau: klik dua kali sel tidak meninggalkan langkah kosong", async ({
+    page,
+  }) => {
+    await open(page);
+    await page.click('[data-action="load-preset"]');
+    await page.locator('.ic-persona[href="#/tinjau"]').click();
+    const cells = page.locator(".ic-sheet__cell");
+    await expect(undoBtn(page)).toBeDisabled();
+    await cells.nth(2).dblclick();
+    await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await expect(undoBtn(page)).toBeDisabled();
+    await page.locator('.ic-persona[href="#/tinjau"]').click();
+    await expect(page.locator(".ic-sheet__cell").nth(2)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(undoBtn(page)).toBeDisabled();
+  });
+
+  test("Tinjau: klik dua kali setelah urungkan tetap menyimpan ulangi", async ({
+    page,
+  }) => {
+    await open(page);
+    await page.click('[data-action="load-preset"]');
+    await page.locator('.ic-persona[href="#/tinjau"]').click();
+    const cells = page.locator(".ic-sheet__cell");
+    await cells.nth(1).click();
+    await expect(cells.nth(1)).toHaveAttribute("aria-pressed", "false");
+    await undoBtn(page).click();
+    await expect(cells.nth(1)).toHaveAttribute("aria-pressed", "true");
+    await expect(redoBtn(page)).toBeEnabled();
+    await page.waitForTimeout(500);
+    await cells.nth(4).dblclick();
+    await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await expect(undoBtn(page)).toBeDisabled();
+    await expect(redoBtn(page)).toBeEnabled();
+    await page.locator('.ic-persona[href="#/tinjau"]').click();
+    await expect(page.locator(".ic-sheet__cell").nth(4)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await redoBtn(page).click();
+    await expect(page.locator(".ic-sheet__cell").nth(1)).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+  });
 });

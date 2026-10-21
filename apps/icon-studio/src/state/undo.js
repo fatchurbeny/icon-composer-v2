@@ -22,7 +22,7 @@ export const UNDO_LIMIT = 10;
 /**
  * @typedef {Record<string, any>} Snapshot
  * @typedef {{snap: Snapshot, label: string}} Step
- * @typedef {{base: Snapshot, key: string, past: Step[], future: Step[]}} Track
+ * @typedef {{base: Snapshot, key: string, past: Step[], future: Step[], cleared: Step[] | null}} Track
  */
 
 /**
@@ -66,7 +66,7 @@ export function createUndo(options = {}) {
     let t = tracks.get(docId);
     if (!t) {
       const base = snapshot(doc);
-      t = { base, key: keyOf(base), past: [], future: [] };
+      t = { base, key: keyOf(base), past: [], future: [], cleared: null };
       tracks.set(docId, t);
     }
     return t;
@@ -91,9 +91,33 @@ export function createUndo(options = {}) {
       if (key === t.key) return false;
       t.past.push({ snap: t.base, label });
       if (t.past.length > limit) t.past.splice(0, t.past.length - limit);
+      /* riwayat ulangi disimpan sampai langkah berikutnya, supaya `discard` bisa memulihkannya */
+      t.cleared = t.future;
       t.future = [];
       t.base = snap;
       t.key = key;
+      return true;
+    },
+    /**
+     * Batalkan langkah terakhir seolah tidak pernah terjadi: dokumen kembali ke isi sebelum langkah itu,
+     * langkah tidak masuk riwayat ulangi, dan riwayat ulangi yang dikosongkan oleh langkah itu dipulihkan.
+     * Hanya berlaku bila langkah terakhir berlabel `label` dan isi dokumen belum berubah sejak langkah itu
+     * dicatat. Dipakai untuk klik pertama dari klik dua kali yang ternyata bukan perubahan.
+     * @param {string} docId
+     * @param {any} doc
+     * @param {string} label
+     * @returns {boolean} true bila langkah dibatalkan
+     */
+    discard(docId, doc, label) {
+      const t = tracks.get(docId);
+      const step = t && t.past.at(-1);
+      if (!t || !step || !t.cleared || step.label !== label || keyOf(snapshot(doc)) !== t.key) return false;
+      t.past.pop();
+      apply(doc, step.snap);
+      t.base = step.snap;
+      t.key = keyOf(step.snap);
+      t.future = t.cleared;
+      t.cleared = null;
       return true;
     },
     /**
@@ -103,8 +127,12 @@ export function createUndo(options = {}) {
      */
     sync(docId, doc) {
       const t = track(docId, doc);
-      t.base = snapshot(doc);
-      t.key = keyOf(t.base);
+      const snap = snapshot(doc),
+        key = keyOf(snap);
+      /* isi berubah di luar langkah: langkah terakhir tidak lagi bisa dibatalkan dengan `discard` */
+      if (key !== t.key) t.cleared = null;
+      t.base = snap;
+      t.key = key;
     },
     /**
      * Kembalikan dokumen ke langkah sebelumnya.
@@ -116,6 +144,7 @@ export function createUndo(options = {}) {
       const t = tracks.get(docId);
       const step = t && t.past.pop();
       if (!t || !step) return null;
+      t.cleared = null;
       t.future.push({ snap: t.base, label: step.label });
       apply(doc, step.snap);
       t.base = step.snap;
@@ -132,6 +161,7 @@ export function createUndo(options = {}) {
       const t = tracks.get(docId);
       const step = t && t.future.pop();
       if (!t || !step) return null;
+      t.cleared = null;
       t.past.push({ snap: t.base, label: step.label });
       apply(doc, step.snap);
       t.base = step.snap;

@@ -18,7 +18,22 @@ import {
   packOf,
   sheetGrid,
 } from "../state/builder-ops.js";
-import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, SPARKS, STICKER_MODE, kebab2, manifestOffsetStyle, manifestStickerStyle, sparkHome } from "../state/document.js";
+import { STICKER_PALETTE } from "@icon-studio/engines/sticker";
+import {
+  BUILDER_MODES,
+  HAND_WRITING_MODE,
+  OFFSET_MODE,
+  SPARKS,
+  STICKER_MODE,
+  kebab2,
+  manifestOffsetStyle,
+  manifestStickerFills,
+  manifestStickerItem,
+  manifestStickerStyle,
+  setStickerColor,
+  sparkHome,
+  stickerColorsOf,
+} from "../state/document.js";
 import { setSlot } from "../state/edit-ops.js";
 import { ACCENT_OPTIONS, INK_OPTIONS } from "../state/data/palettes.js";
 import { setStyleValue } from "../state/set-ops.js";
@@ -197,7 +212,8 @@ function iconBody(ctx, it) {
     out.push(
       `<span class="ic-label">Gaya Sticker</span>`,
       `<div class="ic-formrow"><span class="ic-label">Mode warna</span>${seg("Mode warna sticker", STICKER_FILL_NAME, manifestStickerStyle(ctx.doc.style).engine.sticker.mode, { name: "b-sfill" })}</div>`,
-      `<span class="ic-meta">Berlaku untuk seluruh pack. Isi objek memakai warna aksen, isi pengubah kuning. Pengubah memakai 4 sudut, dekorasi sinar, sparkle, dan ikal dari bawaan mesin.</span>`,
+      `<span class="ic-meta">Mode warna berlaku untuk seluruh pack. Pengubah memakai 4 sudut, dekorasi sinar, sparkle, dan ikal dari bawaan mesin.</span>`,
+      ...stickerItemColors(ctx, it),
     );
   if (ctx.doc.pv === "X") {
     const info = ctx.renderer.mainInfo(it.main),
@@ -218,12 +234,56 @@ function iconBody(ctx, it) {
   return out.join("");
 }
 
+/** Swatch isi sticker: "ikuti" (pack atau bawaan) lalu palet sticker, sama dengan Composer · Edit. */
+const STICKER_FOLLOW_OPTIONS = [null, ...STICKER_PALETTE];
+/** Nama bagian sticker untuk label kontrol dan urungkan. */
+const STICKER_PART_NAME = { main: "Isi objek", mod: "Isi pengubah" };
+
 /**
- * Penjaga batas Canva: jumlah warna pack pada gaya pratinjau (maks 5 per SVG).
+ * Warna isi sticker satu ikon (sama dengan Composer · Edit): kosong = ikuti warna pack.
+ * Swatch "ikuti" menampilkan warna pack yang berlaku untuk ikon ini.
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ */
+function stickerItemColors(ctx, it) {
+  const style = ctx.doc.style,
+    own = stickerColorsOf(it);
+  /* warna pack untuk ikon ini: pilihan per ikon dilepas, kecuali isi objek yang menentukan geser kuning */
+  const packOf = manifestStickerItem({ ...it, engine: own.main ? { sticker: { main: { c: own.main } } } : undefined }, style).engine.sticker;
+  const rows = [colorRow(ctx, { name: "b-icolor:main", label: "Isi objek", value: own.main, options: STICKER_FOLLOW_OPTIONS, fallback: manifestStickerFills(style).main, follow: true, round: true })];
+  if (it.mod !== "none") rows.push(colorRow(ctx, { name: "b-icolor:mod", label: "Isi pengubah", value: own.mod, options: STICKER_FOLLOW_OPTIONS, fallback: packOf.mod.c, follow: true, round: true }));
+  rows.push(`<span class="ic-meta">Warna ikon ini saja. "Ikuti warna set" memakai warna sticker pack di tab Manifest.</span>`);
+  return rows;
+}
+
+/**
+ * Warna isi sticker seluruh pack (tab Manifest). Kosong = bawaan: isi objek = aksen, isi pengubah kuning.
+ * @param {import("./common.js").Ctx} ctx
+ */
+function stickerPackColors(ctx) {
+  const style = ctx.doc.style,
+    pick = stickerColorsOf(style),
+    base = manifestStickerFills({ ink: style.ink, accent: style.accent });
+  return [
+    `<span class="ic-label">Warna sticker · seluruh pack</span>`,
+    colorRow(ctx, { name: "b-scolor:main", label: "Isi objek", value: pick.main, options: STICKER_FOLLOW_OPTIONS, fallback: base.main, follow: true, round: true }),
+    colorRow(ctx, { name: "b-scolor:mod", label: "Isi pengubah", value: pick.mod, options: STICKER_FOLLOW_OPTIONS, fallback: manifestStickerFills({ ...style, engine: pick.main ? { sticker: { main: { c: pick.main } } } : undefined }).mod, follow: true, round: true }),
+    `<span class="ic-meta">"Ikuti warna set" memakai bawaan: isi objek = aksen, isi pengubah kuning. Warna per ikon diatur di tab Ikon.</span>`,
+  ].join("");
+}
+
+/**
+ * Penjaga batas Canva: jumlah warna pack pada gaya pratinjau (maks 5 per SVG). Sticker dihitung per ikon
+ * (warna terbanyak di satu ikon), karena isi bisa berbeda per ikon, sama dengan Composer.
  * @param {import("./common.js").Ctx} ctx
  */
 function packColorNote(ctx) {
-  const n = ctx.doc.items.length ? packColors(ctx.doc.items, (/** @type {any} */ it) => render(ctx, it, ctx.doc.pv, "cc")).size : 0;
+  const paint = (/** @type {any} */ it) => render(ctx, it, ctx.doc.pv, "cc");
+  if (ctx.doc.pv === STICKER_MODE) {
+    const n = Math.max(0, ...ctx.doc.items.map((/** @type {any} */ it) => packColors([it], paint).size));
+    return n > 5 ? alert("warn", `${n} warna di satu ikon`, "Canva maks 5") : `<span class="ic-meta">Maks ${n} warna per ikon · batas Canva 5</span>`;
+  }
+  const n = ctx.doc.items.length ? packColors(ctx.doc.items, paint).size : 0;
   return n > 5 ? alert("warn", `${n} warna di pack`, "Canva maks 5") : `<span class="ic-meta">${n} warna di pack · maks 5 untuk Canva</span>`;
 }
 
@@ -241,6 +301,7 @@ function manifestBody(ctx) {
     `<span class="ic-label">Warna pack · semua gaya</span>`,
     colorRow(ctx, { name: "b-color:ink", label: "Tinta", value: doc.style.ink, options: INK_OPTIONS, fallback: doc.style.ink, round: true }),
     colorRow(ctx, { name: "b-color:accent", label: "Aksen", value: doc.style.accent, options: ACCENT_OPTIONS, fallback: doc.style.accent, round: true }),
+    doc.pv === STICKER_MODE || (doc.export && doc.export.modes && doc.export.modes[STICKER_MODE]) ? stickerPackColors(ctx) : "",
     packColorNote(ctx),
     ...issues.map(([lv, t, fix], n) => `${alert(/** @type {any} */ (lv), t)}${fix ? button(`Pakai saran ${esc(fix.to)}`, { size: "sm", action: "b-fix", label: `Pakai saran ${fix.to}` }).replace("<button", `<button data-i="${n}"`) : ""}`),
     `<div class="studio-actions">${button("Impor manifest lain…", { size: "sm", action: "b-step", label: "Impor manifest lain" }).replace("<button", '<button data-step="import"')}</div>`,
@@ -453,6 +514,14 @@ function control(ctx, name, value) {
   if (name === "b-color:ink" || name === "b-color:accent") {
     const key = name.slice(8);
     return mutate(ctx, () => setStyleValue(doc.style, key, value), `Warna ${key === "ink" ? "tinta" : "aksen"} ${value}`);
+  }
+  if (name.startsWith("b-scolor:") || name.startsWith("b-icolor:")) {
+    const part = name.slice(9),
+      what = /** @type {any} */ (STICKER_PART_NAME)[part];
+    if (!what) return;
+    const hex = value ? String(value).toUpperCase() : "";
+    if (name.startsWith("b-scolor:")) return mutate(ctx, () => setStickerColor(doc.style, part, hex), `${what} sticker ${hex || "bawaan"}`);
+    return mutateItem(ctx, (it) => setStickerColor(it, part, hex), `${what} ikon ${hex || "ikuti pack"}`);
   }
   if (name === "b-filter") return mutate(ctx, () => (doc.view.filter = value));
   if (name === "b-preview") return mutate(ctx, () => (doc.pv = BUILDER_MODES.includes(value) ? value : doc.pv), `Pratinjau ${/** @type {any} */ (PREVIEW_LABEL)[value] || value}`);

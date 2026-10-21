@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import { get } from "@icon-studio/engines";
 import {
   COLOR_PAIRS,
@@ -20,7 +20,7 @@ import {
   stickerParams,
 } from "@icon-studio/engines/sticker";
 import { concept } from "@icon-studio/icon-sources";
-import { fillShapeOf } from "@icon-studio/icon-sources/fill-shapes";
+import { fillShapeOf, loadFillShapes } from "@icon-studio/icon-sources/fill-shapes";
 import { svgColors } from "@icon-studio/export";
 
 const vendor = path.resolve(import.meta.dirname, "../fixtures/vendor");
@@ -49,6 +49,8 @@ const TABLER = JSON.parse(readFileSync(path.join(vendor, "tabler-nodes-outline.j
 const nodeOf = (/** @type {string} */ key) =>
   key.startsWith("lu:") ? LUCIDE.get(key.slice(3)) || null : key.startsWith("tb:") ? TABLER[key.slice(3)] || null : null;
 const ctx = { nodeOf, fillShapeOf };
+/* bentuk isi dimuat malas (icon-sources/fill-shapes) */
+beforeAll(() => loadFillShapes());
 const style = (/** @type {any} */ o = {}) => ({ family: "sticker", engine: { sticker: { ...STICKER_DEFAULTS, ...o } } });
 const item = (/** @type {any} */ o = {}) => ({ id: "a", main: "lu:luggage", mod: "tb:circle-check", slot: "TR", mx: 0, my: 0, nx: 0, ny: 0, ...o });
 

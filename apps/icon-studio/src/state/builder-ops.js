@@ -12,7 +12,7 @@ import { createTagIndex, directFillSvgFile, metadataCsv, styleWord, titleCase, t
 import { MAIN_ALIAS, MOD_ALIAS, libNameOf, variantsOf } from "@icon-studio/icon-sources";
 import { TB_CATS } from "@icon-studio/icon-sources/catalog";
 import { resourceHTML } from "./data/export/resource-page.js";
-import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, STICKER_MODE, kebab2, manifestHandWritingStyle, manifestOffsetStyle, manifestStickerStyle } from "./document.js";
+import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, STICKER_MODE, kebab2, manifestHandWritingStyle, manifestOffsetStyle, manifestStickerStyle, stickerColorBlock } from "./document.js";
 
 export const TIB_VERSION = "1.6.0";
 export const OUTPUT_VERSION = "1.5.0";
@@ -313,11 +313,23 @@ export function finalManifest(doc, list, exportedAt){
   const family = pv === "X" ? "accent" : pv === OFFSET_MODE ? "offset" : pv === HAND_WRITING_MODE ? "hand-writing" : pv === STICKER_MODE ? "sticker" : "classic";
   const mode = pv === "X" || pv === HAND_WRITING_MODE ? ((man && man.style && man.style.mode) || "A") : pv === OFFSET_MODE ? manifestOffsetStyle(style).engine.offset.mode : pv === STICKER_MODE ? manifestStickerStyle(style).engine.sticker.mode : pv;
   const hw = pv === HAND_WRITING_MODE;
+  /* blok engine gaya dan ikon: hand-writing bila pratinjau H, warna isi sticker bila pernah dipilih (DATA-MODEL 4.1) */
+  const engineOf = (/** @type {any} */ hwBlock, /** @type {any} */ holder, /** @type {any} */ base = {}) => {
+    const sc = stickerColorBlock(holder);
+    return hw || sc ? {engine:{...(hw ? {"hand-writing":hwBlock()} : base), ...(sc ? {sticker:sc} : {})}} : {};
+  };
+  /* warna sticker di manifest asal diganti pilihan dokumen, supaya warna yang dikembalikan ke bawaan tidak muncul lagi */
+  const manStyle = {...((man && man.style) || {})};
+  if (manStyle.engine && manStyle.engine.sticker){
+    const rest = {...manStyle.engine};
+    delete rest.sticker;
+    if (Object.keys(rest).length) manStyle.engine = rest; else delete manStyle.engine;
+  }
   return {...(man || {}), format:"tib-manifest", /* TIB menulis version:1 lalu version:2; nilai dan urutan kunci hasilnya sama */ version:2, generator:{name:"Template Icon Builder", version:OUTPUT_VERSION, exported_at:exportedAt},
-    style:{...((man && man.style) || {}), family, mode, ink:style.ink, accent:style.accent, ...(hw ? {engine:{"hand-writing":manifestHandWritingStyle(style).engine["hand-writing"]}} : {})},
+    style:{...manStyle, family, mode, ink:style.ink, accent:style.accent, ...engineOf(() => manifestHandWritingStyle(style).engine["hand-writing"], style, manStyle.engine)},
     icons: list.map(it => ({id:it.id, name:it.name, main:it.main, mod:it.mod, anchor:it.slot, offset:{main:[it.mx, it.my], mod:[it.nx, it.ny]},
       accent:{fill:it.under, marker:it.mstyle, spark:(it.deco || {}).type || "none", ...((it.deco || {}).type && it.deco.type !== "none" ? {spark_pos:[it.deco.x, it.deco.y]} : {}), parts:it.parts || "auto"},
-      slides:it.slides, role:it.role, keywords:it.keywords, ...(hw ? {engine:{"hand-writing":hwItemOf(it)}} : {})}))};
+      slides:it.slides, role:it.role, keywords:it.keywords, ...engineOf(() => hwItemOf(it), it)}))};
 }
 
 /** Parameter hand-writing satu ikon untuk manifest-final.json (`var` hanya bila ada). @param {any} it */
@@ -333,6 +345,8 @@ const TAGS = createTagIndex();
  * @param {{renderer: any, vocab: ReturnType<typeof createVocabulary>, brand: string, now?: () => string}} deps
  */
 export async function buildExportFiles(doc, opts, deps){
+  /* mode S: tunggu bentuk isi sticker termuat sebelum flag dan render, supaya ZIP tidak berisi placeholder */
+  if (opts.modes && opts.modes[STICKER_MODE]) await deps.renderer.loadStickerFills();
   const flagDeps = { vocab: deps.vocab, renderer: deps.renderer, style: doc.style };
   const list = exportList(doc, opts, flagDeps);
   const styles = BUILDER_MODES.filter(m => opts.modes[m]);

@@ -40,13 +40,11 @@ File ini dibaca setiap kali agen mulai bekerja di repo ini. Isinya aturan kerja.
 
 ```bash
 npm install                 # sekali, di root
-npm run dev -w apps/icon-studio      # aplikasi terpadu (setelah Fase 2b)
-npm run dev -w apps/icon-composer    # port legacy (Fase 1–2, untuk golden test)
-npm run dev -w apps/template-icon-builder
-npm run build               # semua app → dist/*.html satu file
+npm run dev -w apps/icon-studio      # aplikasi terpadu Icon Studio
+npm run build               # Icon Studio → dist/icon-studio/index.html satu file
 npm test                    # Vitest (unit, mesin, planner)
 npm run test:e2e            # Playwright (render, sidik jari, ekspor, ukuran kerangka UI)
-npm run test:golden         # paritas keluaran terhadap legacy/
+npm run test:golden         # paritas keluaran Icon Studio terhadap legacy/
 npm run lint
 npm run lint:ui             # node scripts/lint-ui.mjs, menegakkan docs/design/UI-RULES.md
 ```

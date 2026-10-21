@@ -16,6 +16,7 @@ import { createCanvasZoom, zoomLabel } from "./canvas-zoom.js";
 import { libraryUi } from "./personas/library-panel.js";
 import { TOOL_KEYS, TOOL_TIPS, tipId, toolTipMarkup } from "./tool-tips.js";
 import { SAMPLE_MANIFEST } from "./state/data/sample-manifest.js";
+import { STICKER_MODE } from "./state/document.js";
 import { aria, esc, icon, iconButton } from "./ui.js";
 
 /** Tool mode (tetap aktif) dan padanannya di canvas-zoom; tool lain adalah perintah sekali klik. */
@@ -37,7 +38,11 @@ const LOGO = `<svg class="ic-logo" viewBox="0 0 30 30" aria-hidden="true"><rect 
 export function createShell({ root, app, renderer }) {
   /* isi popover pemilih warna (Preset saya, palet kurasi, harmoni) dibaca dari state app saat dibuka */
   const ui = /** @type {any} */ (globalThis).ICUI;
-  if (ui) ui.colorpickerExtra = (/** @type {{name: string, value: string}} */ info) => pickerExtra(app, info);
+  if (ui)
+    ui.colorpickerExtra = (/** @type {{name: string, value: string}} */ info) => {
+      const doc = app.byId(app.activeId);
+      return pickerExtra(app, info, { stickerPack: !!doc && doc.kind === "manifest" && doc.pv === STICKER_MODE });
+    };
   /** tab panel studio yang terakhir dipilih, per id panel */
   const panelTabs = new Map();
   /** panel studio yang terbuka per kolom akordeon, kunci `persona[:edit]:label kolom` */

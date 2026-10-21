@@ -155,6 +155,18 @@ export function createAppState(options) {
   /* titik awal urungkan: isi dokumen saat app dibuka */
   for (const doc of documents) undo.sync(doc.id, doc);
   const notify = () => listeners.forEach((fn) => fn());
+  /* bentuk isi sticker termuat: flag manifest mode S divalidasi ulang, lalu UI render ulang (placeholder diganti) */
+  if (renderer.onStickerFills) renderer.onStickerFills(() => {
+    for (const doc of documents) if (doc.kind === "manifest") doc.issues = validateManifest(doc, vocab);
+    notify();
+  });
+
+  /**
+   * Dokumen yang butuh bentuk isi sticker: set bergaya Sticker, atau Builder yang pratinjau/ekspornya memakai mode S.
+   * @param {any} doc
+   */
+  const usesSticker = (doc) =>
+    doc.kind === "set" ? doc.style && doc.style.family === "sticker" : doc.pv === "S" || !!(doc.export && doc.export.modes && doc.export.modes.S);
 
   /** @param {string | null} id */
   const byId = (id) => documents.find((d) => d.id === id) || null;
@@ -264,6 +276,23 @@ export function createAppState(options) {
       swatchSource = normSwatchSource(source);
       save();
       notify();
+    },
+    /**
+     * Batalkan langkah terakhir berlabel `label` tanpa jejak: isi kembali seperti sebelum langkah itu, tidak
+     * ada langkah ulangi baru, dan catatan Riwayat sesi untuk langkah itu dihapus. Untuk klik pertama dari
+     * klik dua kali yang ternyata bukan perubahan (mis. lembar kontak Tinjau).
+     * @param {string} docId
+     * @param {string} label
+     * @returns {boolean} false bila langkah terakhir bukan `label` atau isi sudah berubah lagi
+     */
+    discard(docId, label) {
+      const doc = byId(docId);
+      if (!doc || !undo.discard(docId, doc, label)) return false;
+      if (history[docId]?.[0]?.label === label) history[docId].shift();
+      afterRestore(doc);
+      save();
+      notify();
+      return true;
     },
     /** Urungkan satu langkah. @param {string} docId @returns {string | null} label langkah */
     undo: (docId) => step(docId, "undo"),
@@ -410,6 +439,7 @@ export function createAppState(options) {
         await renderer.loadTabler();
         renderer.dropMissing("tb");
       }
+      if (renderer.loadStickerFills) await renderer.loadStickerFills();
       const res = stickerSetFromComposer(data, renderer.lib);
       if (!res || "fatal" in res) return res;
       const doc = ensureReviewFields(ensureSetFields(res.doc));
@@ -461,10 +491,12 @@ export function createAppState(options) {
       return normItem(o, renderer.lib, { uid: () => "contoh" });
     },
     /**
-     * Muat Tabler/Hugeicons bila dokumen tersimpan memakainya, lalu daftarkan ulang ikonnya.
+     * Muat Tabler/Hugeicons bila dokumen tersimpan memakainya, lalu daftarkan ulang ikonnya. Bentuk isi sticker
+     * dimuat bila ada set bergaya Sticker (termasuk hasil migrasi 004) atau dokumen Builder dengan mode S.
      * @returns {Promise<void>}
      */
     async warmLibraries() {
+      if (renderer.loadStickerFills && documents.some(usesSticker)) void renderer.loadStickerFills();
       const keys = documents.flatMap((d) => d.items.flatMap((it) => [String(it.main), String(it.mod)]));
       const jobs = [];
       if (keys.some((k) => k.startsWith("tb:"))) jobs.push(renderer.loadTabler().then(() => renderer.dropMissing("tb")));

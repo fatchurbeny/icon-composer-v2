@@ -73,6 +73,16 @@ Sticker legacy menanam ±2 MB data (`lu`, `luf`, `tb`, `tbf`) di HTML. Di repo b
 - `icon-sources.fillShapeOf(key)` menyediakannya;
 - ikon tanpa bentuk isi otomatis memakai `plate`.
 
+### Pemuatan malas
+
+Data itu hanya dibutuhkan gaya Sticker, jadi `packages/icon-sources/fill-shapes.js` memuatnya saat perlu:
+
+- `loadFillShapes()` mengimpor `fill-shapes.json` secara dinamis (sekali per halaman); `fillShapesState()` bernilai `idle`, `loading`, `ready`, atau `error`. `fillShapeOf(key)` tetap sinkron dan memakai data yang sudah termuat; `fillShapeReady(key)` memberi tahu apakah jawabannya sudah final.
+- Build Icon Studio satu file (vite-plugin-singlefile) tetap menginline chunk dinamis, jadi plugin `scripts/vite-fill-shapes.mjs` mengganti JSON itu dengan `{gz}` (gzip base64, ±0,2 MB) yang didekode `decodeFillShapes` lewat `DecompressionStream` saat dimuat (±8 ms di Chromium). Di dev dan Vitest JSON dimuat apa adanya. Ukuran `dist/icon-studio/index.html` turun dari 1.501.816 menjadi ±831.000 byte.
+- `FILL_SHAPE_SEED` berisi bentuk isi ikon contoh kartu gaya Sticker (`lu:luggage`, `lu:circle-check`), supaya pratinjau kartu benar tanpa memuat data. Isinya dijaga sama dengan `fill-shapes.json` oleh `tests/unit/fill-shapes.test.js`; perbarui bila skrip data mengubah kedua ikon itu.
+- Mesin tetap murni: renderer Icon Studio menyuntik `ctx.fillShapeOf`. Sebelum data termuat, render sticker yang butuh kunci di luar seed (`renderSetItem`, mode `S` Builder) mengembalikan SVG kosong `data-loading="fill-shapes"` dan memicu pemuatan; flag sticker kosong sementara. Setelah termuat, app memvalidasi ulang dokumen Builder dan merender ulang. Bila pemuatan gagal, mesin memakai `plate` (tidak menunggu terus).
+- Pemicu: set atau dokumen Builder bergaya Sticker (mode `S` di pratinjau atau ekspor) saat app dibuka, termasuk hasil migrasi 004 (`warmLibraries`); kartu Sticker dipilih; impor sticker-composer; render sticker apa pun. Ekspor ZIP set Sticker (`buildSetZip`), sprite, dan ekspor Builder dengan mode `S` (`buildExportFiles`) menunggu data termuat. Dicek `tests/e2e/studio-sticker-lazy.spec.js`.
+
 Data legacy dibangun dari **`lucide-static@0.460.0`** dan **`@tabler/icons@3.31.0`** (sumber: handoff Sticker Composer, 9 Oktober 2026). Aturan pembentukan bentuk isi di legacy:
 
 - `luf`: hanya bentuk tertutup ikon Lucide (circle/rect/ellipse/polygon, atau path yang diakhiri `z`).
@@ -90,7 +100,7 @@ Karena versinya naik ke Lucide 1.52.0 dan Tabler 3.49.0, bandingkan hasilnya di 
 ### Hasil golden visual (`tests/e2e/sticker-parity.spec.js`)
 
 - **Paritas mesin** (bentuk Icon Studio disuntikkan ke `compose` legacy asli, 14 rakitan × 4 gaya): selisih maks **0,047%** piksel di mode `mask` dan **0,000%** di mode `white`. Batas kriteria 1,5%.
-- **Selisih versi pustaka** (legacy dengan datanya sendiri, gaya bawaan): 0% untuk luggage, map, camera, tent-tree, caravan, mountain-snow, cable-car, bus, umbrella, mail; house + plus 3,4%; heart (isi Tanpa) 7,4%; sailboat 11,2%; minus 21,7% (aturan `plate` baru, legacy mengisi garisnya sendiri). Angka lengkap tercatat sebagai anotasi tes.
+- **Selisih versi pustaka** (legacy dengan datanya sendiri, gaya bawaan): 0% untuk luggage, map, camera, tent-tree, caravan, mountain-snow, cable-car, bus, umbrella, mail; house + plus 3,4%; heart (isi Tanpa) 7,4%; sailboat 11,2%; minus 21,7% (aturan `plate` baru, legacy mengisi garisnya sendiri). Angka lengkap tercatat sebagai anotasi tes. **Diterima Beny (2026-10-21, ADR-019):** selisih ini tidak dikejar ke 0%. Set sticker lama yang dibuka ulang di Icon Studio bisa sedikit berbeda dari tampilan di sticker-composer.
 - **Bentuk isi Lucide dengan deteksi titik ujung** (diputuskan Beny 2026-10-21, ADR-019 butir 2). Dibanding aturan legacy (hanya path ber-`z`), jumlah ikon Lucide berbentuk isi naik dari 1.293 menjadi 1.359. Bagian Tabler tidak berubah.
   - **30 ikon pulih** seperti legacy (sebelumnya jatuh ke lingkaran): apple, candy, carrot, croissant, egg, flame, heart, heart-pulse, infinity, leaf, moon, nut, paint-bucket, satellite-dish, spade, sprout, message-circle dan 7 variannya, phone dan 5 variannya. Tes kedua di `sticker-parity.spec.js` membandingkannya dengan legacy yang memakai bentuk isinya sendiri (hanya outline disuntikkan): 18 ikon di bawah 1,5% (maks moon 1,1%). 12 ikon digambar ulang di Lucide 1.x (message-circle dan variannya 2,1%, croissant 7,3%, nut 5,5%, paint-bucket 9,3%, sprout 1,5%) dan hanya dicatat sebagai anotasi.
   - **10 ikon berubah** yang sebelumnya identik legacy, karena badan luarnya kini ikut terisi: anvil, donut, eye, flower, globe, map-pin, map-pinned, ribbon, scan-eye, view. Dicatat sebagai selisih aturan (anotasi), bukan kegagalan. 13 ikon lain yang memang sudah berbeda dari legacy juga ikut berubah (contoh beef, rocket, settings).
@@ -121,4 +131,9 @@ Sampai planner Fase 6 ada, `compose` sudah membaca `engine.sticker.var` (`rayDia
 - **Composer · Edit:** tab Transform per lapisan: warna isi, isi (Bentuk/Lingkaran/Tanpa isi), skala, geser; 4 sudut pengubah; seed, skala, dan geser dekorasi. Objek dan pengubah bisa diseret, tanpa pegangan skala dan putar. Delete pada dekorasi menyembunyikannya (`vis.deco`).
 - **Kombinasi:** objek dan pengubah bawaan dilewati, slot dipetakan ke 4 sudut, objek utama tidak digeser slot.
 - **Tinjau:** kata gaya `Sticker Style` / `gaya sticker`, kata kunci `sticker style`, `sticker`, `colorful icon`.
-- **Builder:** mode `S` (folder `sticker/`): isi objek = aksen manifest, isi pengubah kuning, mode warna dari `style.engine.sticker.mode`, gaya lain bawaan mesin. Manifest `style.family: "sticker"` diimpor langsung ke mode `S`. Pilihan warna ini usulan sementara dan perlu persetujuan pemilik.
+- **Builder:** mode `S` (folder `sticker/`), mode warna dari `style.engine.sticker.mode`, gaya lain bawaan mesin. Manifest `style.family: "sticker"` diimpor langsung ke mode `S`. Warna isi memakai pemilih warna yang sama dengan Composer (ADR-019 butir 5, diputuskan Beny 2026-10-21):
+  - **Tab Manifest, "Warna sticker · seluruh pack":** Isi objek (`style.engine.sticker.main.c`) dan Isi pengubah (`style.engine.sticker.mod.c`). Tampil bila pratinjau atau centang ekspor Sticker aktif. "Ikuti warna set" = bawaan: isi objek = aksen manifest, isi pengubah kuning `#F9D84A` (digeser +3 di palet bila sama dengan isi objek, aturan legacy).
+  - **Tab Ikon, Gaya Sticker:** Isi objek dan Isi pengubah per ikon (`item.engine.sticker.main.c`/`mod.c`), setara warna isi per ikon di Composer · Edit. "Ikuti warna set" = warna pack.
+  - Urutan: pilihan per ikon, lalu pilihan pack, lalu bawaan (`manifestStickerItem`).
+  - Palet kurasi dan harmoni di pratinjau Sticker: tinta dan aksen seperti biasa, isi objek pack kembali mengikuti aksen, isi palet atau warna harmoni kedua menjadi isi pengubah pack.
+  - Penjaga batas Canva di tab Manifest menghitung warna terbanyak di satu ikon (sama dengan Composer), karena isi bisa berbeda per ikon. Maksimal tetap 4 per file.

@@ -226,6 +226,160 @@ test.describe("Icon Studio · pemilih warna", () => {
     }
     expect(checks.some((r) => r.accent)).toBe(true);
   });
+
+  test("Builder Sticker: warna isi objek dan pengubah lewat pemilih, ⌘Z, manifest-final, ZIP direct fill", async ({ page }) => {
+    test.setTimeout(90_000);
+    await open(page, "#/builder");
+    const keys = ["house", "heart", "mail"];
+    const manifest = {
+      format: "tib-manifest",
+      version: 2,
+      deck: { title: "Uji Warna Sticker", slides: 1 },
+      pack: { en: "Travel", id: "Wisata" },
+      style: { family: "sticker", mode: "sticker", accent: "#5AA9F8" },
+      icons: keys.map((k, i) => ({ id: k, name: { en: k, id: k }, main: `lu:${k}`, mod: i % 2 ? "lu:zap" : "lu:sun", anchor: "TR", slides: [1] })),
+    };
+    await page.locator('[data-name="manifest-text"]').fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    const cards = page.locator(".ic-iconcard[data-select]");
+    await expect(cards).toHaveCount(keys.length);
+    const art = (/** @type {number} */ n) => cards.nth(n).locator("svg");
+    /* bawaan tetap: isi objek = aksen manifest, isi pengubah kuning */
+    await expect(art(0).locator('g[fill="#5AA9F8"]').first()).toBeAttached();
+    await expect(art(0).locator('g[fill="#F9D84A"]').first()).toBeAttached();
+
+    await openPanel(page, "builder-icon");
+    await page.click('[data-panel="builder-icon"] [role="tab"][data-value="manifest"]');
+    await expect(page.locator('[data-panel="builder-icon"]')).toContainText("Warna sticker · seluruh pack");
+    await expect(trigger(page, "b-scolor:main")).toHaveAttribute("data-value", "");
+    /* isi objek pack lewat hex di pemilih */
+    await trigger(page, "b-scolor:main").click();
+    await expect(page.locator(`${PICKER} [data-cp="follow"]`)).toBeVisible();
+    await typeHex(page, "E5484D");
+    await expect(art(0).locator('g[fill="#E5484D"]').first()).toBeAttached();
+    await expect(art(2).locator('g[fill="#E5484D"]').first()).toBeAttached();
+    await expect(art(0).locator('g[fill="#5AA9F8"]')).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(trigger(page, "b-scolor:main")).toHaveAttribute("data-value", "#E5484D");
+    /* isi pengubah pack lewat hex, lalu ⌘Z mengembalikan kuning */
+    await trigger(page, "b-scolor:mod").click();
+    await typeHex(page, "6BD88A");
+    await expect(art(0).locator('g[fill="#6BD88A"]').first()).toBeAttached();
+    await expect(art(0).locator('g[fill="#F9D84A"]')).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Control+z");
+    await expect(art(0).locator('g[fill="#6BD88A"]')).toHaveCount(0);
+    await expect(art(0).locator('g[fill="#F9D84A"]').first()).toBeAttached();
+    await expect(trigger(page, "b-scolor:mod")).toHaveAttribute("data-value", "");
+    await expect(art(0).locator('g[fill="#E5484D"]').first()).toBeAttached();
+    /* swatch palet sticker di baris panel juga mengubah warna */
+    await page.locator('[data-name="b-scolor:mod"].ic-swatches [data-value="#6BD88A"]').click();
+    await expect(art(1).locator('g[fill="#6BD88A"]').first()).toBeAttached();
+    await expect(page.locator('[data-panel="builder-icon"]')).toContainText("Warna per ikon diatur di tab Ikon");
+
+    /* warna pengubah per ikon (tab Ikon), hanya ikon terpilih yang berubah */
+    await cards.first().click();
+    await page.click('[data-panel="builder-icon"] [role="tab"][data-value="ikon"]');
+    await expect(trigger(page, "b-icolor:mod")).toHaveAttribute("data-value", "");
+    await trigger(page, "b-icolor:mod").click();
+    await typeHex(page, "B58BEA");
+    await expect(art(0).locator('g[fill="#B58BEA"]').first()).toBeAttached();
+    await expect(art(1).locator('g[fill="#B58BEA"]')).toHaveCount(0);
+    await page.keyboard.press("Escape");
+
+    await page.locator('.ic-topbar [data-action="export"]').click();
+    await page.evaluate(() => {
+      const w = /** @type {any} */ (window);
+      w.__zip = null;
+      URL.createObjectURL = (blob) => {
+        w.__zip = blob;
+        return "blob:uji";
+      };
+      HTMLAnchorElement.prototype.click = () => {};
+    });
+    await openPanel(page, "builder-export");
+    await page.locator('[data-action="b-export"]').click();
+    await page.waitForFunction(() => /** @type {any} */ (window).__zip instanceof Blob, null, { timeout: 30000 });
+    const zip = await page.evaluate(async () => {
+      const w = /** @type {any} */ (window);
+      const z = await w.JSZip.loadAsync(w.__zip);
+      /** @type {Record<string, {again: string | null, fills: string[], stroke: boolean}>} */
+      const svgs = {};
+      for (const name of Object.keys(z.files).filter((n) => n.endsWith(".svg"))) {
+        const svg = await z.files[name].async("string");
+        let again = null;
+        try {
+          w.__iconStudio.directFillSvgFile(svg);
+        } catch (e) {
+          again = /** @type {Error} */ (e).message;
+        }
+        svgs[name] = { again, fills: [...new Set([...svg.matchAll(/fill="(#[0-9A-Fa-f]{6})"/g)].map((m) => m[1].toUpperCase()))], stroke: /\sstroke(?:-|=)/.test(svg) };
+      }
+      return { svgs, manifest: await z.files["manifest-final.json"].async("string") };
+    });
+    const names = Object.keys(zip.svgs).sort();
+    expect(names).toEqual(keys.map((k) => `sticker/slot-deck/${k}-sticker.svg`).sort());
+    for (const name of names) {
+      const r = zip.svgs[name];
+      expect(r.again, name).toBeNull();
+      expect(r.stroke, name).toBe(false);
+      expect(r.fills.length, name).toBeLessThanOrEqual(5);
+      expect(r.fills, name).toContain("#E5484D");
+    }
+    expect(zip.svgs["sticker/slot-deck/house-sticker.svg"].fills).toContain("#B58BEA");
+    expect(zip.svgs["sticker/slot-deck/house-sticker.svg"].fills).not.toContain("#6BD88A");
+    expect(zip.svgs["sticker/slot-deck/heart-sticker.svg"].fills).toContain("#6BD88A");
+    const fm = JSON.parse(zip.manifest);
+    expect(fm.style.engine).toEqual({ sticker: { main: { c: "#E5484D" }, mod: { c: "#6BD88A" } } });
+    expect(fm.icons.find((/** @type {any} */ i) => i.id === "house").engine).toEqual({ sticker: { mod: { c: "#B58BEA" } } });
+    expect(fm.icons.find((/** @type {any} */ i) => i.id === "heart").engine).toBeUndefined();
+
+    /* manifest-final.json diimpor ulang membawa warnanya */
+    await page.locator('[data-action="b-step"][data-step="import"]').first().click();
+    await page.locator('[data-name="manifest-text"]').fill(zip.manifest);
+    await page.locator('[data-action="import-text"]').click();
+    await expect(cards).toHaveCount(keys.length);
+    await expect(art(0).locator('g[fill="#B58BEA"]').first()).toBeAttached();
+    await expect(art(1).locator('g[fill="#6BD88A"]').first()).toBeAttached();
+    await expect(art(1).locator('g[fill="#E5484D"]').first()).toBeAttached();
+  });
+
+  test("Builder Sticker: palet dan harmoni mengisi warna objek dan pengubah sticker", async ({ page }) => {
+    await open(page, "#/builder");
+    const manifest = { format: "tib-manifest", version: 2, deck: { title: "Uji", slides: 1 }, style: { family: "sticker", accent: "#5AA9F8" }, icons: [{ id: "house", main: "lu:house", mod: "lu:sun", anchor: "TR", slides: [1] }] };
+    await page.locator('[data-name="manifest-text"]').fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    const art = page.locator(".ic-iconcard[data-select]").first().locator("svg");
+    await openPanel(page, "builder-icon");
+    await page.click('[data-panel="builder-icon"] [role="tab"][data-value="manifest"]');
+    await trigger(page, "b-scolor:main").click();
+    await typeHex(page, "E5484D");
+    await page.locator(`${PICKER} [role="tab"][data-value="palet"]`).click();
+    await expect(page.locator(PICKER)).toContainText("isi palet jadi isi pengubah");
+    await page.locator(`${PICKER} [data-action="cp-palette"][data-id="laut-dalam"]`).click();
+    /* isi objek kembali mengikuti aksen palet, isi palet jadi isi pengubah */
+    await expect(trigger(page, "b-color:accent")).toHaveAttribute("data-value", "#1A73E8");
+    await expect(trigger(page, "b-scolor:main")).toHaveAttribute("data-value", "");
+    await expect(trigger(page, "b-scolor:mod")).toHaveAttribute("data-value", "#5BA8FF");
+    await expect(art.locator('g[fill="#1A73E8"]').first()).toBeAttached();
+    await expect(art.locator('g[fill="#5BA8FF"]').first()).toBeAttached();
+    await page.keyboard.press("Escape");
+    /* satu langkah urungkan untuk seluruh palet */
+    await page.keyboard.press("Control+z");
+    await expect(trigger(page, "b-scolor:main")).toHaveAttribute("data-value", "#E5484D");
+    await expect(trigger(page, "b-scolor:mod")).toHaveAttribute("data-value", "");
+    /* harmoni: warna pertama aksen dan isi objek, warna kedua isi pengubah */
+    await trigger(page, "b-scolor:mod").click();
+    await typeHex(page, "E5484D");
+    await page.locator(`${PICKER} [role="tab"][data-value="harmoni"]`).click();
+    await page.locator(`${PICKER} [data-action="cp-harmony"]`).first().click();
+    await expect(trigger(page, "b-scolor:main")).toHaveAttribute("data-value", "");
+    const accent = await trigger(page, "b-color:accent").getAttribute("data-value");
+    const mod = await trigger(page, "b-scolor:mod").getAttribute("data-value");
+    expect(mod).not.toBe("#E5484D");
+    await expect(art.locator(`g[fill="${accent}"]`).first()).toBeAttached();
+    await expect(art.locator(`g[fill="${mod}"]`).first()).toBeAttached();
+  });
 });
 
 /** Kotak elemen berada utuh di dalam viewport. @param {import("@playwright/test").Page} page @param {import("@playwright/test").Locator} loc */

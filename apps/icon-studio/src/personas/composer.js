@@ -471,6 +471,8 @@ export const actions = {
 export function control(ctx, name, value) {
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   if (name === "engine") {
+    /* bentuk isi sticker mulai dimuat begitu kartu Sticker dipilih; render ulang otomatis setelah termuat */
+    if (value === "sticker") void ctx.renderer.loadStickerFills();
     if (READY_ENGINES.includes(value)) mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${/** @type {any} */ (ENGINE_NAMES)[value]}`);
     return;
   }

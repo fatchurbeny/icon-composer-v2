@@ -223,6 +223,11 @@ function saveFile(filename, data) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
+/** Label langkah urungkan saat ikon set dikeluarkan atau dimasukkan. */
+const TOGGLE_LABEL = "Ubah isi unduhan";
+/** @param {string} id */
+const toggleOff = (id) => (/** @type {any} */ doc) => (doc.review.off[id] ? delete doc.review.off[id] : (doc.review.off[id] = true));
+
 const actions = {
   /** @param {import("./common.js").Ctx} ctx @param {HTMLElement} el */
   "t-toggle"(ctx, el, /** @type {any} */ { go }) {
@@ -230,13 +235,13 @@ const actions = {
     const now = Date.now();
     if (isSet(ctx) && lastClick.id === id && now - lastClick.at < 450) {
       lastClick = { id: "", at: 0 };
-      /* klik dua kali: kembalikan status klik pertama, lalu buka di Composer · Edit */
-      mutate(ctx, (doc) => (doc.review.off[id] ? delete doc.review.off[id] : (doc.review.off[id] = true)));
+      /* klik dua kali: batalkan langkah klik pertama tanpa jejak di urungkan, lalu buka di Composer · Edit */
+      if (!ctx.app.discard(ctx.doc.id, TOGGLE_LABEL)) mutate(ctx, toggleOff(id));
       ctx.app.select(ctx.doc.id, id);
       return go({ persona: "composer", edit: id });
     }
     lastClick = { id, at: now };
-    if (isSet(ctx)) mutate(ctx, (doc) => (doc.review.off[id] ? delete doc.review.off[id] : (doc.review.off[id] = true)), "Ubah isi unduhan");
+    if (isSet(ctx)) mutate(ctx, toggleOff(id), TOGGLE_LABEL);
     else {
       const it = ctx.doc.items.find((/** @type {any} */ x) => x.uid === id);
       if (it) mutate(ctx, () => (it.on = !it.on), `${it.id} ${it.on ? "dikeluarkan" : "dimasukkan"}`);
@@ -251,6 +256,7 @@ const actions = {
   /** @param {import("./common.js").Ctx} ctx */
   async "t-sprite"(ctx) {
     const inc = includedOf(ctx.doc);
+    if (ctx.doc.style.family === "sticker") await ctx.renderer.loadStickerFills();
     saveFile(`${slug(ctx.doc.name || "set-ikon")}-sprite.svg`, spriteSVG(ctx.renderer, ctx.doc, inc));
     downloadStatus = `Sprite berisi ${inc.length} ikon diunduh.`;
     rerender(ctx);
@@ -266,8 +272,10 @@ const actions = {
       base = slug(doc.name || "set-ikon");
     if (!inc.length) return;
     try {
-      if (doc.review.fmt === "sprite") saveFile(`${base}-sprite.svg`, spriteSVG(ctx.renderer, doc, inc));
-      else {
+      if (doc.review.fmt === "sprite") {
+        if (doc.style.family === "sticker") await ctx.renderer.loadStickerFills();
+        saveFile(`${base}-sprite.svg`, spriteSVG(ctx.renderer, doc, inc));
+      } else {
         const JSZip = /** @type {any} */ (window).JSZip;
         if (!JSZip) throw new Error("Pembuat ZIP tidak termuat.");
         downloadStatus = "Menyusun ZIP…";

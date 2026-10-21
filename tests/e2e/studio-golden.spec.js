@@ -89,7 +89,7 @@ for (const family of mixed.iconComposer.families) {
     await openHtml(page, STUDIO);
     const expected = await golden("icon-composer", family, "mixed.html");
     const result = await page.evaluate(
-      async ({ family, saved, mainBin }) => {
+      async ({ family, saved, mainBin, modBin }) => {
         const { document: D, renderer: r } = window.__iconStudio;
         await r.loadTabler();
         await r.loadHugeicons();
@@ -137,12 +137,36 @@ for (const family of mixed.iconComposer.families) {
             actual: toHtml(svg),
           };
         });
-        return { artActual, tiles };
+        /* tile pengubah di panel Bentuk (modPreview IC 1.5.1): aksen lewat mesin, classic dari data MODS */
+        const r3 = (v) => Math.round(v * 1000) / 1000;
+        const modPreview = (k) => {
+          if (style.family === "accent")
+            return r.modPreviewAccent(k, items[0].mstyle, style);
+          const md = r.data.MODS[k],
+            sc = Math.min(30 / md.w, 30 / md.h),
+            W = md.w * sc,
+            H = md.h * sc;
+          return `<svg viewBox="0 0 48 48" fill="none" stroke="${style.ink}" stroke-width="${style.sw}" stroke-linecap="${style.cap}" stroke-linejoin="${style.join}"><g transform="translate(${r3(24 - W / 2)} ${r3(24 - H / 2)}) scale(${r3(sc)})"><g fill="${style.accent}" stroke="none">${md.sil}</g><g stroke-width="${r3((style.sw * (md.badge ? 0.75 : 1)) / (sc * (md.kd || 1)))}">${md.det.replace(/INK/g, style.ink)}</g></g></svg>`;
+        };
+        const modHost = document.createElement("div");
+        modHost.innerHTML = modBin;
+        const mods = [...modHost.querySelectorAll("[data-mod]")].map(
+          (tile) => {
+            const k = tile.getAttribute("data-mod");
+            return {
+              k,
+              expected: tile.querySelector("svg").outerHTML,
+              actual: toHtml(modPreview(k)),
+            };
+          },
+        );
+        return { artActual, tiles, mods };
       },
       {
         family,
         saved: mixed.iconComposer.storage["icon-composer-aksen-v1"],
         mainBin: section(expected, "mainBin"),
+        modBin: section(expected, "modBin"),
       },
     );
     expect(result.artActual).toBe(section(expected, "art"));
@@ -151,6 +175,12 @@ for (const family of mixed.iconComposer.families) {
       expect.arrayContaining(["tb:mail", "hg:rocket-01", "lu:coffee"]),
     );
     for (const tile of result.tiles)
+      expect(tile.actual, tile.k).toBe(tile.expected);
+    expect(result.mods.length).toBeGreaterThan(10);
+    expect(result.mods.map((t) => t.k)).toEqual(
+      expect.arrayContaining(["check", "tb:bulb", "hg:home-01"]),
+    );
+    for (const tile of result.mods)
       expect(tile.actual, tile.k).toBe(tile.expected);
   });
 }
