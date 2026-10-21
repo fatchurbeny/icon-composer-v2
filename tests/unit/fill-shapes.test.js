@@ -22,9 +22,18 @@ describe("fill-shapes.json (scripts/build-icon-data.mjs)", () => {
 
   test("Lucide: hanya bentuk tertutup", () => {
     expect(fillShapeOf("lu:mail")).toBe('<rect x="2" y="4" width="20" height="16" rx="2"/>');
-    /* koper: badan Lucide bukan path ber-z, jadi hanya roda (sama dengan legacy) */
+    /* koper: badan Lucide path terbuka (titik ujung tidak berimpit), jadi hanya roda (sama dengan legacy) */
     expect(fillShapeOf("lu:luggage")).toBe('<circle cx="16" cy="20" r="2"/><circle cx="8" cy="20" r="2"/>');
     expect(fillShapeOf("lu:minus")).toBe("");
+    expect(fillShapeOf("lu:arrow-right")).toBe("");
+  });
+
+  test("Lucide: path tanpa z yang titik ujungnya berimpit dihitung tertutup dan diberi z (ADR-019)", () => {
+    /* Lucide 1.52.0 tidak lagi menutup path ini dengan z; legacy (0.460.0) punya bentuk isinya */
+    expect(fillShapeOf("lu:heart")).toMatch(/^<path d="M2 9\.5a5\.5 5\.5 0 0 1 [^"]*z"\/>$/);
+    expect(fillShapeOf("lu:apple")).toMatch(/^<path d="M18\.237 21A15 15 [^"]*z"\/>$/);
+    /* map-pin: badan pin ikut menjadi bentuk isi, bukan hanya lingkaran dalam seperti legacy */
+    expect(fillShapeOf("lu:map-pin")).toMatch(/^<path d="M20 10c[^"]*z"\/><circle cx="12" cy="10" r="3"\/>$/);
   });
 
   test("Tabler: filled resmi, fallback outline tertutup tanpa prefiks ~", () => {

@@ -83,10 +83,11 @@ function caseOf(i) {
 }
 const ALL = CASES.map((_, i) => caseOf(i));
 
-test("@golden sticker < 1,5% piksel dari legacy sticker-composer (selisih versi pustaka dicatat)", async ({
-  browser,
-}) => {
-  test.setTimeout(240_000);
+/**
+ * Halaman Icon Studio dengan fixture vendor versi terkunci.
+ * @param {import("@playwright/test").Browser} browser
+ */
+async function studioPage(browser) {
   const page = await browser.newPage();
   await page.route("**/*", (route) => {
     const url = route.request().url();
@@ -98,9 +99,17 @@ test("@golden sticker < 1,5% piksel dari legacy sticker-composer (selisih versi 
     return route.abort();
   });
   await page.goto(`${APP}#/composer`);
-  const keys = [...new Set(ALL.flatMap((c) => [c.legacy.main.k, c.legacy.mod.k]).filter(Boolean))];
-  /* bentuk yang dipakai Icon Studio: outline versi terkunci dan bentuk isi (plate bila tidak ada) */
-  const shapes = await page.evaluate(async (keys) => {
+  return page;
+}
+
+/**
+ * Bentuk outline dan isi yang dipakai Icon Studio per kunci ikon.
+ * @param {import("@playwright/test").Page} page
+ * @param {string[]} keys
+ * @returns {Promise<Record<string, {o: string, f: string}>>}
+ */
+function shapesOf(page, keys) {
+  return page.evaluate(async (keys) => {
     const S = /** @type {any} */ (window).__iconStudio;
     await S.renderer.loadTabler();
     /** @type {Record<string, {o: string, f: string}>} */
@@ -108,45 +117,18 @@ test("@golden sticker < 1,5% piksel dari legacy sticker-composer (selisih versi 
     for (const k of keys) out[k] = S.renderer.stickerShapes(k);
     return out;
   }, keys);
-  for (const k of keys) expect(shapes[k], k).toBeTruthy();
+}
 
-  /* legacy: compose() asli, sekali dengan data bawaannya, sekali dengan bentuk Icon Studio */
-  const legacyPage = await browser.newPage();
-  await openHtml(legacyPage, "legacy/style/sticker-composer.html");
-  const legacy = await legacyPage.evaluate(
-    ({ cases, styles, shapes }) => {
-      const w = /** @type {any} */ (window);
-      const D = (0, eval)("D");
-      const setStyle = (/** @type {any} */ s) => (0, eval)(`style = ${JSON.stringify(s)}`);
-      /** @type {Record<string, string>} */
-      const own = {},
-        injected = {};
-      styles.forEach((/** @type {any} */ s, /** @type {number} */ si) => {
-        setStyle(s);
-        cases.forEach((/** @type {any} */ c, /** @type {number} */ ci) => {
-          own[`${ci}|${si}`] = w.compose(c.legacy, { size: 256 });
-        });
-      });
-      const PLATE = `<circle cx="12" cy="12" r="10.5"/>`;
-      for (const [key, sh] of Object.entries(shapes)) {
-        const src = key.slice(0, 2),
-          name = key.slice(3);
-        D[src][name] = /** @type {any} */ (sh).o;
-        D[src + "f"][name] = /** @type {any} */ (sh).f || PLATE;
-      }
-      styles.forEach((/** @type {any} */ s, /** @type {number} */ si) => {
-        setStyle(s);
-        cases.forEach((/** @type {any} */ c, /** @type {number} */ ci) => {
-          injected[`${ci}|${si}`] = w.compose(c.legacy, { size: 256 });
-        });
-      });
-      return { own, injected };
-    },
-    { cases: ALL, styles: STYLES, shapes },
-  );
-  await legacyPage.close();
-
-  const results = await page.evaluate(
+/**
+ * Render Icon Studio (mode `mask` dan `white`) dibanding SVG legacy `injected` (selisih mesin) dan `own` (selisih versi).
+ * @param {import("@playwright/test").Page} page
+ * @param {ReturnType<typeof caseOf>[]} cases
+ * @param {any[]} styles
+ * @param {{own: Record<string, string>, injected: Record<string, string>}} legacy
+ * @returns {Promise<{key: string, mode: string, diff: number, inked: number, version: number | null}[]>}
+ */
+function compareWithLegacy(page, cases, styles, legacy) {
+  return page.evaluate(
     async ({ cases, styles, legacy }) => {
       const S = /** @type {any} */ (window).__iconStudio;
       const N = 256;
@@ -200,8 +182,57 @@ test("@golden sticker < 1,5% piksel dari legacy sticker-composer (selisih versi 
         }
       return out;
     },
-    { cases: ALL, styles: STYLES, legacy },
+    { cases, styles, legacy },
   );
+}
+
+test("@golden sticker < 1,5% piksel dari legacy sticker-composer (selisih versi pustaka dicatat)", async ({
+  browser,
+}) => {
+  test.setTimeout(240_000);
+  const page = await studioPage(browser);
+  const keys = [...new Set(ALL.flatMap((c) => [c.legacy.main.k, c.legacy.mod.k]).filter(Boolean))];
+  /* bentuk yang dipakai Icon Studio: outline versi terkunci dan bentuk isi (plate bila tidak ada) */
+  const shapes = await shapesOf(page, keys);
+  for (const k of keys) expect(shapes[k], k).toBeTruthy();
+
+  /* legacy: compose() asli, sekali dengan data bawaannya, sekali dengan bentuk Icon Studio */
+  const legacyPage = await browser.newPage();
+  await openHtml(legacyPage, "legacy/style/sticker-composer.html");
+  const legacy = await legacyPage.evaluate(
+    ({ cases, styles, shapes }) => {
+      const w = /** @type {any} */ (window);
+      const D = (0, eval)("D");
+      const setStyle = (/** @type {any} */ s) => (0, eval)(`style = ${JSON.stringify(s)}`);
+      /** @type {Record<string, string>} */
+      const own = {},
+        injected = {};
+      styles.forEach((/** @type {any} */ s, /** @type {number} */ si) => {
+        setStyle(s);
+        cases.forEach((/** @type {any} */ c, /** @type {number} */ ci) => {
+          own[`${ci}|${si}`] = w.compose(c.legacy, { size: 256 });
+        });
+      });
+      const PLATE = `<circle cx="12" cy="12" r="10.5"/>`;
+      for (const [key, sh] of Object.entries(shapes)) {
+        const src = key.slice(0, 2),
+          name = key.slice(3);
+        D[src][name] = /** @type {any} */ (sh).o;
+        D[src + "f"][name] = /** @type {any} */ (sh).f || PLATE;
+      }
+      styles.forEach((/** @type {any} */ s, /** @type {number} */ si) => {
+        setStyle(s);
+        cases.forEach((/** @type {any} */ c, /** @type {number} */ ci) => {
+          injected[`${ci}|${si}`] = w.compose(c.legacy, { size: 256 });
+        });
+      });
+      return { own, injected };
+    },
+    { cases: ALL, styles: STYLES, shapes },
+  );
+  await legacyPage.close();
+
+  const results = await compareWithLegacy(page, ALL, STYLES, legacy);
   await page.close();
   for (const r of results) {
     expect(r.inked, r.key).toBeGreaterThan(0.02);
@@ -218,5 +249,111 @@ test("@golden sticker < 1,5% piksel dari legacy sticker-composer (selisih versi 
   test.info().annotations.push({
     type: "selisih versi pustaka (gaya bawaan)",
     description: version.map((r) => `${r.key.replace(" gaya 0 white", "")} ${pct(/** @type {number} */ (r.version))}`).join(", "),
+  });
+});
+
+/**
+ * ADR-019 butir 2 (diputuskan Beny 2026-10-21): bentuk isi Lucide memakai deteksi titik ujung, sama dengan
+ * fallback Tabler. Legacy dipakai dengan bentuk isinya sendiri (Lucide 0.460.0, path berakhiran z) dan hanya
+ * outline yang disuntikkan, jadi yang diukur adalah aturan bentuk isi, bukan mesin.
+ */
+const RESTORED = [
+  "apple",
+  "candy",
+  "carrot",
+  "egg",
+  "flame",
+  "heart",
+  "heart-pulse",
+  "infinity",
+  "leaf",
+  "moon",
+  "phone",
+  "phone-call",
+  "phone-forwarded",
+  "phone-incoming",
+  "phone-missed",
+  "phone-outgoing",
+  "satellite-dish",
+  "spade",
+];
+/**
+ * Ikon yang juga pulih, tetapi gambarnya digambar ulang di Lucide 1.x (ekor balon message-circle, croissant,
+ * nut, paint-bucket, dan sprout yang kini hanya punya satu daun tertutup), sehingga bentuk isi legacy 0.460.0 tidak lagi sebanding.
+ */
+const RESTORED_REDRAWN = [
+  "message-circle",
+  "message-circle-code",
+  "message-circle-more",
+  "message-circle-plus",
+  "message-circle-question",
+  "message-circle-reply",
+  "message-circle-warning",
+  "message-circle-x",
+  "croissant",
+  "nut",
+  "paint-bucket",
+  "sprout",
+];
+/** Ikon yang sebelumnya identik legacy dan kini ikut berubah karena aturan titik ujung. */
+const RULE_CHANGED = ["anvil", "donut", "eye", "flower", "globe", "map-pin", "map-pinned", "ribbon", "scan-eye", "view"];
+
+test("@golden sticker: bentuk isi Lucide titik ujung (ADR-019), ikon pulih < 1,5% dari legacy, selisih aturan dicatat", async ({ browser }) => {
+  test.setTimeout(240_000);
+  const names = [...RESTORED, ...RESTORED_REDRAWN, ...RULE_CHANGED];
+  const cases = names.map((n, i) => {
+    const c = caseOf(0);
+    c.canonical = { ...c.canonical, id: `r${i}`, main: `lu:${n}`, mod: "none", mx: 0, my: 0 };
+    c.legacy = { ...c.legacy, main: { ...c.legacy.main, k: `lu:${n}`, x: 0, y: 0 }, mod: { ...c.legacy.mod, k: null } };
+    return c;
+  });
+  const styles = [STYLES[0]];
+  const page = await studioPage(browser);
+  const shapes = await shapesOf(page, names.map((n) => `lu:${n}`));
+  for (const n of names) expect(shapes[`lu:${n}`].f, `lu:${n} punya bentuk isi`).not.toBe("");
+
+  const legacyPage = await browser.newPage();
+  await openHtml(legacyPage, "legacy/style/sticker-composer.html");
+  const legacy = await legacyPage.evaluate(
+    ({ cases, styles, shapes }) => {
+      const w = /** @type {any} */ (window);
+      const D = (0, eval)("D");
+      (0, eval)(`style = ${JSON.stringify(styles[0])}`);
+      /** @type {Record<string, string>} */
+      const own = {},
+        injected = {};
+      cases.forEach((/** @type {any} */ c, /** @type {number} */ ci) => {
+        own[`${ci}|0`] = w.compose(c.legacy, { size: 256 });
+      });
+      /* hanya outline; D.luf tetap data legacy */
+      for (const [key, sh] of Object.entries(shapes)) D.lu[key.slice(3)] = /** @type {any} */ (sh).o;
+      cases.forEach((/** @type {any} */ c, /** @type {number} */ ci) => {
+        injected[`${ci}|0`] = w.compose(c.legacy, { size: 256 });
+      });
+      return { own, injected };
+    },
+    { cases, styles, shapes },
+  );
+  await legacyPage.close();
+  const results = await compareWithLegacy(page, cases, styles, legacy);
+  await page.close();
+
+  const pct = (/** @type {number} */ v) => `${(v * 100).toFixed(3)}%`;
+  const byName = (/** @type {string} */ n) => results.filter((r) => r.key.startsWith(`lu:${n}+`));
+  for (const n of RESTORED)
+    for (const r of byName(n)) expect(r.diff, `${r.key}: bentuk isi pulih, selisih terhadap legacy`).toBeLessThan(0.015);
+  test.info().annotations.push({
+    type: "ikon pulih (bentuk isi legacy)",
+    description: RESTORED.map((n) => `${n} ${pct(Math.max(...byName(n).map((r) => r.diff)))}`).join(", "),
+  });
+  test.info().annotations.push({
+    type: "ikon pulih, digambar ulang antarversi",
+    description: RESTORED_REDRAWN.map((n) => `${n} ${pct(Math.max(...byName(n).map((r) => r.diff)))}`).join(", "),
+  });
+  /* bukan kegagalan: legacy hanya mengisi bagian dalam yang ber-z (mis. lingkaran map-pin dan eye), aturan baru
+     juga mengisi badan luar yang titik ujungnya berimpit, sehingga isi warna menutup bidang yang lebih luas */
+  test.info().annotations.push({
+    type: "selisih aturan bentuk isi (badan luar ikut terisi)",
+    description: RULE_CHANGED.map((n) => `${n} ${pct(Math.max(...byName(n).map((r) => r.diff)))}`).join(", "),
   });
 });
