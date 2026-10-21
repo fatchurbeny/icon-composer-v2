@@ -45,6 +45,10 @@ const LEGACY_LABEL = /** @type {Record<string, string>} */ ({
   "icon-composer-v2": "set Icon Composer",
   "icon-composer-meta-v1": "metadata Canva",
   "template-icon-builder-aksen-v1": "dokumen Builder",
+  "offset-composer-v1": "set Offset Composer",
+  "coret-composer-v1": "set Hand-writing",
+  "sticker-composer-v1": "set Sticker Composer",
 });
-if (app.migratedFrom.length) shell.toast(`Data lama diimpor: ${app.migratedFrom.map((k) => LEGACY_LABEL[k] || k).join(", ")}`);
+if (app.migratedFrom.length)
+  shell.toast([`Data lama diimpor: ${app.migratedFrom.map((k) => LEGACY_LABEL[k] || k).join(", ")}`, ...app.migrationWarnings].join(". "));
 void app.warmLibraries();

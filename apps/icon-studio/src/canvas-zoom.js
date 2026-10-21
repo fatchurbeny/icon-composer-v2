@@ -132,6 +132,7 @@ export function createCanvasZoom(options) {
     const left = anchorScroll(canvas.scrollLeft, cx, parseFloat(cs.paddingLeft) || 0, z0, z1);
     const top = anchorScroll(canvas.scrollTop, cy, parseFloat(cs.paddingTop) || 0, z0, z1);
     layer.style.zoom = String(z1);
+    layer.style.setProperty("--ic-zoom", String(z1));
     canvas.scrollLeft = left;
     canvas.scrollTop = top;
     paintLabels();
@@ -205,6 +206,7 @@ export function createCanvasZoom(options) {
     paintLabels();
     if (!canvas || !layer) return;
     layer.style.zoom = String(get());
+    layer.style.setProperty("--ic-zoom", String(get()));
     sizeLayer();
     if (resizer) resizer.disconnect();
     resizer = new ResizeObserver(() => sizeLayer());

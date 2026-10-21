@@ -8,8 +8,8 @@ import { buildZip, directFillSvgFile } from "@icon-studio/export";
 import { get } from "@icon-studio/engines";
 import { MODE_INFO, dupMap, exportList, flagsOf, packOf } from "../state/builder-ops.js";
 import { PREVIEW_BACKGROUNDS, SIZETEST_BACKGROUNDS } from "../state/data/preview-backgrounds.js";
-import { MODES, kebab2 } from "../state/document.js";
-import { buildSetZipFiles, exportSVG, fileNames, includedOf, loadTags, metaOf, reviewChecks, slug, spriteSVG } from "../state/review-ops.js";
+import { BUILDER_MODES, kebab2 } from "../state/document.js";
+import { buildSetZip, exportSVG, fileNames, includedOf, loadTags, metaOf, reviewChecks, slug, spriteSVG } from "../state/review-ops.js";
 import { duplicateGroups, nameOf } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, panel, seg, select } from "../ui.js";
 import { builder } from "./builder.js";
@@ -31,7 +31,7 @@ const mutate = (ctx, fn, label) => ctx.app.mutate(ctx.doc.id, fn, label);
 /** @param {import("./common.js").Ctx} ctx */
 const rerender = (ctx) => ctx.doc && mutate(ctx, () => {});
 /** @param {import("./common.js").Ctx} ctx */
-const builderDeps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style });
+const builderDeps = (ctx) => ({ vocab: ctx.app.vocab, renderer: ctx.renderer, style: ctx.doc.style, mode: ctx.doc.pv });
 
 /**
  * Ikon di lembar kontak beserta label, file, status ikut, dan lencana.
@@ -42,27 +42,27 @@ function cellsOf(ctx) {
   const doc = ctx.doc;
   if (isSet(ctx)) {
     const dup = new Set(duplicateGroups(doc.items, (it) => get(doc.style.family).signature(it)).flat().map((it) => it.id));
-    return fileNames(doc.items, ctx.renderer.lib).map(({ it, file }, i) => ({
+    return fileNames(doc.items, ctx.renderer.lib, doc.style.family).map(({ it, file }, i) => ({
       id: it.id,
-      label: nameOf(it, ctx.renderer.lib),
+      label: nameOf(it, ctx.renderer.lib, doc.style.family),
       file,
       on: !doc.review.off[it.id],
       svg: exportSVG(ctx.renderer, doc, it, i).replace(/ko(\d+)/g, "tj$1"),
       badge: dup.has(it.id) ? ["err", "dobel"] : null,
     }));
   }
-  const dm = dupMap(doc.items),
+  const dm = dupMap(doc.items, doc.pv),
     d = builderDeps(ctx);
   const dir = /** @type {any} */ (MODE_INFO)[doc.pv].dir;
   return doc.items.map((/** @type {any} */ it) => {
     const fl = flagsOf(it, dm, d);
-    const badge = fl.find((f) => f[1] === "Rakitan dobel di pack") ? ["err", "dobel"] : fl.some((f) => f[0] === "err") ? ["err", "masalah"] : fl.length ? ["warn", "cek"] : null;
+    const badge = fl.find((f) => f[1] === "Rakitan dobel di pack") ? ["err", "dobel"] : fl.some((f) => f[0] === "err") ? ["err", "masalah"] : fl.some((f) => f[0] !== "info") ? ["warn", "cek"] : null;
     return { id: it.uid, label: it.id, file: `${it.id}-${dir}.svg`, on: it.on, svg: ctx.renderer.renderManifestItem(it, doc.pv, doc.style, { idp: `tj${it.uid}` }), badge: /** @type {any} */ (badge) };
   });
 }
 
 /**
- * SVG direct fill untuk mode Bandingkan dan pemeriksaan (hanya pratinjau; ZIP Composer tetap SVG asli sampai Fase 5).
+ * SVG direct fill untuk mode Bandingkan dan pemeriksaan. ZIP Composer memakai direct fill yang sama (ADR-011).
  * @param {string} svg
  * @returns {{svg: string, error: string | null}}
  */
@@ -126,7 +126,7 @@ function checksBody(ctx) {
   else {
     const d = builderDeps(ctx),
       list = exportList(ctx.doc, ctx.doc.export, d),
-      dm = dupMap(ctx.doc.items);
+      dm = dupMap(ctx.doc.items, ctx.doc.pv);
     const bad = ctx.doc.items.filter((/** @type {any} */ it) => it.on && flagsOf(it, dm, d).some((f) => f[0] === "err")).length;
     const dup = ctx.doc.items.filter((/** @type {any} */ it) => it.on && dm[it.main + "|" + it.mod] > 1).length;
     rows = [
@@ -170,7 +170,7 @@ function keywordsBody(ctx) {
   const first = includedOf(ctx.doc)[0];
   if (!first) return empty("Belum ada ikon yang ikut diunduh.");
   const m = metaOf(ctx.doc, first, ctx.renderer);
-  return `<span class="ic-label">${esc(nameOf(first, ctx.renderer.lib))}</span><div class="studio-tags">${m.keywords
+  return `<span class="ic-label">${esc(nameOf(first, ctx.renderer.lib, ctx.doc.style.family))}</span><div class="studio-tags">${m.keywords
     .split(", ")
     .filter(Boolean)
     .map((k) => `<span class="ic-tag">${esc(k)}</span>`)
@@ -184,21 +184,23 @@ function zipBody(ctx) {
     const d = builderDeps(ctx),
       o = ctx.doc.export,
       list = exportList(ctx.doc, o, d);
-    const styles = MODES.filter((m) => o.modes[m]);
+    const styles = BUILDER_MODES.filter((m) => o.modes[m]);
     const tree = [`${kebab2(o.name) || "icon-pack"}.zip`, ...styles.map((s) => `├─ ${/** @type {any} */ (MODE_INFO)[s].dir}/  ${list.length} svg · direct fill`), "├─ metadata.csv", "├─ resource-page.html", "└─ manifest-final.json"].join("\n");
     return `<pre class="ic-meta studio-tree">${esc(tree)}</pre>${button("Unduh ZIP Canva", { kind: "primary", block: true, action: "t-download", disabled: !list.length || !styles.length })}<p class="ic-meta" role="status" data-role="export-status">${esc(downloadStatus)}</p>`;
   }
   const r = ctx.doc.review,
     inc = includedOf(ctx.doc);
-  const files = fileNames(inc, ctx.renderer.lib);
+  const files = fileNames(inc, ctx.renderer.lib, ctx.doc.style.family);
   const base = slug(ctx.doc.name || "set-ikon");
   const tree =
     r.fmt === "zip"
-      ? [`${base}.zip`, ...files.slice(0, 2).map((f) => `├─ ${f.file}`), files.length > 2 ? `├─ … ${files.length - 2} file lain` : "", "├─ LICENSES.txt", r.json ? "├─ gaya.json" : "", r.html ? "├─ pratinjau.html" : "", ctx.doc.meta.canva.on ? "└─ metadata.csv" : ""].filter(Boolean).join("\n")
+      ? [`${base}.zip`, ...files.slice(0, 2).map((f) => `├─ ${f.file}`), files.length > 2 ? `├─ … ${files.length - 2} file lain · direct fill` : "", r.asli ? `├─ svg-asli/  ${files.length} svg · stroke` : "", "├─ LICENSES.txt", r.json ? "├─ gaya.json" : "", r.html ? "├─ pratinjau.html" : "", ctx.doc.meta.canva.on ? "└─ metadata.csv" : ""].filter(Boolean).join("\n")
       : `${base}-sprite.svg\n└─ ${files.length} <symbol>`;
   return [
     `<div class="ic-formrow"><span class="ic-label">Format</span>${seg("Format unduhan", [["zip", "ZIP berisi SVG"], ["sprite", "Sprite SVG"]], r.fmt, { name: "t-fmt" })}</div>`,
-    `<div class="ic-formrow"><span class="ic-label">Celah knockout</span>${seg("Celah knockout", [["mask", "Mask, transparan"], ["white", "Latar putih"]], r.ko, { name: "t-ko" })}</div>`,
+    `<span class="ic-meta">SVG untuk Canva selalu direct fill: semua stroke jadi outline, satu bidang isi per warna.</span>`,
+    check("Sertakan SVG asli (folder svg-asli/, untuk Illustrator atau Figma)", r.asli, { name: "t-asli" }),
+    `<div class="ic-formrow"><span class="ic-label">Celah knockout</span>${seg("Celah knockout SVG asli dan sprite", [["mask", "Mask, transparan"], ["white", "Latar putih"]], r.ko, { name: "t-ko" })}</div>`,
     check("Sertakan gaya.json", r.json, { name: "t-json" }),
     check("Sertakan lembar pratinjau HTML", r.html, { name: "t-html" }),
     `<pre class="ic-meta studio-tree">${esc(tree)}</pre>`,
@@ -270,7 +272,13 @@ const actions = {
         if (!JSZip) throw new Error("Pembuat ZIP tidak termuat.");
         downloadStatus = "Menyusun ZIP…";
         rerender(ctx);
-        saveFile(`${base}.zip`, await buildZip(JSZip, await buildSetZipFiles(doc, inc, ctx.renderer)));
+        const { files, failed } = await buildSetZip(doc, inc, ctx.renderer);
+        saveFile(`${base}.zip`, await buildZip(JSZip, files));
+        const ok = inc.length - failed.length;
+        downloadStatus = `${ok} ikon diunduh${doc.items.length - inc.length ? `, ${doc.items.length - inc.length} dikeluarkan` : ""}.${failed.length ? ` ${failed.length} ikon gagal direct fill dan tidak masuk SVG Canva: ${failed.map((f) => f.file).join(", ")}${doc.review.asli ? " (SVG aslinya ada di svg-asli/)" : ""}.` : ""}`;
+        tools.toast("Unduhan dibuat");
+        rerender(ctx);
+        return;
       }
       downloadStatus = `${inc.length} ikon diunduh${doc.items.length - inc.length ? `, ${doc.items.length - inc.length} dikeluarkan` : ""}.`;
       tools.toast("Unduhan dibuat");
@@ -298,6 +306,7 @@ function control(ctx, name, value) {
     "t-compare": (doc) => (doc.review.compare = value === "direct" ? "direct" : "source"),
     "t-fmt": (doc) => (doc.review.fmt = value === "sprite" ? "sprite" : "zip"),
     "t-ko": (doc) => (doc.review.ko = value === "white" ? "white" : "mask"),
+    "t-asli": (doc) => (doc.review.asli = !!value),
     "t-json": (doc) => (doc.review.json = !!value),
     "t-html": (doc) => (doc.review.html = !!value),
     "t-meta-on": (doc) => (doc.meta.canva.on = !!value),
@@ -309,7 +318,28 @@ function control(ctx, name, value) {
     "t-kw": (doc) => (doc.meta.canva.kw = [10, 15, 20, 25].includes(Number(value)) ? Number(value) : 15),
     "t-desc": (doc) => (doc.meta.canva.desc = String(value)),
   });
-  if (map[name]) mutate(ctx, map[name]);
+  /** Nama pengaturan untuk Riwayat dan urungkan. */
+  const label = /** @type {Record<string, string>} */ ({
+    "t-bg": "Latar lembar kontak",
+    "t-size": "Ukuran pratinjau",
+    "t-names": "Nama file",
+    "t-flags": "Tanda flag",
+    "t-compare": "Bandingkan",
+    "t-fmt": "Format unduhan",
+    "t-ko": "Celah knockout",
+    "t-asli": "Sertakan SVG asli",
+    "t-json": "Sertakan gaya.json",
+    "t-html": "Sertakan lembar pratinjau",
+    "t-meta-on": "Sertakan metadata.csv",
+    "t-artist": "Artis",
+    "t-locale": "Bahasa metadata",
+    "t-nm": "Nama di judul",
+    "t-pack-en": "Nama pack EN",
+    "t-pack-id": "Nama pack ID",
+    "t-kw": "Jumlah kata kunci",
+    "t-desc": "Deskripsi pack",
+  });
+  if (map[name]) mutate(ctx, map[name], label[name]);
 }
 
 /* ---------- persona ---------- */

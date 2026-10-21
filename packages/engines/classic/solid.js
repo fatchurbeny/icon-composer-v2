@@ -34,7 +34,8 @@ export function anchoredModifierGeometry(it, md, sc) {
     H,
     L,
     T,
-    modT: `translate(${r3(L)} ${r3(T)}) scale(${r3(sc)})`,
+    /* rotasi per ikon (`nr`) di pusat kotak pengubah; tanpa rotasi string sama dengan mesin 1.4.5 */
+    modT: `${it.nr ? `rotate(${r3(it.nr)} ${r3(L + W / 2)} ${r3(T + H / 2)}) ` : ""}translate(${r3(L)} ${r3(T)}) scale(${r3(sc)})`,
   };
 }
 

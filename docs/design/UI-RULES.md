@@ -7,7 +7,7 @@ Aturan ini membuat UI tetap konsisten walau ditulis oleh banyak sesi LLM. Pelang
 1. **Pakai komponen dari kit.** Sebelum menulis UI, cari komponennya di `docs/design/ui-kit.html` dan tabel bagian 4 di `DESIGN-HANDOFF.md`. Salin struktur HTML-nya persis, termasuk atribut ARIA dan `data-ic`.
 2. **Pakai token.** Warna, ukuran huruf, tinggi kontrol, radius, dan spasi diambil dari `var(--ic-…)` di `packages/ui/tokens.css`.
 3. **State lewat ARIA.** Pilihan: `aria-pressed`. Tab dan baris: `aria-selected`. Persona: `aria-current="page"`. Langkah: `aria-current="step"`. Dropdown dan panel: `aria-expanded`. Toggle: `aria-checked`.
-4. **Perilaku lewat `data-ic`.** Tab, segmented, dropdown, slider, angka, toggle, dan lipat panel diaktifkan `components.js`. Dengarkan event `ic-change`, jangan memasang handler klik sendiri untuk perilaku yang sudah ada.
+4. **Perilaku lewat `data-ic`.** Tab, segmented, dropdown, slider, angka, toggle, lipat panel, dan akordeon kolom studio diaktifkan `components.js`. Dengarkan event `ic-change`, jangan memasang handler klik sendiri untuk perilaku yang sudah ada.
 5. **Ikon UI lewat `uiIcon()` / `<i data-icon>`.** Ukuran 13, 16, atau 20.
 6. **Teks Indonesia** sesuai `DESIGN-HANDOFF.md` bagian 6 dan `docs/GLOSSARY.md`.
 7. **Elemen asli.** `<button type="button">` untuk aksi, `<a href>` untuk navigasi, `<input>` + `<label>` untuk isian.
@@ -26,7 +26,7 @@ Aturan ini membuat UI tetap konsisten walau ditulis oleh banyak sesi LLM. Pelang
 
 ## Pengecualian
 
-- Warna data mesin dan pratinjau (palet ikon, latar lembar kontak) ditulis di file `…/data/…` dan dikecualikan dari aturan warna literal.
+- Warna data mesin dan pratinjau (palet ikon, palet kurasi, latar lembar kontak) ditulis di file `…/data/…` dan dikecualikan dari aturan warna literal. Warna pilihan pengguna dari `.ic-colorpicker` adalah data dokumen, bukan warna UI.
 - Template file ekspor di `apps/icon-studio/src/state/data/export/` (mis. `resource-page.html` di ZIP Builder) bukan UI: font dan ukuran hurufnya bagian dari keluaran yang dijaga golden, jadi dikecualikan dari aturan font, ukuran huruf, dan radius literal.
 
 ## Menambah atau mengubah komponen

@@ -14,6 +14,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present && node scripts/collect-builds.mjs",
     "fixtures:fetch": "node scripts/fetch-fixtures.mjs",
+    "icon-data": "node scripts/build-icon-data.mjs",
     "legacy:verify": "shasum -a 256 -c docs/legacy/legacy.sha256",
     "test": "vitest run",
     "test:e2e": "playwright test",

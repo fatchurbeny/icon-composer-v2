@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel, openTransform } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 
@@ -32,6 +33,9 @@ const xy = async (page) => [
   await page.locator('[data-name="edit-x"] input').inputValue(),
   await page.locator('[data-name="edit-y"] input').inputValue(),
 ];
+/** Pergeseran X/Y (titik acuan) terhadap `from`, dibulatkan 0,01. */
+const dxy = async (page, /** @type {string[]} */ from) =>
+  (await xy(page)).map((v, i) => Math.round((Number(v) - Number(from[i])) * 100) / 100);
 
 test.describe("Icon Studio · Composer · Edit", () => {
   test("artboard 520 px, kotak seleksi, dan filmstrip tampil", async ({
@@ -55,7 +59,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await expect(
       page.locator('[data-action="layer-select"][data-layer="mod"]'),
     ).toHaveAttribute("aria-selected", "true");
-    expect(await xy(page)).toEqual(["0", "0"]);
+    const start = await xy(page);
     const box = await page.locator('[data-hit="mod"]').boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
@@ -66,21 +70,122 @@ test.describe("Icon Studio · Composer · Edit", () => {
     );
     await expect(page.locator('[data-role="tooltip"]')).toBeVisible();
     await page.mouse.up();
-    expect(await xy(page)).toEqual(["4", "-3"]);
+    expect(await dxy(page, start)).toEqual([4, -3]);
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("Shift+ArrowDown");
-    expect(await xy(page)).toEqual(["3.5", "-1"]);
+    expect(await dxy(page, start)).toEqual([3.5, -1]);
     await page.reload();
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
-    expect(await xy(page)).toEqual(["3.5", "-1"]);
+    expect(await dxy(page, start)).toEqual([3.5, -1]);
+  });
+
+  test("Transform gaya Affinity: titik acuan, W/H terkunci, R, lalu urungkan", async ({
+    page,
+  }) => {
+    await openEdit(page);
+    await openPanel(page, "edit-layers");
+    await page
+      .locator('[data-action="layer-select"][data-layer="main"]')
+      .click();
+    await openTransform(page);
+    const num = (n) => page.locator(`[data-name="edit-${n}"] input`);
+    const val = async (n) => Number(await num(n).inputValue());
+    const chain = page.locator('[data-panel="edit-layers"] .ic-iconbtn[aria-label="Rasio selalu terkunci"]');
+    await expect(chain).toHaveAttribute("aria-pressed", "true");
+    await expect(chain).toBeDisabled();
+    await expect(page.locator('[data-name="edit-s"]')).toHaveCount(0);
+    const tl = [await val("x"), await val("y")];
+    const w0 = await val("w"),
+      h0 = await val("h");
+    /* titik acuan kanan bawah: X/Y = sudut kanan bawah kotak */
+    await page.locator('[data-name="edit-anchor"] button[data-value="BR"]').click();
+    await expect(
+      page.locator('[data-name="edit-anchor"] button[data-value="BR"]'),
+    ).toHaveAttribute("aria-pressed", "true");
+    const br = [await val("x"), await val("y")];
+    expect(br[0]).toBeCloseTo(tl[0] + w0, 1);
+    expect(br[1]).toBeCloseTo(tl[1] + h0, 1);
+    await num("x").fill(String(br[0] - 2));
+    await num("x").press("Enter");
+    await expect.poll(() => val("x")).toBeCloseTo(br[0] - 2, 1);
+    expect(await val("y")).toBeCloseTo(br[1], 1);
+    /* W mengubah skala set, H ikut */
+    const scale0 = await page.locator('.ic-context [data-name="edit-scale"] input').inputValue();
+    await num("w").fill(String(Math.round(w0 * 0.8 * 10) / 10));
+    await num("w").press("Enter");
+    await expect.poll(() => val("w")).toBeLessThan(w0 - 1);
+    expect(await val("h")).toBeCloseTo((h0 * (await val("w"))) / w0, 1);
+    await expect(page.locator('.ic-context [data-name="edit-scale"] input')).not.toHaveValue(scale0);
+    await num("rot").fill("30");
+    await num("rot").press("Enter");
+    await expect(num("rot")).toHaveValue("30");
+    /* ⌘Z mengembalikan R, lalu W/H, lalu X */
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement)?.blur());
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(num("rot")).toHaveValue("0");
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(() => val("w")).toBeCloseTo(w0, 1);
+    await expect(page.locator('.ic-context [data-name="edit-scale"] input')).toHaveValue(scale0);
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(() => val("x")).toBeCloseTo(br[0], 1);
+    await expect(
+      page.locator('[data-name="edit-anchor"] button[data-value="BR"]'),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("swatch bilah konteks mengikuti peran lapisan: lu:card-sim mode A Garis hitam, pengubah solid Isi", async ({
+    page,
+  }) => {
+    await openEdit(page);
+    await openPanel(page, "edit-layers");
+    await page
+      .locator('[data-action="layer-select"][data-layer="main"]')
+      .click();
+    await page
+      .locator('[data-panel="edit-layers"] [role="tab"][data-value="pustaka"]')
+      .click();
+    await page.locator('[data-name="lib-query"] input').fill("card-sim");
+    const tile = page.locator('[data-action="lib-pick"][data-key="lu:card-sim"]');
+    await expect(tile).toBeVisible();
+    /* pencarian ditunda 180 ms lalu daftar dirender ulang: tunggu sebelum klik */
+    await page.waitForTimeout(300);
+    await tile.click();
+    await expect(page.locator(".ic-toast")).toContainText("lu:card-sim");
+    await expect(page.locator(".ic-artboard__label")).toContainText("mode A");
+    await page
+      .locator('[data-panel="edit-layers"] [role="tab"][data-value="lapisan"]')
+      .click();
+    await expect(
+      page.locator('[data-action="layer-select"][data-layer="main"] .ic-row__sub'),
+    ).toContainText("lu:card-sim");
+    await page
+      .locator('[data-action="layer-select"][data-layer="main"]')
+      .click();
+    const sw = page.locator(".ic-context .ic-swatch");
+    await expect(sw).toHaveCount(1);
+    await expect(sw).toHaveAttribute("data-slot", "line");
+    await expect(sw).toHaveAttribute("aria-label", /^Garis objek utama #[0-9A-F]{6}, ubah warna$/i);
+    const hex = (await sw.getAttribute("aria-label")).match(/#([0-9A-F]{6})/i)[1];
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    expect(Math.max(r, g, b)).toBeLessThan(64);
+    await expect(page.locator(".ic-context .ic-label", { hasText: /^Garis$/ })).toHaveCount(1);
+    await expect(page.locator(".ic-context .ic-label", { hasText: /^Isi$/ })).toHaveCount(0);
+    await page
+      .locator('[data-action="layer-select"][data-layer="mod"]')
+      .click();
+    await expect(sw).toHaveCount(1);
+    await expect(sw).toHaveAttribute("data-slot", "fill");
+    await expect(sw).toHaveAttribute("aria-label", /^Isi pengubah #/);
   });
 
   test("posisi pengubah lewat pemilih jangkar, Delete melepas pengubah", async ({
     page,
   }) => {
     await openEdit(page);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
@@ -105,6 +210,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     page,
   }) => {
     await openEdit(page);
+    await openPanel(page, "edit-layers");
     await page.locator('[data-action="edit-eye"][data-layer="mod"]').click();
     await expect(
       page.locator('[data-action="edit-eye"][data-layer="mod"]'),
@@ -113,6 +219,7 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await page
       .locator('[data-action="layer-select"][data-layer="main"]')
       .click();
+    await openTransform(page);
     await page
       .locator('[data-name="edit-line"] button[data-value="#1A73E8"]')
       .click();
@@ -127,9 +234,11 @@ test.describe("Icon Studio · Composer · Edit", () => {
 
   test("dekorasi: pilih jenis dan rotasi", async ({ page }) => {
     await openEdit(page);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="deco"]')
       .click();
+    await openTransform(page);
     await page.locator('[data-action="edit-deco"][data-type="star4"]').click();
     await expect(
       page.locator(
@@ -137,19 +246,20 @@ test.describe("Icon Studio · Composer · Edit", () => {
       ),
     ).toContainText("star4");
     await page.locator('[data-name="edit-rot"] button[data-step="1"]').click();
-    await expect(page.locator('[data-name="edit-rot"] input')).toHaveValue(
-      "15",
-    );
+    await expect(page.locator('[data-name="edit-rot"] input')).toHaveValue("1");
   });
 
   test("gaya Aksen: peran bagian dan isi bidang", async ({ page }) => {
     await openEdit(page);
+    await openPanel(page, "composer-style");
     await page
       .locator('[data-name="engine"] button[data-value="accent"]')
       .click();
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="main"]')
       .click();
+    await openTransform(page);
     const part = page.locator(
       '[data-name="edit-part:0"] button[data-value="acc"]',
     );
@@ -178,5 +288,207 @@ test.describe("Icon Studio · Composer · Edit", () => {
     await expect(
       page.locator(".ic-page__card[data-select]").nth(5),
     ).toHaveAttribute("aria-selected", "true");
+  });
+
+  test.describe("panel kontekstual, ubah ukuran, dan putar", () => {
+    /* Lapisan | Transform | Pustaka sepanel; Halaman | Variasi | Riwayat di panel lain */
+    const tab = (page, v) =>
+      page.locator(
+        `[data-panel="${v === "riwayat" ? "edit-pages" : "edit-layers"}"] [role="tab"][data-value="${v}"]`,
+      );
+    const expanded = (page, id) =>
+      page.locator(
+        `[data-panel="${id}"] > .ic-panel__head > .ic-panel__collapse`,
+      );
+    const scaleIn = (page) =>
+      page.locator('.ic-context [data-name="edit-scale"] input');
+    const rotIn = (page) => page.locator('[data-name="edit-rot"] input');
+    /** Pusat elemen di layar. */
+    const mid = async (loc) => {
+      const b = await loc.boundingBox();
+      return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    };
+    /**
+     * Seret dari `a` ke `b` (opsional dengan Shift ditahan).
+     * @param {import("@playwright/test").Page} page
+     */
+    async function dragTo(page, a, b, shift = false) {
+      await page.mouse.move(a.x, a.y);
+      if (shift) await page.keyboard.down("Shift");
+      await page.mouse.down();
+      await page.mouse.move(b.x, b.y, { steps: 8 });
+      await page.mouse.up();
+      if (shift) await page.keyboard.up("Shift");
+    }
+    /** Pusat objek utama di layar (pusat kotak seleksi tanpa rotasi). */
+    const mainCenter = (page) => mid(page.locator(".ic-selbox"));
+
+    test("memilih lapisan membuka tab Lapisan dengan baris tersorot, opsi bisa dimatikan", async ({
+      page,
+    }) => {
+      await openEdit(page);
+      const row = (l) => page.locator(`[data-action="layer-select"][data-layer="${l}"]`);
+      /* dari tab Transform: klik di artboard kembali ke daftar Lapisan, baris lapisan itu tersorot */
+      await tab(page, "transform").click();
+      let hit = await mid(page.locator('[data-hit="mod"]'));
+      await page.mouse.click(hit.x, hit.y);
+      await expect(tab(page, "lapisan")).toHaveAttribute("aria-selected", "true");
+      await expect(row("mod")).toHaveAttribute("aria-selected", "true");
+      /* Transform tetap satu klik di sebelahnya */
+      await tab(page, "transform").click();
+      await expect(
+        page.locator('[data-name="edit-mstyle"], [data-name="edit-x"]').first(),
+      ).toBeVisible();
+      /* dari panel lain (Riwayat): klik di artboard membuka panel Lapisan di tab Lapisan */
+      await tab(page, "riwayat").click();
+      await expect(expanded(page, "edit-layers")).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+      const mainBox = await page.locator('[data-hit="main"]').boundingBox();
+      await page.mouse.click(mainBox.x + 6, mainBox.y + mainBox.height / 2);
+      await expect(expanded(page, "edit-layers")).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
+      await expect(tab(page, "lapisan")).toHaveAttribute("aria-selected", "true");
+      await expect(row("main")).toHaveAttribute("aria-selected", "true");
+      /* opsi dimatikan: tab Transform tetap terpilih setelah memilih lapisan di artboard */
+      await tab(page, "transform").click();
+      await page.locator('[data-name="edit-autopanel"]').uncheck();
+      hit = await mid(page.locator('[data-hit="mod"]'));
+      await page.mouse.click(hit.x, hit.y);
+      await expect(tab(page, "transform")).toHaveAttribute("aria-selected", "true");
+      await expect(row("mod")).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("pegangan sudut mengubah skala set, Shift kelipatan 5%, Esc membatalkan", async ({
+      page,
+    }) => {
+      await openEdit(page);
+      await expect(scaleIn(page)).toHaveValue("84");
+      const se = page.locator('.ic-selbox__h[data-at="se"]');
+      expect(await se.evaluate((el) => getComputedStyle(el).cursor)).toBe(
+        "nwse-resize",
+      );
+      const c = await mainCenter(page),
+        a = await mid(se);
+      /* 0,8 × jarak ke pusat: 84 × 0,8 = 67 */
+      await dragTo(page, a, {
+        x: c.x + (a.x - c.x) * 0.8,
+        y: c.y + (a.y - c.y) * 0.8,
+      });
+      await expect(scaleIn(page)).toHaveValue("67");
+      await expect(
+        page.locator('[data-name="edit-scale"] input').first(),
+      ).toHaveValue("67");
+      const a2 = await mid(se);
+      await dragTo(
+        page,
+        a2,
+        { x: c.x + (a2.x - c.x) * 1.12, y: c.y + (a2.y - c.y) * 1.12 },
+        true,
+      );
+      await expect(scaleIn(page)).toHaveValue("75");
+      /* Esc saat menyeret mengembalikan skala */
+      const a3 = await mid(se);
+      await page.mouse.move(a3.x, a3.y);
+      await page.mouse.down();
+      await page.mouse.move(
+        c.x + (a3.x - c.x) * 0.7,
+        c.y + (a3.y - c.y) * 0.7,
+        { steps: 5 },
+      );
+      await page.keyboard.press("Escape");
+      await page.mouse.up();
+      await expect(page).toHaveURL(/#\/composer\/edit\//);
+      await expect(scaleIn(page)).toHaveValue("75");
+      await tab(page, "riwayat").click();
+      await expect(page.locator('[data-panel="edit-pages"]')).toContainText(
+        "Skala objek utama 75% · semua ikon",
+      );
+    });
+
+    test("zona di luar sudut memutar ikon ini, Shift kelipatan 15°", async ({
+      page,
+    }) => {
+      await openEdit(page);
+      const rot = page.locator('.ic-selbox__rot[data-at="ne"]');
+      expect(await rot.evaluate((el) => getComputedStyle(el).cursor)).toContain(
+        "url(",
+      );
+      const c = await mainCenter(page),
+        a = await mid(rot);
+      /* putar 90° searah jarum jam: (dx, dy) → (-dy, dx) */
+      await dragTo(page, a, { x: c.x - (a.y - c.y), y: c.y + (a.x - c.x) });
+      await expect
+        .poll(async () => Math.abs(Number(await rotIn(page).inputValue()) - 90))
+        .toBeLessThanOrEqual(1);
+      await expect(page.locator(".ic-selbox")).toHaveAttribute(
+        "style",
+        /--ic-selbox-r: (89|90|91)deg/,
+      );
+      await expect(page.locator('[data-hit="main"]')).toHaveAttribute(
+        "transform",
+        /rotate\(/,
+      );
+      /* Shift: kelipatan 15° (sekitar 20° → 15° atau 30°) */
+      const b = await mid(rot);
+      const t = (20 * Math.PI) / 180;
+      const dx = b.x - c.x,
+        dy = b.y - c.y;
+      await dragTo(
+        page,
+        b,
+        {
+          x: c.x + dx * Math.cos(t) - dy * Math.sin(t),
+          y: c.y + dx * Math.sin(t) + dy * Math.cos(t),
+        },
+        true,
+      );
+      expect(Number(await rotIn(page).inputValue()) % 15).toBe(0);
+      /* hanya ikon ini yang berputar */
+      const others = await page.evaluate(() => {
+        const S = /** @type {any} */ (window).__iconStudio;
+        const st = S.store.loadState();
+        const doc = st.documents.find(
+          (/** @type {any} */ d) => d.id === st.activeId,
+        );
+        return doc.items.filter((/** @type {any} */ x) => x.mr).length;
+      });
+      expect(others).toBe(1);
+      await page.keyboard.press("BracketRight");
+      expect(Number(await rotIn(page).inputValue()) % 15).toBe(0);
+      await tab(page, "riwayat").click();
+      await expect(page.locator('[data-panel="edit-pages"]')).toContainText(
+        "Putar objek utama",
+      );
+    });
+
+    test("pegangan tetap akurat saat kanvas di-zoom 200%", async ({ page }) => {
+      await openEdit(page);
+      await page.locator('[data-action="zoom-in"]').click();
+      await page.locator('[data-action="zoom-in"]').click();
+      await expect(page.locator(".studio-zoombtn--label")).toHaveText("200%");
+      const se = page.locator('.ic-selbox__h[data-at="se"]');
+      /* ukuran pegangan di layar tetap 9 px */
+      expect(Math.round((await se.boundingBox()).width)).toBe(9);
+      const c = await mainCenter(page),
+        a = await mid(se);
+      await dragTo(page, a, {
+        x: c.x + (a.x - c.x) * 0.8,
+        y: c.y + (a.y - c.y) * 0.8,
+      });
+      await expect(scaleIn(page)).toHaveValue("67");
+      const rot = page.locator('.ic-selbox__rot[data-at="se"]');
+      const b = await mid(rot);
+      await dragTo(
+        page,
+        b,
+        { x: c.x - (b.y - c.y), y: c.y + (b.x - c.x) },
+        true,
+      );
+      await expect(rotIn(page)).toHaveValue("90");
+    });
   });
 });

@@ -44,10 +44,10 @@
     <h1>Icon Studio UI Kit</h1>
     <p class="ic-meta">v1.0 · tokens.css + components.css + components.js + icons.js</p>
     <a href="#tokens">Token warna</a><a href="#type">Tipografi</a><a href="#persona">Persona &amp; bilah atas</a><a href="#buttons">Tombol</a>
-    <a href="#tools">Tool &amp; tombol ikon</a><a href="#tabs">Panel bertab</a><a href="#seg">Segmented</a><a href="#select">Dropdown</a>
+    <a href="#tools">Tool &amp; tombol ikon</a><a href="#tabs">Panel bertab</a><a href="#accordion">Akordeon panel</a><a href="#seg">Segmented</a><a href="#select">Dropdown</a>
     <a href="#slider">Slider &amp; angka</a><a href="#check">Checkbox &amp; toggle</a><a href="#field">Field &amp; pencarian</a><a href="#chips">Chip, tag, stepper</a>
     <a href="#flags">Lencana, flag, peringatan</a><a href="#stats">Statistik</a><a href="#rows">Baris daftar</a><a href="#tiles">Tile pustaka</a>
-    <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a>
+    <a href="#pages">Halaman ikon</a><a href="#engines">Kartu gaya</a><a href="#matrix">Sel matriks</a><a href="#pickers">Swatch &amp; posisi</a><a href="#colorpicker">Pemilih warna</a>
     <a href="#misc">Kosong, tooltip, toast</a><a href="#tip">Rich tooltip</a><a href="#edit">Artboard edit &amp; filmstrip</a><a href="#slides">Grup slide &amp; kartu ikon</a><a href="#sheet">Lembar kontak &amp; uji 32 px</a><a href="#drop">Area drop &amp; field banyak baris</a><a href="#shell">Contoh kerangka penuh</a>
   </nav>
 
@@ -122,10 +122,13 @@
         </div><code>.ic-tool[aria-pressed] · data-ic="single"</code></div>
         <div class="kit-cap"><div style="display: flex; gap: 4px">
           <button class="ic-iconbtn" aria-label="Urungkan"><i data-icon="undo"></i></button>
+          <button class="ic-iconbtn" aria-label="Ulangi" disabled><i data-icon="redo"></i></button>
           <button class="ic-iconbtn" aria-label="Duplikat"><i data-icon="duplicate"></i></button>
           <button class="ic-iconbtn" aria-label="Kunci variasi" aria-pressed="true"><i data-icon="lock"></i></button>
+          <button class="ic-iconbtn" aria-label="Rasio selalu terkunci" aria-pressed="true" disabled title="Rasio selalu terkunci: mesin hanya mengenal skala seragam"><i data-icon="link"></i></button>
+          <button class="ic-iconbtn" aria-label="Rasio bebas" aria-pressed="false"><i data-icon="unlink"></i></button>
           <button class="ic-iconbtn ic-iconbtn--help" aria-label="Bantuan"><i data-icon="help" data-size="20"></i></button>
-        </div><code>.ic-iconbtn · --help · [aria-pressed]</code></div>
+        </div><code>.ic-iconbtn · --help · [aria-pressed] · [disabled] · link/unlink (kunci rasio)</code></div>
       </div>
     </section>
 
@@ -150,6 +153,45 @@
           </div>
           <div class="ic-panel__foot"><button class="ic-iconbtn" aria-label="Ikon baru"><i data-icon="plus"></i></button><button class="ic-iconbtn" aria-label="Duplikat"><i data-icon="duplicate"></i></button><span class="ic-spacer"></span><button class="ic-iconbtn" aria-label="Hapus"><i data-icon="trash"></i></button></div>
         </section>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="accordion">
+      <h2>Akordeon panel</h2>
+      <p>Kolom studio memakai <code class="ic-mono">data-ic="accordion"</code> di wadahnya. Hanya satu panel terbuka dan mengisi sisa tinggi kolom; panel lain tinggal kepala 34 px. Membuka panel lewat tombol lipat atau klik tab di kepalanya menutup panel lain. Menutup panel terbuka membuka panel berikutnya. Panel awal: panel <code class="ic-mono">--grow</code>, kalau tidak ada panel pertama.</p>
+      <div class="kit-demo" style="padding: 0; overflow: hidden; width: 330px">
+        <aside class="ic-studio" aria-label="Contoh akordeon" data-ic="accordion" style="width: 330px; height: 320px">
+          <section class="ic-panel" data-ic="tabs">
+            <div class="ic-panel__head" role="tablist" aria-label="Panel gaya">
+              <button class="ic-tab" role="tab" aria-selected="true" aria-controls="ka-a">Gaya</button>
+              <button class="ic-tab" role="tab" aria-selected="false" aria-controls="ka-b" tabindex="-1">Warna</button>
+              <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="ka-1" aria-label="Lipat panel Gaya"><i data-icon="chevron-down" data-size="13"></i></button>
+            </div>
+            <div id="ka-1">
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-a"><span class="ic-label">Isi tab Gaya</span></div>
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-b" hidden><span class="ic-label">Isi tab Warna</span></div>
+            </div>
+          </section>
+          <section class="ic-panel ic-panel--grow" data-ic="tabs">
+            <div class="ic-panel__head" role="tablist" aria-label="Panel halaman">
+              <button class="ic-tab" role="tab" aria-selected="true" aria-controls="ka-c">Halaman</button>
+              <button class="ic-tab" role="tab" aria-selected="false" aria-controls="ka-d" tabindex="-1">Pustaka</button>
+              <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="ka-2" aria-label="Lipat panel Halaman"><i data-icon="chevron-down" data-size="13"></i></button>
+            </div>
+            <div id="ka-2">
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-c"><span class="ic-label">Isi tab Halaman (panel awal karena --grow)</span></div>
+              <div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-d" hidden><span class="ic-label">Isi tab Pustaka</span></div>
+            </div>
+            <div class="ic-panel__foot"><button class="ic-iconbtn" aria-label="Ikon baru"><i data-icon="plus"></i></button></div>
+          </section>
+          <section class="ic-panel" data-ic="tabs">
+            <div class="ic-panel__head" role="tablist" aria-label="Panel repetisi">
+              <button class="ic-tab" role="tab" aria-selected="true" aria-controls="ka-e">Repetisi</button>
+              <button class="ic-panel__collapse" data-ic="collapse" aria-expanded="true" aria-controls="ka-3" aria-label="Lipat panel Repetisi"><i data-icon="chevron-down" data-size="13"></i></button>
+            </div>
+            <div id="ka-3"><div class="ic-tabpanel ic-panel__body" role="tabpanel" id="ka-e"><span class="ic-label">Isi tab Repetisi</span></div></div>
+          </section>
+        </aside>
       </div>
     </section>
 
@@ -245,6 +287,7 @@
         <div class="ic-alert" data-level="err"><span class="ic-dot" data-level="err"></span>write-brief = client-brief<span class="ic-alert__meta">dobel</span></div>
         <div class="ic-alert" data-level="warn"><span class="ic-dot" data-level="warn"></span>set-goals ≈ find-audience<span class="ic-alert__meta">IoU 0.84</span></div>
         <div class="ic-alert" data-level="ok"><i data-icon="check" data-size="13"></i>Direct fill: semua stroke jadi outline, ≤5 warna</div>
+        <div class="ic-alert" data-level="info"><span class="ic-dot" data-level="info"></span>Pengubah tidak tersedia pada style ini<span class="ic-alert__meta">offset</span></div>
       </div>
     </section>
 
@@ -318,6 +361,17 @@
         <div class="kit-cap"><div class="ic-swatches" data-ic="single"><button class="ic-swatch ic-swatch--round" aria-pressed="true" style="background: #17171B" aria-label="Tinta hitam"></button><button class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #2B3A67" aria-label="Tinta biru tua"></button><button class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #5A2E1F" aria-label="Tinta cokelat"></button></div><code>.ic-swatch (warna isi = data, boleh inline)</code></div>
         <div class="kit-cap"><div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah"><button aria-pressed="false" aria-label="TL"></button><button aria-pressed="false" aria-label="TC"></button><button aria-pressed="true" aria-label="TR"></button><button aria-pressed="false" aria-label="ML"></button><button disabled aria-label="Tengah"></button><button aria-pressed="false" aria-label="MR"></button><button aria-pressed="false" aria-label="BL"></button><button aria-pressed="false" aria-label="BC"></button><button aria-pressed="false" aria-label="BR"></button></div><code>.ic-anchor 3×3 (classic, accent, hand-writing)</code></div>
         <div class="kit-cap"><div class="ic-anchor" style="--ic-anchor-cols: 2" data-ic="single" role="group" aria-label="Posisi pengubah sticker"><button aria-pressed="false" aria-label="TL"></button><button aria-pressed="true" aria-label="TR"></button><button aria-pressed="false" aria-label="BL"></button><button aria-pressed="false" aria-label="BR"></button></div><code>2×2 (sticker)</code></div>
+        <div class="kit-cap"><div style="display: flex; align-items: center; gap: var(--ic-sp-3); width: 300px"><div class="ic-anchor" data-ic="single" role="group" aria-label="Titik acuan"><button aria-pressed="false" aria-label="Titik acuan kiri atas"></button><button aria-pressed="false" aria-label="Titik acuan tengah atas"></button><button aria-pressed="false" aria-label="Titik acuan kanan atas"></button><button aria-pressed="false" aria-label="Titik acuan kiri tengah"></button><button aria-pressed="false" aria-label="Titik acuan tengah"></button><button aria-pressed="false" aria-label="Titik acuan kanan tengah"></button><button aria-pressed="false" aria-label="Titik acuan kiri bawah"></button><button aria-pressed="false" aria-label="Titik acuan tengah bawah"></button><button aria-pressed="true" aria-label="Titik acuan kanan bawah"></button></div><div class="ic-tilegrid" style="--ic-cols: 2; flex: 1"><div style="display: flex; align-items: center; gap: var(--ic-sp-3)"><span class="ic-label">X</span><div class="ic-number" data-ic="number"><input type="text" inputmode="decimal" value="42" step="0.5" aria-label="X objek utama"><button data-step="-1" aria-label="Kurangi X">−</button><button data-step="1" aria-label="Tambah X">+</button></div></div><div style="display: flex; align-items: center; gap: var(--ic-sp-3)"><span class="ic-label">W</span><div class="ic-number" data-ic="number"><input type="text" inputmode="decimal" value="33.6" step="0.5" aria-label="W objek utama"><button data-step="-1" aria-label="Kurangi W">−</button><button data-step="1" aria-label="Tambah W">+</button></div></div><div style="display: flex; align-items: center; gap: var(--ic-sp-3)"><span class="ic-label">Y</span><div class="ic-number" data-ic="number"><input type="text" inputmode="decimal" value="42" step="0.5" aria-label="Y objek utama"><button data-step="-1" aria-label="Kurangi Y">−</button><button data-step="1" aria-label="Tambah Y">+</button></div></div><div style="display: flex; align-items: center; gap: var(--ic-sp-3)"><span class="ic-label">H</span><div class="ic-number" data-ic="number"><input type="text" inputmode="decimal" value="33.6" step="0.5" aria-label="H objek utama"><button data-step="-1" aria-label="Kurangi H">−</button><button data-step="1" aria-label="Tambah H">+</button></div></div><div style="display: flex; align-items: center; gap: var(--ic-sp-3)"><span class="ic-label">R</span><div class="ic-number" data-ic="number"><input type="text" inputmode="decimal" value="0" step="1" aria-label="R objek utama"><button data-step="-1" aria-label="Kurangi R">−</button><button data-step="1" aria-label="Tambah R">+</button></div></div><div style="display: flex; align-items: center; gap: var(--ic-sp-3)"><span class="ic-label"></span><button class="ic-iconbtn" aria-pressed="true" disabled aria-label="Rasio selalu terkunci" title="Rasio selalu terkunci: mesin hanya mengenal skala seragam"><i data-icon="link"></i></button></div></div></div><code>Transform Composer · Edit: .ic-anchor 3×3 (semua titik aktif = titik acuan X/Y) + .ic-tilegrid 2 kolom .ic-number + .ic-iconbtn link</code></div>
+      </div>
+    </section>
+
+    <section class="kit-sec" id="colorpicker">
+      <h2>Pemilih warna</h2>
+      <p><code>.ic-colorpicker</code>: popover dari swatch "Warna lain…" (<code>.ic-swatch--custom</code>, <code>data-ic="colorpicker"</code>). Roda hue (hue 0 di kanan, searah jarum jam) dan segitiga saturasi/kecerahan seperti Affinity, kolom H S L dan hex, tombol "Ikuti warna set" bila <code>data-follow="true"</code>. Tanpa opacity: warna Canva dan direct fill selalu solid. Pemicu memakai lingkar hue <code>--ic-hue-ring</code>, atau warna aktif bila warna itu tidak ada di daftar swatch (<code>aria-pressed="true"</code>). Tinggi popover dibatasi viewport: roda dan kolom tetap terlihat, daftar Preset/Palet/Harmoni digulir sendiri; popover membalik ke atas atau bergeser ke samping pemicu bila ruang di bawah kurang. Keyboard: Enter membuka, panah mengubah hue atau saturasi/kecerahan (Shift = 10), Esc menutup dan mengembalikan fokus. Hasil: <code>ic-change</code> dari pemicu dengan hex atau "" (ikuti warna set). Isi tambahan dari <code>ICUI.colorpickerExtra()</code>: tombol <code>[data-color]</code> memilih warna, tombol <code>[data-action]</code> memancarkan <code>ic-colorpicker-action</code>.</p>
+      <div class="kit-demo">
+        <div class="kit-cap"><div class="ic-formrow"><span class="ic-label">Aksen</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Aksen"><button type="button" class="ic-swatch ic-swatch--round" aria-pressed="true" style="background: #3A7BFF" aria-label="Aksen #3A7BFF"></button><button type="button" class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #F05A5A" aria-label="Aksen #F05A5A"></button><button type="button" class="ic-swatch ic-swatch--round" aria-pressed="false" style="background: #C3DC1E" aria-label="Aksen #C3DC1E"></button></div><button type="button" class="ic-swatch ic-swatch--custom ic-swatch--round" data-ic="colorpicker" data-name="kit-aksen" data-value="#3A7BFF" data-label="Aksen" data-follow="false" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false" aria-label="Aksen: warna lain" title="Warna lain…"></button></div><code>pemicu lingkar hue (warna ada di daftar)</code></div>
+        <div class="kit-cap"><div class="ic-formrow"><span class="ic-label">Garis</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Garis"><button type="button" class="ic-swatch" aria-pressed="false" style="background: #1A1A1A" aria-label="Garis ikuti warna set"></button><button type="button" class="ic-swatch" aria-pressed="false" style="background: #1A73E8" aria-label="Garis #1A73E8"></button></div><button type="button" class="ic-swatch ic-swatch--custom" data-ic="colorpicker" data-name="kit-garis" data-value="#B8405A" data-fallback="#1A1A1A" data-label="Garis" data-follow="true" style="background: #B8405A" aria-pressed="true" aria-haspopup="dialog" aria-expanded="false" aria-label="Garis: warna lain #B8405A" title="Warna lain…"></button></div><code>warna custom aktif + "Ikuti warna set"</code></div>
+        <div class="kit-cap"><span class="ic-meta" data-kit="cp-out">ic-change: belum ada</span><code>keluaran</code></div>
       </div>
     </section>
 
@@ -343,18 +397,19 @@
     <section class="kit-sec" id="edit">
       <h2>Artboard edit, kotak seleksi, filmstrip</h2>
     
-    <p><code>.ic-artboard</code> 520 × 520 dengan grid, <code>.ic-selbox</code> + 8 <code>.ic-selbox__h</code>, tooltip koordinat <code>.ic-tooltip</code> yang sudah ada, dan <code>.ic-filmstrip</code> 84 px.</p>
+    <p><code>.ic-artboard</code> 520 × 520 dengan grid, <code>.ic-selbox</code> + 8 <code>.ic-selbox__h</code> (pegangan ubah ukuran, kursor dari <code class="ic-mono">data-cur</code>) + 4 <code>.ic-selbox__rot</code> (zona putar transparan di luar sudut, kursor <code class="ic-mono">--ic-cursor-rotate</code>), tooltip koordinat atau nilai <code>.ic-tooltip</code>, dan <code>.ic-filmstrip</code> 84 px. Rotasi lapisan lewat <code class="ic-mono">--ic-selbox-r</code> dan <code class="ic-mono">transform-origin</code> inline. Garis dan pegangan dibagi <code class="ic-mono">--ic-zoom</code> supaya ukurannya tetap di layar saat kanvas di-zoom. Pegangan yang tidak berlaku diberi atribut <code class="ic-mono">hidden</code>.</p>
     <div class="kit-demo kit-demo--col" style="padding: 0; overflow: hidden">
       <div style="display: flex; justify-content: center; padding: 30px">
         <div class="ic-artboard-wrap">
           <span class="ic-artboard__label">koper-siap <span class="ic-meta">· 48 × 48</span></span>
           <div class="ic-artboard">
             <img class="ic-artboard__art" src="assets/s01-koper-siap.svg" alt="koper-siap">
-            <div class="ic-selbox" style="left: 292px; top: 48px; width: 180px; height: 180px">
-              <span class="ic-selbox__h" data-at="nw"></span><span class="ic-selbox__h" data-at="n"></span><span class="ic-selbox__h" data-at="ne"></span><span class="ic-selbox__h" data-at="e"></span>
-              <span class="ic-selbox__h" data-at="se"></span><span class="ic-selbox__h" data-at="s"></span><span class="ic-selbox__h" data-at="sw"></span><span class="ic-selbox__h" data-at="w"></span>
+            <div class="ic-selbox" style="left: 292px; top: 48px; width: 180px; height: 180px; --ic-selbox-r: 15deg; transform-origin: 50% 50%">
+              <span class="ic-selbox__rot" data-at="nw"></span><span class="ic-selbox__rot" data-at="ne"></span><span class="ic-selbox__rot" data-at="se"></span><span class="ic-selbox__rot" data-at="sw"></span>
+              <span class="ic-selbox__h" data-at="nw" data-cur="nwse"></span><span class="ic-selbox__h" data-at="n" data-cur="ns"></span><span class="ic-selbox__h" data-at="ne" data-cur="nesw"></span><span class="ic-selbox__h" data-at="e" data-cur="ew"></span>
+              <span class="ic-selbox__h" data-at="se" data-cur="nwse"></span><span class="ic-selbox__h" data-at="s" data-cur="ns"></span><span class="ic-selbox__h" data-at="sw" data-cur="nesw"></span><span class="ic-selbox__h" data-at="w" data-cur="ew"></span>
             </div>
-            <span class="ic-tooltip" style="left: 486px; top: 236px">X 35.25  Y 12.75</span>
+            <span class="ic-tooltip" style="left: 486px; top: 236px">15°</span>
           </div>
         </div>
       </div>
@@ -421,6 +476,7 @@
             <span class="ic-spacer"></span>
             <span class="ic-topbar__info">Sticker 1.1.0</span><span class="ic-sep"></span><span class="ic-topbar__info ic-mono" style="font-size: var(--ic-fs-sm)">11 ikon · 48 × 48 · 4 warna</span><span class="ic-sep"></span>
             <button class="ic-iconbtn" aria-label="Urungkan"><i data-icon="undo"></i></button>
+            <button class="ic-iconbtn" aria-label="Ulangi" disabled><i data-icon="redo"></i></button>
             <button class="ic-actionbtn">Ekspor Canva <i data-icon="chevron-down" data-size="13"></i></button>
             <button class="ic-iconbtn ic-iconbtn--help" aria-label="Bantuan"><i data-icon="help" data-size="20"></i></button>
           </header>
@@ -503,6 +559,22 @@
 <script src="../../packages/ui/icons.js"></script>
 <script src="../../packages/ui/components.js"></script>
 <script>
+  // Contoh isi tambahan pemilih warna (di app diisi dari Preset saya, palet kurasi, dan harmoni).
+  ICUI.colorpickerExtra = function (info) {
+    var presets = ['#1A1A1A', '#3A7BFF', '#E2552D', '#2EB67D'];
+    return '<div class="ic-colorpicker__group"><span class="ic-label">Preset saya</span><div class="ic-swatches" role="group" aria-label="Preset saya">' +
+      presets.map(function (c) { return '<button type="button" class="ic-swatch" data-color="' + c + '" style="background: ' + c + '" aria-pressed="' + (c === info.value) + '" aria-label="Preset ' + c + '"></button>'; }).join('') +
+      '</div></div><div class="ic-colorpicker__group"><span class="ic-label">Palet kurasi</span><button type="button" class="ic-colorpicker__row" data-action="demo-palette"><span class="ic-colorpicker__chips" aria-hidden="true"><span class="ic-colorpicker__chip" style="background: #14213D"></span><span class="ic-colorpicker__chip" style="background: #1A73E8"></span><span class="ic-colorpicker__chip" style="background: #5BA8FF"></span><span class="ic-colorpicker__chip" style="background: #EEF4FB"></span></span>Laut Dalam</button></div>';
+  };
+  document.addEventListener('ic-change', function (e) {
+    var t = e.target;
+    if (t.dataset && t.dataset.ic === 'colorpicker') {
+      document.querySelector('[data-kit="cp-out"]').textContent = 'ic-change: ' + (e.detail.value || '"" (ikuti warna set)');
+      t.dataset.value = e.detail.value;
+      if (e.detail.value) { t.style.background = e.detail.value; t.setAttribute('aria-pressed', 'true'); }
+      ICUI.syncColorpicker();
+    }
+  });
   // Daftar token warna dibaca langsung dari tokens.css.
   (function () {
     // getComputedStyle dipakai karena cssRules tidak bisa dibaca dari file:// di Chrome.

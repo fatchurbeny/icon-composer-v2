@@ -4,7 +4,8 @@ File ini dibaca setiap kali agen mulai bekerja di repo ini. Isinya aturan kerja.
 
 ## 0. Bahasa dan pemilik
 
-- Pemilik: Ika (Canva Creator, artis `hashtagben` dan `chital`).
+- Pemilik produk: Ika (Canva Creator, artis `hashtagben` dan `chital`).
+- Penanggung jawab pekerjaan (sejak 2026-10-20): Beny. Persetujuan tugas, tinjauan, dan keputusan teknis sehari-hari datang dari Beny. Keputusan produk tetap milik Ika.
 - Komunikasi, teks UI, dan dokumentasi memakai **bahasa Indonesia**.
 - Nama variabel, fungsi, file, dan commit memakai **bahasa Inggris**. Pengecualian: istilah domain yang sudah ada di kode lama (`deco`, `mod`, `slot`) tetap dipakai.
 

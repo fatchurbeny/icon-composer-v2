@@ -7,6 +7,7 @@
 import { parseRoute, routeHash } from "./app-state.js";
 import { builder } from "./personas/builder.js";
 import { helpButton } from "./personas/common.js";
+import { colorActions, pickerExtra } from "./personas/color-picker.js";
 import { composerSet } from "./personas/composer.js";
 import { composerEdit } from "./personas/composer-edit.js";
 import { kombinasi } from "./personas/kombinasi.js";
@@ -34,10 +35,15 @@ const LOGO = `<svg class="ic-logo" viewBox="0 0 30 30" aria-hidden="true"><rect 
  * @param {{root: HTMLElement, app: ReturnType<typeof import("./app-state.js").createAppState>, renderer: any}} options
  */
 export function createShell({ root, app, renderer }) {
+  /* isi popover pemilih warna (Preset saya, palet kurasi, harmoni) dibaca dari state app saat dibuka */
+  const ui = /** @type {any} */ (globalThis).ICUI;
+  if (ui) ui.colorpickerExtra = (/** @type {{name: string, value: string}} */ info) => pickerExtra(app, info);
   /** tab panel studio yang terakhir dipilih, per id panel */
   const panelTabs = new Map();
-  /** panel studio yang dilipat */
-  const collapsed = new Set();
+  /** panel studio yang terbuka per kolom akordeon, kunci `persona[:edit]:label kolom` */
+  const openPanels = new Map();
+  /** ic-change dari pemulihan setelah render ulang tidak dicatat sebagai pilihan pengguna */
+  let restoring = false;
   let toastTimer = 0,
     toastUntil = 0,
     toastMessage = "";
@@ -89,7 +95,7 @@ export function createShell({ root, app, renderer }) {
       spec.viewMode
         ? `<div class="ic-persona-group" role="group" aria-label="Mode tampilan">${iconButton("view-single", "Mode satu ikon", { pressed: spec.viewMode === "single", action: "view-single", disabled: !hasSelection })}${iconButton("view-pages", "Mode ikhtisar halaman", { pressed: spec.viewMode === "pages", action: "view-pages" })}</div>`
         : "";
-    return `<header class="ic-topbar">${LOGO}<nav class="ic-persona-group" aria-label="Persona">${nav}</nav>${iconButton("more", "Menu lain", { action: "more" })}${viewMode}<span class="ic-spacer"></span>${spec.info(c)}<span class="ic-sep"></span>${iconButton("undo", "Urungkan", { disabled: true })}${spec.action(c)}${helpButton()}</header>`;
+    return `<header class="ic-topbar">${LOGO}<nav class="ic-persona-group" aria-label="Persona">${nav}</nav>${iconButton("more", "Menu lain", { action: "more" })}${viewMode}<span class="ic-spacer"></span>${spec.info(c)}<span class="ic-sep"></span>${iconButton("undo", "Urungkan", { action: "undo", disabled: !(c.doc && c.app.canUndo(c.doc.id)) })}${iconButton("redo", "Ulangi", { action: "redo", disabled: !(c.doc && c.app.canRedo(c.doc.id)) })}${spec.action(c)}${helpButton()}</header>`;
   }
 
   /** @param {any} spec */
@@ -172,9 +178,9 @@ export function createShell({ root, app, renderer }) {
     root.innerHTML = `<div class="ic-shell ic-app${left ? " ic-shell--left-studio" : ""}" data-persona="${c.route.persona}">
 ${topbar(spec, c)}
 <div class="ic-context" role="toolbar" aria-label="Kontrol ${esc(c.route.persona)}">${spec.context(c)}</div>
-${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">${spec.leftPanels(c).join("")}</aside>` : toolrail(spec)}
+${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka" data-ic="accordion">${spec.leftPanels(c).join("")}</aside>` : toolrail(spec)}
 <main class="ic-workspace">${doctabs(spec, c)}<div class="ic-canvas" tabindex="-1" data-tool="${esc(currentTool)}"><div class="studio-zoom" style="zoom: ${zoom.get()}">${spec.canvas(c)}</div></div>${spec.canvasFoot ? spec.canvasFoot(c) : ""}</main>
-<aside class="ic-studio" aria-label="Studio">${spec.panels(c).join("")}</aside>
+<aside class="ic-studio" aria-label="Studio" data-ic="accordion">${spec.panels(c).join("")}</aside>
 <footer class="ic-statusbar">${spec.status(c)}${zoomBar()}</footer>
 <div class="ic-toast" role="status" hidden></div>
 </div>`;
@@ -185,13 +191,19 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
        Persona tanpa tool aktif (mis. Kombinasi tanpa rail) memakai tool Pilih. */
     zoom.setTool(spec.tools.some((/** @type {any} */ t) => t[0] === currentTool) ? MODE_TOOLS[currentTool] || "select" : "select");
     zoom.attach();
-    /* pulihkan tab panel dan lipatan dari render sebelumnya */
+    /* pulihkan tab panel dan panel terbuka dari render sebelumnya. Klik tab di panel tertutup ikut membuka
+       panelnya (akordeon), jadi panel terbuka dipulihkan sesudahnya. Tanpa catatan, kit memilih panel awal. */
+    restoring = true;
     root.querySelectorAll("[data-panel]").forEach((section) => {
-      const id = /** @type {HTMLElement} */ (section).dataset.panel || "";
-      const tab = panelTabs.get(id);
+      const tab = panelTabs.get(/** @type {HTMLElement} */ (section).dataset.panel || "");
       if (tab) /** @type {HTMLElement | null} */ (section.querySelector(`[role="tab"][data-value="${CSS.escape(tab)}"]`))?.click();
-      if (collapsed.has(id)) /** @type {HTMLElement | null} */ (section.querySelector(".ic-panel__collapse"))?.click();
     });
+    root.querySelectorAll('[data-ic="accordion"]').forEach((column) => {
+      const id = openPanels.get(columnKey(/** @type {HTMLElement} */ (column)));
+      const section = id && column.querySelector(`:scope > [data-panel="${CSS.escape(id)}"]`);
+      if (section) g.ICUI?.openPanel(section);
+    });
+    restoring = false;
     if (focusKey) /** @type {HTMLElement | null} */ (root.querySelector(focusKey))?.focus();
     if (focusName) {
       const el = /** @type {HTMLElement | null} */ (root.querySelector(`[data-name="${CSS.escape(focusName)}"]`));
@@ -208,6 +220,8 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
       if (el && leftPos) el.scrollLeft = Number(leftPos);
     }
     showToast();
+    /* popover pemilih warna di luar #app: cari pemicu barunya dan baca ulang warna setelah render */
+    g.ICUI?.syncColorpicker?.();
     if (spec.mount) spec.mount(root, c, { toast, go, importText });
   }
 
@@ -229,6 +243,18 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     el.hidden = !active;
   }
 
+  /**
+   * Urungkan atau ulangi satu langkah di dokumen aktif. Seleksi diperbaiki oleh app-state; mode Edit
+   * dengan ikon yang hilang kembali ke ikhtisar lewat context().
+   * @param {"undo" | "redo"} dir
+   */
+  function undoRedo(dir) {
+    const doc = ctx && ctx.doc;
+    if (!doc) return;
+    const label = dir === "undo" ? app.undo(doc.id) : app.redo(doc.id);
+    if (label != null) toast(`${dir === "undo" ? "Diurungkan" : "Diulang"}: ${label}`);
+  }
+
   /** @param {import("./app-state.js").Route} route */
   const go = (route) => {
     const hash = routeHash(route);
@@ -238,8 +264,41 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
 
   /** @param {string} text @param {{sample?: boolean}} [opts] */
   async function importText(text, opts = {}) {
-    const result = await app.importManifest(text, opts);
     const message = /** @type {HTMLElement | null} */ (root.querySelector('[data-role="import-message"]'));
+    /* gaya.json offset-composer 1.0.1 menjadi set Composer bergaya Offset */
+    const offset = await app.importOffsetSet(text);
+    if (offset) {
+      if (offset.fatal) {
+        if (message) message.textContent = offset.fatal;
+        return;
+      }
+      go({ persona: "composer", edit: null });
+      toast([`${offset.doc.items.length} ikon offset-composer diimpor`, ...(offset.warnings || [])].join(". "));
+      return;
+    }
+    /* gaya.json coret-composer 1.0.0 (`family: "coret"`) menjadi set Composer bergaya Hand-writing */
+    const hw = await app.importHandWritingSet(text);
+    if (hw) {
+      if (hw.fatal) {
+        if (message) message.textContent = hw.fatal;
+        return;
+      }
+      go({ persona: "composer", edit: null });
+      toast([`${hw.doc.items.length} ikon hand-writing diimpor`, ...(hw.warnings || [])].join(". "));
+      return;
+    }
+    /* gaya.json sticker-composer menjadi set Composer bergaya Sticker */
+    const sticker = await app.importStickerSet(text);
+    if (sticker) {
+      if (sticker.fatal) {
+        if (message) message.textContent = sticker.fatal;
+        return;
+      }
+      go({ persona: "composer", edit: null });
+      toast([`${sticker.doc.items.length} ikon sticker-composer diimpor`, ...(sticker.warnings || [])].join(". "));
+      return;
+    }
+    const result = await app.importManifest(text, opts);
     if (result.fatal) {
       if (message) message.textContent = result.fatal;
       return;
@@ -257,6 +316,8 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     if (action === "zoom-out") return zoom.zoomOut();
     if (action === "zoom-reset") return zoom.reset();
     if (action === "zoom-fit") return zoom.fit();
+    if (action === "undo" || action === "redo") return undoRedo(action);
+    if (colorActions[action]) return colorActions[action](c, el, { toast });
     if (spec && spec.actions && spec.actions[action]) return spec.actions[action](c, el, { toast, go, importText });
     if (action === "view-pages") return go({ persona: "composer", edit: null });
     if (action === "view-single") {
@@ -306,12 +367,6 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     }
     const actionEl = /** @type {HTMLElement | null} */ (target.closest("[data-action]"));
     if (actionEl && !(/** @type {HTMLButtonElement} */ (actionEl).disabled)) runAction(actionEl.dataset.action || "", actionEl);
-    const collapse = /** @type {HTMLElement | null} */ (target.closest(".ic-panel__collapse"));
-    if (collapse && event.isTrusted) {
-      const id = /** @type {HTMLElement | null} */ (collapse.closest("[data-panel]"))?.dataset.panel || "";
-      if (collapse.getAttribute("aria-expanded") === "false") collapsed.add(id);
-      else collapsed.delete(id);
-    }
   });
 
   root.addEventListener("keydown", (event) => {
@@ -326,7 +381,10 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
   const paintRail = () =>
     root.querySelectorAll(".ic-toolrail .ic-tool").forEach((b) => b.setAttribute("aria-pressed", String(/** @type {HTMLElement} */ (b).dataset.value === currentTool)));
 
-  /** @param {string} panelTab tab panel studio (data-value) yang dibuka */
+  /** @param {HTMLElement} column kolom akordeon `.ic-studio` */
+  const columnKey = (column) => `${ctx ? ctx.route.persona + (ctx.route.edit ? ":edit" : "") : "awal"}:${column.getAttribute("aria-label")}`;
+
+  /** @param {string} panelTab tab panel studio (data-value) yang dibuka; panelnya ikut terbuka (akordeon) */
   const openStudioTab = (panelTab) => /** @type {HTMLElement | null} */ (root.querySelector(`.ic-studio [role="tab"][data-value="${panelTab}"]`))?.click();
 
   /**
@@ -384,10 +442,22 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
     if (tool) pickTool(tool[0]);
   });
 
+  /* ⌘/Ctrl+Z urungkan, ⌘/Ctrl+Shift+Z dan Ctrl+Y ulangi. Di isian teks, pintasan milik isian itu. */
+  document.addEventListener("keydown", (event) => {
+    const target = /** @type {HTMLElement} */ (event.target);
+    if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+    if (target.closest && target.closest("input, textarea, [contenteditable]")) return;
+    const key = event.key.toLowerCase();
+    const dir = key === "z" ? (event.shiftKey ? "redo" : "undo") : key === "y" && event.ctrlKey && !event.shiftKey ? "redo" : null;
+    if (!dir) return;
+    event.preventDefault();
+    undoRedo(dir);
+  });
+
   /* Esc dari mode edit kembali ke ikhtisar, juga saat fokus berada di luar #app */
   document.addEventListener("keydown", (event) => {
     const target = /** @type {HTMLElement} */ (event.target);
-    if (event.key === "Escape" && ctx && ctx.route.edit && !target.closest?.(".ic-select")) go({ persona: "composer", edit: null });
+    if (event.key === "Escape" && ctx && ctx.route.edit && !target.closest?.(".ic-select, .ic-colorpicker")) go({ persona: "composer", edit: null });
   });
 
   /**
@@ -413,11 +483,21 @@ ${left ? `<aside class="ic-studio ic-studio--left" aria-label="Studio pustaka">$
   root.addEventListener("ic-change", (event) => {
     const target = /** @type {HTMLElement} */ (event.target);
     const section = /** @type {HTMLElement | null} */ (target.closest("[data-panel]"));
+    if (target.dataset.ic === "accordion") {
+      if (!restoring) openPanels.set(columnKey(target), String(/** @type {CustomEvent} */ (event).detail.value));
+      return;
+    }
     if (section && target === section) return void panelTabs.set(section.dataset.panel || "", String(/** @type {CustomEvent} */ (event).detail.value));
     /* slider memancarkan ic-change saat digeser; nilainya diterapkan lewat event change di atas */
     if (target.dataset.ic === "slider") return;
     if (target.dataset.name === "tool") return pickTool(String(/** @type {CustomEvent} */ (event).detail.value));
     if (target.dataset.name) control(target, /** @type {CustomEvent} */ (event).detail.value);
+  });
+
+  /* tombol di dalam popover pemilih warna (preset, palet, harmoni) dipancarkan dari pemicunya */
+  root.addEventListener("ic-colorpicker-action", (event) => {
+    const detail = /** @type {CustomEvent} */ (event).detail;
+    if (detail && detail.action) runAction(String(detail.action), detail.el);
   });
 
   /* pencarian pustaka: ketik langsung memfilter tanpa menunggu Enter */

@@ -53,9 +53,16 @@ function memoryStorage() {
 }
 
 describe("Icon Studio state/document", () => {
-  test("normSetStyle membatasi nilai dan hanya mengenal classic/accent", () => {
+  test("normSetStyle membatasi nilai dan hanya mengenal classic/accent/offset/hand-writing/sticker", () => {
+    expect(normSetStyle({ family: "offset" }).family).toBe("offset");
+    expect(normSetStyle({ family: "hand-writing" }).family).toBe("hand-writing");
+    expect(normSetStyle({ family: "coret" }).family).toBe("hand-writing");
+    const st = normSetStyle({ family: "sticker", engine: { sticker: { halo: 9, mode: "fill" } } });
+    expect(st.family).toBe("sticker");
+    expect(st.engine.sticker).toMatchObject({ mode: "fill", halo: 5, sw: 2.4, ink: "#17171B" });
+    expect(st.engine.offset).toBeUndefined();
     const s = normSetStyle({
-      family: "offset",
+      family: "tidak-dikenal",
       scale: { main: 10, mod: 999 },
       fx: { mode: "glow", color: "#abcdef" },
     });
@@ -63,6 +70,25 @@ describe("Icon Studio state/document", () => {
     expect(s.scale).toEqual({ main: 60, mod: 150, deco: 100 });
     expect(s.fx.mode).toBe("none");
     expect(s.fx.color).toBe("#ABCDEF");
+    expect(s.engine).toBeUndefined();
+    const o = normSetStyle({ family: "offset", engine: { offset: { dx: 50, mode: "line" } } });
+    expect(o.family).toBe("offset");
+    expect(o.engine.offset).toMatchObject({ mode: "line", dx: 8, dy: 4, sw: 2.6 });
+  });
+
+  test("applyFamily ke offset tidak menyentuh field classic dan pulih saat kembali", () => {
+    const s = normSetStyle();
+    s.sw = 3;
+    applyFamily(s, "offset");
+    expect(s.family).toBe("offset");
+    expect(s.sw).toBe(3);
+    expect(s.engine.offset.acc).toBe("#B8405A");
+    expect(s.saved.offset).toBeUndefined();
+    applyFamily(s, "accent");
+    expect(s.sw).toBe(FAMILY_DEFAULT.accent.sw);
+    applyFamily(s, "classic");
+    expect(s.sw).toBe(3);
+    expect(s.engine.offset.acc).toBe("#B8405A");
   });
 
   test("applyFamily menyimpan patokan keluarga lama dan memulihkannya", () => {

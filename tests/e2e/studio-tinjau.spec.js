@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const VENDOR = resolve("tests/fixtures/vendor");
@@ -128,42 +129,28 @@ test.describe("Icon Studio · Tinjau", () => {
             .map((el) => el.outerHTML.slice(0, 80)),
         ),
       );
-    /* "ticket" bawaan IC memakai stroke-dasharray: tidak bisa dikonversi dan diberi lencana */
-    expect(stroked.length).toBeGreaterThan(0);
+    /* "ticket" bawaan IC memakai stroke-dasharray: dash dipanggang jadi geometri di jalur ekspor,
+       jadi semua sel lolos direct fill tanpa stroke */
+    expect(stroked).toEqual([]);
     await expect(
       page.locator(".ic-sheet__cell .ic-flag", {
         hasText: "gagal direct fill",
       }),
-    ).toHaveCount(1);
-    const failedCell = page.locator(".ic-sheet__cell", {
-      has: page.locator(".ic-flag", { hasText: "gagal direct fill" }),
+    ).toHaveCount(0);
+    const ticket = page.locator(".ic-sheet__cell", {
+      has: page.locator(".ic-sheet__file", { hasText: "tiket" }),
     });
-    const okCells = page
-      .locator(".ic-sheet__cell")
-      .filter({
-        hasNot: page.locator(".ic-flag", { hasText: "gagal direct fill" }),
-      });
-    const strokedOk = await okCells
-      .locator("svg")
-      .evaluateAll(
-        (svgs) =>
-          svgs.flatMap((svg) =>
-            [...svg.querySelectorAll("[stroke]")].filter(
-              (el) => el.getAttribute("stroke") !== "none",
-            ),
-          ).length,
-      );
-    expect(strokedOk).toBe(0);
-    await expect(failedCell.locator(".ic-sheet__file")).toHaveText(/tiket/);
+    expect(await ticket.locator("svg path").count()).toBeGreaterThan(0);
     await expect(
       page.locator('[data-panel="tinjau-check"] .ic-row', {
         hasText: "direct fill",
       }),
-    ).toContainText("1 gagal");
+    ).toContainText("siap");
   });
 
   test("metadata Canva mengubah contoh judul", async ({ page }) => {
     await open(page);
+    await openPanel(page, "tinjau-meta");
     const field = page.locator('[data-name="t-pack-en"] input');
     await field.fill("Customer Service");
     await field.press("Enter");
@@ -188,13 +175,17 @@ test.describe("Icon Studio · Tinjau", () => {
       (await cells.nth(0).locator(".ic-sheet__file").textContent()) || "";
     await cells.nth(0).click();
     await interceptDownload(page);
+    await openPanel(page, "tinjau-zip");
     await page.locator('[data-action="t-download"]').click();
     await page.waitForFunction(() => window.__dl instanceof Blob);
     const names = await page.evaluate(async () =>
       Object.keys((await window.JSZip.loadAsync(window.__dl)).files),
     );
+    /* ADR-011: SVG Canva = direct fill, termasuk "ticket" bawaan yang garis putus-putusnya dipanggang */
     expect(names.filter((f) => f.endsWith(".svg"))).toHaveLength(n - 1);
+    expect(names.some((f) => /tiket/.test(f))).toBe(true);
     expect(names).not.toContain(out);
+    await expect(page.locator('[data-role="export-status"]')).not.toContainText("gagal");
     for (const f of [
       "LICENSES.txt",
       "gaya.json",
@@ -220,6 +211,7 @@ test.describe("Icon Studio · Tinjau", () => {
       page.locator(".ic-doctab[aria-selected='true']"),
     ).toContainText(".manifest · Lembar kontak");
     await interceptDownload(page);
+    await openPanel(page, "tinjau-zip");
     await page.locator('[data-action="t-download"]').click();
     await page.waitForFunction(() => window.__dl instanceof Blob);
     const names = await page.evaluate(async () =>

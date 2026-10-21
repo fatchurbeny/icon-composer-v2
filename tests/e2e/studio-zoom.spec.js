@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { openPanel } from "./studio-panels.js";
 
 const APP = pathToFileURL(resolve("dist/icon-studio/index.html")).href;
 const MOD = process.platform === "darwin" ? "Meta" : "Control";
@@ -148,9 +149,12 @@ test.describe("Icon Studio · zoom kanvas", () => {
     await expect(page.locator(".ic-filmstrip")).toBeVisible();
     const film = await page.locator(".ic-filmstrip").boundingBox();
     expect(film?.height).toBe(84);
+    await openPanel(page, "edit-layers");
     await page
       .locator('[data-action="layer-select"][data-layer="mod"]')
       .click();
+    const xIn = page.locator('[data-name="edit-x"] input');
+    const x0 = Number(await xIn.inputValue());
     const hit = await page.locator('[data-hit="mod"]').boundingBox();
     const x = hit.x + hit.width / 2,
       y = hit.y + hit.height / 2;
@@ -159,7 +163,8 @@ test.describe("Icon Studio · zoom kanvas", () => {
     /* 4 unit kanvas = 4 × 520/48 px × 2 (zoom) */
     await page.mouse.move(x + (4 * 520 * 2) / 48, y, { steps: 6 });
     await page.mouse.up();
-    await expect(page.locator('[data-name="edit-x"] input')).toHaveValue("4");
+    /* X membaca titik acuan kotak, jadi yang diuji pergeserannya */
+    await expect.poll(async () => Number(await xIn.inputValue()) - x0).toBeCloseTo(4);
     await page.keyboard.press("Escape");
     await expect(label(page)).toHaveText("150%");
   });

@@ -16,6 +16,7 @@ import {
   nameOf,
   removeItem,
   replaceLayer,
+  setOffsetDeco,
   setStyleValue,
   sortedItems,
 } from "../../apps/icon-studio/src/state/set-ops.js";
@@ -58,7 +59,7 @@ describe("Icon Studio set-ops", () => {
       b = ensureSetFields({});
     expect(a.pool).toEqual(DEFAULT_POOL);
     expect(a.pool).not.toBe(b.pool);
-    expect(a.view).toEqual({ sort: "set", cols: 8, snap: true, grid: true });
+    expect(a.view).toEqual({ sort: "set", cols: 8, snap: true, grid: true, panel: true, anchor: "TL" });
     expect(ensureSetFields({ view: { cols: 4 } }).view.cols).toBe(4);
   });
 
@@ -118,6 +119,22 @@ describe("Icon Studio set-ops", () => {
     setStyleValue(s, "family", "accent");
     expect(s.family).toBe("accent");
     expect(s.saved.classic).toBeTruthy();
+  });
+
+  test("setStyleValue offset dan dekorasi offset per ikon", () => {
+    const s = createSetDocument({}).style;
+    setStyleValue(s, "family", "offset");
+    setStyleValue(s, "offset.dx", 20);
+    setStyleValue(s, "offset.mode", "white");
+    setStyleValue(s, "offset.acc", "#2eb67d");
+    setStyleValue(s, "offset.sw", "x");
+    setStyleValue(s, "offset.size", 50);
+    expect(s.engine.offset).toEqual({ mode: "white", acc: "#2EB67D", ink: "#1A1A1A", dx: 8, dy: 4, sw: 2.6, size: 100.8 });
+    const it = { main: "lu:house", mod: "none", engine: { sticker: { seed: 1 } } };
+    setOffsetDeco(it, "cloud", true);
+    setOffsetDeco(it, "tickPos", "TL");
+    expect(it.engine.sticker).toEqual({ seed: 1 });
+    expect(/** @type {any} */ (it.engine).offset.deco).toEqual({ tick: true, tickPos: "TL", ground: true, cloud: true, grass: false });
   });
 
   test("urutan tampilan dan kelompok dobel", () => {

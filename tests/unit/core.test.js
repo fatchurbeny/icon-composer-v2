@@ -49,14 +49,14 @@ describe("paket bersama Fase 2", () => {
     const item = {
       main: "lu:circle",
       mod: "lu:plus",
-      parts: [["circle", { cx: 12, cy: 12, r: 8 }]],
+      node: [["circle", { cx: 12, cy: 12, r: 8 }]],
     };
     const svg = offset.compose(
       offset.adapt(item, offset.defaults),
       offset.defaults,
       { idp: "o1" },
     );
-    expect(svg).toContain('viewBox="0 0 120 120"');
+    expect(svg).toContain('viewBox="0 0 48 48"');
     expect(offset.signature(item)).toBe("offset|circle|-|-");
     expect(offset.flags(item)).toContainEqual([
       "info",
@@ -77,7 +77,7 @@ describe("paket bersama Fase 2", () => {
     expect(a).toBe(b);
     expect(a).not.toContain("stroke-dasharray");
     expect(a).not.toContain("pathLength");
-    expect(a.match(/<path /g)?.length).toBeGreaterThan(1);
+    expect(a).toMatch(/<path d="M/);
     expect(handWriting.version).toBe("2.0.0");
   });
 

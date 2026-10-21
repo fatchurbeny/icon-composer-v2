@@ -1,0 +1,111 @@
+{
+  "_note": "Contoh data offset-composer 1.0.1: isi localStorage offset-composer-v1 dan gaya.json dari ZIP 'Unduh semua'.",
+  "storage": {
+    "offset-composer-v1": {
+      "cur": {
+        "mode": "solid",
+        "acc": "#B8405A",
+        "ink": "#1A1A1A",
+        "dx": 4,
+        "dy": 4,
+        "sw": 2.6,
+        "size": 72,
+        "dTick": true,
+        "tickPos": "TR",
+        "dGround": true,
+        "dCloud": false,
+        "dGrass": false,
+        "key": "lu:coffee",
+        "name": "coffee"
+      },
+      "set": [
+        {
+          "mode": "white",
+          "acc": "#2F6FD0",
+          "ink": "#1A1A1A",
+          "dx": 3,
+          "dy": -2,
+          "sw": 3,
+          "size": 80,
+          "dTick": true,
+          "tickPos": "TR",
+          "dGround": true,
+          "dCloud": false,
+          "dGrass": false,
+          "key": "lu:luggage",
+          "name": "luggage"
+        },
+        {
+          "mode": "white",
+          "acc": "#2F6FD0",
+          "ink": "#1A1A1A",
+          "dx": 3,
+          "dy": -2,
+          "sw": 3,
+          "size": 80,
+          "dTick": false,
+          "tickPos": "TL",
+          "dGround": true,
+          "dCloud": true,
+          "dGrass": false,
+          "key": "lu:coffee",
+          "name": "coffee"
+        },
+        {
+          "mode": "white",
+          "acc": "#2F6FD0",
+          "ink": "#1A1A1A",
+          "dx": 3,
+          "dy": -2,
+          "sw": 3,
+          "size": 80,
+          "dTick": true,
+          "tickPos": "TR",
+          "dGround": false,
+          "dCloud": false,
+          "dGrass": true,
+          "key": "tb:camera",
+          "name": "kamera"
+        }
+      ]
+    }
+  },
+  "gayaJson": {
+    "format": "offset-composer",
+    "version": "1.0.1",
+    "icons": [
+      {
+        "mode": "solid",
+        "acc": "#B8405A",
+        "ink": "#1A1A1A",
+        "dx": 4,
+        "dy": 4,
+        "sw": 2.6,
+        "size": 72,
+        "dTick": true,
+        "tickPos": "TR",
+        "dGround": true,
+        "dCloud": false,
+        "dGrass": false,
+        "key": "lu:wallet",
+        "name": "dompet"
+      },
+      {
+        "mode": "solid",
+        "acc": "#C3DC1E",
+        "ink": "#1A1A1A",
+        "dx": 4,
+        "dy": 4,
+        "sw": 2.6,
+        "size": 72,
+        "dTick": false,
+        "tickPos": "TR",
+        "dGround": true,
+        "dCloud": true,
+        "dGrass": false,
+        "key": "lu:house",
+        "name": "rumah"
+      }
+    ]
+  }
+}

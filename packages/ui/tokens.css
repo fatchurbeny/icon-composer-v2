@@ -111,6 +111,10 @@
   --ic-h-row-sm: 34px;    /* baris checklist/pool */
   --ic-size-tool: 38px;
   --ic-size-iconbtn: 30px;
+  --ic-size-selbox-h: 9px;    /* pegangan ubah ukuran kotak seleksi (ukuran di layar) */
+  --ic-size-selbox-rot: 18px; /* zona putar di luar sudut kotak seleksi */
+  /* kursor putar di zona sudut kotak seleksi (panah melingkar hitam bertepi putih, titik panas di tengah) */
+  --ic-cursor-rotate: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%23FFFFFF' stroke-width='4.5'%3E%3Cpath d='M19 12a7 7 0 1 1-2.05-4.95'/%3E%3Cpath d='M19 4v4h-4'/%3E%3C/g%3E%3Cg stroke='%23111111' stroke-width='2'%3E%3Cpath d='M19 12a7 7 0 1 1-2.05-4.95'/%3E%3Cpath d='M19 4v4h-4'/%3E%3C/g%3E%3C/svg%3E") 11 11, crosshair;
 
   /* ---------- Spasi (kelipatan 2) ---------- */
   --ic-sp-1: 2px; --ic-sp-2: 4px; --ic-sp-3: 6px; --ic-sp-4: 8px;
@@ -136,6 +140,13 @@
   --ic-text-on-light-2: #5E6068;        /* nama file di lembar kontak (6,3:1 di putih) */
   --ic-text-on-light-3: #6A6C74;        /* meta judul lembar kontak (5,3:1 di putih) */
   --ic-line-on-light: #C9C9C9;          /* garis sel yang dikeluarkan di lembar kontak */
+
+  /* ---------- Pemilih warna (.ic-colorpicker, usulan pemilih warna 2026-10-20) ---------- */
+  --ic-w-colorpicker: 268px;   /* lebar popover */
+  --ic-size-colorwheel: 188px; /* roda hue + segitiga (kanvas digambar components.js) */
+  --ic-size-colormark: 14px;   /* penanda posisi di roda dan segitiga */
+  /* swatch "Warna lain…" saat warna aktif ada di daftar swatch: lingkar hue sebagai tanda pemilih */
+  --ic-hue-ring: conic-gradient(#FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF, #FF0000);
 
   /* ---------- Efek ---------- */
   --ic-focus: 0 0 0 2px var(--ic-bg-panel), 0 0 0 4px var(--ic-accent);

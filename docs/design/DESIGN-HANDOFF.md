@@ -24,6 +24,7 @@ Kalau terjadi konflik:
 | State aktif | kelas `.on` | atribut ARIA (`aria-pressed`, `aria-selected`, `aria-current`) | State dan aksesibilitas selalu sama |
 | Ikon UI | SVG digambar tangan | Lucide lewat `uiIcon(name)` | Satu set ikon, versi terkunci |
 | Logo | gambar SVG inline | `.ic-logo` + `.ic-logo__dot` ikut warna persona | Konsisten di semua persona |
+| Panel studio | semua panel terbuka bersamaan | akordeon: satu panel terbuka per kolom, panel lain tinggal kepala 34 px | Permintaan pemilik: panel yang dipakai mendapat tinggi penuh |
 
 ### Isi folder `docs/design/`
 
@@ -58,6 +59,14 @@ Render ulang PNG dari artboard: `python3 scripts/render-artboards.py` (butuh Pla
 - Di bawah lebar 1100 px, studio pindah ke bawah kanvas (sudah diatur di `components.css`).
 - Persona Kombinasi memakai `.ic-shell--left-studio`: studio pustaka 300 px di kiri menggantikan tool rail.
 - Hanya kanvas dan isi panel yang bergulir. Bilah atas, konteks, dan status tidak pernah ikut bergulir.
+- **Urungkan dan Ulangi** di bilah atas (semua persona): dua `.ic-iconbtn` (`undo`, `redo`) sebelum tombol aksi, `disabled` bila tidak ada langkah. Pintasan ⌘/Ctrl+Z urungkan, ⌘/Ctrl+Shift+Z atau Ctrl+Y ulangi, tidak aktif saat fokus di isian teks. Maks 10 langkah per dokumen, hanya di memori (hilang saat dimuat ulang). Toast "Diurungkan: <label>" atau "Diulang: <label>", dan Riwayat mencatat "Urungkan: …" atau "Ulangi: …". Seleksi dipertahankan; bila ikonnya hilang, seleksi pindah ke ikon pertama, dan Composer · Edit kembali ke ikhtisar.
+- **Kolom studio adalah akordeon** (`.ic-studio[data-ic="accordion"]`, juga studio kiri Kombinasi). Hanya satu panel terbuka per kolom:
+  - Panel terbuka mengisi sisa tinggi kolom. Panel tertutup tinggal kepalanya (34 px); footer panel ikut tersembunyi.
+  - Membuka panel (tombol lipat `.ic-panel__collapse`, atau klik tab di kepala panel tertutup) menutup panel lain di kolom itu.
+  - Menutup panel yang sedang terbuka membuka panel berikutnya; panel terakhir membuka panel sebelumnya. Kolom tidak pernah kosong, kecuali kolom yang hanya berisi satu panel.
+  - Panel awal: panel utama (`.ic-panel--grow`), kalau tidak ada maka panel pertama. Composer · Set: Halaman; Composer · Edit: Lapisan (tab Lapisan, Transform, Pustaka); Builder: Ikon; Tinjau: Pemeriksaan; Kombinasi: Pool (kanan) dan Pustaka (kiri).
+  - Perintah yang membuka tab lewat program (tool rail Objek utama → Pustaka, Dekorasi, Kata kunci, tombol di peringatan) cukup mengklik tab; akordeon ikut membuka panelnya.
+  - Shell mengingat panel terbuka per persona dan kolom selama sesi, jadi bertahan setelah render ulang dan pindah persona atau dokumen.
 - **Zoom dan geser kanvas (seperti Affinity), di semua persona:**
   - Ctrl/⌘ + roda atau pinch trackpad: zoom di titik kursor, 10–800%. Roda biasa menggulir, Shift + roda menggulir mendatar.
   - Spasi + seret, tool Geser tampilan (H), atau tombol tengah mouse: geser kanvas.
@@ -90,7 +99,7 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 
 | Wilayah | Komponen | Isi dan data |
 |---|---|---|
-| Bilah atas | `.ic-persona-group`, `.ic-persona-group` berisi 2 `.ic-iconbtn` (satu ikon / ikhtisar), `.ic-topbar__info`, `.ic-actionbtn` "Ekspor Canva" | info: `<mesin> <versi>` · `<n> ikon · 48 × 48 · <maks warna> warna` |
+| Bilah atas | `.ic-persona-group`, `.ic-persona-group` berisi 2 `.ic-iconbtn` (satu ikon / ikhtisar), `.ic-topbar__info`, `.ic-iconbtn` Urungkan dan Ulangi, `.ic-actionbtn` "Ekspor Canva" | info: `<mesin> <versi>` · `<n> ikon · 48 × 48 · <maks warna> warna` |
 | Konteks | teks seleksi, `.ic-check` "Snap ke grid", `.ic-btn--sm` "Patokan set…", "Pengaturan app…", `.ic-select` Urut, `.ic-number` Kolom | Urut: Urutan set · Nama A–Z · Per flag |
 | Tool rail | `.ic-tool` ×9: pilih, geser, objek utama, pengubah, dekorasi, kombinasi, ambil warna, geser tampilan, perbesar | |
 | Kanvas | `.ic-pagegrid` dengan `.ic-page` per ikon, `.ic-page--new`, `.ic-page--ghost` (saran) | ikon dirender lewat `engine.compose`; flag dari `packages/repetition` |
@@ -110,12 +119,22 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 
 ### 3.2 Composer · Edit ikon
 
-- **Konteks:** jenis lapisan terpilih, kunci (`.ic-field--mono`) + tombol "Ganti…", `.ic-anchor` (2×2 untuk sticker, 3×3 untuk mesin lain), `.ic-number` Skala, swatch Isi, `.ic-check` Celah knockout, tombol "Acak ulang variasi" dan "Kunci variasi".
-- **Kanvas:** `.ic-artboard` 520×520 putih dengan grid 16 sel (tiap 3 unit kanvas 48, sesuai artboard). Seleksi lapisan: `.ic-selbox` (bingkai biru 1,5 px + 8 handle 9 px). Tooltip koordinat (`.ic-tooltip`) dalam satuan 48. `.ic-filmstrip` 84 px di bawah kanvas.
-- **Studio:** Gaya (kartu mesin), Lapisan, dan **Transform | Variasi | Riwayat**.
-  - Transform berisi X/Y/W/H.
+- **Konteks:** jenis lapisan terpilih, kunci (`.ic-field--mono`) + tombol "Ganti…", `.ic-anchor` (2×2 untuk sticker, 3×3 untuk mesin lain), `.ic-number` Skala, swatch warna lapisan sesuai perannya di mode warna aktif (`layerPaints`): lapisan garis "Garis" (warna garis/tinta), lapisan solid "Isi" (warna isi/aksen), lapisan garis dan isi dua swatch. Classic mengikuti mode A/B/C, accent mengikuti peran bagian (tinta/aksen) dan gaya penanda, offset menampilkan tinta dan aksen untuk objek utama dan tanpa swatch untuk pengubah, `.ic-check` Celah knockout, tombol "Acak ulang variasi" dan "Kunci variasi".
+- **Kanvas:** `.ic-artboard` 520×520 putih dengan grid 16 sel (tiap 3 unit kanvas 48, sesuai artboard). Seleksi lapisan: `.ic-selbox` (bingkai biru 1,5 px + 8 handle 9 px, ukurannya tetap di layar saat zoom). Tooltip koordinat (`.ic-tooltip`) dalam satuan 48, atau nilai skala/sudut saat menyeret pegangan. `.ic-filmstrip` 84 px di bawah kanvas.
+  - **Seret pegangan** mengubah skala set lapisan itu (`style.scale`, berlaku untuk semua ikon). Shift = kelipatan 5%. Objek utama dan dekorasi berskala di pusatnya, pengubah dari sudut atau sisi slotnya. Pegangan pengubah yang berimpit dengan titik tetap disembunyikan.
+  - **Seret zona di luar sudut** (kursor putar) memutar lapisan untuk ikon ini saja (`mr`, `nr`, `deco.r`). Shift = kelipatan 15°. Kotak seleksi dan wilayah klik ikut berputar.
+  - Esc saat menyeret membatalkan. Tool Geser tampilan dan Spasi tetap menggeser kanvas, bukan pegangan. Gaya offset hanya bisa memilih lapisan (kotak seleksi tanpa pegangan).
+- **Studio:** tiga panel di kolom akordeon.
+  1. **Gaya** | Warna (kartu mesin).
+  2. **Lapisan | Transform | Pustaka** (panel utama, `.ic-panel--grow`, terbuka saat masuk Edit di tab Lapisan). Daftar Lapisan dan Transform bergantian di satu panel, jadi panel kontekstual tidak pernah menutup daftar Lapisan lewat akordeon. Pustaka di panel ini mengganti isi lapisan terpilih (tombol "Ganti…").
+  3. **Halaman** | Variasi | Riwayat.
+  - Memilih lapisan (klik di artboard atau di daftar Lapisan) membuka tab Lapisan dengan baris lapisan itu tersorot, dan membuka panel Lapisan bila sedang tertutup. Tab Transform berisi kontrol lapisan terpilih, satu klik di sebelahnya. Sakelar "Buka daftar Lapisan saat memilih lapisan" di tab Transform mematikannya (`view.panel`), sehingga tab yang sedang terbuka tetap.
+  - Transform bergaya panel Transform Affinity: `.ic-anchor` 3×3 di kiri (semua titik aktif) sebagai titik acuan, lalu `.ic-tilegrid` 2 kolom berisi `.ic-number` X, W, Y, H, R dan `.ic-iconbtn` rantai (`link`, `aria-pressed="true"`, nonaktif, tooltip "Rasio selalu terkunci: mesin hanya mengenal skala seragam"). Tanpa kolom S (shear). Satuan unit kanvas 48.
+    - X/Y adalah titik acuan kotak lapisan (kotak sebelum rotasi, `layerBoxes`): kiri atas, tengah, kanan bawah, dst. Mengetik X/Y menggeser lapisan lewat `setAnchorXY`, jadi rentang `LAYER_RANGE` dan snap tetap berlaku. Pilihan titik acuan disimpan di `view.anchor` (bawaan `TL`) dan tidak ikut undo.
+    - W/H mengubah skala set lapisan (`style.scale`, berlaku untuk semua ikon, rentang sama dengan kolom Skala di bilah konteks); H ikut W dan sebaliknya. R memutar lapisan untuk ikon ini saja (`mr`, `nr`, `deco.r`). Catatan singkat di bawah kolom menyebut keduanya.
+    - Gaya offset tetap hanya bisa memilih lapisan (W × H sebagai teks).
   - Variasi berisi sumbu mesin aktif dari `engine.axes()`. Nilai yang diblokir tampil `disabled`. Seed planner ditampilkan, dan hasil cek kembaran tampil sebagai `.ic-alert[data-level=ok]`.
-- **Keyboard:** panah menggeser 0,5 unit (Shift = 2), Esc kembali ke ikhtisar, Delete menghapus lapisan pengubah atau dekorasi.
+- **Keyboard:** panah menggeser 0,5 unit (Shift = 2), `[` `]` memutar 15° (Shift = 1°), Esc kembali ke ikhtisar, Delete menghapus lapisan pengubah atau dekorasi.
 
 ### 3.3 Builder · Periksa pack
 
@@ -175,10 +194,11 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Persona | `.ic-persona` | (link) | `aria-current="page"` | pindah persona | aksi |
 | Tombol | `.ic-btn` `--primary` `--sm` `--lg` `--block` | | `disabled` | aksi | navigasi (pakai `<a>`) |
 | Tombol aksi atas | `.ic-actionbtn` `--persona` | | | ekspor, aksi utama persona | lebih dari satu per bilah atas |
-| Tombol ikon | `.ic-iconbtn` `--help` | `press` (opsional) | `aria-pressed` | aksi ringkas di footer panel | tanpa `aria-label` |
+| Tombol ikon | `.ic-iconbtn` `--help` | `press` (opsional) | `aria-pressed`, `disabled` | aksi ringkas di footer panel, Urungkan dan Ulangi di bilah atas | tanpa `aria-label` |
 | Tool | `.ic-tool` | `single` (di rail) | `aria-pressed` | alat kanvas | aksi sekali klik |
 | Tab dokumen | `.ic-doctab` | | `aria-selected` | dokumen terbuka | |
 | Panel bertab | `.ic-panel` `__head` `__body` `__foot` `__sub`, `.ic-tab`, `.ic-panel__collapse` | `tabs`, `collapse` | `aria-selected`, `aria-expanded`, `hidden` | studio | dialog |
+| Akordeon panel | wadah `.ic-studio` berisi `.ic-panel` | `accordion` (di wadah) | `aria-expanded` tombol lipat; `ic-change` dari wadah dengan `value` = `data-panel` panel terbuka; `ICUI.openPanel(section)` membuka tanpa event | kolom studio | panel di luar kolom |
 | Segmented | `.ic-seg` `--inline` | `single` | `aria-pressed` | 2–5 opsi pendek | lebih dari 5 opsi |
 | Dropdown | `.ic-select`, `.ic-select__trigger`, `.ic-menu`, `.ic-menu__item`, `.ic-menu__sep` | `select` | `aria-expanded`, `aria-selected`, `aria-disabled` | 4+ opsi, label panjang | aksi (pakai menu tombol) |
 | Slider | `.ic-slider` (range + `.ic-field`) | `slider` | | parameter kontinu gaya | nilai diskret (pakai seg) |
@@ -191,8 +211,8 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Langkah | `.ic-steps`, `.ic-step`, `.ic-step__n`, `.ic-steps__line` | | `aria-current="step"`, `data-state="done"` | alur Builder | |
 | Lencana sumber | `.ic-src[data-src=lu\|tb\|hg\|cu]` | | | asal ikon | |
 | Flag | `.ic-flag[data-level=err\|warn\|ok\|info]` | | | status pendek | kalimat |
-| Titik status | `.ic-dot[data-level]` | | | awal baris peringatan | satu-satunya penanda (selalu sertakan teks) |
-| Peringatan | `.ic-alert[data-level]`, `.ic-alert__meta` | | | temuan repetisi/validasi | |
+| Titik status | `.ic-dot[data-level=err\|warn\|ok\|info]` | | | awal baris peringatan | satu-satunya penanda (selalu sertakan teks) |
+| Peringatan | `.ic-alert[data-level=err\|warn\|ok\|info]`, `.ic-alert__meta` | | | temuan repetisi/validasi; `info` (abu netral: `--ic-bg-card`, `--ic-line-4`, `--ic-text-2`, meta dan titik `--ic-text-4`) untuk catatan yang tidak memblokir ekspor, mis. "Pengubah tidak tersedia pada style ini" | jangan pakai `info` untuk masalah yang harus diperbaiki |
 | Statistik | `.ic-stats`, `.ic-stat[data-level]`, `__n`, `__l` | | | ringkasan angka | |
 | Baris | `.ic-list`, `.ic-row` `--sm`, `__thumb`, `__name`, `__sub` | | `aria-selected` | halaman, lapisan, pool, checklist | |
 | Tile pustaka | `.ic-tilegrid`, `.ic-tile`, `__kind`, `__check`, `__note` | `press` | `aria-pressed`, `data-in-pool`, `data-similar` | hasil pustaka | |
@@ -200,13 +220,14 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Kartu gaya | `.ic-engines`, `.ic-engine`, `__pv` | `single` | `aria-pressed` | pilih mesin | |
 | Sel matriks | `.ic-matrix`, `.ic-cell[data-state]` | | `data-state` | Kombinasi | |
 | Swatch | `.ic-swatches`, `.ic-swatch` `--round` | `single` | `aria-pressed` | palet tinta/isi/latar | |
+| Pemilih warna | pemicu `.ic-swatch--custom`; popover `.ic-colorpicker`, `__head`, `__title`, `__wheel`, `__canvas`, `__mark`, `__fields`, `__f`, `__extra`, `__tabs`, `__group`, `__row`, `__chips`, `__chip`, `__actions` | `colorpicker` (di pemicu) | pemicu: `aria-expanded`, `aria-pressed` (warna aktif di luar daftar swatch), `data-value`, `data-follow`, `data-label`; penanda `role=slider` dengan `aria-valuenow`/`aria-valuetext`; `ic-change` dari pemicu (hex atau "") saat seret dilepas, kolom selesai, atau 400 ms setelah panah; `ICUI.syncColorpicker()` setelah render ulang; isi tambahan lewat `ICUI.colorpickerExtra`; tinggi dibatasi ruang viewport (hanya `__extra` yang digulir, tab tetap terlihat), posisi di bawah pemicu, balik ke atas bila kurang, atau di samping pemicu bila keduanya kurang | warna bebas di samping swatch: roda hue + segitiga, H S L, hex, Preset saya, palet kurasi, harmoni | opacity (Canva solid), lebih dari satu popover terbuka |
 | Posisi pengubah | `.ic-anchor` (`--ic-anchor-cols: 2` untuk sticker) | `single` | `aria-pressed`, `disabled` | slot pengubah | |
 | Kosong | `.ic-empty` | | | daftar tanpa isi | |
 | Tooltip | `.ic-tooltip` | | | koordinat kanvas | penjelasan panjang (pakai `.ic-tip`) |
 | Rich tooltip | `.ic-tip`, `__head`, `__key`, `__desc`, `__list` | `data-tip` + `aria-describedby` pada pemicu | `hidden`, `role=tooltip` | penjelasan tool: judul + pintasan, deskripsi, gestur (kata kerja tebal) | tombol atau tautan di dalamnya (pakai dialog/popover) |
 | Toast | `.ic-toast` | | `hidden` | konfirmasi singkat (1,8 detik) | error yang butuh tindakan |
 | Artboard edit | `.ic-artboard-wrap`, `.ic-artboard`, `__label`, `__art` | | `data-grid="off"` | kanvas Composer · Edit 520 px bergrid 16 sel | pratinjau kecil (pakai `.ic-page`) |
-| Kotak seleksi | `.ic-selbox`, `.ic-selbox__h[data-at]` | | posisi inline (geometri) | lapisan terpilih di artboard, 8 handle | |
+| Kotak seleksi | `.ic-selbox`, `.ic-selbox__h[data-at][data-cur]`, `.ic-selbox__rot[data-at]` | | posisi inline (geometri), `--ic-selbox-r` + `transform-origin` (rotasi), `--ic-zoom` dari kanvas, `hidden` | lapisan terpilih di artboard: 8 pegangan ubah ukuran, 4 zona putar di luar sudut (kursor `--ic-cursor-rotate`) | |
 | Filmstrip | `.ic-filmstrip`, `.ic-filmstrip__item` (`role=option`) | | `aria-selected` | strip set di bawah kanvas edit | |
 | Grup slide | `.ic-slidegrid`, `.ic-slidegroup`, `__head`, `__no`, `__title` | | `--ic-cols` | pengelompokan ikon per slide (Builder) | |
 | Kartu ikon | `.ic-cardgrid`, `.ic-iconcard`, `__art`, `__id` | | `aria-selected`, `data-level="err"` | kartu ikon Builder (id mono di bawah) | halaman set (pakai `.ic-page`) |
@@ -215,9 +236,9 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Area drop | `.ic-dropzone`, `__title`, `__actions` | | `data-dragover="true"` | impor manifest (Builder) | daftar kosong (pakai `.ic-empty`) |
 | Field banyak baris | `.ic-field--area` + `<textarea>` | | `:focus-within` | tempel JSON manifest | teks satu baris |
 
-Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/design/proposals/komponen-fase-2b.md` (disetujui 2026-10-18).
+Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/design/proposals/komponen-fase-2b.md` (disetujui 2026-10-18). Pemilih warna ditambahkan lewat usulan sesi pemilih warna (disetujui pemilik 2026-10-20), dengan token `--ic-w-colorpicker`, `--ic-size-colorwheel`, `--ic-size-colormark`, dan `--ic-hue-ring`.
 
-**Warna data** (warna isi ikon, warna pool, swatch palet mesin) adalah data mesin, bukan warna UI. Warna ini boleh ditulis inline (`style="background: #E5484D"`) dan harus berasal dari palet di `packages/engines/<id>`.
+**Warna data** (warna isi ikon, warna pool, swatch palet mesin) adalah data mesin, bukan warna UI. Warna ini boleh ditulis inline (`style="background: #E5484D"`) dan harus berasal dari palet di `packages/engines/<id>` atau `apps/icon-studio/src/state/data/palettes.js`, atau dari warna yang dipilih pengguna lewat pemilih warna (Preset saya, palet kurasi, harmoni). Warna pilihan pengguna hanya ditulis lewat atribut `style` hasil render, tidak pernah sebagai literal di kode UI.
 
 ## 5. Ikon
 
@@ -275,3 +296,4 @@ Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/
 3. Screenshot persona Composer · Set dibandingkan dengan kerangka contoh di `ui-kit.html`. Selisih piksel area kerangka (di luar kanvas) harus < 2%.
 4. Navigasi keyboard: Tab mencapai semua kontrol, panah berpindah tab panel, dan dropdown bisa dibuka/dipilih/ditutup tanpa tetikus.
 5. Teks: tidak ada string UI berbahasa Inggris selain nama gaya, nama pustaka, dan kunci ikon.
+   - Dites oleh `tests/e2e/ui-language.spec.js`: tes mengunjungi setiap persona dan tab panel (termasuk set contoh, manifest contoh, dan gaya Offset), lalu mencocokkan teks, `aria-label`, `title`, `placeholder`, dan isi `.ic-tip` dengan daftar kata Inggris umum. Pengecualian yang diizinkan beserta alasannya ditulis di `ALLOWED` dalam file tes itu.

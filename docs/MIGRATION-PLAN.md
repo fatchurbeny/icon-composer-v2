@@ -57,35 +57,53 @@ Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/
 
 Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affinity dan rich tooltip tool rail. Dikerjakan di branch `fase-2b-icon-studio`.
 
-## Fase 3: Mesin offset
+Fitur Icon Studio sesudahnya (2026-10-20, disetujui pemilik): urungkan dan ulangi maks 10 langkah per dokumen di semua persona, hanya di memori (`apps/icon-studio/src/state/undo.js`, DATA-MODEL bagian 4.4). Butir backlog "Undo/redo di Composer" selesai lewat fitur ini.
 
-- [~] Port mesin ke kontrak (`docs/engines/offset.md`), termasuk normalisasi kanvas 120 → 48.
-- [~] UI IC: opsi gaya "Offset". Saat aktif, panel pengubah nonaktif dengan teks "Pengubah tidak tersedia pada style ini", dan Kombinasi massal hanya memakai daftar objek.
+## Fase 3: Mesin offset ✅
+
+- [x] Port mesin ke kontrak (`docs/engines/offset.md`), termasuk normalisasi kanvas 120 → 48.
+- [x] UI IC: opsi gaya "Offset". Saat aktif, panel pengubah nonaktif dengan teks "Pengubah tidak tersedia pada style ini", dan Kombinasi massal hanya memakai daftar objek.
 - [x] Ukuran objek 84% dan penyesuaian dekorasi (ADR-012).
-- [ ] UI TIB: pratinjau dan gaya ekspor "Offset".
-- [ ] Impor set dari offset-composer lama.
-- [ ] Lolos `export-canva.spec.js`.
+- [x] UI TIB: pratinjau dan gaya ekspor "Offset".
+- [x] Impor set dari offset-composer lama (migrasi `002-from-offset` dan impor `gaya.json`, lihat `DATA-MODEL.md` bagian 4.3).
+- [x] Lolos `export-canva.spec.js`.
 
 **Kriteria terima:** objek offset berbeda < 1% piksel dari legacy setelah diskalakan ke 84%. Semua dekorasi berada di dalam viewBox. Direct fill valid dan tanpa stroke. Flag info muncul di TIB.
 
-## Fase 4: Mesin hand-writing
+Status kriteria (IC): paritas piksel lolos lewat `tests/e2e/offset-parity.spec.js` (20 ikon Lucide dan Tabler serta 12 ikon Hugeicons × 3 mode isi, selisih maks 0,002% pada ambang warna 48). Legacy tidak memuat Hugeicons, jadi node Hugeicons disuntikkan ke `compose` legacy asli (alasan di `docs/engines/offset.md`). Dekorasi di dalam viewBox, direct fill valid, dan tanpa stroke lolos lewat `tests/e2e/export-canva.spec.js`. Flag info di TIB lolos lewat `tests/e2e/studio-builder.spec.js` (mode Offset di Builder: flag info pengubah, ZIP `offset/` direct fill tanpa stroke dan tanpa `stroke-dasharray`, ≤5 warna).
 
-- [~] Port mesin, ganti nama di semua tempat.
-- [x] **Panggang dash jadi geometri** (wajib, lihat `docs/engines/hand-writing.md`).
-- [~] Samakan versi pustaka (Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5).
-- [~] Impor set dari coret-composer lama, termasuk `family:"coret"` di `gaya.json`.
+Status 2026-10-20: **selesai.** Semua butir dan kriteria terima lolos. `npm test` (152), `npm run test:e2e` (115), `npm run test:golden` (20), `npm run lint`, dan `npm run lint:ui` lulus di branch `fase-3-offset`. Penutupan fase disetujui Beny.
+
+## Fase 4: Mesin hand-writing ✅
+
+- [x] Port mesin, ganti nama di semua tempat. `packages/engines/hand-writing` 2.0.0: port setia `coret`/`compose` legacy (pengubah 8 anchor, knockout mask, blob, rotasi, urutan `rng` identik), `coret()` → `strokeSet()`, id mask lewat `opt.idp`, SVG kosong + flag untuk objek bawaan. Gaya Hand-writing di Composer (Set, Edit, Kombinasi, Tinjau) dan Builder (mode `H`, folder `hand-writing/`). Kode dan UI baru tidak memakai kata "coret"; `family:"coret"` dibaca sebagai `hand-writing` di registry, `normSetStyle`, impor set, dan manifest Builder.
+- [x] **Panggang dash jadi geometri** (wajib, lihat `docs/engines/hand-writing.md`). Skala `pathLength` meniru panjang Skia (ADR-018).
+- [x] Samakan versi pustaka (Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5). Mesin membaca node lewat renderer Icon Studio (`sources.json`), bukan lewat CDN legacy (Lucide 0.460.0, Tabler 3.31.0, Hugeicons `@1`).
+- [x] Impor set dari coret-composer lama, termasuk `family:"coret"` di `gaya.json`. Migrasi sekali `003-from-hand-writing` (kunci `coret-composer-v1`) dan impor `gaya.json` lewat area impor (`DATA-MODEL.md` bagian 4.5).
 
 **Kriteria terima:** celah terlihat di file direct fill. Selisih piksel terhadap legacy < 1% pada fixture yang ikonnya ada di kedua versi pustaka.
 
-## Fase 5: Mesin sticker
+Status kriteria: selisih piksel lolos lewat `tests/e2e/hand-writing-parity.spec.js` (`@golden`, 32 ikon Lucide, Tabler, dan Hugeicons dengan dan tanpa pengubah, node ikon yang sama disuntik ke `compose` legacy asli; maks 0,18% pada ambang warna 48). Celah di direct fill lolos lewat `tests/e2e/export-canva.spec.js` (19 dari 20 ikon kehilangan tinta di posisi celah dibanding set tanpa celah; direct fill valid, ≤3 warna, hanya fill, selisih mask vs direct fill < 1,5%). Builder mode H lolos lewat `tests/e2e/studio-builder.spec.js`; Composer lewat `tests/e2e/studio-hand-writing.spec.js`; migrasi lewat `tests/e2e/studio-migration.spec.js`.
 
-- [ ] `scripts/build-icon-data.mjs` menghasilkan bentuk isi (`fill-shapes.json`).
-- [ ] Port mesin. Pemetaan slot 8 → 4. Warna per item lewat `engine.sticker`.
-- [ ] Tambah lembar kontak `pratinjau.html` ke ekspor IC.
-- [ ] Ekspor Canva IC memakai direct fill (semua stroke jadi outline) + folder opsional `svg-asli/` (ADR-011).
-- [ ] Impor set dari sticker-composer lama.
+Status 2026-10-20: **selesai.** Semua butir dan kriteria terima lolos. `npm test` (181), `npm run test:e2e` (123), `npm run test:golden` (21), `npm run lint`, dan `npm run lint:ui` lulus di branch `claude/fase-4-hand-writing-331e40`. Menunggu tinjauan Beny untuk ADR-018.
+
+Status 2026-10-21: digabung bersama Fase 5 di branch `claude/fase45-integrasi-a95e9b` (Fase 4 lebih dulu). Setelah penggabungan, ZIP Composer hand-writing juga direct fill (ADR-019), dan `npm test` (212), `npm run test:e2e` (138, dua kali berturut-turut), `npm run test:golden` (22), `npm run lint`, `npm run lint:ui`, dan `npm run build` lulus.
+
+## Fase 5: Mesin sticker ✅
+
+- [x] `scripts/build-icon-data.mjs` menghasilkan bentuk isi (`fill-shapes.json`).
+- [x] Port mesin. Pemetaan slot 8 → 4. Warna per item lewat `engine.sticker`.
+- [x] Tambah lembar kontak `pratinjau.html` ke ekspor IC.
+- [x] Ekspor Canva IC memakai direct fill (semua stroke jadi outline) + folder opsional `svg-asli/` (ADR-011).
+- [x] Impor set dari sticker-composer lama.
 
 **Kriteria terima:** ≤4 warna per SVG, direct fill valid, golden visual terhadap legacy < 1,5% (selisih versi pustaka dicatat).
+
+Status kriteria: ≤4 warna per SVG dan direct fill valid (hanya path fill, tanpa stroke, di dalam viewBox, selisih mask vs direct fill < 1,5%) lolos lewat `tests/e2e/export-canva.spec.js` (20 ikon × 4 gaya) dan `tests/e2e/studio-builder.spec.js` (mode `S`). Golden visual lolos lewat `tests/e2e/sticker-parity.spec.js`: selisih maks 0,047% (mask) dan 0% (white) terhadap `compose` legacy dengan bentuk yang sama; selisih versi pustaka dicatat di `docs/engines/sticker.md`. Set contoh lengkap (termasuk `ticket` bergaris putus-putus yang kini dipanggang jadi geometri di jalur ekspor) lolos direct fill di kelima gaya; di offset, hand-writing, dan sticker objek bawaan tidak didukung, jadi yang diperiksa adalah rakitan pustaka di set itu. `pratinjau.html` sudah ada di ZIP Composer sejak port IC 1.5.1 dan kini juga dipakai set sticker. Selain butir di atas, gaya Sticker dipasang di Composer, Composer · Edit, Kombinasi, Tinjau, dan Builder (mode `S`).
+
+Status 2026-10-20: **selesai di branch `claude/fase-5-sticker-612d7e`**, menunggu persetujuan. Pertanyaan terbuka untuk pemilik: aturan bentuk isi Lucide (30 ikon seperti `heart` kini memakai lingkaran) dan warna isi sticker di Builder (aksen manifest + kuning). Lihat `docs/engines/sticker.md` dan ADR-019.
+
+Status 2026-10-21: digabung setelah Fase 4 di branch `claude/fase45-integrasi-a95e9b`. ADR Fase 5 dinomori ulang menjadi ADR-019 (ADR-018 tetap milik Fase 4). Migrasi berjalan 002, 003, lalu 004. Seluruh rangkaian tes lulus (lihat status Fase 4). Pertanyaan terbuka di atas masih menunggu pemilik.
 
 ## Fase 6: Anti-repetisi
 
@@ -115,5 +133,4 @@ Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affi
 
 - Ledger sidik jari lintas pack dan lintas akun (hashtagben/chital), terhubung ke `canva-submit/.data/history.json`.
 - Pengubah untuk offset.
-- Undo/redo di Composer.
 - Peran otomatis aksen yang lebih akurat (heuristik per objek bawaan).

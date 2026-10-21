@@ -5,7 +5,9 @@
  * Composer · Edit ada di ./composer-edit.js.
  */
 import { get } from "@icon-studio/engines";
-import { ACCENT_OPTIONS } from "../state/data/palettes.js";
+import { STICKER_INKS, slot4 } from "@icon-studio/engines/sticker";
+import { ACCENT_OPTIONS, HAND_WRITING_ACCENT_OPTIONS, HAND_WRITING_INK_OPTIONS, INK_OPTIONS, OFFSET_ACCENT_OPTIONS } from "../state/data/palettes.js";
+import { colorRow } from "./color-picker.js";
 import {
   STYLE_RANGES,
   addItem,
@@ -16,6 +18,7 @@ import {
   nameOf,
   removeItem,
   replaceLayer,
+  setOffsetDeco,
   setStyleValue,
   sortedItems,
 } from "../state/set-ops.js";
@@ -23,15 +26,28 @@ import { alert, aria, button, check, empty, esc, icon, iconButton, number, panel
 import {
   COMPOSER_TOOLS,
   ENGINE_CARDS,
+  ENGINE_NAMES,
+  NO_MOD_TEXT,
+  READY_ENGINES,
   docFileName,
+  engineFlags,
   engineInfo,
+  NO_DECO_TEXT,
+  isFixedLayout,
+  isHandWriting,
+  isOffset,
+  isSticker,
   renderSet,
   setColorCount,
   statusBar,
+  stickerDecoLabel,
 } from "./common.js";
 import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } from "./library-panel.js";
 
 export const LAYER_LABEL = { main: "Objek utama", mod: "Pengubah", deco: "Dekorasi" };
+
+/** Objek awal ikon baru bergaya hand-writing (sampel coret-composer 1.0.0); objek bawaan tidak didukung. */
+const HAND_WRITING_NEW_MAIN = "lu:pizza";
 
 /** @param {import("./common.js").Ctx} ctx */
 export const itemsOf = (ctx) => (ctx.doc ? ctx.doc.items : []);
@@ -41,7 +57,7 @@ export const selectedOf = (ctx) => {
   return itemsOf(ctx).find((it) => it.id === id) || null;
 };
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
-export const labelOf = (ctx, it) => nameOf(it, ctx.renderer.lib);
+export const labelOf = (ctx, it) => nameOf(it, ctx.renderer.lib, ctx.doc && ctx.doc.style.family);
 /** @param {import("./common.js").Ctx} ctx */
 const dupGroupsOf = (ctx) => duplicateGroups(itemsOf(ctx), (it) => get(ctx.doc.style.family).signature(it));
 /** @param {import("./common.js").Ctx} ctx */
@@ -70,21 +86,116 @@ function styleSlider(key, label, value) {
   return `<div class="ic-slider" data-ic="slider" data-name="style:${key}"><span class="ic-label">${esc(label)}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" aria-label="${esc(label)}"><label class="ic-field"><input value="${value}" aria-label="${esc(label)}, angka"></label></div>`;
 }
 
-/** @param {import("./common.js").Ctx} ctx */
+/**
+ * Kartu pemilih mesin. Pratinjau dirender mesin sungguhan; offset, hand-writing, dan sticker memakai ikon pustaka
+ * karena objek bawaan tidak didukung ketiga gaya itu.
+ * @param {import("./common.js").Ctx} ctx
+ */
 function engineCards(ctx) {
   const family = ctx.doc.style.family;
-  const sample = ctx.app.sampleItem({ main: "face", mod: "check", slot: "BR" });
+  const samples = {
+    classic: { main: "face", mod: "check", slot: "BR" },
+    accent: { main: "face", mod: "check", slot: "BR" },
+    offset: { main: "lu:luggage", mod: "none", mx: 0, my: 0 },
+    "hand-writing": { main: "lu:wallet", mod: "lu:plus", slot: "BR" },
+    sticker: { main: "lu:luggage", mod: "lu:circle-check", slot: "TR", mx: 0, my: 0 },
+  };
   return `<div class="ic-engines" data-ic="single" role="group" aria-label="Gaya ikon" data-name="engine">${ENGINE_CARDS.map(([id, label]) => {
-    const ready = id === "classic" || id === "accent";
-    const pv = ready ? ctx.renderer.renderSetItem(sample, { ...ctx.doc.style, family: id }, { idp: `pv${id}` }) : icon(id === "offset" ? "grid" : "edit", 20);
-    return `<button type="button" class="ic-engine" data-value="${id}" ${aria("aria-pressed", family === id)}${ready ? "" : ' disabled title="Tersedia setelah Fase 3 dan 4"'}><span class="ic-engine__pv">${pv}</span>${esc(label)}</button>`;
+    const ready = READY_ENGINES.includes(id);
+    const pv = ready ? ctx.renderer.renderSetItem(ctx.app.sampleItem(/** @type {any} */ (samples)[id]), { ...ctx.doc.style, family: id }, { idp: `pv${id}` }) : icon("edit", 20);
+    return `<button type="button" class="ic-engine" data-value="${id}" ${aria("aria-pressed", family === id)}${ready ? "" : " disabled"}><span class="ic-engine__pv">${pv}</span>${esc(label)}</button>`;
   }).join("")}</div>`;
+}
+
+/**
+ * Panel Gaya | Warna untuk gaya offset: parameter berlaku untuk seluruh set (docs/engines/offset.md).
+ * @param {import("./common.js").Ctx} ctx
+ */
+function offsetStyleTabs(ctx) {
+  const o = /** @type {any} */ (ctx.doc.style.engine || {}).offset || {};
+  const gaya = [
+    engineCards(ctx),
+    `<div class="ic-formrow"><span class="ic-label">Isi warna</span>${seg("Isi warna offset", [["solid", "Bidang"], ["white", "Putih"], ["line", "Garis"]], o.mode, { name: "style:offset.mode" })}</div>`,
+    styleSlider("offset.dx", "Geser X", o.dx),
+    styleSlider("offset.dy", "Geser Y", o.dy),
+    styleSlider("offset.sw", "Tebal garis", o.sw),
+    `<span class="ic-meta">Objek 84% kanvas. ${NO_MOD_TEXT}.</span>`,
+  ].join("");
+  const n = setColorCount(ctx);
+  const warna = [
+    colorRow(ctx, { name: "style:offset.ink", label: "Tinta", value: o.ink, options: INK_OPTIONS, fallback: o.ink, round: true }),
+    colorRow(ctx, { name: "style:offset.acc", label: "Aksen", value: o.acc, options: OFFSET_ACCENT_OPTIONS, fallback: o.acc, round: true }),
+    n > 5 ? alert("warn", `${n} warna di set`, "Canva maks 5") : `<span class="ic-meta">${n} warna di set · maks 5 untuk Canva</span>`,
+  ].join("");
+  return { gaya, warna };
+}
+
+/**
+ * Panel Gaya | Warna untuk gaya hand-writing: parameter berlaku untuk seluruh set (docs/engines/hand-writing.md).
+ * @param {import("./common.js").Ctx} ctx
+ */
+function handWritingStyleTabs(ctx) {
+  const o = /** @type {any} */ (ctx.doc.style.engine || {})["hand-writing"] || {};
+  const gaya = [
+    engineCards(ctx),
+    styleSlider("hand-writing.sw", "Tebal tinta", o.sw),
+    styleSlider("hand-writing.puff", "Gemuk blob", o.puff),
+    styleSlider("hand-writing.off", "Geser blob", o.off),
+    styleSlider("hand-writing.gap", "Celah goresan (%)", o.gap),
+    styleSlider("hand-writing.rot", "Miring acak (°)", o.rot),
+    styleSlider("hand-writing.ko", "Celah knockout pengubah", o.ko),
+    `<span class="ic-meta">Celah goresan dipanggang menjadi potongan garis, jadi tetap terlihat di file Canva.</span>`,
+  ].join("");
+  const n = setColorCount(ctx);
+  const warna = [
+    colorRow(ctx, { name: "style:hand-writing.ink", label: "Tinta", value: o.ink, options: HAND_WRITING_INK_OPTIONS, fallback: o.ink, round: true }),
+    colorRow(ctx, { name: "style:hand-writing.acc", label: "Aksen", value: o.acc, options: HAND_WRITING_ACCENT_OPTIONS, fallback: o.acc, round: true }),
+    n > 5 ? alert("warn", `${n} warna di set`, "Canva maks 5") : `<span class="ic-meta">${n} warna di set · maks 5 untuk Canva</span>`,
+  ].join("");
+  return { gaya, warna };
+}
+
+/**
+ * Panel Gaya | Warna untuk gaya sticker. Mode, garis, halo, geser isi, sparkle, sinar, ikal, dan tinta berlaku
+ * untuk seluruh set; warna isi objek dan pengubah diatur per ikon di Composer · Edit (docs/engines/sticker.md).
+ * @param {import("./common.js").Ctx} ctx
+ */
+function stickerStyleTabs(ctx) {
+  const o = /** @type {any} */ (ctx.doc.style.engine || {}).sticker || {};
+  const gaya = [
+    engineCards(ctx),
+    `<div class="ic-formrow"><span class="ic-label">Mode warna</span>${seg("Mode warna sticker", [["sticker", "Stiker"], ["fill", "Isi"], ["line", "Garis"]], o.mode, { name: "style:sticker.mode" })}</div>`,
+    styleSlider("sticker.sw", "Tebal garis", o.sw),
+    styleSlider("sticker.halo", "Halo", o.halo),
+    styleSlider("sticker.off", "Geser isi", o.off),
+    styleSlider("sticker.spk", "Sparkle", o.spk),
+    `<div class="studio-row">${check("Sinar", o.rays !== false, { name: "style:sticker.rays" })}${check("Ikal", o.curl !== false, { name: "style:sticker.curl" })}</div>`,
+    `<span class="ic-meta">Pengubah memakai 4 sudut. Halo putih hanya di mode Stiker.</span>`,
+  ].join("");
+  const n = setColorCount(ctx);
+  const warna = [
+    colorRow(ctx, { name: "style:sticker.ink", label: "Tinta", value: o.ink, options: [...STICKER_INKS], fallback: o.ink, round: true }),
+    `<span class="ic-meta">Warna isi objek dan pengubah diatur per ikon di mode edit. Per ikon maks 4 warna: tinta, isi objek, isi pengubah, dan putih halo.</span>`,
+    n > 5 ? alert("warn", `${n} warna di satu ikon`, "Canva maks 5") : `<span class="ic-meta">Maks ${n} warna per ikon · batas Canva 5</span>`,
+  ].join("");
+  return { gaya, warna };
 }
 
 /** @param {import("./common.js").Ctx} ctx */
 export function stylePanel(ctx) {
   const s = ctx.doc.style,
     classic = s.family === "classic";
+  if (isOffset(ctx.doc) || isHandWriting(ctx.doc) || isSticker(ctx.doc)) {
+    const t = isSticker(ctx.doc) ? stickerStyleTabs(ctx) : isHandWriting(ctx.doc) ? handWritingStyleTabs(ctx) : offsetStyleTabs(ctx);
+    return panel({
+      id: "composer-style",
+      label: "Gaya",
+      tabs: [
+        { id: "gaya", label: "Gaya", body: t.gaya },
+        { id: "warna", label: "Warna", body: t.warna },
+      ],
+    });
+  }
   const gaya = [
     engineCards(ctx),
     styleSlider("sw", "Tebal garis", s.sw),
@@ -96,9 +207,8 @@ export function stylePanel(ctx) {
     classic
       ? `<div class="ic-formrow"><span class="ic-label">Mode warna</span>${seg("Mode warna", [["A", "Garis·solid"], ["B", "Solid·garis"], ["C", "Garis·garis"]], s.pref, { name: "style:pref" })}</div>`
       : "",
-    `<div class="ic-formrow"><span class="ic-label">Aksen</span><div class="ic-swatches" data-ic="single" role="group" aria-label="Warna aksen" data-name="style:accent">${ACCENT_OPTIONS.map(
-      (c) => `<button type="button" class="ic-swatch ic-swatch--round" data-value="${c}" style="background: ${c}" ${aria("aria-pressed", s.accent.toUpperCase() === c)} aria-label="Aksen ${c}"></button>`,
-    ).join("")}</div></div>`,
+    colorRow(ctx, { name: "style:ink", label: "Tinta", value: s.ink, options: INK_OPTIONS, fallback: s.ink, round: true }),
+    colorRow(ctx, { name: "style:accent", label: "Aksen", value: s.accent, options: ACCENT_OPTIONS, fallback: s.accent, round: true }),
     classic
       ? `<div class="ic-formrow"><span class="ic-label">Efek</span>${seg("Efek objek utama", [["none", "Tanpa"], ["soft", "Isian lembut"], ["shadow", "Bayangan"]], s.fx.mode, { name: "style:fx" })}</div>`
       : "",
@@ -116,6 +226,23 @@ export function stylePanel(ctx) {
 
 /* ---------- panel Halaman | Lapisan | Pustaka | Pool ---------- */
 
+/**
+ * Objek tidak bisa dirender gaya aktif (offset: objek bawaan).
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ */
+export const unsupported = (ctx, it) => engineFlags(ctx, it).some((f) => f[0] === "err");
+
+/**
+ * Ringkasan dekorasi offset satu ikon untuk daftar lapisan.
+ * @param {any} it
+ */
+export function offsetDecoLabel(it) {
+  const d = (it.engine && it.engine.offset && it.engine.offset.deco) || { tick: true, tickPos: "TR", ground: true };
+  const on = [d.tick !== false ? `kilat ${d.tickPos === "TL" ? "TL" : "TR"}` : "", d.ground !== false ? "tanah" : "", d.cloud ? "awan" : "", d.grass ? "rumput" : ""].filter(Boolean);
+  return on.length ? on.join(" + ") : "tanpa";
+}
+
 /** @param {import("./common.js").Ctx} ctx */
 export function pageRows(ctx) {
   const items = itemsOf(ctx),
@@ -126,7 +253,7 @@ export function pageRows(ctx) {
   return `<div class="ic-list" role="listbox" aria-label="Halaman set">${items
     .map(
       (it) =>
-        `<div class="ic-row" role="option" tabindex="0" data-select="${esc(it.id)}" ${aria("aria-selected", sel === it)}><span class="ic-row__thumb">${renderSet(ctx, it, `row${it.id}`)}</span><span class="ic-row__name">${esc(labelOf(ctx, it))}</span>${flagged.has(it.id) ? '<span class="ic-flag" data-level="err">dobel</span>' : ""}<span class="ic-meta">${esc(it.slot)} · ${esc(it.mod === "none" ? "tanpa pengubah" : it.mod)}</span></div>`,
+        `<div class="ic-row" role="option" tabindex="0" data-select="${esc(it.id)}" ${aria("aria-selected", sel === it)}><span class="ic-row__thumb">${renderSet(ctx, it, `row${it.id}`)}</span><span class="ic-row__name">${esc(labelOf(ctx, it))}</span>${flagged.has(it.id) ? '<span class="ic-flag" data-level="err">dobel</span>' : unsupported(ctx, it) ? '<span class="ic-flag" data-level="err">bawaan</span>' : ""}<span class="ic-meta">${isOffset(ctx.doc) || (isHandWriting(ctx.doc) && it.mod === "none") ? "tanpa pengubah" : `${esc(isSticker(ctx.doc) && it.mod !== "none" ? slot4(it.slot) : it.slot)} · ${esc(it.mod === "none" ? "tanpa pengubah" : it.mod)}`}</span></div>`,
     )
     .join("")}</div>`;
 }
@@ -137,9 +264,18 @@ export function pageRows(ctx) {
  * @param {any} it
  */
 function layerRows(ctx, it) {
+  const off = isOffset(ctx.doc),
+    hw = isHandWriting(ctx.doc),
+    st = isSticker(ctx.doc);
   const rows = /** @type {const} */ ([
-    ["mod", it.mod === "none" ? "tanpa" : `${it.mod} · ${it.slot}`, it.mod !== "none"],
-    ["deco", it.deco && it.deco.type !== "none" ? it.deco.type : "tanpa", !!(it.deco && it.deco.type !== "none")],
+    ["mod", off ? NO_MOD_TEXT : it.mod === "none" ? "tanpa" : `${it.mod} · ${st ? slot4(it.slot) : it.slot}`, !off && it.mod !== "none"],
+    off
+      ? ["deco", offsetDecoLabel(it), offsetDecoLabel(it) !== "tanpa"]
+      : hw
+        ? ["deco", NO_DECO_TEXT, false]
+        : st
+          ? ["deco", it.vis.deco ? stickerDecoLabel(ctx.doc.style) : "tersembunyi", it.vis.deco]
+          : ["deco", it.deco && it.deco.type !== "none" ? it.deco.type : "tanpa", !!(it.deco && it.deco.type !== "none")],
     ["main", it.main, true],
   ]);
   return `<div class="ic-list" role="listbox" aria-label="Lapisan ikon">${rows
@@ -183,7 +319,7 @@ function pagesPanel(ctx) {
     foot: `${iconButton("plus", "Ikon baru", { action: "new-icon" })}${iconButton("duplicate", "Duplikat", { action: "dup-icon", disabled: !sel })}${iconButton("dice", "Acak ulang variasi", { disabled: true })}${iconButton("lock", "Kunci variasi", { disabled: true })}<span class="ic-spacer"></span>${iconButton("edit", "Buka mode edit", { action: "open-edit", disabled: !sel })}${iconButton("swap", "Ganti isi lapisan", { action: "layer-swap", disabled: !sel })}${iconButton("trash", "Hapus ikon", { action: "delete-icon", disabled: !sel })}`,
     tabs: [
       { id: "halaman", label: "Halaman", body: pageRows(ctx), flush: true },
-      { id: "lapisan", label: "Lapisan", body: sel ? `${layerRows(ctx, sel)}<div class="studio-pad studio-stack">${layerScale(ctx)}<div class="studio-actions">${button("Lepas lapisan", { size: "sm", action: "layer-clear", disabled: libraryUi.target === "main" })}</div></div>` : empty("Belum ada ikon terpilih."), flush: !!sel },
+      { id: "lapisan", label: "Lapisan", body: sel ? `${layerRows(ctx, sel)}<div class="studio-pad studio-stack">${isFixedLayout(ctx.doc) || isSticker(ctx.doc) ? "" : layerScale(ctx)}<div class="studio-actions">${button("Lepas lapisan", { size: "sm", action: "layer-clear", disabled: libraryUi.target === "main" || (isOffset(ctx.doc) && libraryUi.target === "mod") || (isHandWriting(ctx.doc) && libraryUi.target === "deco") })}</div></div>` : empty("Belum ada ikon terpilih."), flush: !!sel },
       { id: "pustaka", label: "Pustaka", body: `${libraryBody(ctx, { target: true, cols: 5, pool })}${LICENSE_NOTE}` },
       { id: "pool", label: "Pool", body: poolBody(ctx), flush: true },
     ],
@@ -192,13 +328,29 @@ function pagesPanel(ctx) {
 
 /* ---------- panel Repetisi | Navigator | Riwayat ---------- */
 
+/**
+ * Ringkasan flag mesin di set (offset: objek bawaan, tanpa bidang tertutup, pengubah tidak dipakai).
+ * @param {import("./common.js").Ctx} ctx
+ */
+function engineAlerts(ctx) {
+  /** @type {Map<string, {level: string, n: number}>} */
+  const by = new Map();
+  for (const it of itemsOf(ctx))
+    for (const [level, text] of engineFlags(ctx, it)) {
+      const cur = by.get(text) || { level, n: 0 };
+      cur.n++;
+      by.set(text, cur);
+    }
+  return [...by].map(([text, f]) => alert(/** @type {any} */ (f.level), text, `${f.n} ikon`)).join("");
+}
+
 /** @param {import("./common.js").Ctx} ctx */
 function repetitionPanel(ctx) {
   const groups = dupGroupsOf(ctx);
   const dup = groups.reduce((a, g) => a + g.length, 0);
   const n = setColorCount(ctx);
   const stats = `<div class="ic-stats"><div class="ic-stat" data-level="${dup ? "err" : "ok"}"><div class="ic-stat__n">${dup}</div><div class="ic-stat__l">Rakitan dobel</div></div><div class="ic-stat"${n > 5 ? ' data-level="err"' : ""}><div class="ic-stat__n">${n}</div><div class="ic-stat__l">Warna maks</div></div><div class="ic-stat"><div class="ic-stat__n">${itemsOf(ctx).length}</div><div class="ic-stat__l">Ikon</div></div></div>`;
-  const alerts = groups.map((g) => alert("err", g.map((it) => labelOf(ctx, it)).join(" = "), "dobel")).join("");
+  const alerts = groups.map((g) => alert("err", g.map((it) => labelOf(ctx, it)).join(" = "), "dobel")).join("") + engineAlerts(ctx);
   const log = (ctx.app.history[ctx.doc.id] || []).slice(0, 30);
   return panel({
     id: "composer-rep",
@@ -230,7 +382,13 @@ export const openTab = (panelId, tab) => /** @type {HTMLElement | null} */ (docu
 export const actions = {
   /** @param {import("./common.js").Ctx} ctx */
   "new-icon"(ctx) {
-    mutate(ctx, (doc) => (ctx.app.selection[doc.id] = addItem(doc, ctx.renderer.lib).id), "Ikon baru");
+    /* offset, hand-writing, dan sticker: ikon baru tanpa pengubah bawaan; hand-writing memakai objek pustaka */
+    const init = isFixedLayout(ctx.doc) || isSticker(ctx.doc) ? { mod: "none", mx: 0, my: 0 } : {};
+    mutate(ctx, (doc) => {
+      const it = addItem(doc, ctx.renderer.lib, init);
+      if (isHandWriting(doc)) replaceLayer(it, "main", HAND_WRITING_NEW_MAIN, ctx.renderer.lib);
+      ctx.app.selection[doc.id] = it.id;
+    }, "Ikon baru");
   },
   /** @param {import("./common.js").Ctx} ctx */
   "dup-icon"(ctx) {
@@ -253,10 +411,10 @@ export const actions = {
     mutate(
       ctx,
       (doc) => {
-        if (sel) replaceLayer(sel, layer, key, ctx.renderer.lib);
+        if (sel) replaceLayer(sel, layer, key, ctx.renderer.lib, doc.style.family);
         else {
-          const it = addItem(doc, ctx.renderer.lib, layer === "main" ? { mod: "none", mx: 0, my: 0 } : {});
-          replaceLayer(it, layer, key, ctx.renderer.lib);
+          const it = addItem(doc, ctx.renderer.lib, layer === "main" || isSticker(doc) ? { mod: "none", mx: 0, my: 0 } : {});
+          replaceLayer(it, layer, key, ctx.renderer.lib, doc.style.family);
           ctx.app.selection[doc.id] = it.id;
         }
       },
@@ -280,6 +438,12 @@ export const actions = {
   "layer-clear"(ctx) {
     const sel = selectedOf(ctx),
       layer = libraryUi.target;
+    if (sel && isSticker(ctx.doc) && layer === "deco") return mutate(ctx, () => (sel.vis.deco = false), "Sembunyikan dekorasi");
+    if (sel && isOffset(ctx.doc)) {
+      if (layer === "deco") mutate(ctx, () => ["tick", "ground", "cloud", "grass"].forEach((k) => setOffsetDeco(sel, /** @type {any} */ (k), false)), "Lepas dekorasi offset");
+      return;
+    }
+    if (sel && isHandWriting(ctx.doc) && layer === "deco") return;
     if (sel && (layer === "mod" || layer === "deco")) mutate(ctx, () => clearLayer(sel, layer), `Lepas ${LAYER_LABEL[layer].toLowerCase()}`);
   },
   /** @param {import("./common.js").Ctx} ctx */
@@ -307,12 +471,13 @@ export const actions = {
 export function control(ctx, name, value) {
   if (libraryControl(ctx, name, value, () => rerender(ctx))) return;
   if (name === "engine") {
-    if (value === "classic" || value === "accent") mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${value === "accent" ? "Aksen" : "Klasik"}`);
+    if (READY_ENGINES.includes(value)) mutate(ctx, (doc) => setStyleValue(doc.style, "family", value), `Gaya ${/** @type {any} */ (ENGINE_NAMES)[value]}`);
     return;
   }
   if (name.startsWith("style:")) {
     const key = name.slice(6);
-    return mutate(ctx, (doc) => setStyleValue(doc.style, key, value), `Gaya: ${key} = ${value}`);
+    const colorName = /** @type {Record<string, string>} */ ({ ink: "tinta", accent: "aksen", "offset.ink": "tinta", "offset.acc": "aksen", "hand-writing.ink": "tinta", "hand-writing.acc": "aksen", "sticker.ink": "tinta" })[key];
+    return mutate(ctx, (doc) => setStyleValue(doc.style, key, value), colorName ? `Warna ${colorName} ${value}` : `Gaya: ${key} = ${value}`);
   }
   if (name.startsWith("pool:")) {
     const [, kind, ...rest] = name.split(":");
@@ -320,7 +485,7 @@ export function control(ctx, name, value) {
     return mutate(ctx, (doc) => {
       if (value) delete doc.pool.off[`${kind}|${key}`];
       else doc.pool.off[`${kind}|${key}`] = true;
-    });
+    }, `Pool ${key} ${value ? "aktif" : "nonaktif"}`);
   }
   if (name === "view-sort") return mutate(ctx, (doc) => (doc.view.sort = value));
   if (name === "view-cols") return mutate(ctx, (doc) => (doc.view.cols = Math.max(2, Math.min(12, Math.round(Number(value)) || 8))));
@@ -387,7 +552,8 @@ export const composerSet = {
     const pages = items
       .map((it) => {
         const label = labelOf(ctx, it);
-        return `<div class="ic-page" data-id="${esc(it.id)}"${draggable ? ' draggable="true"' : ""}><span class="ic-page__label">${esc(label)}</span><button type="button" class="ic-page__card" data-select="${esc(it.id)}" data-open="${esc(it.id)}" ${aria("aria-selected", sel === it)} aria-label="${esc(label)}${flagged.has(it.id) ? ", rakitan dobel" : ""}">${renderSet(ctx, it, `pg${it.id}`)}${flagged.has(it.id) ? '<span class="ic-flag" data-level="err">dobel</span>' : ""}</button></div>`;
+        const bad = !flagged.has(it.id) && unsupported(ctx, it);
+        return `<div class="ic-page" data-id="${esc(it.id)}"${draggable ? ' draggable="true"' : ""}><span class="ic-page__label">${esc(label)}</span><button type="button" class="ic-page__card" data-select="${esc(it.id)}" data-open="${esc(it.id)}" ${aria("aria-selected", sel === it)} aria-label="${esc(label)}${flagged.has(it.id) ? ", rakitan dobel" : bad ? `, objek bawaan tidak didukung gaya ${/** @type {any} */ (ENGINE_NAMES)[ctx.doc.style.family]}` : ""}">${renderSet(ctx, it, `pg${it.id}`)}${flagged.has(it.id) ? '<span class="ic-flag" data-level="err">dobel</span>' : bad ? '<span class="ic-flag" data-level="err">bawaan</span>' : ""}</button></div>`;
       })
       .join("");
     return `<div class="ic-pagegrid" style="max-width: calc(${v.cols} * 116px + ${v.cols - 1} * 22px)">${pages}<div class="ic-page ic-page--new"><span class="ic-page__label">Ikon baru</span><button type="button" class="ic-page__card" aria-label="Tambah ikon baru" data-action="new-icon">${icon("plus", 20)}</button></div></div>`;

@@ -6,10 +6,13 @@
  * Template Icon Builder 1.6.0 (`toItem`, `normAcc`, `importManifest`, `applyManStyle`, `useStyle`).
  * Registry pustaka dan id acak disuntik lewat `deps`, supaya modul ini bisa dites tanpa browser.
  */
+import { handWritingParams, migrateLegacy as migrateHandWritingPayload } from "@icon-studio/engines/hand-writing";
+import { offsetParams } from "@icon-studio/engines/offset";
+import { STICKER_MOD_FILL, STICKER_PALETTE, stickerItem, stickerParams } from "@icon-studio/engines/sticker";
 import { ROLES } from "@icon-studio/engines/shared";
-import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
+import { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle } from "./data/style-defaults.js";
 
-export { DEFAULT_SET_STYLE, FAMILY_DEFAULT, defaultManifestStyle };
+export { DEFAULT_SET_STYLE, FAMILY_DEFAULT, OFFSET_COMPOSER_DEFAULT, defaultManifestStyle };
 
 /** @typedef {{MAINS: Record<string, any>, MODS: Record<string, any>, DECOS: Record<string, any>, SHIFT: Record<string, number[]>, LIB_RE: RegExp, ensure: (key: string, kind: "main" | "mod") => boolean}} Library */
 
@@ -19,15 +22,27 @@ export const randomUid = () => Math.random().toString(36).slice(2, 9);
 /* ---------- set Composer ---------- */
 
 
+/** Keluarga gaya yang bisa dipakai set Composer. */
+export const SET_FAMILIES = ["classic", "accent", "offset", "hand-writing", "sticker"];
+
+/** Mesin baru yang menyimpan parameternya sendiri di `style.engine.<id>` (field classic/accent tidak disentuh). */
+export const ENGINE_FAMILIES = { offset: offsetParams, "hand-writing": handWritingParams, sticker: stickerParams };
+
 /**
  * Patokan set: warna lapisan, skala, tebal garis, celah knockout, dan ujung garis berlaku untuk semua ikon.
+ * Parameter mesin baru disimpan di `style.engine.<id>` dan hanya ditulis bila sudah ada (gaya.json classic/accent tetap sama dengan IC 1.5.1).
  * @param {any} [o]
  */
 export function normSetStyle(o){
   o = o || {}; const d = DEFAULT_SET_STYLE, oc = o.colors || {}, os = o.scale || {};
+  const family = SET_FAMILIES.includes(o.family === "coret" ? "hand-writing" : o.family) ? (o.family === "coret" ? "hand-writing" : o.family) : "classic";
+  /** @type {Record<string, any>} */
+  const params = {};
+  for (const [id, fn] of Object.entries(ENGINE_FAMILIES)) if (family === id || (o.engine && o.engine[id])) params[id] = fn({engine:o.engine || {}, family});
+  const engine = Object.keys(params).length ? {engine:{...(o.engine || {}), ...params}} : {};
   const col = l => ({line:(oc[l] && oc[l].line) || null, fill:(oc[l] && oc[l].fill) || null});
   const num = (v, dflt, mn, mx) => (typeof v === "number" && isFinite(v)) ? Math.max(mn, Math.min(mx, v)) : dflt;
-  return {...d, ...o, family:o.family === "accent" ? "accent" : "classic", saved:(o.saved && typeof o.saved === "object") ? o.saved : {}, colors:{main:col("main"), mod:col("mod"), deco:col("deco")},
+  return {...d, ...o, ...engine, family, saved:(o.saved && typeof o.saved === "object") ? o.saved : {}, colors:{main:col("main"), mod:col("mod"), deco:col("deco")},
     scale:{main:num(os.main, d.scale.main, 60, 100), mod:num(os.mod, d.scale.mod, 50, 150), deco:num(os.deco, d.scale.deco, 50, 200)},
     fx:{mode:["none","soft","shadow"].includes((o.fx || {}).mode) ? o.fx.mode : "none", color:/^#[0-9a-f]{6}$/i.test((o.fx || {}).color || "") ? o.fx.color.toUpperCase() : d.fx.color,
         dx:num((o.fx || {}).dx, d.fx.dx, -4, 4), dy:num((o.fx || {}).dy, d.fx.dy, -4, 4)}};
@@ -36,14 +51,23 @@ export function normSetStyle(o){
 
 /**
  * Pindah keluarga gaya. Patokan keluarga lama disimpan di `style.saved`. Mengubah `style` langsung.
+ * Offset, hand-writing, dan sticker menyimpan parameternya sendiri di `style.engine.<id>`, jadi field
+ * classic/accent tidak disentuh dan pulih apa adanya saat kembali.
  * @param {any} style
- * @param {"classic" | "accent"} f
+ * @param {"classic" | "accent" | "offset" | "hand-writing" | "sticker"} f
  */
 export function applyFamily(style, f){
   if (style.family === f && style.saved && style.saved[f]) return style;
   style.saved = style.saved || {};
   const old = style.family || "classic";
-  style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
+  const own = /** @type {Record<string, (s: any) => any>} */ (ENGINE_FAMILIES);
+  if (own[f]){
+    if (!own[old]) style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
+    style.family = f;
+    style.engine = {...(style.engine || {}), [f]:own[f]({engine:style.engine || {}, family:f})};
+    return style;
+  }
+  if (!own[old]) style.saved[old] = {sw:style.sw, gap:style.gap, cap:style.cap, join:style.join, accent:style.accent, scale:{...style.scale}};
   const p = style.saved[f] || FAMILY_DEFAULT[f];
   Object.assign(style, {family:f, sw:p.sw, gap:p.gap, cap:p.cap, join:p.join, accent:p.accent, scale:{...p.scale}});
   return style;
@@ -77,6 +101,8 @@ export function normItem(o, lib, opts = {}){
   if (!["none","full","offset","half"].includes(it.under)) it.under = "none";
   if (!["line","fill"].includes(it.mstyle)) it.mstyle = "line";
   if (it.parts && typeof it.parts === "object"){ const p = {}; for (const [k, v] of Object.entries(it.parts)) if (/^\d+$/.test(k) && ROLES.includes(v)) p[k] = v; it.parts = Object.keys(p).length ? p : null; } else it.parts = null;
+  /* rotasi per ikon objek utama (mr) dan pengubah (nr): hanya disimpan bila tidak 0 */
+  for (const k of ["mr", "nr"]) { const v = Number(it[k]); if (Number.isFinite(v) && v) it[k] = Math.max(-180, Math.min(180, v)); else delete it[k]; }
   it.name = String(it.name || "").slice(0, 60);
   it.id = it.id || uid();
   return it;
@@ -105,6 +131,60 @@ export const PRESET = [
 /** Mode pratinjau dan ekspor Builder: X = aksen, A = garis·solid, B = solid·garis. */
 export const MODES = ["X", "A", "B"];
 
+/** Mode Builder bergaya offset (Fase 3). Pengubah tidak dirender. */
+export const OFFSET_MODE = "O";
+/** Mode Builder bergaya hand-writing (Fase 4). Pengubah pustaka dirender di anchor item. */
+export const HAND_WRITING_MODE = "H";
+/** Mode Builder bergaya sticker (Fase 5). Pengubah dirender di 4 sudut. */
+export const STICKER_MODE = "S";
+/** Semua mode Builder: classic/accent (golden TIB 1.6.0), offset, hand-writing, lalu sticker. */
+export const BUILDER_MODES = [...MODES, OFFSET_MODE, HAND_WRITING_MODE, STICKER_MODE];
+export const OFFSET_FILLS = ["solid", "white", "line"];
+export const STICKER_FILLS = ["sticker", "fill", "line"];
+
+/**
+ * Gaya set sticker dari gaya dokumen Builder: tinta manifest, mode warna dari `style.engine.sticker.mode`.
+ * Garis, halo, geser isi, dan dekorasi memakai bawaan mesin. Gaya dokumen tidak diubah.
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestStickerStyle(style){
+  const e = (style && style.engine && style.engine.sticker) || {};
+  return {family:"sticker", engine:{sticker:stickerParams({mode:STICKER_FILLS.includes(e.mode) ? e.mode : "sticker", ink:style.ink})}};
+}
+
+/**
+ * Item Builder untuk mesin sticker: isi objek = aksen manifest, isi pengubah kuning sticker
+ * (digeser +3 di palet bila sama dengan aksen, aturan legacy). Seed dekorasi dari id ikon (stabil per ikon).
+ * @param {any} it item Builder
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestStickerItem(it, style){
+  const acc = /^#[0-9a-f]{6}$/i.test(style.accent || "") ? String(style.accent).toUpperCase() : STICKER_PALETTE[0];
+  const i = STICKER_PALETTE.indexOf(acc);
+  const mod = acc === STICKER_MOD_FILL ? STICKER_PALETTE[((i < 0 ? 3 : i) + 3) % 8] : STICKER_MOD_FILL;
+  return {...it, mx:0, my:0, nx:0, ny:0, vis:{main:true, mod:true, deco:true}, engine:{...(it.engine || {}), sticker:{main:{c:acc}, mod:{c:mod}}}};
+}
+
+/**
+ * Gaya set offset dari gaya dokumen Builder: tinta dan aksen manifest, isi warna dari `style.engine.offset.mode`.
+ * Geser dan tebal garis memakai bawaan mesin. Gaya dokumen tidak diubah.
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestOffsetStyle(style){
+  const e = (style && style.engine && style.engine.offset) || {};
+  return {family:"offset", engine:{offset:{...e, mode:OFFSET_FILLS.includes(e.mode) ? e.mode : "solid", acc:style.accent, ink:style.ink}}};
+}
+
+
+/**
+ * Gaya set hand-writing dari gaya dokumen Builder: tinta dan aksen manifest, parameter goresan dari
+ * `style.engine["hand-writing"]` (bawaan mesin bila kosong). Gaya dokumen tidak diubah.
+ * @param {any} style gaya dokumen Builder
+ */
+export function manifestHandWritingStyle(style){
+  const e = (style && style.engine && style.engine["hand-writing"]) || {};
+  return {family:"hand-writing", engine:{"hand-writing":handWritingParams({...e, acc:style.accent, ink:style.ink})}};
+}
 
 /** Patokan per mode: X memakai patokan aksen, A/B/C patokan classic. */
 export const STY = {X:{sw:3.5, gap:1.25, cap:"round", join:"round", scale:{main:88, mod:80, deco:100}}, C:{sw:2, gap:2, cap:"butt", join:"miter", scale:{main:84, mod:100, deco:100}}};
@@ -178,17 +258,32 @@ export function toItem(o, i, SHIFT, rand = () => Math.random().toString(36).slic
 
 /**
  * Gaya dan mode pratinjau dari blok `style` manifest (applyManStyle TIB, tanpa DOM).
+ * `family: "offset"` memilih mode O; `mode` berisi isi warna offset (solid, white, line).
+ * `family: "hand-writing"` (atau `"coret"` lama) memilih mode H.
+ * `family: "sticker"` memilih mode S; `mode` berisi mode warna sticker (sticker, fill, line).
  * @param {any} man
- * @param {any} style diubah langsung (ink, accent)
+ * @param {any} style diubah langsung (ink, accent, engine.offset)
  * @returns {{pv: string, exportModes: Record<string, boolean>}}
  */
 export function manifestStyle(man, style){
   const st = (man && man.style) || {};
   if (/^#[0-9a-f]{6}$/i.test(st.ink || "")) style.ink = st.ink.toUpperCase();
   if (/^#[0-9a-f]{6}$/i.test(st.accent || "")) style.accent = st.accent.toUpperCase();
+  if (st.family === "offset"){
+    style.engine = {...(style.engine || {}), offset:{mode:OFFSET_FILLS.includes(st.mode) ? st.mode : "solid"}};
+    return {pv:OFFSET_MODE, exportModes:{X:false, A:false, B:false, O:true, H:false, S:false}};
+  }
+  if (st.family === "hand-writing" || st.family === "coret"){
+    if (st.engine && st.engine["hand-writing"]) style.engine = {...(style.engine || {}), "hand-writing":handWritingParams(st.engine["hand-writing"])};
+    return {pv:HAND_WRITING_MODE, exportModes:{X:false, A:false, B:false, O:false, H:true, S:false}};
+  }
+  if (st.family === "sticker"){
+    style.engine = {...(style.engine || {}), sticker:{mode:STICKER_FILLS.includes(st.mode) ? st.mode : "sticker"}};
+    return {pv:STICKER_MODE, exportModes:{X:false, A:false, B:false, O:false, H:false, S:true}};
+  }
   const fam = st.family === "classic" ? "classic" : "accent";
   const pv = fam === "classic" ? (["A", "B"].includes(st.mode) ? st.mode : "A") : "X";
-  return {pv, exportModes:{X:fam === "accent", A:pv === "A", B:pv === "B"}};
+  return {pv, exportModes:{X:fam === "accent", A:pv === "A", B:pv === "B", O:false, H:false, S:false}};
 }
 
 /**
@@ -207,6 +302,166 @@ export function importManifest(text, lib, opts = {}){
   const needTb = items.some(it => /^tb:/.test(it.main) || /^tb:/.test(it.mod));
   const needHg = items.some(it => /^hg:/.test(it.main) || /^hg:/.test(it.mod));
   return {manifest:j, style, pv, exportModes, items, needTb, needHg};
+}
+
+/* ---------- impor set offset-composer 1.0.1 ---------- */
+
+/** Field gaya offset-composer yang di Icon Studio berlaku untuk seluruh set. `size` tidak ikut (ADR-012). */
+export const OFFSET_STYLE_FIELDS = ["mode", "acc", "ink", "dx", "dy", "sw"];
+
+/** Ukuran objek offset di Icon Studio (84% kanvas 120, ADR-012). */
+export const OFFSET_SIZE = 100.8;
+
+/**
+ * Kenali data offset-composer: isi localStorage `offset-composer-v1` (`{cur, set}`)
+ * atau `gaya.json` dari ZIP (`{format: "offset-composer", version, icons}`).
+ * @param {any} data
+ * @returns {{icons: any[], version: string, source: "offset-composer-v1" | "gaya.json"} | null}
+ */
+export function offsetComposerSource(data){
+  if (!data || typeof data !== "object") return null;
+  if (data.format === "offset-composer" && Array.isArray(data.icons)) return {icons:data.icons, version:String(data.version || ""), source:"gaya.json"};
+  if (Array.isArray(data.set) && "cur" in data) return {icons:data.set, version:"", source:"offset-composer-v1"};
+  return null;
+}
+
+/**
+ * Ubah set offset-composer menjadi dokumen set Icon Studio bergaya `family: "offset"`.
+ * Parameter gaya diambil dari ikon pertama. Bila ikon lain berbeda, `warnings` berisi
+ * "Gaya diseragamkan mengikuti ikon pertama" (DATA-MODEL bagian 5).
+ * @param {any} data
+ * @param {Library} lib
+ * @param {{uid?: () => string}} [opts]
+ * @returns {{doc: any, warnings: string[], needTb: boolean} | {fatal: string} | null} null bila bukan data offset-composer
+ */
+export function offsetSetFromComposer(data, lib, opts = {}){
+  const src = offsetComposerSource(data);
+  if (!src) return null;
+  const uid = opts.uid || randomUid, D = OFFSET_COMPOSER_DEFAULT;
+  const icons = src.icons.filter(o => o && typeof o === "object" && /^(lu|tb):[a-z0-9-]+$/.test(String(o.key))).map(o => ({...D, ...o}));
+  if (!icons.length) return {fatal:"Set offset-composer tidak berisi ikon Lucide atau Tabler."};
+  const first = icons[0];
+  const num = (/** @type {any} */ v, /** @type {number} */ dflt) => (typeof v === "number" && isFinite(v)) ? v : dflt;
+  const hex = (/** @type {any} */ v, /** @type {string} */ dflt) => /^#[0-9a-f]{6}$/i.test(String(v)) ? String(v).toUpperCase() : dflt;
+  const style = normSetStyle({family:"offset"});
+  style.engine = {offset:{mode:["solid", "white", "line"].includes(first.mode) ? first.mode : D.mode, acc:hex(first.acc, D.acc), ink:hex(first.ink, D.ink),
+    dx:num(first.dx, D.dx), dy:num(first.dy, D.dy), sw:num(first.sw, D.sw), size:OFFSET_SIZE}};
+  const warnings = icons.some(o => OFFSET_STYLE_FIELDS.some(k => String(o[k]).toUpperCase() !== String(first[k]).toUpperCase())) ? ["Gaya diseragamkan mengikuti ikon pertama"] : [];
+  const items = icons.map(o => normItem({name:String(o.name || o.key.split(":")[1]), main:o.key, mod:"none",
+    engine:{offset:{deco:{tick:!!o.dTick, tickPos:o.tickPos === "TL" ? "TL" : "TR", ground:!!o.dGround, cloud:!!o.dCloud, grass:!!o.dGrass}}}}, lib, {uid}));
+  const doc = createSetDocument({name:"Set Offset Composer", style, items, meta:{import:{format:"offset-composer", version:src.version, source:src.source, warnings}}}, uid);
+  return {doc, warnings, needTb:items.some(it => String(it.main).startsWith("tb:"))};
+}
+
+/* ---------- impor set coret-composer 1.0.0 (gaya hand-writing) ---------- */
+
+/** Kunci localStorage coret-composer 1.0.0. Nama kunci lama, hanya dibaca saat migrasi. */
+export const HAND_WRITING_LEGACY_KEY = "coret-composer-v1";
+
+/**
+ * Kenali data coret-composer 1.0.0: isi localStorage (`{S, set, cur}`) atau `gaya.json` dari ZIP
+ * (`{family: "coret", version, style, icons}`). `family: "hand-writing"` juga diterima.
+ * @param {any} data
+ * @returns {{payload: any, version: string, source: "coret-composer-v1" | "gaya.json"} | null}
+ */
+export function handWritingComposerSource(data){
+  if (!data || typeof data !== "object") return null;
+  if ((data.family === "coret" || data.family === "hand-writing") && Array.isArray(data.icons)) return {payload:{style:data.style || {}, icons:data.icons}, version:String(data.version || ""), source:"gaya.json"};
+  if (Array.isArray(data.set) && data.S && typeof data.S === "object") return {payload:{style:data.S, icons:data.set}, version:"", source:HAND_WRITING_LEGACY_KEY};
+  return null;
+}
+
+/**
+ * Ubah set coret-composer menjadi dokumen set Icon Studio bergaya `family: "hand-writing"` (DATA-MODEL bagian 5).
+ * Gaya legacy `S` menjadi `style.engine["hand-writing"]`; `anchor` menjadi `slot`; `ms`, `blob`, `seed`
+ * menjadi `item.engine["hand-writing"]`. Ikon yang bukan ikon pustaka dilewati dengan peringatan.
+ * @param {any} data
+ * @param {Library} lib
+ * @param {{uid?: () => string}} [opts]
+ * @returns {{doc: any, warnings: string[], needTb: boolean, needHg: boolean} | {fatal: string} | null} null bila bukan data coret-composer
+ */
+export function handWritingSetFromComposer(data, lib, opts = {}){
+  const src = handWritingComposerSource(data);
+  if (!src) return null;
+  const uid = opts.uid || randomUid;
+  const KEY = /^(lu|tb|hg):[a-z0-9-]+$/;
+  const all = src.payload.icons.filter((/** @type {any} */ o) => o && typeof o === "object");
+  const valid = all.filter((/** @type {any} */ o) => KEY.test(String(o.main)));
+  if (!valid.length) return {fatal:"Set coret-composer tidak berisi ikon Lucide, Tabler, atau Hugeicons."};
+  const m = migrateHandWritingPayload({style:src.payload.style, icons:valid.map((/** @type {any} */ o) => ({...o, mod:KEY.test(String(o.mod)) ? o.mod : null}))});
+  const style = normSetStyle({family:"hand-writing", engine:{"hand-writing":m.style}});
+  const warnings = [];
+  if (valid.length < all.length) warnings.push(`${all.length - valid.length} ikon dilewati: bukan ikon pustaka`);
+  const items = m.icons.map((/** @type {any} */ o) => normItem({name:String(o.name || String(o.main).split(":")[1]).slice(0, 60), main:o.main, mod:o.mod || "none", slot:o.slot,
+    mx:(lib.SHIFT[o.slot] || [0, 0])[0], my:(lib.SHIFT[o.slot] || [0, 0])[1], engine:{"hand-writing":o.engine["hand-writing"]}}, lib, {uid}));
+  const doc = createSetDocument({name:"Set Hand-writing", style, items, meta:{import:{format:"coret-composer", version:src.version, source:src.source, warnings}}}, uid);
+  const keys = items.flatMap((/** @type {any} */ it) => [String(it.main), String(it.mod)]);
+  return {doc, warnings, needTb:keys.some(k => k.startsWith("tb:")), needHg:keys.some(k => k.startsWith("hg:"))};
+}
+
+/* ---------- impor set sticker-composer ---------- */
+
+/** Faktor kanvas sticker-composer 64 → kanvas kanonik 48. */
+const STICKER_K = 48 / 64;
+
+/**
+ * Kenali data sticker-composer: isi localStorage `sticker-composer-v1` (`{style, set, pools}`)
+ * atau `gaya.json` dari ZIP (`{kanvas: 64, style, ikon}`).
+ * @param {any} data
+ * @returns {{icons: any[], style: any, pools: any, source: "sticker-composer-v1" | "gaya.json"} | null}
+ */
+export function stickerComposerSource(data){
+  if (!data || typeof data !== "object") return null;
+  if (data.kanvas === 64 && Array.isArray(data.ikon)) return {icons:data.ikon, style:data.style || {}, pools:null, source:"gaya.json"};
+  if (Array.isArray(data.set) && !("cur" in data) && data.set.every((/** @type {any} */ o) => o && typeof o === "object" && o.main && typeof o.main === "object"))
+    return {icons:data.set, style:data.style || {}, pools:data.pools || null, source:"sticker-composer-v1"};
+  return null;
+}
+
+/**
+ * Ubah set sticker-composer menjadi dokumen set Icon Studio bergaya `family: "sticker"` (DATA-MODEL bagian 4.5).
+ * Gaya set legacy sudah berlaku untuk seluruh set, jadi tidak ada peringatan penyeragaman. Posisi 64 diskalakan
+ * ke kanvas kanonik 48 (`mx/my`, `nx/ny`); warna, skala, isi, dan dekorasi ke `item.engine.sticker`.
+ * @param {any} data
+ * @param {Library} lib
+ * @param {{uid?: () => string}} [opts]
+ * @returns {{doc: any, warnings: string[], needTb: boolean} | {fatal: string} | null} null bila bukan data sticker-composer
+ */
+export function stickerSetFromComposer(data, lib, opts = {}){
+  const src = stickerComposerSource(data);
+  if (!src) return null;
+  const uid = opts.uid || randomUid;
+  const KEY = /^(lu|tb):[a-z0-9-]+$/;
+  const icons = src.icons.filter(o => o && o.main && KEY.test(String(o.main.k)));
+  if (!icons.length) return {fatal:"Set sticker-composer tidak berisi ikon Lucide atau Tabler."};
+  const warnings = icons.length < src.icons.length ? [`${src.icons.length - icons.length} ikon tanpa objek Lucide atau Tabler dilewati`] : [];
+  const style = normSetStyle({family:"sticker", engine:{sticker:stickerParams(src.style)}});
+  const n = (/** @type {any} */ v) => (typeof v === "number" && isFinite(v) ? Math.round(v * STICKER_K * 10000) / 10000 : 0);
+  const items = icons.map(o => {
+    const m = o.main, d = o.mod || {}, dc = o.deco || {}, vis = o.vis || {};
+    const mod = KEY.test(String(d.k)) ? d.k : "none";
+    const it = normItem({
+      name:String(o.name || ""), main:m.k, mod, slot:["TL", "TR", "BL", "BR"].includes(d.slot) ? d.slot : "TR",
+      mx:n(m.x), my:n(m.y), nx:n(d.x), ny:n(d.y),
+      vis:{main:vis.main !== false, mod:vis.mod !== false, deco:dc.on !== false},
+      engine:{sticker:{main:{c:m.c, s:m.s, fill:m.fill}, mod:{c:d.c, s:d.s}, deco:{seed:dc.seed, s:dc.s, x:dc.x, y:dc.y}}},
+    }, lib, {uid});
+    /* nilai di luar rentang atau warna tidak sah dirapikan seperti saat dirender */
+    const e = stickerItem(it);
+    it.engine.sticker = {main:e.main, mod:e.mod, deco:e.deco};
+    return it;
+  });
+  const doc = createSetDocument({name:"Set Sticker Composer", style, items, meta:{import:{format:"sticker-composer", version:"", source:src.source, warnings}}}, uid);
+  const pools = src.pools;
+  if (pools && Array.isArray(pools.main) && Array.isArray(pools.mod)) {
+    const keys = (/** @type {any[]} */ list) => list.filter(p => p && KEY.test(String(p.k)));
+    /** @type {Record<string, boolean>} */
+    const off = {};
+    for (const p of keys(pools.main)) if (!p.on) off[`main|${p.k}`] = true;
+    for (const p of keys(pools.mod)) if (!p.on) off[`mod|${p.k}`] = true;
+    doc.pool = {mains:keys(pools.main).map(p => p.k), mods:keys(pools.mod).map(p => p.k), off};
+  }
+  return {doc, warnings, needTb:items.some(it => String(it.main).startsWith("tb:") || String(it.mod).startsWith("tb:"))};
 }
 
 /* ---------- dokumen ---------- */
