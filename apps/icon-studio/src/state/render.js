@@ -22,7 +22,7 @@ import {
 } from "@icon-studio/engines/shared";
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
-import { fillShapeOf } from "@icon-studio/icon-sources/fill-shapes";
+import { fillShapeOf, fillShapeReady, fillShapesState, loadFillShapes } from "@icon-studio/icon-sources/fill-shapes";
 import { HAND_WRITING_MODE, MODES, OFFSET_MODE, STICKER_MODE, manifestHandWritingStyle, manifestOffsetStyle, manifestStickerItem, manifestStickerStyle, useStyle } from "./document.js";
 import { layerBoxes } from "./edit-ops.js";
 
@@ -110,6 +110,41 @@ export function createRenderer(options) {
   /** `ctx` mesin yang membaca node pustaka: offset dan hand-writing memakai `nodeOf`, sticker juga bentuk isi (`fillShapeOf`). */
   const offsetCtx = { nodeOf, fillShapeOf };
 
+  /* Bentuk isi sticker dimuat malas (icon-sources/fill-shapes). Render yang butuh data sebelum termuat memicu
+     pemuatan dan mengembalikan placeholder; setelah termuat semua pendengar dipanggil supaya UI render ulang. */
+  /** @type {Set<() => void>} */
+  const fillListeners = new Set();
+  /** @type {Promise<void> | null} */
+  let fillJob = null;
+  /**
+   * Muat data bentuk isi sticker sekali, lalu beri tahu pendengar. Ekspor menunggu janji ini.
+   * @returns {Promise<void>}
+   */
+  function loadStickerFills() {
+    if (!fillJob)
+      fillJob = loadFillShapes().then(
+        () => fillListeners.forEach((fn) => fn()),
+        () => {
+          fillJob = null;
+          fillListeners.forEach((fn) => fn());
+        },
+      );
+    return fillJob;
+  }
+  /**
+   * Siap render sticker untuk kunci ini? Bila belum, pemuatan dimulai dan pemanggil memakai placeholder.
+   * Data yang gagal dimuat tidak ditunggu terus: mesin memakai `plate` seperti ikon tanpa bentuk isi.
+   * @param {...any} keys
+   */
+  function stickerReady(...keys) {
+    if (keys.every((k) => fillShapeReady(String(k || ""))) || fillShapesState() === "error") return true;
+    void loadStickerFills();
+    return false;
+  }
+  /** @param {number | string} [size] */
+  const loadingSvg = (size) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="${size || 48}" height="${size || 48}" data-loading="fill-shapes"></svg>`;
+
   /**
    * Kotak lapisan ikon set dalam satuan 48 (wilayah klik editor dan cek tepi viewBox).
    * @param {any} it
@@ -131,6 +166,7 @@ export function createRenderer(options) {
    */
   function flagsOf(it, style) {
     const engine = /** @type {any} */ (get(style.family));
+    if (style.family === "sticker" && !stickerReady(it.main)) return [];
     return engine.flags ? engine.flags(it, style, offsetCtx) : [];
   }
 
@@ -142,6 +178,7 @@ export function createRenderer(options) {
    * @param {any[]} [customs]
    */
   function renderSetItem(it, style, opt, customs = []) {
+    if (style.family === "sticker" && !stickerReady(it.main, it.mod)) return loadingSvg(opt && opt.size);
     if (style.family === "offset" || style.family === "hand-writing" || style.family === "sticker") {
       const engine = get(style.family);
       return engine.compose(engine.adapt(it, style), style, { ...(opt || {}), ctx: offsetCtx });
@@ -174,6 +211,7 @@ export function createRenderer(options) {
       return engine.compose(engine.adapt(it, style), manifestOffsetStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
     }
     if (mode === STICKER_MODE) {
+      if (!stickerReady(it.main, it.mod)) return loadingSvg(opt.size);
       const engine = get("sticker");
       return engine.compose(engine.adapt(manifestStickerItem(it, style), style), manifestStickerStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
     }
@@ -250,6 +288,18 @@ export function createRenderer(options) {
     modPreviewAccent,
     ensureManifestItem,
     dropMissing,
+    /** Muat bentuk isi sticker; dipanggil saat set/manifest Sticker dibuka dan sebelum ekspor. */
+    loadStickerFills,
+    /** State data bentuk isi: idle, loading, ready, atau error. */
+    fillShapesState,
+    /**
+     * Daftarkan pendengar yang dipanggil setelah bentuk isi termuat (render ulang).
+     * @param {() => void} fn
+     */
+    onStickerFills(fn) {
+      fillListeners.add(fn);
+      return () => fillListeners.delete(fn);
+    },
     loadTabler: icons.loadTabler,
     loadHugeicons: icons.loadHugeicons,
   };

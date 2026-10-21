@@ -256,6 +256,7 @@ const actions = {
   /** @param {import("./common.js").Ctx} ctx */
   async "t-sprite"(ctx) {
     const inc = includedOf(ctx.doc);
+    if (ctx.doc.style.family === "sticker") await ctx.renderer.loadStickerFills();
     saveFile(`${slug(ctx.doc.name || "set-ikon")}-sprite.svg`, spriteSVG(ctx.renderer, ctx.doc, inc));
     downloadStatus = `Sprite berisi ${inc.length} ikon diunduh.`;
     rerender(ctx);
@@ -271,8 +272,10 @@ const actions = {
       base = slug(doc.name || "set-ikon");
     if (!inc.length) return;
     try {
-      if (doc.review.fmt === "sprite") saveFile(`${base}-sprite.svg`, spriteSVG(ctx.renderer, doc, inc));
-      else {
+      if (doc.review.fmt === "sprite") {
+        if (doc.style.family === "sticker") await ctx.renderer.loadStickerFills();
+        saveFile(`${base}-sprite.svg`, spriteSVG(ctx.renderer, doc, inc));
+      } else {
         const JSZip = /** @type {any} */ (window).JSZip;
         if (!JSZip) throw new Error("Pembuat ZIP tidak termuat.");
         downloadStatus = "Menyusun ZIP…";

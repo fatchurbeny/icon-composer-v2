@@ -146,6 +146,8 @@ export function canvaSVG(renderer, doc, it, i, directFill = directFillSvgFile){
  * @returns {Promise<{files: Record<string, string>, failed: {file: string, error: string}[]}>}
  */
 export async function buildSetZip(doc, list, renderer, opts = {}){
+  /* ZIP tidak boleh berisi placeholder: tunggu bentuk isi sticker termuat */
+  if (doc.style.family === "sticker") await renderer.loadStickerFills();
   const directFill = opts.directFill || directFillSvgFile;
   /** @type {Record<string, string>} */
   const files = {};

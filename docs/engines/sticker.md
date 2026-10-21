@@ -73,6 +73,16 @@ Sticker legacy menanam ±2 MB data (`lu`, `luf`, `tb`, `tbf`) di HTML. Di repo b
 - `icon-sources.fillShapeOf(key)` menyediakannya;
 - ikon tanpa bentuk isi otomatis memakai `plate`.
 
+### Pemuatan malas
+
+Data itu hanya dibutuhkan gaya Sticker, jadi `packages/icon-sources/fill-shapes.js` memuatnya saat perlu:
+
+- `loadFillShapes()` mengimpor `fill-shapes.json` secara dinamis (sekali per halaman); `fillShapesState()` bernilai `idle`, `loading`, `ready`, atau `error`. `fillShapeOf(key)` tetap sinkron dan memakai data yang sudah termuat; `fillShapeReady(key)` memberi tahu apakah jawabannya sudah final.
+- Build Icon Studio satu file (vite-plugin-singlefile) tetap menginline chunk dinamis, jadi plugin `scripts/vite-fill-shapes.mjs` mengganti JSON itu dengan `{gz}` (gzip base64, ±0,2 MB) yang didekode `decodeFillShapes` lewat `DecompressionStream` saat dimuat (±8 ms di Chromium). Di dev dan Vitest JSON dimuat apa adanya. Ukuran `dist/icon-studio/index.html` turun dari 1.501.816 menjadi ±831.000 byte.
+- `FILL_SHAPE_SEED` berisi bentuk isi ikon contoh kartu gaya Sticker (`lu:luggage`, `lu:circle-check`), supaya pratinjau kartu benar tanpa memuat data. Isinya dijaga sama dengan `fill-shapes.json` oleh `tests/unit/fill-shapes.test.js`; perbarui bila skrip data mengubah kedua ikon itu.
+- Mesin tetap murni: renderer Icon Studio menyuntik `ctx.fillShapeOf`. Sebelum data termuat, render sticker yang butuh kunci di luar seed (`renderSetItem`, mode `S` Builder) mengembalikan SVG kosong `data-loading="fill-shapes"` dan memicu pemuatan; flag sticker kosong sementara. Setelah termuat, app memvalidasi ulang dokumen Builder dan merender ulang. Bila pemuatan gagal, mesin memakai `plate` (tidak menunggu terus).
+- Pemicu: set atau dokumen Builder bergaya Sticker (mode `S` di pratinjau atau ekspor) saat app dibuka, termasuk hasil migrasi 004 (`warmLibraries`); kartu Sticker dipilih; impor sticker-composer; render sticker apa pun. Ekspor ZIP set Sticker (`buildSetZip`), sprite, dan ekspor Builder dengan mode `S` (`buildExportFiles`) menunggu data termuat. Dicek `tests/e2e/studio-sticker-lazy.spec.js`.
+
 Data legacy dibangun dari **`lucide-static@0.460.0`** dan **`@tabler/icons@3.31.0`** (sumber: handoff Sticker Composer, 9 Oktober 2026). Aturan pembentukan bentuk isi di legacy:
 
 - `luf`: hanya bentuk tertutup ikon Lucide (circle/rect/ellipse/polygon, atau path yang diakhiri `z`).

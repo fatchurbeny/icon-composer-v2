@@ -112,6 +112,7 @@ function shapesOf(page, keys) {
   return page.evaluate(async (keys) => {
     const S = /** @type {any} */ (window).__iconStudio;
     await S.renderer.loadTabler();
+    await S.renderer.loadStickerFills();
     /** @type {Record<string, {o: string, f: string}>} */
     const out = {};
     for (const k of keys) out[k] = S.renderer.stickerShapes(k);
