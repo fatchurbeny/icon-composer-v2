@@ -151,6 +151,93 @@ function flattenSvgMasks(doc) {
   if (svg.querySelector("[mask],mask"))
     throw new Error("Validasi gagal: output masih mengandung mask.");
 }
+/**
+ * Panggang garis putus-putus jadi geometri: setiap elemen dengan `stroke-dasharray` diganti satu `<path>` yang
+ * berisi satu sub-path terbuka per dash (atribut gaya dan transform tetap). Ujung garis tiap dash mengikuti
+ * `stroke-linecap`, sama seperti browser menggambar dash, jadi pikselnya setara. Panjang dan titik diukur lewat
+ * `getTotalLength`/`getPointAtLength` di SVG sementara; segmen lurus tetap lurus, lengkung disampel tiap 0,25 unit.
+ * Hanya dipakai di jalur ekspor (outline dan direct fill), sehingga render dan golden tidak berubah.
+ * @param {Document} doc
+ */
+function bakeDashArrays(doc) {
+  const svg = doc.documentElement;
+  const dashed = [...svg.querySelectorAll(OUTLINE_SHAPES)].filter(
+    (el) =>
+      !el.closest("defs") &&
+      inheritedAttr(el, "stroke-dasharray", "none") !== "none",
+  );
+  if (!dashed.length) return;
+  const NS = "http://www.w3.org/2000/svg";
+  const host = document.createElementNS(NS, "svg");
+  host.setAttribute("width", "0");
+  host.setAttribute("height", "0");
+  host.style.position = "absolute";
+  document.body.appendChild(host);
+  const f = (/** @type {number} */ v) => String(Math.round(v * 10000) / 10000);
+  const num = (/** @type {Element} */ el, /** @type {string} */ k) => Number(el.getAttribute(k) || 0);
+  try {
+    for (const el of dashed) {
+      const tag = el.localName;
+      let d = "";
+      if (tag === "path") d = el.getAttribute("d") || "";
+      else if (tag === "line") d = `M${f(num(el, "x1"))} ${f(num(el, "y1"))}L${f(num(el, "x2"))} ${f(num(el, "y2"))}`;
+      else if (tag === "circle" || tag === "ellipse") {
+        const cx = num(el, "cx"), cy = num(el, "cy");
+        const rx = tag === "circle" ? num(el, "r") : num(el, "rx"), ry = tag === "circle" ? rx : num(el, "ry");
+        d = `M${f(cx + rx)} ${f(cy)}A${f(rx)} ${f(ry)} 0 1 1 ${f(cx - rx)} ${f(cy)}A${f(rx)} ${f(ry)} 0 1 1 ${f(cx + rx)} ${f(cy)}`;
+      } else if (tag === "rect") {
+        const x = num(el, "x"), y = num(el, "y"), w = num(el, "width"), h = num(el, "height");
+        d = `M${f(x)} ${f(y)}H${f(x + w)}V${f(y + h)}H${f(x)}Z`;
+      } else if (tag === "polyline" || tag === "polygon") {
+        const pts = (el.getAttribute("points") || "").trim().split(/[\s,]+/).map(Number);
+        for (let i = 0; i + 1 < pts.length; i += 2) d += `${i ? "L" : "M"}${f(pts[i])} ${f(pts[i + 1])}`;
+        if (tag === "polygon") d += "Z";
+      }
+      const raw = inheritedAttr(el, "stroke-dasharray", "none")
+        .split(/[\s,]+/)
+        .map(Number)
+        .filter((v) => Number.isFinite(v) && v >= 0);
+      const pattern = raw.length % 2 ? [...raw, ...raw] : raw;
+      const period = pattern.reduce((a, v) => a + v, 0);
+      const probe = document.createElementNS(NS, "path");
+      probe.setAttribute("d", d);
+      host.appendChild(probe);
+      const L = d ? probe.getTotalLength() : 0;
+      let out = "";
+      if (L > 0 && period > 0) {
+        const offset = Number(inheritedAttr(el, "stroke-dashoffset", "0")) || 0;
+        let pos = -(((offset % period) + period) % period);
+        for (let i = 0; pos < L; i = (i + 1) % pattern.length) {
+          const end = pos + pattern[i];
+          if (i % 2 === 0) {
+            const a = Math.max(0, pos), b = Math.min(L, end);
+            if (b >= a && end > 0) {
+              const n = Math.max(1, Math.ceil((b - a) / 0.25));
+              for (let k = 0; k <= n; k++) {
+                const p = probe.getPointAtLength(a + ((b - a) * k) / n);
+                out += `${k ? "L" : "M"}${f(p.x)} ${f(p.y)}`;
+              }
+            }
+          }
+          pos = end;
+        }
+      }
+      probe.remove();
+      const path = doc.createElementNS(NS, "path");
+      for (const at of [...el.attributes])
+        if (!["d", "x", "y", "x1", "y1", "x2", "y2", "cx", "cy", "r", "rx", "ry", "width", "height", "points", "stroke-dasharray", "stroke-dashoffset"].includes(at.name))
+          path.setAttribute(at.name, at.value);
+      path.setAttribute("d", out);
+      path.setAttribute("stroke-dasharray", "none");
+      path.setAttribute("fill", "none");
+      if (out) el.replaceWith(path);
+      else el.remove();
+    }
+  } finally {
+    host.remove();
+  }
+}
+
 export function outlineSvgFile(source) {
   if (
     !window.IconOutline ||
@@ -160,6 +247,7 @@ export function outlineSvgFile(source) {
   const doc = new DOMParser().parseFromString(source, "image/svg+xml");
   if (doc.querySelector("parsererror"))
     throw new Error("SVG sumber tidak valid.");
+  bakeDashArrays(doc);
   const svg = doc.documentElement,
     shapes = [...svg.querySelectorAll(OUTLINE_SHAPES)];
   for (const el of shapes) {

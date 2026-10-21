@@ -308,7 +308,7 @@ for (const [label, fixture, styles] of [
   });
 }
 
-test("@golden Icon Studio ZIP Composer lintas pustaka identik dengan IC 1.5.1 (header CSV dikutip)", async ({
+test("@golden Icon Studio ZIP Composer lintas pustaka sama dengan IC 1.5.1: svg-asli/ identik, SVG Canva = direct fill (ADR-011)", async ({
   browser,
 }) => {
   const legacy = await browser.newPage();
@@ -328,22 +328,53 @@ test("@golden Icon Studio ZIP Composer lintas pustaka identik dengan IC 1.5.1 (h
           .join(","),
       ...rest,
     ].join("\r\n");
-    const expected = Object.fromEntries(
+    const legacyFiles = Object.fromEntries(
       Object.entries(legacyZip).filter(([, v]) => v != null),
     );
     await openHtml(studio, STUDIO);
-    const actual = await studio.evaluate(async (saved) => {
-      const S = window.__iconStudio,
-        D = S.document,
-        r = S.renderer,
-        R = S.review;
-      await r.loadTabler();
-      await r.loadHugeicons();
-      const doc = D.createSetDocument({ name: "set-ikon", style: saved.style });
-      doc.items = saved.set.map((p) => D.normItem(p, r.lib));
-      R.ensureReviewFields(doc);
-      return R.buildSetZipFiles(doc, R.includedOf(doc), r);
-    }, mixed.iconComposer.storage["icon-composer-aksen-v1"]);
+    const { actual, canva } = await studio.evaluate(
+      async ({ saved, legacyFiles }) => {
+        const S = window.__iconStudio,
+          D = S.document,
+          r = S.renderer,
+          R = S.review;
+        await r.loadTabler();
+        await r.loadHugeicons();
+        const doc = D.createSetDocument({ name: "set-ikon", style: saved.style });
+        doc.items = saved.set.map((p) => D.normItem(p, r.lib));
+        R.ensureReviewFields(doc);
+        doc.review.asli = true;
+        /* SVG Canva yang diharapkan: direct fill dari SVG asli IC 1.5.1 (null bila tidak bisa dikonversi) */
+        /** @type {Record<string, string | null>} */
+        const canva = {};
+        for (const [name, svg] of Object.entries(legacyFiles))
+          if (name.endsWith(".svg"))
+            try {
+              canva[name] = S.directFillSvgFile(`<?xml version="1.0" encoding="UTF-8"?>\n${svg}`);
+            } catch {
+              canva[name] = null;
+            }
+        return { actual: await R.buildSetZipFiles(doc, R.includedOf(doc), r), canva };
+      },
+      { saved: mixed.iconComposer.storage["icon-composer-aksen-v1"], legacyFiles },
+    );
+    /** @type {Record<string, string>} */
+    const expected = {};
+    for (const [name, value] of Object.entries(legacyFiles)) {
+      if (!name.endsWith(".svg")) continue;
+      expected[`svg-asli/${name}`] = value;
+      if (canva[name] != null) expected[name] = /** @type {string} */ (canva[name]);
+    }
+    const failed = Object.keys(canva).filter((n) => canva[n] == null);
+    for (const [name, value] of Object.entries(legacyFiles))
+      if (!name.endsWith(".svg"))
+        expected[name] =
+          name === "metadata.csv"
+            ? value
+                .split("\r\n")
+                .filter((line) => !failed.some((f) => line.startsWith(`"${f}"`)))
+                .join("\r\n")
+            : value;
     expect(Object.keys(actual).sort()).toEqual(Object.keys(expected).sort());
     for (const name of Object.keys(expected))
       expect(actual[name], name).toBe(expected[name]);

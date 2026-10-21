@@ -15,6 +15,7 @@ const files = [
   ["lucide.min.js", sources.lucide.cdn.umd],
   ["lucide-tags.json", sources.lucide.cdn.tags],
   ["tabler-nodes-outline.json", sources.tabler.cdn.nodes],
+  ["tabler-nodes-filled.json", sources.tabler.cdn.nodesFilled],
   ["tabler-icons.json", sources.tabler.cdn.meta],
   ["hugeicons.mjs", sources.hugeicons.cdn.esm],
   ["jszip.min.js", sources.jszip.cdn],

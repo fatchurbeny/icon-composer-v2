@@ -356,6 +356,110 @@ test.describe("Icon Studio · Builder", () => {
     );
     expect(zip["LICENSES.txt"]).toContain("offset/");
   });
+  test("gaya Sticker: pratinjau, slot 4 sudut, dan ZIP sticker/ direct fill ≤4 warna", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await open(page);
+    /* pasangan tanpa nama gabungan di Lucide/Tabler (mis. house-plus), supaya tidak dilewati sebagai bermasalah */
+    const keys = ["house", "heart", "luggage", "mail", "anchor", "minus"];
+    const manifest = {
+      format: "tib-manifest",
+      version: 2,
+      deck: { title: "Uji Sticker", slides: 1 },
+      pack: { en: "Travel", id: "Wisata" },
+      style: { family: "sticker", mode: "sticker", accent: "#5AA9F8" },
+      icons: keys.map((k, i) => ({
+        id: k,
+        name: { en: k, id: k },
+        main: `lu:${k}`,
+        mod: i % 2 ? "lu:zap" : "lu:sun",
+        anchor: i % 3 ? "TC" : "BL",
+        slides: [1],
+      })),
+    };
+    await page
+      .locator('[data-name="manifest-text"]')
+      .fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    const cards = page.locator(".ic-iconcard[data-select]");
+    await expect(cards).toHaveCount(keys.length);
+    /* manifest family sticker memilih pratinjau Sticker */
+    await expect(
+      page.locator('[data-name="b-preview"] .ic-select__trigger'),
+    ).toContainText("Sticker");
+    /* halo putih, isi aksen manifest, isi pengubah kuning */
+    const art = cards.first().locator("svg");
+    await expect(art.locator('g[fill="#FFFFFF"]').first()).toBeAttached();
+    await expect(art.locator('g[fill="#5AA9F8"]').first()).toBeAttached();
+    await expect(art.locator('g[fill="#F9D84A"]').first()).toBeAttached();
+    await cards.nth(1).click();
+    const iconPanel = page.locator('[data-panel="builder-icon"]');
+    await expect(iconPanel.locator('[data-name="b-sfill"]')).toBeVisible();
+    await expect(
+      iconPanel.locator('[data-name="b-sfill"] [aria-pressed="true"]'),
+    ).toHaveText("Stiker");
+    await expect(
+      iconPanel.locator('.ic-alert[data-level="info"]', { hasText: "Posisi pengubah" }),
+    ).toContainText("Posisi pengubah TC dipetakan ke TR");
+
+    await page.locator('.ic-topbar [data-action="export"]').click();
+    const exportPanel = page.locator('[data-panel="builder-export"]');
+    await expect(
+      exportPanel.locator('[data-name="b-mode:S"] input'),
+    ).toBeChecked();
+    await page.evaluate(() => {
+      window.__zip = null;
+      URL.createObjectURL = (blob) => {
+        window.__zip = blob;
+        return "blob:uji";
+      };
+      HTMLAnchorElement.prototype.click = () => {};
+    });
+    await openPanel(page, "builder-export");
+    await page.locator('[data-action="b-export"]').click();
+    await page
+      .waitForFunction(() => window.__zip instanceof Blob, null, {
+        timeout: 30000,
+      })
+      .catch(async () => {
+        throw new Error(
+          "ZIP tidak terbuat: " +
+            (await page.locator('[data-role="export-status"]').textContent()),
+        );
+      });
+    const zip = await page.evaluate(async () => {
+      const z = await window.JSZip.loadAsync(window.__zip);
+      /** @type {Record<string, string>} */
+      const out = {};
+      for (const n of Object.keys(z.files))
+        if (!z.files[n].dir) out[n] = await z.files[n].async("string");
+      return out;
+    });
+    const svgs = Object.keys(zip).filter((n) => n.endsWith(".svg"));
+    expect(svgs.sort()).toEqual(
+      keys.map((k) => `sticker/slot-deck/${k}-sticker.svg`).sort(),
+    );
+    for (const name of svgs) {
+      const body = zip[name].replace(/^<\?xml[^>]*>\s*/, "");
+      expect(body, name).toContain('viewBox="0 0 48 48"');
+      expect(body, name).not.toMatch(/\sstroke(?:-|=)|stroke-dasharray|<g\b|\stransform=|<mask\b|\smask=|<clipPath|<style|\sstyle=|<use\b/);
+      const fills = new Set([...body.matchAll(/<path [^>]*fill="([^"]+)"/g)].map((m) => m[1].toUpperCase()));
+      expect(fills.size, name).toBeGreaterThanOrEqual(2);
+      expect(fills.size, name).toBeLessThanOrEqual(4);
+    }
+    expect(zip["metadata.csv"]).toContain("House Travel Sticker Style Icon");
+    expect(zip["metadata-internal.csv"]).toContain('"sticker"');
+    expect(JSON.parse(zip["manifest-final.json"]).style).toMatchObject({
+      family: "sticker",
+      mode: "sticker",
+    });
+    expect(JSON.parse(zip["submission-profile.json"]).sticker_engine).toBe(
+      "1.1.0",
+    );
+    expect(zip["LICENSES.txt"]).toContain("sticker/");
+  });
+
   test("flag info Offset memakai varian info kit, bukan teks polos", async ({
     page,
   }) => {

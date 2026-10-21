@@ -1,9 +1,9 @@
 // @ts-check
 /**
  * Ekspor Canva per mesin (docs/EXPORT-PIPELINE.md bagian 2, docs/ENGINE-CONTRACT.md bagian 6).
- * Fase 3: ZIP Composer bergaya offset diunduh lewat Tinjau, lalu setiap SVG di dalamnya dijalankan
- * melalui `directFillSvgFile`. ZIP Composer masih berisi SVG asli sampai Fase 5 (direct fill di IC),
- * jadi tes ini memastikan setiap file siap diubah tanpa kehilangan bentuk.
+ * ZIP Composer diunduh lewat Tinjau dengan folder `svg-asli/` aktif. Sejak Fase 5 (ADR-011) SVG di akar ZIP
+ * sudah direct fill, jadi tes memeriksa strukturnya langsung (hanya path fill, tanpa stroke, ≤ maxColors) dan
+ * membandingkan pikselnya dengan SVG asli (render mask) di `svg-asli/`.
  */
 import { expect, test } from "@playwright/test";
 import { resolve } from "node:path";
@@ -124,6 +124,7 @@ async function seedOffsetSet(page, params) {
         },
         () => "x",
       );
+      doc.review = { asli: true };
       S.store.saveState({
         schemaVersion: 1,
         documents: [doc],
@@ -139,9 +140,9 @@ async function seedOffsetSet(page, params) {
 }
 
 /**
- * Unduh ZIP Canva dari Tinjau dan kembalikan isi SVG-nya.
+ * Unduh ZIP Canva dari Tinjau dan kembalikan isi SVG-nya: `canva` di akar ZIP, `asli` di folder svg-asli/.
  * @param {import("@playwright/test").Page} page
- * @returns {Promise<Record<string, string>>}
+ * @returns {Promise<{canva: Record<string, string>, asli: Record<string, string>}>}
  */
 async function downloadSvgs(page) {
   await page.locator('.ic-persona[href="#/tinjau"]').click();
@@ -163,24 +164,27 @@ async function downloadSvgs(page) {
     const zip = await /** @type {any} */ (window).JSZip.loadAsync(
       /** @type {any} */ (window).__dl,
     );
-    /** @type {Record<string, string>} */
-    const out = {};
+    /** @type {{canva: Record<string, string>, asli: Record<string, string>}} */
+    const out = { canva: {}, asli: {} };
     for (const name of Object.keys(zip.files))
-      if (name.endsWith(".svg"))
-        out[name] = await zip.files[name].async("string");
+      if (name.endsWith(".svg")) {
+        const svg = await zip.files[name].async("string");
+        if (name.startsWith("svg-asli/")) out.asli[name.slice(9)] = svg;
+        else out.canva[name] = svg;
+      }
     return out;
   });
 }
 
+
 /**
- * Jalankan direct fill dan ukur hasilnya di halaman: warna, struktur, kotak gabungan, selisih piksel.
+ * Ukur SVG Canva di halaman: warna, struktur, kotak gabungan, dan selisih piksel terhadap SVG asli.
  * @param {import("@playwright/test").Page} page
- * @param {Record<string, string>} files
+ * @param {{canva: Record<string, string>, asli: Record<string, string>}} files
  */
 function checkDirectFill(page, files) {
-  return page.evaluate(async (files) => {
-    const S = /** @type {any} */ (window).__iconStudio;
-    const raster = (/** @type {string} */ svg) =>
+  return page.evaluate(async ({ canva, asli }) => {
+        const raster = (/** @type {string} */ svg) =>
       new Promise((done, fail) => {
         const img = new Image();
         img.onload = () => {
@@ -207,16 +211,10 @@ function checkDirectFill(page, files) {
           );
       });
     const out = [];
-    for (const [name, svg] of Object.entries(files)) {
-      let flat = "",
-        error = null;
-      try {
-        flat = S.directFillSvgFile(
-          `<?xml version="1.0" encoding="UTF-8"?>\n${svg}`,
-        );
-      } catch (e) {
-        error = /** @type {Error} */ (e).message;
-      }
+    for (const [name, flat] of Object.entries(canva)) {
+      const svg = asli[name];
+      /** @type {string | null} */
+      const error = svg ? null : "SVG asli tidak ada di svg-asli/";
       if (error) {
         out.push({ name, error });
         continue;
@@ -270,7 +268,7 @@ function checkDirectFill(page, files) {
         children: [...new Set(children)],
         colors,
         stroke: /\sstroke(?:-|=)/.test(body),
-        dash: /stroke-dasharray/.test(svg) || /stroke-dasharray/.test(body),
+        dash: /stroke-dasharray/.test(body),
         banned:
           /<g\b|\stransform=|<mask\b|\smask=|<clipPath|<style|\sstyle=|<use\b/.test(
             body,
@@ -299,8 +297,9 @@ test.describe("Ekspor Canva · offset", () => {
       await open(page);
       await seedOffsetSet(page, params);
       const files = await downloadSvgs(page);
-      expect(Object.keys(files)).toHaveLength(KEYS.length);
-      for (const svg of Object.values(files)) {
+      expect(Object.keys(files.canva)).toHaveLength(KEYS.length);
+      expect(Object.keys(files.asli).sort()).toEqual(Object.keys(files.canva).sort());
+      for (const svg of Object.values(files.asli)) {
         expect(svg).toContain('viewBox="0 0 48 48"');
         expect(svg).not.toContain("stroke-dasharray");
       }
@@ -380,6 +379,7 @@ test.describe("Ekspor Canva · classic dan accent diputar dan diskalakan", () =>
           },
           () => "x",
         );
+        doc.review = { asli: true };
         S.store.saveState({
           schemaVersion: 1,
           documents: [doc],
@@ -389,8 +389,8 @@ test.describe("Ekspor Canva · classic dan accent diputar dan diskalakan", () =>
       await page.reload();
       await expect(page.locator(".ic-page__card[data-select]")).toHaveCount(4);
       const files = await downloadSvgs(page);
-      expect(Object.keys(files)).toHaveLength(4);
-      for (const svg of Object.values(files)) expect(svg).toContain("rotate(");
+      expect(Object.keys(files.canva)).toHaveLength(4);
+      for (const svg of Object.values(files.asli)) expect(svg).toContain("rotate(");
       const results = await checkDirectFill(page, files);
       for (const r of results) {
         expect(r.error, r.name).toBeNull();
@@ -436,6 +436,7 @@ async function seedHandWritingSet(page, params) {
         { id: "set-hw", name: "Hand-writing uji", style: { family: "hand-writing", engine: { "hand-writing": params } }, items },
         () => "x",
       );
+      doc.review = { asli: true };
       S.store.saveState({ schemaVersion: 1, documents: [doc], activeId: doc.id });
     },
     { keys: KEYS, params },
@@ -445,18 +446,17 @@ async function seedHandWritingSet(page, params) {
 }
 
 /**
- * Raster direct fill tiap file, untuk membandingkan dua ZIP (celah 9% vs tanpa celah).
+ * Raster SVG direct fill (akar ZIP Canva) tiap file, untuk membandingkan dua ZIP (celah 9% vs tanpa celah).
  * @param {import("@playwright/test").Page} page
  * @param {Record<string, string>} files
  * @returns {Promise<Record<string, number[]>>} tutupan tinta per file (indeks piksel gelap)
  */
 function inkOfDirectFill(page, files) {
   return page.evaluate(async (files) => {
-    const S = /** @type {any} */ (window).__iconStudio;
     /** @type {Record<string, number[]>} */
     const out = {};
     for (const [name, svg] of Object.entries(files)) {
-      const body = S.directFillSvgFile(`<?xml version="1.0" encoding="UTF-8"?>\n${svg}`).replace(/^<\?xml[^>]*>\s*/, "").replace(/width="[^"]*" height="[^"]*"/, 'width="192" height="192"');
+      const body = svg.replace(/^<\?xml[^>]*>\s*/, "").replace(/width="[^"]*" height="[^"]*"/, 'width="192" height="192"');
       const data = await new Promise((done) => {
         const img = new Image();
         img.onload = () => {
@@ -486,8 +486,9 @@ test.describe("Ekspor Canva · hand-writing", () => {
     await open(page);
     await seedHandWritingSet(page, { gap: 9 });
     const files = await downloadSvgs(page);
-    expect(Object.keys(files)).toHaveLength(KEYS.length);
-    for (const svg of Object.values(files)) {
+    expect(Object.keys(files.canva)).toHaveLength(KEYS.length);
+    /* dash dipanggang di mesin: SVG asli pun tanpa stroke-dasharray */
+    for (const svg of Object.values(files.asli)) {
       expect(svg).toContain('viewBox="0 0 48 48"');
       expect(svg).not.toMatch(/stroke-dasharray|pathLength/);
     }
@@ -510,13 +511,13 @@ test.describe("Ekspor Canva · hand-writing", () => {
     }
 
     /* celah terlihat di file direct fill: set yang sama tanpa celah punya tinta lebih banyak di posisi celah */
-    const withGap = await inkOfDirectFill(page, files);
+    const withGap = await inkOfDirectFill(page, files.canva);
     await page.locator('.ic-persona[href="#/composer"]').click();
     await seedHandWritingSet(page, { gap: 0 });
     const noGapFiles = await downloadSvgs(page);
-    const noGap = await inkOfDirectFill(page, noGapFiles);
+    const noGap = await inkOfDirectFill(page, noGapFiles.canva);
     let gapped = 0;
-    for (const name of Object.keys(files)) {
+    for (const name of Object.keys(files.canva)) {
       const a = new Set(withGap[name]);
       /* piksel tinta yang hilang karena celah (tanpa celah ada, dengan celah tidak) */
       const missing = noGap[name].filter((i) => !a.has(i)).length;
@@ -526,4 +527,150 @@ test.describe("Ekspor Canva · hand-writing", () => {
     /* peluang celah 75% per bagian besar; hampir semua ikon punya minimal satu celah */
     expect(gapped).toBeGreaterThanOrEqual(KEYS.length - 3);
   });
+});
+
+test.describe("Ekspor Canva · sticker", () => {
+  /* gaya bawaan, mode isi dan garis, dan nilai ekstrem: halo 5 + geser isi 2,5 menguji isi yang keluar dari halo */
+  const CASES = [
+    { mode: "sticker" },
+    { mode: "fill", ink: "#2B3A67" },
+    { mode: "line", sw: 3.6, spk: 6 },
+    { mode: "sticker", sw: 1.4, halo: 5, off: 2.5, rays: false },
+  ];
+  const MODS = ["lu:plus", "lu:star", "lu:heart", "none"];
+  const SLOTS = ["TR", "TC", "BL", "MR", "BR", "ML", "TL", "BC"];
+  const FILLS = ["#E5484D", "#5AA9F8", "#6BD88A", "#F9D84A", "#F09A3E", "#FFFFFF"];
+  for (const params of CASES) {
+    test(`ZIP Composer sticker ${JSON.stringify(params)}: direct fill valid, ≤4 warna, hanya fill, di dalam viewBox`, async ({
+      page,
+    }) => {
+      test.setTimeout(150_000);
+      await open(page);
+      await page.evaluate(
+        ({ keys, params, mods, slots, fills }) => {
+          const S = /** @type {any} */ (window).__iconStudio;
+          const lib = S.renderer.lib;
+          const items = keys.map((/** @type {string} */ k, /** @type {number} */ i) =>
+            S.document.normItem(
+              {
+                main: `lu:${k}`,
+                mod: mods[i % mods.length],
+                slot: slots[i % slots.length],
+                mx: (i % 3) - 1,
+                my: 0.75,
+                nx: i % 2 ? 0.75 : 0,
+                ny: 0,
+                name: `Uji ${k}`,
+                engine: {
+                  sticker: {
+                    main: { c: fills[i % fills.length], s: 1.6 + (i % 4) * 0.1, fill: i % 7 === 3 ? "plate" : "auto" },
+                    mod: { c: fills[(i + 2) % fills.length] },
+                    deco: { seed: 3 + i * 7 },
+                  },
+                },
+              },
+              lib,
+              { uid: () => `s${i}` },
+            ),
+          );
+          const doc = S.document.createSetDocument(
+            { id: "set-sticker", name: "Sticker uji", style: { family: "sticker", engine: { sticker: params } }, items },
+            () => "x",
+          );
+          doc.review = { asli: true };
+          S.store.saveState({ schemaVersion: 1, documents: [doc], activeId: doc.id });
+        },
+        { keys: KEYS, params, mods: MODS, slots: SLOTS, fills: FILLS },
+      );
+      await page.reload();
+      await expect(page.locator(".ic-page__card[data-select]")).toHaveCount(KEYS.length);
+      const files = await downloadSvgs(page);
+      expect(Object.keys(files.canva)).toHaveLength(KEYS.length);
+      for (const svg of Object.values(files.asli)) {
+        expect(svg).toContain('viewBox="0 0 48 48"');
+        expect(svg).not.toContain("stroke-dasharray");
+      }
+      const results = await checkDirectFill(page, files);
+      for (const r of results) {
+        expect(r.error, r.name).toBeNull();
+        expect(r.viewBox, r.name).toBe("0 0 48 48");
+        expect(r.children, r.name).toEqual(["path"]);
+        expect(r.colors.length, r.name).toBeGreaterThanOrEqual(1);
+        expect(r.colors.length, r.name).toBeLessThanOrEqual(4);
+        expect(r.stroke, r.name).toBe(false);
+        expect(r.dash, r.name).toBe(false);
+        expect(r.banned, r.name).toBe(false);
+        const [x0, y0, x1, y1] = /** @type {number[]} */ (r.bbox);
+        expect(x0, r.name).toBeGreaterThanOrEqual(0);
+        expect(y0, r.name).toBeGreaterThanOrEqual(0);
+        expect(x1, r.name).toBeLessThanOrEqual(48);
+        expect(y1, r.name).toBeLessThanOrEqual(48);
+        expect(r.diff, `${r.name} selisih piksel mask vs direct fill`).toBeLessThan(0.015);
+      }
+    });
+  }
+});
+
+/** Rakitan pustaka yang ditambahkan ke set contoh, supaya gaya yang hanya merender ikon pustaka punya isi. */
+const LIB_SAMPLES = [
+  { name: "Koper selesai", main: "lu:luggage", mod: "lu:circle-check", slot: "TR" },
+  { name: "Dompet tambah", main: "lu:wallet", mod: "lu:plus", slot: "BR" },
+  { name: "Rumah favorit", main: "lu:house", mod: "lu:star", slot: "TL" },
+  { name: "Kamera suka", main: "lu:camera", mod: "lu:heart", slot: "BL" },
+  { name: "Surat", main: "lu:mail", mod: "none" },
+];
+
+test.describe("Ekspor Canva · set contoh lengkap di kelima gaya (termasuk ticket bergaris putus-putus)", () => {
+  for (const family of ["classic", "accent", "offset", "hand-writing", "sticker"]) {
+    const libOnly = !["classic", "accent"].includes(family);
+    test(`ZIP Composer ${family} set contoh: semua ikon yang didukung direct fill, tanpa stroke-dasharray`, async ({
+      page,
+    }) => {
+      test.setTimeout(150_000);
+      await open(page);
+      const n = await page.evaluate(
+        ({ family, samples }) => {
+          const S = /** @type {any} */ (window).__iconStudio;
+          const lib = S.renderer.lib;
+          const items = [...S.document.PRESET, ...samples].map((/** @type {any} */ o, /** @type {number} */ i) =>
+            S.document.normItem(o, lib, { uid: () => `c${i}` }),
+          );
+          const doc = S.document.createSetDocument({ id: "set-contoh", name: "Set contoh", style: { family }, items }, () => "x");
+          doc.review = { asli: true };
+          S.store.saveState({ schemaVersion: 1, documents: [doc], activeId: doc.id });
+          return items.length;
+        },
+        { family, samples: LIB_SAMPLES },
+      );
+      await page.reload();
+      await expect(page.locator(".ic-page__card[data-select]")).toHaveCount(n);
+      const files = await downloadSvgs(page);
+      if (libOnly) {
+        /* objek bawaan tidak didukung gaya ini; rakitan pustaka semuanya masuk ZIP Canva */
+        const lower = Object.keys(files.canva).map((f) => f.toLowerCase());
+        for (const o of LIB_SAMPLES) expect(lower.some((f) => f.startsWith(o.name.toLowerCase().replace(/\s+/g, "-"))), o.name).toBe(true);
+      } else {
+        /* semua ikon masuk ZIP Canva, termasuk ticket */
+        expect(Object.keys(files.canva)).toHaveLength(n);
+        const ticket = Object.keys(files.asli).find((f) => files.asli[f].includes("stroke-dasharray"));
+        expect(ticket, "set contoh berisi ikon bergaris putus-putus").toBeTruthy();
+      }
+      for (const svg of Object.values(files.canva)) expect(svg).not.toContain("stroke-dasharray");
+      /* ikon bawaan yang tidak didukung dirender kosong; yang ikut ZIP diperiksa bila ada bidangnya */
+      const results = await checkDirectFill(page, {
+        canva: Object.fromEntries(Object.entries(files.canva).filter(([name]) => !libOnly || /<path\b/.test(files.asli[name] || ""))),
+        asli: files.asli,
+      });
+      expect(results.length).toBeGreaterThanOrEqual(libOnly ? LIB_SAMPLES.length : n);
+      for (const r of results) {
+        expect(r.error, r.name).toBeNull();
+        expect(r.children, r.name).toEqual(["path"]);
+        expect(r.colors.length, r.name).toBeLessThanOrEqual(5);
+        expect(r.stroke, r.name).toBe(false);
+        expect(r.dash, r.name).toBe(false);
+        expect(r.banned, r.name).toBe(false);
+        expect(r.diff, `${r.name} selisih piksel mask vs direct fill`).toBeLessThan(0.015);
+      }
+    });
+  }
 });

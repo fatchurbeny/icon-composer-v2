@@ -4,13 +4,14 @@
  * Disimpan ke `icon-studio-v1` lewat `state/store.js`. Seleksi, rute, dan riwayat urungkan tidak disimpan.
  * Pindah persona tidak menghapus seleksi atau state dokumen (DESIGN-HANDOFF bagian 2).
  */
-import { PRESET, createManifestDocument, createSetDocument, handWritingComposerSource, handWritingSetFromComposer, importManifest, normItem, offsetComposerSource, offsetSetFromComposer } from "./state/document.js";
+import { PRESET, createManifestDocument, createSetDocument, handWritingComposerSource, handWritingSetFromComposer, importManifest, normItem, offsetComposerSource, offsetSetFromComposer, stickerComposerSource, stickerSetFromComposer } from "./state/document.js";
 import { createVocabulary, defaultExportOptions, validateManifest } from "./state/builder-ops.js";
 import { ensureReviewFields } from "./state/review-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
 import { migrateFromLegacy } from "./state/migrations/001-from-legacy.js";
 import { MIGRATION_ID as OFFSET_MIGRATION, migrateFromOffset } from "./state/migrations/002-from-offset.js";
 import { MIGRATION_ID as HAND_WRITING_MIGRATION, migrateFromHandWriting } from "./state/migrations/003-from-hand-writing.js";
+import { MIGRATION_ID as STICKER_MIGRATION, migrateFromSticker } from "./state/migrations/004-from-sticker.js";
 import { PRESET_LIMIT, hasState, loadState, normColorPresets, normSwatchSource, saveState } from "./state/store.js";
 import { UNDO_LIMIT, createUndo } from "./state/undo.js";
 
@@ -60,39 +61,29 @@ export function createAppState(options) {
       migratedFrom = legacy.sources;
     }
   }
-  /* migrasi sekali dari offset-composer 1.0.1, juga bila icon-studio-v1 sudah ada; dokumen ditambahkan */
+  /* migrasi sekali dari composer gaya lama (offset-composer 1.0.1, coret-composer 1.0.0 untuk gaya hand-writing,
+     sticker-composer), berurutan menurut id, juga bila icon-studio-v1 sudah ada; dokumen ditambahkan */
   const migrations = [...loaded.migrations];
   /** @type {string[]} */
   const migrationWarnings = [];
-  if (!migrations.includes(OFFSET_MIGRATION)) {
-    let offset = null;
+  for (const [id, run] of /** @type {[string, typeof migrateFromOffset][]} */ ([
+    [OFFSET_MIGRATION, migrateFromOffset],
+    [HAND_WRITING_MIGRATION, migrateFromHandWriting],
+    [STICKER_MIGRATION, migrateFromSticker],
+  ])) {
+    if (migrations.includes(id)) continue;
+    let res = null;
     try {
-      offset = migrateFromOffset(options.storage || globalThis.localStorage, { lib: renderer.lib });
+      res = run(options.storage || globalThis.localStorage, { lib: renderer.lib });
     } catch {
-      offset = null;
+      res = null;
     }
-    migrations.push(OFFSET_MIGRATION);
-    if (offset) {
-      loaded.documents.push(...offset.documents);
-      loaded.activeId = loaded.activeId || offset.documents[0].id;
-      migratedFrom = [...migratedFrom, ...offset.sources];
-      migrationWarnings.push(...offset.warnings);
-    }
-  }
-  /* migrasi sekali dari coret-composer 1.0.0 (gaya hand-writing), dengan aturan yang sama */
-  if (!migrations.includes(HAND_WRITING_MIGRATION)) {
-    let hw = null;
-    try {
-      hw = migrateFromHandWriting(options.storage || globalThis.localStorage, { lib: renderer.lib });
-    } catch {
-      hw = null;
-    }
-    migrations.push(HAND_WRITING_MIGRATION);
-    if (hw) {
-      loaded.documents.push(...hw.documents);
-      loaded.activeId = loaded.activeId || hw.documents[0].id;
-      migratedFrom = [...migratedFrom, ...hw.sources];
-      migrationWarnings.push(...hw.warnings);
+    migrations.push(id);
+    if (res) {
+      loaded.documents.push(...res.documents);
+      loaded.activeId = loaded.activeId || res.documents[0].id;
+      migratedFrom = [...migratedFrom, ...res.sources];
+      migrationWarnings.push(...res.warnings);
     }
   }
   /** @type {any[]} */
@@ -391,6 +382,35 @@ export function createAppState(options) {
         renderer.dropMissing("hg");
       }
       const res = handWritingSetFromComposer(data, renderer.lib);
+      if (!res || "fatal" in res) return res;
+      const doc = ensureReviewFields(ensureSetFields(res.doc));
+      documents.push(doc);
+      undo.sync(doc.id, doc);
+      activeId = doc.id;
+      selection[doc.id] = doc.items[0] ? doc.items[0].id : null;
+      save();
+      notify();
+      return { doc, warnings: res.warnings };
+    },
+    /**
+     * Impor set sticker-composer (`gaya.json` dari ZIP atau isi `sticker-composer-v1`) menjadi dokumen set.
+     * @param {string} text
+     * @returns {Promise<{fatal?: string, doc?: any, warnings?: string[]} | null>} null bila teks bukan data sticker-composer
+     */
+    async importStickerSet(text) {
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return null;
+      }
+      const src = stickerComposerSource(data);
+      if (!src) return null;
+      if (src.icons.some((/** @type {any} */ o) => o && [o.main && o.main.k, o.mod && o.mod.k].some((k) => String(k).startsWith("tb:")))) {
+        await renderer.loadTabler();
+        renderer.dropMissing("tb");
+      }
+      const res = stickerSetFromComposer(data, renderer.lib);
       if (!res || "fatal" in res) return res;
       const doc = ensureReviewFields(ensureSetFields(res.doc));
       documents.push(doc);

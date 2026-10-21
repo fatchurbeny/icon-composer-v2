@@ -8,6 +8,7 @@
 import { r2 } from "@icon-studio/core";
 import { modeOfClassic } from "@icon-studio/engines/classic";
 import { ROLES } from "@icon-studio/engines/shared";
+import { STICKER_PALETTE, STICKER_RANGES, STICKER_SLOTS, slot4, stickerItem } from "@icon-studio/engines/sticker";
 import { FILL_OPTIONS, LINE_OPTIONS } from "../state/data/palettes.js";
 import {
   ANCHOR_POINTS,
@@ -34,9 +35,9 @@ import {
   sizeRange,
 } from "../state/edit-ops.js";
 import { handWritingItem } from "@icon-studio/engines/hand-writing";
-import { clearLayer, setHandWritingItem, setOffsetDeco, setStyleValue } from "../state/set-ops.js";
+import { STICKER_SHIFT, clearLayer, resetStickerLayer, setHandWritingItem, setOffsetDeco, setStickerSlot, setStickerValue, setStyleValue } from "../state/set-ops.js";
 import { alert, aria, button, check, empty, esc, icon, number, panel, seg } from "../ui.js";
-import { NO_DECO_TEXT, NO_MOD_TEXT, docFileName, engineFlags, engineInfo, isFixedLayout, isHandWriting, isOffset, renderSet, setColorCount, statusBar } from "./common.js";
+import { NO_DECO_TEXT, NO_MOD_TEXT, docFileName, engineFlags, engineInfo, isFixedLayout, isHandWriting, isOffset, isSticker, renderSet, setColorCount, statusBar, stickerDecoLabel } from "./common.js";
 import {
   LAYER_LABEL,
   actions as setActions,
@@ -114,10 +115,11 @@ function selbox(it, layer, b, edit) {
  * Wilayah klik tiap lapisan (SVG transparan di atas artboard, seperti overlay IC), ikut diputar.
  * @param {any} it
  * @param {Record<string, import("../state/edit-ops.js").Box>} boxes
- * @param {boolean} edit false untuk offset (tanpa rotasi per lapisan)
+ * @param {boolean} edit false untuk offset dan sticker (tanpa rotasi per lapisan)
+ * @param {readonly ("main" | "mod" | "deco")[]} [order] urutan tumpuk, yang terakhir paling atas
  */
-const hitLayer = (it, boxes, edit) =>
-  `<svg class="studio-hit" viewBox="0 0 48 48" aria-hidden="true">${/** @type {const} */ (["main", "mod", "deco"])
+const hitLayer = (it, boxes, edit, order = /** @type {const} */ (["main", "mod", "deco"])) =>
+  `<svg class="studio-hit" viewBox="0 0 48 48" aria-hidden="true">${order
     .filter((l) => boxes[l].w)
     .map((l) => {
       const b = boxes[l],
@@ -126,6 +128,11 @@ const hitLayer = (it, boxes, edit) =>
       return `<rect data-hit="${l}" x="${r2(b.x - 1)}" y="${r2(b.y - 1)}" width="${r2(b.w + 2)}" height="${r2(b.h + 2)}"${r ? ` transform="rotate(${r} ${r2(c.x)} ${r2(c.y)})"` : ""}></rect>`;
     })
     .join("")}</svg>`;
+
+/** Sticker: cincin dekorasi hampir seluas kanvas, jadi paling bawah; pengubah paling atas (hit legacy). */
+const STICKER_HIT_ORDER = /** @type {const} */ (["deco", "main", "mod"]);
+/** @param {import("./common.js").Ctx} ctx */
+const hitOrder = (ctx) => (isSticker(ctx.doc) ? STICKER_HIT_ORDER : undefined);
 
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 const artSvg = (ctx, it) => ctx.renderer.renderSetItem(it, ctx.doc.style, { size: "100%", idp: "editart" }, ctx.doc.customs).replace("<svg ", '<svg class="ic-artboard__art" ');
@@ -138,13 +145,16 @@ const boxesOf = (ctx, it, doc = ctx.doc) => ctx.renderer.boxesOf(it, doc.style);
 /** @param {import("./common.js").Ctx} ctx @param {any} it */
 function layerList(ctx, it) {
   const off = isOffset(ctx.doc),
-    hw = isHandWriting(ctx.doc);
+    hw = isHandWriting(ctx.doc),
+    st = isSticker(ctx.doc);
   const hp = handWritingItem(it);
   const meta = off
     ? { mod: NO_MOD_TEXT, deco: offsetDecoLabel(it), main: `${it.main} · 84%` }
     : hw
       ? { mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot} · ${Math.round(hp.ms * 100)}%`, deco: NO_DECO_TEXT, main: `${it.main} · blob ${BLOB_NAME[hp.blob].toLowerCase()}` }
-      : {
+      : st
+        ? { mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${slot4(it.slot)}`, deco: stickerDecoLabel(ctx.doc.style), main: `${it.main} · skala ${stickerItem(it).main.s}` }
+        : {
         mod: it.mod === "none" ? "tidak ada" : `${it.mod} · ${it.slot}`,
         deco: it.deco.type === "none" ? "tidak ada" : `${it.deco.type} · ${it.deco.x}, ${it.deco.y}`,
         main: `${it.main} · ${ctx.doc.style.scale.main}%`,
@@ -152,7 +162,7 @@ function layerList(ctx, it) {
   return `<div class="ic-list" role="listbox" aria-label="Lapisan ikon">${["mod", "deco", "main"]
     .map((l) => {
       const only = { ...it, vis: { main: l === "main", mod: l === "mod", deco: l === "deco" } };
-      const present = l === "main" || (off ? l === "deco" && meta.deco !== "tanpa" : l === "mod" ? it.mod !== "none" : !hw && it.deco.type !== "none");
+      const present = l === "main" || (off ? l === "deco" && meta.deco !== "tanpa" : l === "mod" ? it.mod !== "none" : st || (!hw && it.deco.type !== "none"));
       return `<div class="ic-row" role="option" tabindex="0" data-action="layer-select" data-layer="${l}" ${aria("aria-selected", layerOf() === l)}><span class="ic-row__thumb">${present ? renderSet(ctx, only, `el${l}`) : ""}</span><span class="ic-row__name">${LAYER_LABEL[l]}<span class="ic-row__sub">${esc(meta[l])}</span></span><button type="button" class="ic-iconbtn" data-action="edit-eye" data-layer="${l}" ${aria("aria-pressed", it.vis[l])} aria-label="${it.vis[l] ? "Sembunyikan" : "Tampilkan"} ${LAYER_LABEL[l].toLowerCase()}">${icon(it.vis[l] ? "eye" : "eye-off")}</button></div>`;
     })
     .join("")}</div>`;
@@ -173,6 +183,7 @@ const colorSwatches = (ctx, name, label, options, current, fallback) => colorRow
 /** Penjaga batas Canva: peringatan bila set memakai lebih dari 5 warna. @param {import("./common.js").Ctx} ctx */
 const colorCountNote = (ctx) => {
   const n = setColorCount(ctx);
+  if (isSticker(ctx.doc)) return n > 5 ? alert("warn", `${n} warna di satu ikon`, "Canva maks 5") : `<span class="ic-meta">Maks ${n} warna per ikon · batas Canva 5</span>`;
   return n > 5 ? alert("warn", `${n} warna di set`, "Canva maks 5") : `<span class="ic-meta">${n} warna di set · maks 5 untuk Canva</span>`;
 };
 
@@ -261,6 +272,75 @@ function handWritingTransformBody(ctx, it) {
 const slotGrid = (it) =>
   `<div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="edit-slot">${ANCHORS.map((k) => (k === "C" ? '<button type="button" disabled aria-label="Tengah"></button>' : `<button type="button" data-value="${k}" ${aria("aria-pressed", it.slot === k)} aria-label="Posisi ${k}"></button>`)).join("")}</div>`;
 
+/**
+ * Slider sticker per ikon (`.ic-slider` + field angka). Nama kontrol `st:<lapisan>.<kunci>`.
+ * @param {string} path
+ * @param {string} label
+ * @param {number} value
+ * @param {number[]} range [min, max, langkah]
+ */
+function stickerSlider(path, label, value, range) {
+  const [min, max, step] = range;
+  return `<div class="ic-slider" data-ic="slider" data-name="st:${path}"><span class="ic-label">${esc(label)}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" aria-label="${esc(label)}"><label class="ic-field"><input value="${value}" aria-label="${esc(label)}, angka"></label></div>`;
+}
+
+/** Nama sudut pengubah sticker. */
+const STICKER_SLOT_NAME = { TL: "kiri atas", TR: "kanan atas", BL: "kiri bawah", BR: "kanan bawah" };
+
+/**
+ * Pemilih 4 sudut pengubah sticker (`.ic-anchor` 3×3, hanya sudut yang aktif).
+ * @param {any} it
+ */
+const stickerSlots = (it) =>
+  `<div class="ic-anchor" data-ic="single" role="group" aria-label="Posisi pengubah" data-name="edit-slot">${ANCHORS.map((k) =>
+    k in STICKER_SLOTS
+      ? `<button type="button" data-value="${k}" ${aria("aria-pressed", slot4(it.slot) === k)} aria-label="Posisi ${/** @type {any} */ (STICKER_SLOT_NAME)[k]}" title="Posisi ${/** @type {any} */ (STICKER_SLOT_NAME)[k]}"></button>`
+      : `<button type="button" disabled aria-label="Posisi ${k} tidak tersedia pada style ini"></button>`,
+  ).join("")}</div>`;
+
+/**
+ * Transform untuk gaya sticker: warna isi, skala, isi, slot, dan geser per ikon (item.engine.sticker dan
+ * posisi kanonik). Dekorasi: seed, skala, dan geser per ikon; sparkle, sinar, dan ikal di panel Gaya.
+ * @param {import("./common.js").Ctx} ctx
+ * @param {any} it
+ */
+function stickerTransformBody(ctx, it) {
+  const layer = layerOf(),
+    e = stickerItem(it),
+    R = STICKER_RANGES;
+  const out = [];
+  if (layer === "main") {
+    out.push(
+      colorRow(ctx, { name: "st:main.c", label: "Isi objek", value: e.main.c, options: [...STICKER_PALETTE], fallback: e.main.c, round: true }),
+      `<div class="ic-formrow"><span class="ic-label">Isi</span>${seg("Isi objek utama", [["auto", "Bentuk"], ["plate", "Lingkaran"], ["none", "Tanpa isi"]], e.main.fill, { name: "st:main.fill" })}</div>`,
+      stickerSlider("main.s", "Skala", e.main.s, R.mainS),
+      stickerSlider("main.x", "Geser X", it.mx || 0, [-STICKER_SHIFT.main, STICKER_SHIFT.main, 0.25]),
+      stickerSlider("main.y", "Geser Y", it.my || 0, [-STICKER_SHIFT.main, STICKER_SHIFT.main, 0.25]),
+    );
+  } else if (layer === "mod") {
+    if (it.mod === "none") out.push(`<div class="ic-formrow"><span class="ic-label">Pengubah</span><span class="ic-meta">tidak ada, pilih dari Pustaka</span></div>`);
+    else
+      out.push(
+        colorRow(ctx, { name: "st:mod.c", label: "Isi pengubah", value: e.mod.c, options: [...STICKER_PALETTE], fallback: e.mod.c, round: true }),
+        `<div class="ic-formrow"><span class="ic-label">Posisi</span>${stickerSlots(it)}</div>`,
+        stickerSlider("mod.s", "Skala", e.mod.s, R.modS),
+        stickerSlider("mod.x", "Geser X", it.nx || 0, [-STICKER_SHIFT.mod, STICKER_SHIFT.mod, 0.25]),
+        stickerSlider("mod.y", "Geser Y", it.ny || 0, [-STICKER_SHIFT.mod, STICKER_SHIFT.mod, 0.25]),
+      );
+  } else {
+    out.push(
+      stickerSlider("deco.seed", "Acak", e.deco.seed, R.seed),
+      stickerSlider("deco.s", "Skala", e.deco.s, R.decoS),
+      stickerSlider("deco.x", "Geser X", e.deco.x, [-STICKER_SHIFT.deco, STICKER_SHIFT.deco, 0.5]),
+      stickerSlider("deco.y", "Geser Y", e.deco.y, [-STICKER_SHIFT.deco, STICKER_SHIFT.deco, 0.5]),
+      `<span class="ic-meta">Sparkle, sinar, dan ikal diatur di panel Gaya untuk seluruh set. Dekorasi menghindari sudut pengubah.</span>`,
+    );
+  }
+  for (const [level, text] of engineFlags(ctx, it)) if (level !== "info" || layer !== "deco") out.push(alert(/** @type {any} */ (level), text));
+  out.push(colorCountNote(ctx), `<div class="studio-actions">${button("Atur ulang posisi", { size: "sm", action: "edit-reset" })}</div>`, autoPanelCheck(ctx));
+  return out.join("");
+}
+
 /** Titik acuan panel Transform (`view.anchor`, tidak ikut undo). */
 const anchorOf = (/** @type {import("./common.js").Ctx} */ ctx) => (ANCHOR_POINTS.includes(ctx.doc.view.anchor) ? ctx.doc.view.anchor : DEFAULT_ANCHOR);
 
@@ -303,6 +383,7 @@ function geometryFields(ctx, it, layer) {
 function transformBody(ctx, it) {
   if (isOffset(ctx.doc)) return offsetTransformBody(ctx, it);
   if (isHandWriting(ctx.doc)) return handWritingTransformBody(ctx, it);
+  if (isSticker(ctx.doc)) return stickerTransformBody(ctx, it);
   const layer = layerOf(),
     s = ctx.doc.style,
     accent = s.family === "accent";
@@ -379,6 +460,7 @@ const editActions = {
   },
   /** @param {import("./common.js").Ctx} ctx */
   "edit-reset"(ctx) {
+    if (isSticker(ctx.doc)) return mutateItem(ctx, (it) => resetStickerLayer(it, layerOf()), `Atur ulang posisi ${LAYER_LABEL[layerOf()].toLowerCase()}`);
     mutateItem(ctx, (it) => resetLayer(it, layerOf(), ctx.renderer.data), `Atur ulang posisi ${LAYER_LABEL[layerOf()].toLowerCase()}`);
   },
   /** @param {import("./common.js").Ctx} ctx */
@@ -418,6 +500,12 @@ function editControl(ctx, name, value, el, tools) {
     const key = /** @type {any} */ (name.slice(11));
     return mutateItem(ctx, (it) => setOffsetDeco(it, key, value), `Dekorasi offset ${key}`);
   }
+  if (name.startsWith("st:")) {
+    const path = name.slice(3);
+    const what = /** @type {Record<string, string>} */ ({ "main.c": "Isi objek", "mod.c": "Isi pengubah", "main.fill": "Isi objek", "main.s": "Skala objek", "mod.s": "Skala pengubah", "deco.seed": "Acak dekorasi", "deco.s": "Skala dekorasi" })[path] || `Geser ${LAYER_LABEL[/** @type {"main" | "mod" | "deco"} */ (path.split(".")[0])].toLowerCase()}`;
+    return mutateItem(ctx, (it) => setStickerValue(it, path, value), `${what} ${value}`);
+  }
+  if (name === "edit-slot" && isSticker(ctx.doc)) return mutateItem(ctx, (it) => setStickerSlot(it, String(value)), `Posisi pengubah ${value}`);
   if (name === "edit-slot") return mutateItem(ctx, (it) => setSlot(it, String(value), ctx.renderer.data.SHIFT), `Posisi pengubah ${value}`);
   if (name === "edit-scale") return mutate(ctx, (doc) => setStyleValue(doc.style, `scale.${layer}`, value), `Skala ${LAYER_LABEL[layer].toLowerCase()} ${value}`);
   if (name === "edit-anchor") return mutate(ctx, (doc) => (doc.view.anchor = String(value)), "");
@@ -462,6 +550,13 @@ function onKey(e) {
   const target = /** @type {HTMLElement} */ (e.target);
   if (target.closest && target.closest("input, textarea, .ic-select, [role=tab], [role=option]")) return;
   const layer = layerOf();
+  const sticker = isSticker(ctx.doc);
+  /* sticker: tanpa rotasi; dekorasi digeser lewat slider, Delete menyembunyikannya */
+  if (sticker && layer === "deco" && (e.key === "Delete" || e.key === "Backspace")) {
+    e.preventDefault();
+    return mutateItem(ctx, (it) => (it.vis.deco = false), "Sembunyikan dekorasi");
+  }
+  if (sticker && (layer === "deco" || e.code === "BracketLeft" || e.code === "BracketRight")) return;
   const step = e.shiftKey ? 2 : 0.5;
   const map = /** @type {Record<string, [number, number]>} */ ({ ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] });
   if (map[e.key]) {
@@ -469,6 +564,11 @@ function onKey(e) {
     const it = selectedOf(ctx);
     if (!it) return;
     const [x, y] = getXY(it, layer);
+    if (sticker)
+      return mutateItem(ctx, (item) => {
+        setStickerValue(item, `${layer}.x`, x + map[e.key][0]);
+        setStickerValue(item, `${layer}.y`, y + map[e.key][1]);
+      }, `Geser ${LAYER_LABEL[layer].toLowerCase()}`);
     mutateItem(ctx, (item) => setXY(item, layer, x + map[e.key][0], y + map[e.key][1], { snap: true }), `Geser ${LAYER_LABEL[layer].toLowerCase()}`);
   } else if (e.code === "BracketLeft" || e.code === "BracketRight") {
     e.preventDefault();
@@ -519,9 +619,10 @@ function mount(root, ctx) {
     if (art) art.outerHTML = artSvg(ctx, it);
     const boxes = boxesOf(ctx, it);
     const hit = board.querySelector(".studio-hit");
-    if (hit) hit.outerHTML = hitLayer(it, boxes, true);
+    const editable = !isSticker(ctx.doc);
+    if (hit) hit.outerHTML = hitLayer(it, boxes, editable, hitOrder(ctx));
     const sb = board.querySelector('[data-role="selbox"]');
-    if (sb) sb.outerHTML = selbox(it, layer, boxes[layer], true);
+    if (sb) sb.outerHTML = selbox(it, layer, boxes[layer], editable);
     const t = tip(),
       b = boxes[layer];
     if (t && text) {
@@ -551,8 +652,9 @@ function mount(root, ctx) {
     if (!handle && !hit) return;
     const layer = /** @type {any} */ (handle ? layerOf() : /** @type {HTMLElement} */ (hit).dataset.hit);
     if (!handle && libraryUi.target !== layer) return selectLayer(ctx, layer);
-    /* offset dan hand-writing: posisi lapisan mengikuti patokan gaya, jadi lapisan hanya bisa dipilih */
-    if (isFixedLayout(ctx.doc)) return;
+    /* offset dan hand-writing: posisi lapisan mengikuti patokan gaya, jadi lapisan hanya bisa dipilih.
+       sticker: objek dan pengubah bisa diseret, dekorasi diatur lewat slider, tanpa pegangan skala dan putar */
+    if (isFixedLayout(ctx.doc) || (isSticker(ctx.doc) && (handle || layer === "deco"))) return;
     const box = boxesOf(ctx, it)[layer];
     const [x0, y0] = getXY(it, layer);
     drag = {
@@ -589,7 +691,11 @@ function mount(root, ctx) {
       setRot(it, drag.layer, angleFromDrag(drag.r0, drag.c, drag.p0, p), { snap: e.shiftKey });
       return repaint(drag.layer, `${getRot(it, drag.layer)}°`);
     }
-    setXY(it, drag.layer, drag.x0 + p.x - drag.p0.x, drag.y0 + p.y - drag.p0.y, { snap: ctx.doc.view.snap });
+    if (isSticker(ctx.doc)) {
+      const sn = (/** @type {number} */ v) => (ctx.doc.view.snap ? Math.round(v * 2) / 2 : v);
+      setStickerValue(it, `${drag.layer}.x`, sn(drag.x0 + p.x - drag.p0.x));
+      setStickerValue(it, `${drag.layer}.y`, sn(drag.y0 + p.y - drag.p0.y));
+    } else setXY(it, drag.layer, drag.x0 + p.x - drag.p0.x, drag.y0 + p.y - drag.p0.y, { snap: ctx.doc.view.snap });
     const b = boxesOf(ctx, it)[drag.layer];
     repaint(drag.layer, `X ${r2(b.x)}  Y ${r2(b.y)}`);
   });
@@ -651,6 +757,12 @@ export const composerEdit = {
       const key = layer === "mod" ? "" : layer === "main" ? it.main : offsetDecoLabel(it);
       return `<span class="ic-label">${LAYER_LABEL[layer]}</span>${layer === "mod" ? `<span class="ic-meta">${NO_MOD_TEXT}</span>` : `<label class="ic-field ic-field--mono"><input value="${esc(key)}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${layer === "main" ? button("Ganti…", { size: "sm", action: "layer-swap" }) : ""}`}${paintSwatches(ctx, it, layer)}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
     }
+    if (isSticker(ctx.doc)) {
+      const e = stickerItem(it);
+      const paint = layer === "deco" ? "" : `<span class="ic-label">Isi</span><button type="button" class="ic-swatch" data-action="edit-colors" style="background: ${layer === "main" ? e.main.c : e.mod.c}" aria-label="Isi ${LAYER_LABEL[layer].toLowerCase()} ${layer === "main" ? e.main.c : e.mod.c}, ubah warna"></button>`;
+      const key = layer === "deco" ? stickerDecoLabel(ctx.doc.style) : keyOf(it, layer);
+      return `<span class="ic-label">${LAYER_LABEL[layer]}</span><label class="ic-field ic-field--mono"><input value="${esc(key)}" aria-label="Kunci ${LAYER_LABEL[layer].toLowerCase()}" readonly></label>${layer === "deco" ? "" : button("Ganti…", { size: "sm", action: "layer-swap" })}${layer === "mod" && it.mod !== "none" ? `<span class="ic-sep"></span><span class="ic-label">Posisi</span>${stickerSlots(it)}` : ""}<span class="ic-sep"></span>${paint}<span class="ic-spacer"></span>${button("Acak ulang variasi", { size: "sm", disabled: true })}${button("Kunci variasi", { size: "sm", disabled: true })}`;
+    }
     const anchor = layer === "mod" && it.mod !== "none" ? `<span class="ic-sep"></span><span class="ic-label">Posisi</span>${slotGrid(it)}` : "";
     if (isHandWriting(ctx.doc)) {
       if (layer === "deco") return `<span class="ic-label">${LAYER_LABEL[layer]}</span><span class="ic-meta">${NO_DECO_TEXT}</span>`;
@@ -664,7 +776,7 @@ export const composerEdit = {
     const it = selectedOf(ctx);
     if (!it) return `<div class="studio-center">${empty("Ikon tidak ditemukan.", "Kembali ke ikhtisar halaman untuk memilih ikon.")}</div>`;
     const boxes = boxesOf(ctx, it);
-    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : isOffset(ctx.doc) ? " · offset" : isHandWriting(ctx.doc) ? " · hand-writing" : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(it, boxes, !isFixedLayout(ctx.doc))}${selbox(it, layerOf(), boxes[layerOf()], !isFixedLayout(ctx.doc))}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
+    return `<div class="studio-edit"><div class="ic-artboard-wrap"><span class="ic-artboard__label">${esc(labelOf(ctx, it))} <span class="ic-meta">· 48 × 48${ctx.doc.style.family === "classic" ? ` · mode ${esc(modeOfClassic(it, /** @type {any} */ ({ style: ctx.doc.style, PREFS: ctx.renderer.data.PREFS })))}` : isOffset(ctx.doc) ? " · offset" : isHandWriting(ctx.doc) ? " · hand-writing" : isSticker(ctx.doc) ? " · sticker" : ""}</span></span><div class="ic-artboard" data-grid="${ctx.doc.view.grid ? "on" : "off"}" role="img" aria-label="${esc(labelOf(ctx, it))}">${artSvg(ctx, it)}${hitLayer(it, boxes, !isFixedLayout(ctx.doc))}${selbox(it, layerOf(), boxes[layerOf()], !isFixedLayout(ctx.doc))}<span class="ic-tooltip" data-role="tooltip" hidden></span></div></div></div>`;
   },
   /**
    * Filmstrip set di bawah kanvas, di luar area zoom.
@@ -707,7 +819,9 @@ export const composerEdit = {
               ? empty("Sumbu variasi offset: posisi kilat dan kombinasi dekorasi.", "Acak ulang dan kunci variasi menyusul bersama planner variasi.")
               : isHandWriting(ctx.doc)
                 ? empty("Sumbu variasi hand-writing: arah miring, fase celah, dan pola celah.", "Acak ulang goresan mengganti seed ikon ini. Planner variasi menyusul.")
-                : empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi."),
+                : isSticker(ctx.doc)
+                  ? empty("Sumbu variasi sticker: arah sinar, sisi ikal, pola sparkle, dan pasangan warna.", "Acak ulang dan kunci variasi menyusul bersama planner variasi.")
+                  : empty("Tidak ada sumbu variasi.", "Gaya Klasik dan Aksen belum punya sumbu variasi."),
           },
           {
             id: "riwayat",
@@ -727,6 +841,11 @@ export const composerEdit = {
       return statusBar(
         `${it ? items.indexOf(it) + 1 : 0} dari ${items.length}`,
         `<b>Klik</b> lapisan untuk memilih. Posisi lapisan mengikuti patokan gaya ${isOffset(ctx.doc) ? "Offset" : "Hand-writing"}; ubah lewat panel Transform. <b>Esc</b> kembali ke ikhtisar halaman.`,
+      );
+    if (isSticker(ctx.doc))
+      return statusBar(
+        `${it ? items.indexOf(it) + 1 : 0} dari ${items.length}`,
+        "<b>Klik</b> lapisan untuk memilih. <b>Seret</b> objek atau pengubah untuk memindah. <b>Panah</b> menggeser 0,5 (Shift 2). Skala, warna isi, dan dekorasi diatur di tab Transform. <b>Delete</b> melepas pengubah atau menyembunyikan dekorasi. <b>Esc</b> kembali ke ikhtisar halaman.",
       );
     return statusBar(
       `${it ? items.indexOf(it) + 1 : 0} dari ${items.length}`,

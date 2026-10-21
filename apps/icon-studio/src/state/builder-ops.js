@@ -7,11 +7,12 @@ import { dedupeAttrs } from "@icon-studio/core";
 import { CLASSIC_ENGINE_VERSION } from "@icon-studio/engines/classic";
 import { HAND_WRITING_ENGINE_VERSION, handWritingItem } from "@icon-studio/engines/hand-writing";
 import { OFFSET_ENGINE_VERSION } from "@icon-studio/engines/offset";
+import { STICKER_ENGINE_VERSION } from "@icon-studio/engines/sticker";
 import { createTagIndex, directFillSvgFile, metadataCsv, styleWord, titleCase, trID } from "@icon-studio/export";
 import { MAIN_ALIAS, MOD_ALIAS, libNameOf, variantsOf } from "@icon-studio/icon-sources";
 import { TB_CATS } from "@icon-studio/icon-sources/catalog";
 import { resourceHTML } from "./data/export/resource-page.js";
-import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, kebab2, manifestHandWritingStyle, manifestOffsetStyle } from "./document.js";
+import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, STICKER_MODE, kebab2, manifestHandWritingStyle, manifestOffsetStyle, manifestStickerStyle } from "./document.js";
 
 export const TIB_VERSION = "1.6.0";
 export const OUTPUT_VERSION = "1.5.0";
@@ -26,7 +27,9 @@ export const MODE_INFO = {
   /* Fase 3: kata kunci gaya sama dengan metadata Tinjau (review-ops styleMeta) */
   O:{label:"Offset · objek saja", short:"Offset", dir:"offset", en:["offset style", "line icon", "two tone icon"], id:["gaya offset", "ikon garis", "ikon dua warna"]},
   /* Fase 4: kata kunci gaya sama dengan metadata Tinjau (review-ops styleMeta) */
-  H:{label:"Hand-writing · goresan tangan", short:"Hand-writing", dir:"hand-writing", en:["hand-writing style", "hand drawn icon", "doodle icon"], id:["gaya hand-writing", "ikon gambar tangan", "ikon doodle"]}
+  H:{label:"Hand-writing · goresan tangan", short:"Hand-writing", dir:"hand-writing", en:["hand-writing style", "hand drawn icon", "doodle icon"], id:["gaya hand-writing", "ikon gambar tangan", "ikon doodle"]},
+  /* Fase 5: kata kunci gaya sama dengan metadata Tinjau (review-ops styleMeta) */
+  S:{label:"Sticker · halo putih", short:"Sticker", dir:"sticker", en:["sticker style", "sticker", "colorful icon"], id:["gaya sticker", "stiker", "ikon berwarna"]}
 };
 export const MOD_POOL = ["plus","minus","check","x","star","search","clock","timer","bell","lock","shield","heart","pencil","settings","cloud","share-2","download","upload","refresh-cw","triangle-alert","info","zap","eye","flag","bookmark","link","user","message-circle","gift","trophy","target","rocket","hourglass","thumbs-up","send","tag","map-pin","sun","leaf","music","coffee"];
 
@@ -37,6 +40,9 @@ export const LICENSE_OFFSET = `- offset/: garis tinta di atas isi aksen yang dig
 
 /** Tambahan LICENSES.txt bila folder hand-writing/ ikut diekspor. */
 export const LICENSE_HAND_WRITING = `- hand-writing/: goresan tangan bercelah di atas blob aksen, pengubah pustaka di posisi anchor\n`;
+
+/** Tambahan LICENSES.txt bila folder sticker/ ikut diekspor. */
+export const LICENSE_STICKER = `- sticker/: halo putih, isi aksen yang digeser, dan garis tinta; pengubah di 4 sudut, dekorasi sinar, sparkle, dan ikal\n`;
 
 /* kolom metadata: header tanpa kutip, sama dengan legacy 1.6.0 */
 export const CANVA_COLUMNS = ["filename","title","keywords","Artist","locale","description"];
@@ -194,7 +200,27 @@ function handWritingFlagsOf(it, dm, deps){
 }
 
 /**
- * Flag satu ikon (flagsOf TIB). `deps.mode` O memakai flag offset, H flag hand-writing; mode lain sama dengan TIB 1.6.0.
+ * Flag satu ikon di mode sticker: objek dan pengubah tidak dikenal, flag mesin sticker (objek bawaan, pengubah
+ * bawaan, tanpa bentuk isi, slot dipetakan), dan dobel objek + pengubah. Flag Solid·garis TIB tidak berlaku.
+ * @param {any} it
+ * @param {Record<string, number> | null} dm dari `dupMap(items, STICKER_MODE)`
+ * @param {{vocab: ReturnType<typeof createVocabulary>, renderer: any, style: any}} deps
+ * @returns {[string, string][]}
+ */
+function stickerFlagsOf(it, dm, deps){
+  /** @type {[string, string][]} */
+  const f = [];
+  if (!deps.vocab.exists(it.main, "main")) f.push(["err", "Objek utama tidak dikenal"]);
+  if (it.mod !== "none" && !deps.vocab.exists(it.mod, "mod")) f.push(["err", "Pengubah tidak dikenal"]);
+  if (!f.length) f.push(...deps.renderer.flagsOf(it, manifestStickerStyle(deps.style)));
+  const c = deps.vocab.collisions(it); if (c.length) f.push(["err", "Mirip " + c[0]]);
+  if (dm && dm[dupKey(it, STICKER_MODE)] > 1) f.push(["err", "Rakitan dobel di pack"]);
+  const M = deps.renderer.data.MAINS[it.main]; if (M && M.missing) f.push(["warn", "Belum termuat"]);
+  return f;
+}
+
+/**
+ * Flag satu ikon (flagsOf TIB). `deps.mode` O memakai flag offset, H flag hand-writing, S flag sticker; mode lain sama dengan TIB 1.6.0.
  * Flag `info` tidak dihitung `isBad` dan tidak menghalangi ekspor.
  * @param {any} it
  * @param {Record<string, number> | null} dm dari `dupMap(items, deps.mode)`
@@ -204,6 +230,7 @@ function handWritingFlagsOf(it, dm, deps){
 export function flagsOf(it, dm, deps){
   if (deps.mode === OFFSET_MODE) return offsetFlagsOf(it, dm, deps);
   if (deps.mode === HAND_WRITING_MODE) return handWritingFlagsOf(it, dm, deps);
+  if (deps.mode === STICKER_MODE) return stickerFlagsOf(it, dm, deps);
   const { vocab, renderer } = deps, LIB_RE = renderer.LIB_RE, MAINS = renderer.data.MAINS;
   /** @type {[string, string][]} */
   const f = [];
@@ -227,7 +254,7 @@ export const isBad = (it, dm, deps) => flagsOf(it, dm, deps).some(f => f[0] === 
 /**
  * Ikon yang ikut ekspor: aktif, perannya dicentang, dan bukan yang bermasalah (bila dilewati). Slot dulu, lalu ekstra.
  * Ikon bermasalah dinilai per kelompok gaya yang dicentang: flag TIB untuk classic/accent, flag offset untuk mode O,
- * flag hand-writing untuk mode H.
+ * flag hand-writing untuk mode H, flag sticker untuk mode S.
  * @param {any} doc
  * @param {any} opts defaultExportOptions
  * @param {any} deps
@@ -235,9 +262,10 @@ export const isBad = (it, dm, deps) => flagsOf(it, dm, deps).some(f => f[0] === 
 export function exportList(doc, opts, deps){
   const modes = BUILDER_MODES.filter(m => opts.modes && opts.modes[m]);
   const checks = [];
-  if (!modes.length || modes.some(m => m !== OFFSET_MODE && m !== HAND_WRITING_MODE)) checks.push({...deps, mode: undefined});
+  if (!modes.length || modes.some(m => m !== OFFSET_MODE && m !== HAND_WRITING_MODE && m !== STICKER_MODE)) checks.push({...deps, mode: undefined});
   if (modes.includes(OFFSET_MODE)) checks.push({...deps, mode: OFFSET_MODE});
   if (modes.includes(HAND_WRITING_MODE)) checks.push({...deps, mode: HAND_WRITING_MODE});
+  if (modes.includes(STICKER_MODE)) checks.push({...deps, mode: STICKER_MODE});
   const dms = checks.map(d => dupMap(doc.items, d.mode));
   const bad = (/** @type {any} */ i) => checks.some((d, n) => isBad(i, dms[n], d));
   const roleOk = (/** @type {any} */ i) => i.role === "extra" ? opts.extra : opts.slot;
@@ -249,7 +277,7 @@ export function exportList(doc, opts, deps){
 export function pathOf(it, s, split){ const d = /** @type {any} */ (MODE_INFO)[s].dir; return `${d}/${split ? /** @type {any} */ (ROLE_DIR)[it.role === "extra" ? "extra" : "slot"] + "/" : ""}${it.id}-${d}.svg`; }
 
 /** @param {string} kind */
-const styleWordOf = (kind) => kind === "X" ? styleWord("accent") : kind === OFFSET_MODE ? styleWord("offset") : kind === HAND_WRITING_MODE ? styleWord("hand-writing") : styleWord("classic", kind);
+const styleWordOf = (kind) => kind === "X" ? styleWord("accent") : kind === OFFSET_MODE ? styleWord("offset") : kind === HAND_WRITING_MODE ? styleWord("hand-writing") : kind === STICKER_MODE ? styleWord("sticker") : styleWord("classic", kind);
 
 /**
  * Metadata satu ikon untuk satu gaya (meta TIB). Mode offset tidak memakai tag pengubah karena pengubah tidak dirender.
@@ -282,8 +310,8 @@ export function metaOf(it, kind, N, o){
  */
 export function finalManifest(doc, list, exportedAt){
   const man = doc.manifest, pv = doc.pv, style = doc.style;
-  const family = pv === "X" ? "accent" : pv === OFFSET_MODE ? "offset" : pv === HAND_WRITING_MODE ? "hand-writing" : "classic";
-  const mode = pv === "X" || pv === HAND_WRITING_MODE ? ((man && man.style && man.style.mode) || "A") : pv === OFFSET_MODE ? manifestOffsetStyle(style).engine.offset.mode : pv;
+  const family = pv === "X" ? "accent" : pv === OFFSET_MODE ? "offset" : pv === HAND_WRITING_MODE ? "hand-writing" : pv === STICKER_MODE ? "sticker" : "classic";
+  const mode = pv === "X" || pv === HAND_WRITING_MODE ? ((man && man.style && man.style.mode) || "A") : pv === OFFSET_MODE ? manifestOffsetStyle(style).engine.offset.mode : pv === STICKER_MODE ? manifestStickerStyle(style).engine.sticker.mode : pv;
   const hw = pv === HAND_WRITING_MODE;
   return {...(man || {}), format:"tib-manifest", /* TIB menulis version:1 lalu version:2; nilai dan urutan kunci hasilnya sama */ version:2, generator:{name:"Template Icon Builder", version:OUTPUT_VERSION, exported_at:exportedAt},
     style:{...((man && man.style) || {}), family, mode, ink:style.ink, accent:style.accent, ...(hw ? {engine:{"hand-writing":manifestHandWritingStyle(style).engine["hand-writing"]}} : {})},
@@ -308,7 +336,7 @@ export async function buildExportFiles(doc, opts, deps){
   const flagDeps = { vocab: deps.vocab, renderer: deps.renderer, style: doc.style };
   const list = exportList(doc, opts, flagDeps);
   const styles = BUILDER_MODES.filter(m => opts.modes[m]);
-  const withOffset = styles.includes(OFFSET_MODE), withHw = styles.includes(HAND_WRITING_MODE);
+  const withOffset = styles.includes(OFFSET_MODE), withHw = styles.includes(HAND_WRITING_MODE), withSticker = styles.includes(STICKER_MODE);
   if (!list.length || !styles.length) return { error: "Tidak ada ikon atau gaya yang dipilih untuk diekspor.", list, styles };
   await TAGS.loadTags();
   const tagsOf = (/** @type {string} */ k, /** @type {"main" | "mod"} */ kind) => TAGS.tagsOf(deps.vocab.libName(k, kind));
@@ -337,10 +365,10 @@ export async function buildExportFiles(doc, opts, deps){
     return { error: `Ekspor outline dibatalkan: ${/** @type {Error} */ (error).message}`, list, styles };
   }
   files["metadata.csv"] = metadataCsv(canvaRows, CANVA_COLUMNS, {quoteHeader:false});
-  files["submission-profile.json"] = JSON.stringify({format:"icon-composer-submission-profile", version:1, creator_profile_id:artist, artist, stroke_output:"direct-fill", output_version:OUTPUT_VERSION, classic_engine:CLASSIC_ENGINE_VERSION, ...(withOffset ? {offset_engine:OFFSET_ENGINE_VERSION} : {}), ...(withHw ? {hand_writing_engine:HAND_WRITING_ENGINE_VERSION} : {}), svg_structure:"one-path-per-color", fill_rule:"nonzero", updates:["Overlap satu warna tidak menjadi lubang", "Stroke otomatis menjadi fill", "Mask diratakan", "Transform dan group dihapus", "Satu path per warna"]}, null, 2);
+  files["submission-profile.json"] = JSON.stringify({format:"icon-composer-submission-profile", version:1, creator_profile_id:artist, artist, stroke_output:"direct-fill", output_version:OUTPUT_VERSION, classic_engine:CLASSIC_ENGINE_VERSION, ...(withOffset ? {offset_engine:OFFSET_ENGINE_VERSION} : {}), ...(withHw ? {hand_writing_engine:HAND_WRITING_ENGINE_VERSION} : {}), ...(withSticker ? {sticker_engine:STICKER_ENGINE_VERSION} : {}), svg_structure:"one-path-per-color", fill_rule:"nonzero", updates:["Overlap satu warna tidak menjadi lubang", "Stroke otomatis menjadi fill", "Mask diratakan", "Transform dan group dihapus", "Satu path per warna"]}, null, 2);
   files["metadata-internal.csv"] = metadataCsv(rows, INTERNAL_COLUMNS, {quoteHeader:false});
   files["resource-page.html"] = resourceHTML(list, {man: doc.manifest, cols: sheetGrid(list.length, opts.sheetCols), render: (it, idp) => render(it, doc.pv, {idp}), searchOf: (it) => searchOf(it, doc.manifest, deps.brand)});
   files["manifest-final.json"] = JSON.stringify(finalManifest(doc, list, deps.now ? deps.now() : new Date().toISOString()), null, 2);
-  files["LICENSES.txt"] = LICENSES + (withOffset ? LICENSE_OFFSET : "") + (withHw ? LICENSE_HAND_WRITING : "");
+  files["LICENSES.txt"] = LICENSES + (withOffset ? LICENSE_OFFSET : "") + (withHw ? LICENSE_HAND_WRITING : "") + (withSticker ? LICENSE_STICKER : "");
   return { files, base, list, styles };
 }

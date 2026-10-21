@@ -131,7 +131,7 @@ test("set offset-composer lama ditambahkan sekali ke Icon Studio yang sudah ada"
   const stored = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("icon-studio-v1") || "{}"),
   );
-  expect(stored.migrations).toEqual(["002-from-offset", "003-from-hand-writing"]);
+  expect(stored.migrations).toEqual(["002-from-offset", "003-from-hand-writing", "004-from-sticker"]);
   expect(stored.documents.map((/** @type {any} */ d) => d.style.family)).toEqual(["offset"]);
   /* muat ulang: tidak dimigrasikan lagi, kunci lama tetap ada */
   await page.reload();

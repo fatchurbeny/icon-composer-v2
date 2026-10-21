@@ -18,6 +18,7 @@
     "exclude": ["brand-*"],
     "cdn": {
       "nodes": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/tabler-nodes-outline.json",
+      "nodesFilled": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/tabler-nodes-filled.json",
       "meta": "https://cdn.jsdelivr.net/npm/@tabler/icons@3.49.0/icons.json"
     }
   },

@@ -6,6 +6,7 @@
 import { ensureComboFields } from "./combo-ops.js";
 import { BLOB_MODES, HAND_WRITING_RANGES, handWritingItem, handWritingParams } from "@icon-studio/engines/hand-writing";
 import { OFFSET_RANGES, offsetDeco, offsetParams } from "@icon-studio/engines/offset";
+import { STICKER_RANGES, STICKER_SLOTS, slot4, stickerItem, stickerParams } from "@icon-studio/engines/sticker";
 import { SET_FAMILIES, applyFamily, blankItem, normItem } from "./document.js";
 
 /** Pool Kombinasi bawaan (bSel IC 1.5.1). */
@@ -99,13 +100,24 @@ export function moveItem(doc, id, to) {
  * @param {"main" | "mod"} layer
  * @param {string} key
  * @param {import("./document.js").Library} lib
+ * @param {string} [family] keluarga gaya set (sticker: slot 4 sudut, tanpa geser objek)
  */
-export function replaceLayer(it, layer, key, lib) {
+export function replaceLayer(it, layer, key, lib, family) {
   if (lib.LIB_RE.test(key)) lib.ensure(key, layer);
   if (layer === "main") {
     it.main = key;
     it.parts = null;
     it.vis.main = true;
+    return it;
+  }
+  /* sticker: hanya 4 sudut, slot pengubah lama dipertahankan, objek utama tidak ikut digeser (legacy sticker) */
+  if (family === "sticker") {
+    const had = it.mod && it.mod !== "none";
+    it.mod = key;
+    it.slot = had ? slot4(it.slot) : slot4((lib.MODS[key] && lib.MODS[key].slot) || "TR");
+    it.nx = 0;
+    it.ny = 0;
+    it.vis.mod = true;
     return it;
   }
   it.mod = key;
@@ -148,6 +160,10 @@ export const STYLE_RANGES = {
   "hand-writing.gap": HAND_WRITING_RANGES.gap,
   "hand-writing.rot": HAND_WRITING_RANGES.rot,
   "hand-writing.ko": HAND_WRITING_RANGES.ko,
+  "sticker.sw": STICKER_RANGES.sw,
+  "sticker.halo": STICKER_RANGES.halo,
+  "sticker.off": STICKER_RANGES.off,
+  "sticker.spk": STICKER_RANGES.spk,
 };
 
 /** Field gaya hand-writing yang berlaku untuk seluruh set (docs/engines/hand-writing.md). */
@@ -159,11 +175,20 @@ const HW_FIELDS = ["acc", "ink", "sw", "puff", "off", "gap", "rot", "ko"];
  * @param {string} key sw, gap, cap, pref, fx, ink, accent, family, scale.main, scale.mod, scale.deco,
  *   offset.mode, offset.acc, offset.ink, offset.dx, offset.dy, offset.sw,
  *   hand-writing.acc, hand-writing.ink, hand-writing.sw, hand-writing.puff, hand-writing.off,
- *   hand-writing.gap, hand-writing.rot, hand-writing.ko
+ *   hand-writing.gap, hand-writing.rot, hand-writing.ko,
+ *   sticker.mode, sticker.ink, sticker.sw, sticker.halo, sticker.off, sticker.spk, sticker.rays, sticker.curl
  * @param {any} value
  */
 export function setStyleValue(style, key, value) {
   if (key === "family") return applyFamily(style, SET_FAMILIES.includes(value) ? value : "classic");
+  if (key.startsWith("sticker.")) {
+    const name = key.slice(8);
+    if (!["mode", "ink", "sw", "halo", "off", "spk", "rays", "curl"].includes(name)) return style;
+    if (["sw", "halo", "off", "spk"].includes(name) && !Number.isFinite(Number(value))) return style;
+    const v = name === "rays" || name === "curl" ? !!value : ["sw", "halo", "off", "spk"].includes(name) ? Number(value) : value;
+    style.engine = { ...(style.engine || {}), sticker: stickerParams({ ...stickerParams(style), [name]: v }) };
+    return style;
+  }
   if (key.startsWith("offset.")) {
     const name = key.slice(7);
     if (!["mode", "acc", "ink", "dx", "dy", "sw"].includes(name)) return style;
@@ -201,6 +226,7 @@ export function setStyleValue(style, key, value) {
  * Terapkan palet (kurasi atau harmoni) ke gaya set atau gaya manifest Builder.
  * - Klasik/Aksen: `ink` → `style.ink`, `accent` → `style.accent`, `fill` → `style.colors.main.fill` (isi objek utama).
  * - Offset dan hand-writing: `ink` → `style.engine.<id>.ink`, `accent` → `style.engine.<id>.acc`; isi tidak dipakai.
+ * - Sticker: hanya `ink` → `style.engine.sticker.ink` (isi per ikon di `item.engine.sticker`).
  * - Manifest (tanpa `style.colors`): hanya tinta dan aksen.
  * Peran yang tidak diisi tidak diubah. Warna yang bukan hex diabaikan.
  * @param {any} style
@@ -215,6 +241,11 @@ export function applyStyleColors(style, colors) {
   if (style.family === "offset" || style.family === "hand-writing") {
     if (ink) setStyleValue(style, `${style.family}.ink`, ink);
     if (accent) setStyleValue(style, `${style.family}.acc`, accent);
+    return { fill: false };
+  }
+  /* sticker: isi objek dan pengubah per ikon, jadi palet hanya mengganti tinta */
+  if (style.family === "sticker") {
+    if (ink) setStyleValue(style, "sticker.ink", ink);
     return { fill: false };
   }
   if (ink) style.ink = ink;
@@ -288,4 +319,77 @@ export function duplicateGroups(items, signature) {
     by.set(key, [...(by.get(key) || []), it]);
   }
   return [...by.values()].filter((group) => group.length > 1);
+}
+
+/** Rentang geser per lapisan sticker: objek dan pengubah dalam satuan 48 (legacy ±12 dan ±10 di kanvas 64), dekorasi di satuan 64 legacy. */
+export const STICKER_SHIFT = { main: 9, mod: 7.5, deco: 8 };
+
+/**
+ * Ubah satu nilai sticker per ikon. Objek dan pengubah: `main.c`, `main.s`, `main.fill`, `mod.c`, `mod.s`
+ * (ditulis ke `item.engine.sticker`), `main.x/y` dan `mod.x/y` (field kanonik `mx/my`, `nx/ny`, satuan 48).
+ * Dekorasi: `deco.seed`, `deco.s`, `deco.x`, `deco.y` (satuan 64 legacy). Nilai lain dari `stickerItem`
+ * ikut ditulis supaya warna bawaan yang sedang tampil tidak berubah. Field mesin lain tidak disentuh.
+ * @param {any} it
+ * @param {string} path
+ * @param {any} value
+ */
+export function setStickerValue(it, path, value) {
+  const [part, key] = path.split(".");
+  if (!["main", "mod", "deco"].includes(part)) return it;
+  const cur = stickerItem(it);
+  if ((part === "main" || part === "mod") && (key === "x" || key === "y")) {
+    const v = Number(value);
+    if (!Number.isFinite(v)) return it;
+    const lim = STICKER_SHIFT[part];
+    const k = part === "main" ? (key === "x" ? "mx" : "my") : key === "x" ? "nx" : "ny";
+    it[k] = Math.max(-lim, Math.min(lim, Math.round(v * 20) / 20));
+    return it;
+  }
+  const sub = /** @type {any} */ ({ ...cur[/** @type {"main" | "mod" | "deco"} */ (part)] });
+  if (key === "c") {
+    if (!/^#[0-9a-f]{6}$/i.test(String(value))) return it;
+    sub.c = String(value).toUpperCase();
+  } else if (key === "fill") sub.fill = ["auto", "plate", "none"].includes(value) ? value : "auto";
+  else if (key in sub && Number.isFinite(Number(value))) sub[key] = Number(value);
+  else return it;
+  const prev = (it.engine && it.engine.sticker) || {};
+  const next = { ...prev, [part]: sub };
+  it.engine = { ...(it.engine || {}), sticker: next };
+  /* batasi lewat stickerItem, lalu simpan nilai yang sudah sah */
+  const ok = stickerItem(it);
+  it.engine.sticker = { ...next, [part]: part === "deco" ? { seed: ok.deco.seed, s: ok.deco.s, x: ok.deco.x, y: ok.deco.y } : ok[/** @type {"main" | "mod"} */ (part)] };
+  return it;
+}
+
+/**
+ * Ganti slot pengubah sticker (4 sudut). Geser pengubah direset, objek utama tidak ikut digeser.
+ * @param {any} it
+ * @param {string} slot
+ */
+export function setStickerSlot(it, slot) {
+  if (!(slot in STICKER_SLOTS)) return it;
+  it.slot = slot;
+  it.nx = 0;
+  it.ny = 0;
+  return it;
+}
+
+/**
+ * Kembalikan posisi lapisan sticker ke bawaan: objek di tengah, pengubah di titik slotnya, dekorasi tanpa geser dan skala 1.
+ * @param {any} it
+ * @param {"main" | "mod" | "deco"} layer
+ */
+export function resetStickerLayer(it, layer) {
+  if (layer === "main") {
+    it.mx = 0;
+    it.my = 0;
+  } else if (layer === "mod") {
+    it.nx = 0;
+    it.ny = 0;
+  } else {
+    setStickerValue(it, "deco.x", 0);
+    setStickerValue(it, "deco.y", 0);
+    setStickerValue(it, "deco.s", 1);
+  }
+  return it;
 }

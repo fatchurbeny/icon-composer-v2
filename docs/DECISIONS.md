@@ -79,6 +79,18 @@ Rencana kerja: `docs/plans/fase-2b.md`.
 3. **Builder mode `H`.** Folder `hand-writing/`, kata gaya "Hand-writing Style" (ADR-010). Tanpa pengubah tidak diberi flag `err`, sama dengan offset (ADR-009): goresan tangan sudah membedakan ikon dari ikon pustaka. Tabrakan nama objek + pengubah dengan ikon pustaka tetap `err`, karena pengubah dirender.
 4. **Objek bawaan IC/TIB tidak didukung** (`builtinMains:false`): SVG kosong + flag `err`; pengubah bawaan `warn` dan tidak dirender.
 
+### ADR-019 · 2026-10-20 · Mesin sticker dan direct fill di ZIP Composer (Fase 5)
+**Konteks:** Fase 5 memindahkan sticker-composer ke kontrak mesin dan menyalakan direct fill IC (ADR-011).
+**Keputusan teknis Fase 5** (menunggu tinjauan Beny; butir 2 dan 5 menunggu keputusan pemilik):
+1. Mesin `sticker` 1.1.0 menghitung di kanvas 64 legacy dan mengeluarkan viewBox 48. Mode `mask` memotong setiap bagian dengan siluet bagian di atasnya, supaya direct fill satu path per warna tidak bergantung urutan tumpukan.
+2. Bentuk isi dibangun `scripts/build-icon-data.mjs` ke `fill-shapes.json`. Fallback Tabler memakai deteksi titik ujung karena Tabler 3.4x tidak lagi menulis `z`; Lucide tetap aturan legacy (hanya path ber-`z`) sampai pemilik memutuskan (pertanyaan terbuka di `engines/sticker.md`).
+3. Ikon tanpa bentuk isi memakai `plate` (lingkaran), sesuai spesifikasi.
+4. SVG di akar ZIP Composer selalu direct fill; SVG asli ke `svg-asli/` (opsional). `stroke-dasharray` objek bawaan (`ticket`) dipanggang jadi geometri di jalur ekspor (`outlineSvgFile`), bukan di mesin, supaya golden render classic tetap identik. Ikon yang tetap gagal direct fill dilewati dari SVG Canva dan disebut di status unduhan.
+5. Builder mode `S`: isi objek = aksen manifest, isi pengubah kuning. Usulan sementara, menunggu persetujuan pemilik.
+6. Migrasi `004-from-sticker`. Id 003 dipakai migrasi coret-composer (Fase 4, ADR-018); app menjalankan 002, 003, lalu 004 berurutan.
+
+Catatan penomoran: Fase 4 dan Fase 5 dikerjakan paralel dan sama-sama memakai nomor ADR-018. Saat digabung (2026-10-21), ADR Fase 4 tetap ADR-018 dan ADR Fase 5 menjadi ADR-019.
+
 ---
 
 ## Dibatalkan (jangan dipasang lagi tanpa diminta)

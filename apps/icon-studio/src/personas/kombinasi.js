@@ -6,6 +6,7 @@
  */
 import { get } from "@icon-studio/engines";
 import { activePool, addCombos, comboMatrix, comboPrefs, libraryOnly, matrixMains, matrixMods, objectsOnly, setSkip, togglePool } from "../state/combo-ops.js";
+import { slot4 } from "@icon-studio/engines/sticker";
 import { setStyleValue } from "../state/set-ops.js";
 import { alert, button, check, empty, esc, panel, seg, select } from "../ui.js";
 import { ENGINE_NAMES, NO_MOD_TEXT, READY_ENGINES, docFileName, engineInfo, statusBar } from "./common.js";
@@ -53,13 +54,13 @@ function canvas(ctx) {
   if (!isSet(ctx)) return `<div class="studio-center">${empty("Kombinasi bekerja pada set Composer.", "Buka sebuah set di Composer lebih dulu.")}</div>`;
   const mx = matrixOf(ctx);
   if (!mx.mains.length || !mx.mods.length)
-    return `<div class="studio-center">${empty("Matriks kombinasi masih kosong.", objectsOnly(ctx.doc) ? "Gaya Offset memakai objek dari pustaka. Tambahkan objek dari Pustaka di kiri." : libraryOnly(ctx.doc) ? "Gaya Hand-writing memakai objek dan pengubah dari pustaka. Tambahkan dari Pustaka di kiri." : "Pilih minimal satu objek utama dan satu pengubah di Pool, atau tambahkan dari Pustaka di kiri.")}</div>`;
+    return `<div class="studio-center">${empty("Matriks kombinasi masih kosong.", objectsOnly(ctx.doc) ? "Gaya Offset memakai objek dari pustaka. Tambahkan objek dari Pustaka di kiri." : libraryOnly(ctx.doc) ? `Gaya ${/** @type {any} */ (ENGINE_NAMES)[ctx.doc.style.family]} memakai objek dan pengubah dari pustaka. Tambahkan dari Pustaka di kiri.` : "Pilih minimal satu objek utama dan satu pengubah di Pool, atau tambahkan dari Pustaka di kiri.")}</div>`;
   const head = mx.mods
     .map((d) => {
       if (d === "none")
         return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="none" aria-label="Pilih atau lewati semua objek"><span class="ic-mono">objek saja</span><span class="ic-meta">${esc(NO_MOD_TEXT)}</span></button>`;
       const D = ctx.renderer.lib.MODS[d];
-      return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="${esc(d)}" aria-label="Pilih atau lewati semua dengan pengubah ${esc(d)}">${headIcon(ctx, d, "mod")}<span class="ic-mono">${esc(d)}</span><span class="ic-meta">${esc(ctx.doc.combo.pos === "default" ? (D && D.slot) || "BL" : ctx.doc.combo.pos)}</span></button>`;
+      return `<button type="button" class="studio-mhead studio-mhead--col" data-action="k-col" data-key="${esc(d)}" aria-label="Pilih atau lewati semua dengan pengubah ${esc(d)}">${headIcon(ctx, d, "mod")}<span class="ic-mono">${esc(d)}</span><span class="ic-meta">${esc(ctx.doc.style.family === "sticker" ? slot4(ctx.doc.combo.pos === "default" ? (D && D.slot) || "TR" : ctx.doc.combo.pos) : ctx.doc.combo.pos === "default" ? (D && D.slot) || "BL" : ctx.doc.combo.pos)}</span></button>`;
     })
     .join("");
   const rows = mx.rows

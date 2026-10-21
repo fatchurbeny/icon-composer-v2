@@ -9,6 +9,7 @@
     "./accent": "./accent/index.js",
     "./offset": "./offset/index.js",
     "./hand-writing": "./hand-writing/index.js",
+    "./sticker": "./sticker/index.js",
     "./shared": "./shared/index.js"
   }
 }

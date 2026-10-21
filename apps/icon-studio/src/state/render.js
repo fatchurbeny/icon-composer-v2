@@ -11,6 +11,7 @@ import { createClassicData, decoMarkupClassic, solidLineDiagnostic as solidLineD
 import { modPreviewAccent as modPreviewAccentEngine } from "@icon-studio/engines/accent";
 import { boxesHandWriting } from "@icon-studio/engines/hand-writing";
 import { boxesOffset } from "@icon-studio/engines/offset";
+import { boxesSticker, stickerShapes } from "@icon-studio/engines/sticker";
 import {
   ROLES,
   createLibraryShapes,
@@ -21,7 +22,8 @@ import {
 } from "@icon-studio/engines/shared";
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
-import { HAND_WRITING_MODE, MODES, OFFSET_MODE, manifestHandWritingStyle, manifestOffsetStyle, useStyle } from "./document.js";
+import { fillShapeOf } from "@icon-studio/icon-sources/fill-shapes";
+import { HAND_WRITING_MODE, MODES, OFFSET_MODE, STICKER_MODE, manifestHandWritingStyle, manifestOffsetStyle, manifestStickerItem, manifestStickerStyle, useStyle } from "./document.js";
 import { layerBoxes } from "./edit-ops.js";
 
 /**
@@ -95,7 +97,7 @@ export function createRenderer(options) {
   }
 
   /**
-   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset, hand-writing).
+   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset, hand-writing, sticker).
    * Objek bawaan dan ikon yang belum termuat menghasilkan null.
    * @param {string} key
    */
@@ -105,7 +107,8 @@ export function createRenderer(options) {
       idx = src && src.index();
     return (idx && idx.get(key.slice(3))) || null;
   }
-  const offsetCtx = { nodeOf };
+  /** `ctx` mesin yang membaca node pustaka: offset dan hand-writing memakai `nodeOf`, sticker juga bentuk isi (`fillShapeOf`). */
+  const offsetCtx = { nodeOf, fillShapeOf };
 
   /**
    * Kotak lapisan ikon set dalam satuan 48 (wilayah klik editor dan cek tepi viewBox).
@@ -115,11 +118,13 @@ export function createRenderer(options) {
   function boxesOf(it, style) {
     if (style.family === "offset") return boxesOffset(it, style, offsetCtx);
     if (style.family === "hand-writing") return boxesHandWriting(it, style, offsetCtx);
+    if (style.family === "sticker") return boxesSticker(it);
     return layerBoxes(it, style, data);
   }
 
   /**
-   * Flag khusus mesin untuk satu ikon set (offset dan hand-writing: objek bawaan, bidang tertutup, pengubah).
+   * Flag khusus mesin untuk satu ikon set (offset dan hand-writing: objek bawaan, bidang tertutup, pengubah;
+   * sticker: objek bawaan, tanpa bentuk isi, slot dipetakan).
    * @param {any} it
    * @param {any} style
    * @returns {[string, string][]}
@@ -137,7 +142,7 @@ export function createRenderer(options) {
    * @param {any[]} [customs]
    */
   function renderSetItem(it, style, opt, customs = []) {
-    if (style.family === "offset" || style.family === "hand-writing") {
+    if (style.family === "offset" || style.family === "hand-writing" || style.family === "sticker") {
       const engine = get(style.family);
       return engine.compose(engine.adapt(it, style), style, { ...(opt || {}), ctx: offsetCtx });
     }
@@ -149,9 +154,10 @@ export function createRenderer(options) {
   /**
    * Render ikon Builder untuk satu mode (render TIB). Gaya dokumen tidak diubah.
    * Mode O memakai mesin offset: pengubah tidak dirender, dekorasi dari `offsetDeco` (bawaan kilat + tanah).
-   * @param {any} it
    * Mode H memakai mesin hand-writing: pengubah pustaka di anchor item, tinta dan aksen dari gaya manifest.
-   * @param {string} mode X | A | B | C | O | H
+   * Mode S memakai mesin sticker: isi objek = aksen manifest (`manifestStickerItem`), slot dipetakan ke 4 sudut.
+   * @param {any} it
+   * @param {string} mode X | A | B | C | O | H | S
    * @param {any} style
    * @param {{size?: number | string, idp?: string}} [opt]
    */
@@ -166,6 +172,10 @@ export function createRenderer(options) {
     if (mode === OFFSET_MODE) {
       const engine = get("offset");
       return engine.compose(engine.adapt(it, style), manifestOffsetStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
+    }
+    if (mode === STICKER_MODE) {
+      const engine = get("sticker");
+      return engine.compose(engine.adapt(manifestStickerItem(it, style), style), manifestStickerStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
     }
     const s = useStyle({ ...style }, mode);
     if (mode === "X")
@@ -232,6 +242,9 @@ export function createRenderer(options) {
     renderSetItem,
     renderManifestItem,
     nodeOf,
+    fillShapeOf,
+    /** Markup outline dan bentuk isi sticker satu kunci (uji paritas legacy). @param {string} key */
+    stickerShapes: (key) => stickerShapes(key, offsetCtx),
     boxesOf,
     flagsOf,
     modPreviewAccent,

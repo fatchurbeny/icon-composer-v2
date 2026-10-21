@@ -189,7 +189,7 @@ describe("Icon Studio builder-ops", () => {
       const r = manifestStyle({ style: { family: "offset", mode: "white" } }, st);
       expect(r).toEqual({
         pv: "O",
-        exportModes: { X: false, A: false, B: false, O: true, H: false },
+        exportModes: { X: false, A: false, B: false, O: true, H: false, S: false },
       });
       expect(manifestOffsetStyle(st)).toEqual({
         family: "offset",
@@ -266,7 +266,7 @@ describe("Icon Studio builder-ops", () => {
     test("manifest family hand-writing atau coret memilih mode H; manifest akhir menulis parameter mesin", () => {
       for (const family of ["hand-writing", "coret"]) {
         const st = { ink: "#111111", accent: "#AA2244" };
-        expect(manifestStyle({ style: { family } }, st)).toEqual({ pv: "H", exportModes: { X: false, A: false, B: false, O: false, H: true } });
+        expect(manifestStyle({ style: { family } }, st)).toEqual({ pv: "H", exportModes: { X: false, A: false, B: false, O: false, H: true, S: false } });
       }
       const st = { ink: "#111111", accent: "#AA2244" };
       expect(manifestHandWritingStyle(st).engine["hand-writing"]).toMatchObject({ acc: "#AA2244", ink: "#111111", gap: 9, sw: 2.3 });

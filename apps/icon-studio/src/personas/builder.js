@@ -18,7 +18,7 @@ import {
   packOf,
   sheetGrid,
 } from "../state/builder-ops.js";
-import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, SPARKS, kebab2, manifestOffsetStyle, sparkHome } from "../state/document.js";
+import { BUILDER_MODES, HAND_WRITING_MODE, OFFSET_MODE, SPARKS, STICKER_MODE, kebab2, manifestOffsetStyle, manifestStickerStyle, sparkHome } from "../state/document.js";
 import { setSlot } from "../state/edit-ops.js";
 import { ACCENT_OPTIONS, INK_OPTIONS } from "../state/data/palettes.js";
 import { setStyleValue } from "../state/set-ops.js";
@@ -30,10 +30,11 @@ import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } f
 const ROLE_NAME = { ink: "Tinta", acc: "Aksen", fillA: "Isi aksen", fill: "Isi tinta" };
 const UNDER_NAME = { none: "Tanpa", full: "Penuh", offset: "Geser", half: "Separuh" };
 const ANCHORS = ["TL", "TC", "TR", "ML", "C", "MR", "BL", "BC", "BR"];
-const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis", O: "Offset", H: "Hand-writing" };
+const PREVIEW_LABEL = { X: "Aksen", A: "Klasik · garis-solid", B: "Klasik · solid-garis", O: "Offset", H: "Hand-writing", S: "Sticker" };
 /** Nama opsi ekspor untuk Riwayat dan urungkan. */
 const EXPORT_OPTION_LABEL = { slot: "Ikon slot deck", extra: "Ikon ekstra", split: "Pisahkan folder", skipBad: "Lewati ikon bermasalah" };
 const OFFSET_FILL_NAME = [["solid", "Bidang"], ["white", "Putih"], ["line", "Garis"]];
+const STICKER_FILL_NAME = [["sticker", "Stiker"], ["fill", "Isi"], ["line", "Garis"]];
 
 /** Status ekspor terakhir (bukan bagian dokumen). */
 let exportStatus = "";
@@ -191,6 +192,12 @@ function iconBody(ctx, it) {
     out.push(
       `<span class="ic-label">Gaya Hand-writing</span>`,
       `<span class="ic-meta">Tinta dan aksen mengikuti warna pack. Tebal tinta, blob, celah goresan, dan miring memakai bawaan Hand-writing. Objek dan pengubah harus dari pustaka.</span>`,
+    );
+  if (ctx.doc.pv === STICKER_MODE)
+    out.push(
+      `<span class="ic-label">Gaya Sticker</span>`,
+      `<div class="ic-formrow"><span class="ic-label">Mode warna</span>${seg("Mode warna sticker", STICKER_FILL_NAME, manifestStickerStyle(ctx.doc.style).engine.sticker.mode, { name: "b-sfill" })}</div>`,
+      `<span class="ic-meta">Berlaku untuk seluruh pack. Isi objek memakai warna aksen, isi pengubah kuning. Pengubah memakai 4 sudut, dekorasi sinar, sparkle, dan ikal dari bawaan mesin.</span>`,
     );
   if (ctx.doc.pv === "X") {
     const info = ctx.renderer.mainInfo(it.main),
@@ -454,6 +461,11 @@ function control(ctx, name, value) {
       const e = doc.style.engine || {};
       doc.style.engine = { ...e, offset: { ...(e.offset || {}), mode: manifestOffsetStyle({ engine: { offset: { mode: value } } }).engine.offset.mode } };
     }, "Isi warna offset");
+  if (name === "b-sfill")
+    return mutate(ctx, () => {
+      const e = doc.style.engine || {};
+      doc.style.engine = { ...e, sticker: { ...(e.sticker || {}), mode: manifestStickerStyle({ engine: { sticker: { mode: value } } }).engine.sticker.mode } };
+    }, "Mode warna sticker");
   if (name === "b-group") return mutate(ctx, () => (doc.view.group = !!value));
   if (name === "b-on") return mutateItem(ctx, (it) => (it.on = !!value), value ? "Masuk pack" : "Dikeluarkan dari pack");
   if (name === "b-id") return mutateItem(ctx, (it) => (it.id = kebab2(value) || it.id), "Ubah id");

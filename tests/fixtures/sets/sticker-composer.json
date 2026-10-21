@@ -1,0 +1,64 @@
+{
+  "_note": "Contoh data sticker-composer (legacy/style/sticker-composer.html): isi localStorage sticker-composer-v1 dan gaya.json dari ZIP Tinjau pack.",
+  "storage": {
+    "sticker-composer-v1": {
+      "style": { "mode": "fill", "sw": 2.8, "halo": 3.25, "off": 1.2, "spk": 4, "rays": false, "curl": true, "ink": "#2B3A67" },
+      "set": [
+        {
+          "id": "a1b2c3d",
+          "name": "Koper siap",
+          "main": { "k": "lu:luggage", "c": "#E5484D", "s": 1.8, "x": 0, "y": 1, "fill": "auto" },
+          "mod": { "k": "tb:circle-check", "c": "#6BD88A", "s": 0.9, "slot": "TR", "x": 0, "y": 0 },
+          "deco": { "on": true, "seed": 7, "s": 1, "x": 0, "y": 0 },
+          "vis": { "main": true, "mod": true }
+        },
+        {
+          "id": "e4f5g6h",
+          "name": "",
+          "main": { "k": "tb:camera", "c": "#5AA9F8", "s": 2, "x": -4, "y": 2, "fill": "plate" },
+          "mod": { "k": "tb:heart", "c": "#E5484D", "s": 1.1, "slot": "BL", "x": 2, "y": -2 },
+          "deco": { "on": false, "seed": 33, "s": 1.2, "x": 4, "y": -4 },
+          "vis": { "main": true, "mod": false }
+        },
+        {
+          "id": "i7j8k9l",
+          "name": "Kereta gantung",
+          "main": { "k": "lu:cable-car", "c": "#ZZZZZZ", "s": 9, "x": 0, "y": 1, "fill": "aneh" },
+          "mod": { "k": null, "c": "#F9D84A", "s": 0.9, "slot": "TR", "x": 0, "y": 0 },
+          "deco": { "on": true, "seed": 99, "s": 1, "x": 0, "y": 0 },
+          "vis": { "main": true, "mod": true }
+        }
+      ],
+      "pools": {
+        "main": [
+          { "k": "lu:luggage", "c": "#E5484D", "on": true },
+          { "k": "tb:camera", "c": "#5AA9F8", "on": false }
+        ],
+        "mod": [
+          { "k": "tb:circle-plus", "c": "#6BD88A", "slot": "TR", "on": true },
+          { "k": "tb:sun", "c": "#F9D84A", "slot": "TR", "on": false }
+        ]
+      }
+    }
+  },
+  "gayaJson": {
+    "kanvas": 64,
+    "style": { "mode": "sticker", "sw": 2.4, "halo": 3.25, "off": 1, "spk": 3, "rays": true, "curl": true, "ink": "#17171B" },
+    "ikon": [
+      {
+        "name": "Pantai",
+        "main": { "k": "tb:umbrella", "c": "#E5484D", "s": 1.8, "x": 0, "y": 1, "fill": "auto" },
+        "mod": { "k": "tb:sun", "c": "#F9D84A", "s": 0.9, "slot": "TR", "x": 0, "y": 0 },
+        "deco": { "on": true, "seed": 12, "s": 1, "x": 0, "y": 0 },
+        "vis": { "main": true, "mod": true }
+      },
+      {
+        "name": "Tanpa objek",
+        "main": { "k": null, "c": "#E5484D", "s": 1.8, "x": 0, "y": 1, "fill": "auto" },
+        "mod": { "k": null, "c": "#F9D84A", "s": 0.9, "slot": "TR", "x": 0, "y": 0 },
+        "deco": { "on": true, "seed": 12, "s": 1, "x": 0, "y": 0 },
+        "vis": { "main": true, "mod": true }
+      }
+    ]
+  }
+}

@@ -37,8 +37,9 @@ Basisnya model item IC 1.5.1, ditambah blok `engine` untuk data khusus mesin.
 Di TIB, item juga punya field Builder: `uid, idRaw, name:{en,id}, slides, role, keywords, on`.
 
 Aturan:
-- `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada. Pengecualian offset dan hand-writing: `engine.offset` dan `engine["hand-writing"]` tidak ditulis oleh `normItem`; bawaannya diisi saat `adapt` (`offsetDeco`: kilat kanan atas + garis tanah; `handWritingItem`: `ms` 0,5, `blob` auto, `seed` 1), dan field ditulis hanya saat pengguna mengubahnya atau saat impor set lama. Alasannya, `gaya.json` set classic/accent harus tetap sama dengan IC 1.5.1 (golden).
+- `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada. Pengecualian offset, hand-writing, dan sticker: `engine.offset`, `engine["hand-writing"]`, dan `engine.sticker` tidak ditulis oleh `normItem`; bawaannya diisi saat `adapt` (`offsetDeco`: kilat kanan atas + garis tanah; `handWritingItem`: `ms` 0,5, `blob` auto, `seed` 1; `stickerItem`), dan field ditulis hanya saat pengguna mengubahnya atau saat impor set lama. Alasannya, `gaya.json` set classic/accent harus tetap sama dengan IC 1.5.1 (golden).
 - `engine["hand-writing"].ms` adalah skala pengubah hand-writing (0,36–0,7), terpisah dari `item.ms` IC (persen, tidak dibaca mesin baru).
+- `engine.sticker`: `main.c`/`mod.c` warna isi (`#RRGGBB`), `main.s` 1,2–2,3, `mod.s` 0,5–1,4, `main.fill` `auto`/`plate`/`none`, `deco.seed` 1–60 (`seed` di tingkat `engine.sticker` dibaca bila `deco.seed` kosong), `deco.s` 0,6–1,3, `deco.x/y` ±8 dalam satuan kanvas 64 legacy. Bawaan bila kosong: isi objek dari palet menurut kunci objek, isi pengubah kuning, seed dari `hash(id)` (lihat `engines/sticker.md`). Posisi objek dan pengubah tetap di field kanonik `mx/my`, `nx/ny` (satuan 48); slot 8 dipetakan ke 4 sudut saat `adapt`.
 - Rotasi per ikon: `mr` (objek utama, di pusat objek), `nr` (pengubah, di pusat kotaknya), dan `deco.r` (dekorasi, di titik `deco.x/y`). Rentang −180..180 derajat. `mr` dan `nr` hanya disimpan bila tidak 0 (`normItem` menghapus nilai 0 atau tidak valid), sehingga item tanpa rotasi tetap sama dengan IC 1.5.1. Skala tetap di tingkat set (`style.scale`). Dibaca mesin classic dan accent. Offset mengabaikannya.
 - Pindah gaya tidak menghapus `engine.<id>` milik gaya lain.
 - `engine.<id>` hanya dibaca oleh mesin `<id>`, lewat `adapt`.
@@ -54,7 +55,7 @@ style = {
 }
 ```
 
-Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, `offset`, dan `hand-writing` (`"coret"` dibaca sebagai `hand-writing`). `style.engine.offset` (`mode, acc, ink, dx, dy, sw, size`) dan `style.engine["hand-writing"]` (`acc, ink, sw, puff, off, gap, rot, ko`) hanya ditulis bila set pernah memakai gaya itu, dan pindah ke offset atau hand-writing tidak mengubah field classic/accent (`sw`, `gap`, `scale`, dst.), sehingga kembali ke Klasik atau Aksen memulihkan patokan lama (`ENGINE_FAMILIES` di `state/document.js`).
+Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, `offset`, `hand-writing` (`"coret"` dibaca sebagai `hand-writing`), dan `sticker`. `style.engine.offset` (`mode, acc, ink, dx, dy, sw, size`), `style.engine["hand-writing"]` (`acc, ink, sw, puff, off, gap, rot, ko`), dan `style.engine.sticker` (`mode, sw, halo, off, spk, rays, curl, ink`) hanya ditulis bila set pernah memakai gaya itu, dan pindah ke offset, hand-writing, atau sticker tidak mengubah field classic/accent (`sw`, `gap`, `scale`, dst.), sehingga kembali ke Klasik atau Aksen memulihkan patokan lama (`ENGINE_FAMILIES` di `state/document.js`).
 
 `normStyle` lama hanya menerima `classic` dan `accent`. Fungsi ini diganti `registry.normStyle(style)` yang memanggil `engine.normStyle` milik mesin aktif dan mempertahankan `saved` untuk semua keluarga.
 
@@ -69,29 +70,33 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, `offset`, dan `hand
 | `tib-canva-brand-id` | TIB | tetap, tidak pernah masuk manifest |
 | `offset-composer-v1` | offset-composer 1.0.1 | dibaca sekali oleh migrasi 002, juga bila `icon-studio-v1` sudah ada (bagian 4.3) |
 | `coret-composer-v1` | coret-composer 1.0.0 (gaya hand-writing) | dibaca sekali oleh migrasi 003, juga bila `icon-studio-v1` sudah ada (bagian 4.5) |
-| `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
+| `sticker-composer-v1` | sticker-composer | dibaca sekali oleh migrasi 004, juga bila `icon-studio-v1` sudah ada (bagian 4.6) |
 
-`icon-studio-v1` menyimpan `schemaVersion` dan `migrations` (daftar id migrasi yang sudah dijalankan pada state ini). Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes. Migrasi 001 hanya berjalan bila `icon-studio-v1` belum ada. Migrasi berikutnya berjalan bila id-nya belum tercatat di `migrations`, lalu dokumennya ditambahkan tanpa menimpa dokumen yang ada.
+`icon-studio-v1` menyimpan `schemaVersion` dan `migrations` (daftar id migrasi yang sudah dijalankan pada state ini). Migrasi berjalan berurutan (`migrations/001-…`, `002-…`, `003-…`, `004-…`), dan setiap langkah punya tes. Migrasi 001 hanya berjalan bila `icon-studio-v1` belum ada. Migrasi berikutnya berjalan bila id-nya belum tercatat di `migrations`, lalu dokumennya ditambahkan tanpa menimpa dokumen yang ada.
 
 ### 4.1 Isi `icon-studio-v1`
 
 ```js
-{ schemaVersion: 1, activeId, migrations: ["002-from-offset", "003-from-hand-writing"],
+{ schemaVersion: 1, activeId, migrations: ["002-from-offset", "003-from-hand-writing", "004-from-sticker"],
   colorPresets: ["#3A7BFF", …], swatchSource: "bawaan" | "preset",
   documents: [
   { id, kind: "set", name, style, items, customs,
     pool: { mains, mods, off }, view: { sort, cols, snap, grid, panel, anchor },
     combo: { pos, mode, skipExisting, skip },
-    review: { json, html, ko, fmt, bg, size, names, flags, compare, off },
+    review: { json, html, ko, fmt, bg, size, names, flags, compare, asli, off },
     meta: { canva: { on, artist, locale, packEn, packId, kw, desc, nm }, pack?, import? } },
-  { id, kind: "manifest", name, manifest, style, pv /* X|A|B|O */, items, isSample,
+  { id, kind: "manifest", name, manifest, style, pv /* X|A|B|O|H|S */, items, isSample,
     exportModes, export: { modes, slot, extra, split, skipBad, kw, name, locale, creator, description, sheetCols },
     view: { filter, group, step }, issues, review } ] }
 ```
 
 `view.anchor` (bawaan `TL`, salah satu `TL TC TR ML C MR BL BC BR`) adalah titik acuan kotak lapisan yang dibaca dan ditulis kolom X/Y di tab Transform Composer · Edit. Seperti seluruh `view`, nilainya tidak ikut undo.
 
-Dokumen manifest bergaya offset (Fase 3): `pv = "O"`, `export.modes.O`, dan isi warna di `style.engine.offset.mode` (`solid`, `white`, `line`). Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
+`review.asli` (bawaan `false`): sertakan SVG asli di folder `svg-asli/` ZIP Composer (ADR-011). SVG di akar ZIP selalu direct fill; `review.ko` hanya berlaku untuk SVG asli dan sprite.
+
+Dokumen manifest bergaya offset (Fase 3): `pv = "O"`, `export.modes.O`, dan isi warna di `style.engine.offset.mode` (`solid`, `white`, `line`).
+
+Dokumen manifest bergaya sticker (Fase 5): `pv = "S"`, `export.modes.S`, dan mode warna di `style.engine.sticker.mode` (`sticker`, `fill`, `line`). Manifest dengan `style.family: "sticker"` diimpor langsung ke mode `S`. Tinta memakai `style.ink`, isi objek `style.accent`, isi pengubah kuning (`manifestStickerStyle`, `manifestStickerItem`); posisi manifest diabaikan, slot dipetakan ke 4 sudut. Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
 
 ### 4.1.1 Preset saya dan sumber swatch (app-level)
 
@@ -196,13 +201,39 @@ Ikon dengan `main` di luar `lu:`/`tb:`/`hg:` dilewati dengan peringatan "N ikon 
 
 **Impor file:** di area impor, `app.importHandWritingSet` dicek setelah `importOffsetSet` dan sebelum manifest Builder. Tabler dan Hugeicons dimuat lebih dulu bila set memakainya.
 
+### 4.6 Migrasi 004 (`apps/icon-studio/src/state/migrations/004-from-sticker.js`)
+
+Sama dengan migrasi 002: berjalan sekali per state (ditandai `"004-from-sticker"`), dokumen ditambahkan di akhir, kunci lama tidak diubah. Berjalan setelah migrasi 003 (coret-composer, bagian 4.5). Konversinya `stickerSetFromComposer` di `state/document.js`, dipakai bersama oleh migrasi dan impor file (`app.importStickerSet`, teks yang ditempel atau diseret di area impor, dicek setelah `importHandWritingSet`).
+
+**Format sumber sticker-composer** (`legacy/style/sticker-composer.html`):
+
+| Sumber | Bentuk |
+|---|---|
+| localStorage `sticker-composer-v1` | `{ style, set: [ikon], pools: {main:[{k,c,on}], mod:[{k,c,slot,on}]} }` |
+| `gaya.json` di ZIP Tinjau pack | `{ kanvas: 64, style, ikon: [ikon tanpa id] }` |
+| ikon | `{ id, name, main:{k,c,s,x,y,fill}, mod:{k,c,s,slot,x,y}, deco:{on,seed,s,x,y}, vis:{main,mod} }` |
+
+**Pemetaan** (hasilnya satu dokumen set "Set Sticker Composer", `style.family = "sticker"`):
+
+| Field lama | Menjadi |
+|---|---|
+| `style` | `style.engine.sticker` (lewat `stickerParams`, nilai dibatasi rentang) |
+| `main.k`, `mod.k` (kosong = `"none"`), `mod.slot` | `item.main`, `item.mod`, `item.slot` |
+| `main.x/y`, `mod.x/y` (satuan 64) | `mx/my`, `nx/ny` dikali 0,75 (satuan 48) |
+| `main.c/s/fill`, `mod.c/s`, `deco.seed/s/x/y` | `item.engine.sticker` (dirapikan seperti saat dirender) |
+| `vis.main`, `vis.mod`, `deco.on` | `item.vis.main`, `item.vis.mod`, `item.vis.deco` |
+| `pools` (hanya localStorage) | `doc.pool` (`mains`, `mods`, `off` untuk yang tidak dicentang) |
+| (asal data) | `meta.import = { format: "sticker-composer", version: "", source: "sticker-composer-v1" \| "gaya.json", warnings }` |
+
+Ikon tanpa objek `lu:`/`tb:` dilewati dengan peringatan "N ikon tanpa objek Lucide atau Tabler dilewati". Gaya legacy sudah berlaku untuk seluruh set, jadi tidak ada penyeragaman.
+
 ## 5. Migrasi dari composer gaya lama
 
 | Sumber | Pemetaan ke item kanonik |
 |---|---|
 | offset `{key, name, mode, acc, ink, dx, dy, sw, size, dTick, tickPos, dGround, dCloud, dGrass}` | `main = key`, `mod = "none"`. Field gaya (`mode, acc, ink, dx, dy, sw`) diambil dari item pertama → `style.engine.offset`; `size` diganti 100,8 (ADR-012). Dekorasi → `engine.offset.deco`. Rincian di bagian 4.3. |
 | coret `{main, mod, anchor, ms, blob, seed, name}` + `S` | `main, mod, slot = anchor`, `engine["hand-writing"] = {ms, blob, seed}`, `S` → `style.engine["hand-writing"]`, `family = "hand-writing"`. |
-| sticker `{main:{k,c,s,x,y,fill}, mod:{k,c,s,slot,x,y}, deco, vis}` | `main = main.k`, `mod = mod.k || "none"`, `slot = mod.slot`, `mx/my = main.x/y`, `nx/ny = mod.x/y`, sisanya → `engine.sticker`. |
+| sticker `{main:{k,c,s,x,y,fill}, mod:{k,c,s,slot,x,y}, deco, vis}` | `main = main.k`, `mod = mod.k || "none"`, `slot = mod.slot`, `mx/my = main.x/y × 0,75`, `nx/ny = mod.x/y × 0,75` (kanvas 64 → 48), sisanya → `engine.sticker`. Rincian di bagian 4.5. |
 
 Kalau set gaya lama berisi ikon dengan nilai gaya berbeda-beda (misalnya offset dengan `acc` berbeda per ikon), app menampilkan peringatan: "Gaya diseragamkan mengikuti ikon pertama". Alasannya, di IC parameter gaya berlaku untuk seluruh set.
 

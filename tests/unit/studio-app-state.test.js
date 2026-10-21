@@ -16,6 +16,9 @@ const hwFixture = JSON.parse(
     "utf8",
   ),
 );
+const stickerFixture = JSON.parse(
+  readFileSync(new URL("../fixtures/sets/sticker-composer.json", import.meta.url), "utf8"),
+);
 const offsetFixture = JSON.parse(
   readFileSync(
     new URL("../fixtures/sets/offset-composer.json", import.meta.url),
@@ -152,6 +155,7 @@ describe("Icon Studio app state", () => {
     expect(JSON.parse(storage.map.get(STORE_KEY)).migrations).toEqual([
       "002-from-offset",
       "003-from-hand-writing",
+      "004-from-sticker",
     ]);
 
     const again = createAppState({ renderer: fakeRenderer(), storage });
@@ -216,6 +220,52 @@ describe("Icon Studio app state", () => {
     expect(res?.doc.style.family).toBe("hand-writing");
     expect(app.activeId).toBe(res?.doc.id);
     expect(app.selection[res?.doc.id]).toBe(res?.doc.items[0].id);
+  });
+
+  test("migrasi sticker-composer menambah set bergaya sticker sekali", () => {
+    const storage = memoryStorage();
+    storage.setItem("sticker-composer-v1", JSON.stringify(stickerFixture.storage["sticker-composer-v1"]));
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.migratedFrom).toEqual(["sticker-composer-v1"]);
+    expect(app.documents).toHaveLength(1);
+    expect(app.documents[0]).toMatchObject({ name: "Set Sticker Composer", style: { family: "sticker" } });
+    expect(app.documents[0].items).toHaveLength(3);
+    const again = createAppState({ renderer: fakeRenderer(), storage });
+    expect(again.migratedFrom).toEqual([]);
+    expect(again.documents).toHaveLength(1);
+  });
+
+  test("impor gaya.json sticker-composer menambah set aktif; teks lain dilewatkan", async () => {
+    const storage = memoryStorage();
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(await app.importStickerSet(JSON.stringify(SAMPLE_MANIFEST))).toBeNull();
+    expect(await app.importStickerSet(JSON.stringify(offsetFixture.gayaJson))).toBeNull();
+    const res = await app.importStickerSet(JSON.stringify(stickerFixture.gayaJson));
+    expect(res?.doc.style.family).toBe("sticker");
+    expect(app.activeId).toBe(res?.doc.id);
+    expect(app.documentFor("composer")).toBe(res?.doc);
+  });
+
+  test("ketiga composer gaya lama dimigrasikan berurutan 002, 003, 004", () => {
+    const storage = memoryStorage();
+    storage.setItem("offset-composer-v1", JSON.stringify(offsetFixture.storage["offset-composer-v1"]));
+    storage.setItem("coret-composer-v1", JSON.stringify(hwFixture.storage["coret-composer-v1"]));
+    storage.setItem("sticker-composer-v1", JSON.stringify(stickerFixture.storage["sticker-composer-v1"]));
+    const app = createAppState({ renderer: fakeRenderer(), storage });
+    expect(app.migratedFrom).toEqual(["offset-composer-v1", "coret-composer-v1", "sticker-composer-v1"]);
+    expect(app.documents.map((d) => d.style.family)).toEqual(["offset", "hand-writing", "sticker"]);
+    expect(JSON.parse(storage.map.get(STORE_KEY)).migrations).toEqual(["002-from-offset", "003-from-hand-writing", "004-from-sticker"]);
+    const again = createAppState({ renderer: fakeRenderer(), storage });
+    expect(again.migratedFrom).toEqual([]);
+    expect(again.documents).toHaveLength(3);
+  });
+
+  test("impor hand-writing dan sticker tidak saling mengklaim data", async () => {
+    const app = createAppState({ renderer: fakeRenderer(), storage: memoryStorage() });
+    expect(await app.importHandWritingSet(JSON.stringify(stickerFixture.gayaJson))).toBeNull();
+    expect(await app.importHandWritingSet(JSON.stringify(stickerFixture.storage["sticker-composer-v1"]))).toBeNull();
+    expect(await app.importStickerSet(JSON.stringify(hwFixture.gayaJson))).toBeNull();
+    expect(await app.importStickerSet(JSON.stringify(hwFixture.storage["coret-composer-v1"]))).toBeNull();
   });
 
   test("impor manifest rusak tidak menambah dokumen", async () => {

@@ -5,6 +5,7 @@
  * Composer · Edit ada di ./composer-edit.js.
  */
 import { get } from "@icon-studio/engines";
+import { STICKER_INKS, slot4 } from "@icon-studio/engines/sticker";
 import { ACCENT_OPTIONS, HAND_WRITING_ACCENT_OPTIONS, HAND_WRITING_INK_OPTIONS, INK_OPTIONS, OFFSET_ACCENT_OPTIONS } from "../state/data/palettes.js";
 import { colorRow } from "./color-picker.js";
 import {
@@ -35,9 +36,11 @@ import {
   isFixedLayout,
   isHandWriting,
   isOffset,
+  isSticker,
   renderSet,
   setColorCount,
   statusBar,
+  stickerDecoLabel,
 } from "./common.js";
 import { LICENSE_NOTE, libraryAction, libraryBody, libraryControl, libraryUi } from "./library-panel.js";
 
@@ -84,8 +87,8 @@ function styleSlider(key, label, value) {
 }
 
 /**
- * Kartu pemilih mesin. Pratinjau dirender mesin sungguhan; offset dan hand-writing memakai ikon pustaka
- * karena objek bawaan tidak didukung kedua gaya itu.
+ * Kartu pemilih mesin. Pratinjau dirender mesin sungguhan; offset, hand-writing, dan sticker memakai ikon pustaka
+ * karena objek bawaan tidak didukung ketiga gaya itu.
  * @param {import("./common.js").Ctx} ctx
  */
 function engineCards(ctx) {
@@ -95,6 +98,7 @@ function engineCards(ctx) {
     accent: { main: "face", mod: "check", slot: "BR" },
     offset: { main: "lu:luggage", mod: "none", mx: 0, my: 0 },
     "hand-writing": { main: "lu:wallet", mod: "lu:plus", slot: "BR" },
+    sticker: { main: "lu:luggage", mod: "lu:circle-check", slot: "TR", mx: 0, my: 0 },
   };
   return `<div class="ic-engines" data-ic="single" role="group" aria-label="Gaya ikon" data-name="engine">${ENGINE_CARDS.map(([id, label]) => {
     const ready = READY_ENGINES.includes(id);
@@ -151,12 +155,38 @@ function handWritingStyleTabs(ctx) {
   return { gaya, warna };
 }
 
+/**
+ * Panel Gaya | Warna untuk gaya sticker. Mode, garis, halo, geser isi, sparkle, sinar, ikal, dan tinta berlaku
+ * untuk seluruh set; warna isi objek dan pengubah diatur per ikon di Composer · Edit (docs/engines/sticker.md).
+ * @param {import("./common.js").Ctx} ctx
+ */
+function stickerStyleTabs(ctx) {
+  const o = /** @type {any} */ (ctx.doc.style.engine || {}).sticker || {};
+  const gaya = [
+    engineCards(ctx),
+    `<div class="ic-formrow"><span class="ic-label">Mode warna</span>${seg("Mode warna sticker", [["sticker", "Stiker"], ["fill", "Isi"], ["line", "Garis"]], o.mode, { name: "style:sticker.mode" })}</div>`,
+    styleSlider("sticker.sw", "Tebal garis", o.sw),
+    styleSlider("sticker.halo", "Halo", o.halo),
+    styleSlider("sticker.off", "Geser isi", o.off),
+    styleSlider("sticker.spk", "Sparkle", o.spk),
+    `<div class="studio-row">${check("Sinar", o.rays !== false, { name: "style:sticker.rays" })}${check("Ikal", o.curl !== false, { name: "style:sticker.curl" })}</div>`,
+    `<span class="ic-meta">Pengubah memakai 4 sudut. Halo putih hanya di mode Stiker.</span>`,
+  ].join("");
+  const n = setColorCount(ctx);
+  const warna = [
+    colorRow(ctx, { name: "style:sticker.ink", label: "Tinta", value: o.ink, options: [...STICKER_INKS], fallback: o.ink, round: true }),
+    `<span class="ic-meta">Warna isi objek dan pengubah diatur per ikon di mode edit. Per ikon maks 4 warna: tinta, isi objek, isi pengubah, dan putih halo.</span>`,
+    n > 5 ? alert("warn", `${n} warna di satu ikon`, "Canva maks 5") : `<span class="ic-meta">Maks ${n} warna per ikon · batas Canva 5</span>`,
+  ].join("");
+  return { gaya, warna };
+}
+
 /** @param {import("./common.js").Ctx} ctx */
 export function stylePanel(ctx) {
   const s = ctx.doc.style,
     classic = s.family === "classic";
-  if (isOffset(ctx.doc) || isHandWriting(ctx.doc)) {
-    const t = isOffset(ctx.doc) ? offsetStyleTabs(ctx) : handWritingStyleTabs(ctx);
+  if (isOffset(ctx.doc) || isHandWriting(ctx.doc) || isSticker(ctx.doc)) {
+    const t = isSticker(ctx.doc) ? stickerStyleTabs(ctx) : isHandWriting(ctx.doc) ? handWritingStyleTabs(ctx) : offsetStyleTabs(ctx);
     return panel({
       id: "composer-style",
       label: "Gaya",
@@ -223,7 +253,7 @@ export function pageRows(ctx) {
   return `<div class="ic-list" role="listbox" aria-label="Halaman set">${items
     .map(
       (it) =>
-        `<div class="ic-row" role="option" tabindex="0" data-select="${esc(it.id)}" ${aria("aria-selected", sel === it)}><span class="ic-row__thumb">${renderSet(ctx, it, `row${it.id}`)}</span><span class="ic-row__name">${esc(labelOf(ctx, it))}</span>${flagged.has(it.id) ? '<span class="ic-flag" data-level="err">dobel</span>' : unsupported(ctx, it) ? '<span class="ic-flag" data-level="err">bawaan</span>' : ""}<span class="ic-meta">${isOffset(ctx.doc) || (isHandWriting(ctx.doc) && it.mod === "none") ? "tanpa pengubah" : `${esc(it.slot)} · ${esc(it.mod === "none" ? "tanpa pengubah" : it.mod)}`}</span></div>`,
+        `<div class="ic-row" role="option" tabindex="0" data-select="${esc(it.id)}" ${aria("aria-selected", sel === it)}><span class="ic-row__thumb">${renderSet(ctx, it, `row${it.id}`)}</span><span class="ic-row__name">${esc(labelOf(ctx, it))}</span>${flagged.has(it.id) ? '<span class="ic-flag" data-level="err">dobel</span>' : unsupported(ctx, it) ? '<span class="ic-flag" data-level="err">bawaan</span>' : ""}<span class="ic-meta">${isOffset(ctx.doc) || (isHandWriting(ctx.doc) && it.mod === "none") ? "tanpa pengubah" : `${esc(isSticker(ctx.doc) && it.mod !== "none" ? slot4(it.slot) : it.slot)} · ${esc(it.mod === "none" ? "tanpa pengubah" : it.mod)}`}</span></div>`,
     )
     .join("")}</div>`;
 }
@@ -235,14 +265,17 @@ export function pageRows(ctx) {
  */
 function layerRows(ctx, it) {
   const off = isOffset(ctx.doc),
-    hw = isHandWriting(ctx.doc);
+    hw = isHandWriting(ctx.doc),
+    st = isSticker(ctx.doc);
   const rows = /** @type {const} */ ([
-    ["mod", off ? NO_MOD_TEXT : it.mod === "none" ? "tanpa" : `${it.mod} · ${it.slot}`, !off && it.mod !== "none"],
+    ["mod", off ? NO_MOD_TEXT : it.mod === "none" ? "tanpa" : `${it.mod} · ${st ? slot4(it.slot) : it.slot}`, !off && it.mod !== "none"],
     off
       ? ["deco", offsetDecoLabel(it), offsetDecoLabel(it) !== "tanpa"]
       : hw
         ? ["deco", NO_DECO_TEXT, false]
-        : ["deco", it.deco && it.deco.type !== "none" ? it.deco.type : "tanpa", !!(it.deco && it.deco.type !== "none")],
+        : st
+          ? ["deco", it.vis.deco ? stickerDecoLabel(ctx.doc.style) : "tersembunyi", it.vis.deco]
+          : ["deco", it.deco && it.deco.type !== "none" ? it.deco.type : "tanpa", !!(it.deco && it.deco.type !== "none")],
     ["main", it.main, true],
   ]);
   return `<div class="ic-list" role="listbox" aria-label="Lapisan ikon">${rows
@@ -286,7 +319,7 @@ function pagesPanel(ctx) {
     foot: `${iconButton("plus", "Ikon baru", { action: "new-icon" })}${iconButton("duplicate", "Duplikat", { action: "dup-icon", disabled: !sel })}${iconButton("dice", "Acak ulang variasi", { disabled: true })}${iconButton("lock", "Kunci variasi", { disabled: true })}<span class="ic-spacer"></span>${iconButton("edit", "Buka mode edit", { action: "open-edit", disabled: !sel })}${iconButton("swap", "Ganti isi lapisan", { action: "layer-swap", disabled: !sel })}${iconButton("trash", "Hapus ikon", { action: "delete-icon", disabled: !sel })}`,
     tabs: [
       { id: "halaman", label: "Halaman", body: pageRows(ctx), flush: true },
-      { id: "lapisan", label: "Lapisan", body: sel ? `${layerRows(ctx, sel)}<div class="studio-pad studio-stack">${isFixedLayout(ctx.doc) ? "" : layerScale(ctx)}<div class="studio-actions">${button("Lepas lapisan", { size: "sm", action: "layer-clear", disabled: libraryUi.target === "main" || (isOffset(ctx.doc) && libraryUi.target === "mod") || (isHandWriting(ctx.doc) && libraryUi.target === "deco") })}</div></div>` : empty("Belum ada ikon terpilih."), flush: !!sel },
+      { id: "lapisan", label: "Lapisan", body: sel ? `${layerRows(ctx, sel)}<div class="studio-pad studio-stack">${isFixedLayout(ctx.doc) || isSticker(ctx.doc) ? "" : layerScale(ctx)}<div class="studio-actions">${button("Lepas lapisan", { size: "sm", action: "layer-clear", disabled: libraryUi.target === "main" || (isOffset(ctx.doc) && libraryUi.target === "mod") || (isHandWriting(ctx.doc) && libraryUi.target === "deco") })}</div></div>` : empty("Belum ada ikon terpilih."), flush: !!sel },
       { id: "pustaka", label: "Pustaka", body: `${libraryBody(ctx, { target: true, cols: 5, pool })}${LICENSE_NOTE}` },
       { id: "pool", label: "Pool", body: poolBody(ctx), flush: true },
     ],
@@ -349,8 +382,8 @@ export const openTab = (panelId, tab) => /** @type {HTMLElement | null} */ (docu
 export const actions = {
   /** @param {import("./common.js").Ctx} ctx */
   "new-icon"(ctx) {
-    /* offset dan hand-writing: ikon baru tanpa pengubah bawaan; hand-writing memakai objek pustaka */
-    const init = isFixedLayout(ctx.doc) ? { mod: "none", mx: 0, my: 0 } : {};
+    /* offset, hand-writing, dan sticker: ikon baru tanpa pengubah bawaan; hand-writing memakai objek pustaka */
+    const init = isFixedLayout(ctx.doc) || isSticker(ctx.doc) ? { mod: "none", mx: 0, my: 0 } : {};
     mutate(ctx, (doc) => {
       const it = addItem(doc, ctx.renderer.lib, init);
       if (isHandWriting(doc)) replaceLayer(it, "main", HAND_WRITING_NEW_MAIN, ctx.renderer.lib);
@@ -378,10 +411,10 @@ export const actions = {
     mutate(
       ctx,
       (doc) => {
-        if (sel) replaceLayer(sel, layer, key, ctx.renderer.lib);
+        if (sel) replaceLayer(sel, layer, key, ctx.renderer.lib, doc.style.family);
         else {
-          const it = addItem(doc, ctx.renderer.lib, layer === "main" ? { mod: "none", mx: 0, my: 0 } : {});
-          replaceLayer(it, layer, key, ctx.renderer.lib);
+          const it = addItem(doc, ctx.renderer.lib, layer === "main" || isSticker(doc) ? { mod: "none", mx: 0, my: 0 } : {});
+          replaceLayer(it, layer, key, ctx.renderer.lib, doc.style.family);
           ctx.app.selection[doc.id] = it.id;
         }
       },
@@ -405,6 +438,7 @@ export const actions = {
   "layer-clear"(ctx) {
     const sel = selectedOf(ctx),
       layer = libraryUi.target;
+    if (sel && isSticker(ctx.doc) && layer === "deco") return mutate(ctx, () => (sel.vis.deco = false), "Sembunyikan dekorasi");
     if (sel && isOffset(ctx.doc)) {
       if (layer === "deco") mutate(ctx, () => ["tick", "ground", "cloud", "grass"].forEach((k) => setOffsetDeco(sel, /** @type {any} */ (k), false)), "Lepas dekorasi offset");
       return;
@@ -442,7 +476,7 @@ export function control(ctx, name, value) {
   }
   if (name.startsWith("style:")) {
     const key = name.slice(6);
-    const colorName = /** @type {Record<string, string>} */ ({ ink: "tinta", accent: "aksen", "offset.ink": "tinta", "offset.acc": "aksen", "hand-writing.ink": "tinta", "hand-writing.acc": "aksen" })[key];
+    const colorName = /** @type {Record<string, string>} */ ({ ink: "tinta", accent: "aksen", "offset.ink": "tinta", "offset.acc": "aksen", "hand-writing.ink": "tinta", "hand-writing.acc": "aksen", "sticker.ink": "tinta" })[key];
     return mutate(ctx, (doc) => setStyleValue(doc.style, key, value), colorName ? `Warna ${colorName} ${value}` : `Gaya: ${key} = ${value}`);
   }
   if (name.startsWith("pool:")) {
