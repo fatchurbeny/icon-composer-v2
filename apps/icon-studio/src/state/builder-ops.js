@@ -333,6 +333,8 @@ const TAGS = createTagIndex();
  * @param {{renderer: any, vocab: ReturnType<typeof createVocabulary>, brand: string, now?: () => string}} deps
  */
 export async function buildExportFiles(doc, opts, deps){
+  /* mode S: tunggu bentuk isi sticker termuat sebelum flag dan render, supaya ZIP tidak berisi placeholder */
+  if (opts.modes && opts.modes[STICKER_MODE]) await deps.renderer.loadStickerFills();
   const flagDeps = { vocab: deps.vocab, renderer: deps.renderer, style: doc.style };
   const list = exportList(doc, opts, flagDeps);
   const styles = BUILDER_MODES.filter(m => opts.modes[m]);
