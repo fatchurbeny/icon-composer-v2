@@ -3,17 +3,230 @@ body {
   margin: 0;
   min-width: 960px;
 }
-.studio-empty {
-  display: grid;
-  place-items: center;
-  height: 100%;
-}
-.studio-empty .ic-empty {
-  max-width: 320px;
-}
 .ic-empty strong {
   display: block;
 }
 .ic-empty span {
   display: block;
+}
+/* pengukur bentuk tersembunyi untuk packages/engines/shared (getBBox) */
+.studio-measure {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+/* tata letak lokal app: hanya token, tanpa warna atau kelas ic- baru (UI-RULES) */
+.studio-center {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+}
+.studio-center > .ic-empty {
+  max-width: 420px;
+}
+.studio-pad {
+  padding: var(--ic-sp-6);
+}
+.studio-row,
+.studio-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ic-sp-3);
+}
+.studio-grow {
+  flex: 1;
+}
+.studio-info-mono {
+  font-size: var(--ic-fs-sm);
+}
+.studio-status-field {
+  height: 20px;
+}
+.studio-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.studio-paste {
+  height: auto;
+  padding: var(--ic-sp-3) var(--ic-sp-4);
+}
+.studio-paste textarea {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-family: var(--ic-font-mono);
+  resize: vertical;
+}
+.studio-edit {
+  display: flex;
+  justify-content: center;
+}
+/* pembungkus isi panel (target lipat panel): isi tab menggulir di dalam panel yang tumbuh */
+.studio-panel-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.studio-panel-body[hidden] {
+  display: none;
+}
+.studio-panel-body > .ic-panel__body {
+  flex: 1;
+}
+.studio-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ic-sp-5);
+}
+/* wilayah klik lapisan di atas artboard edit (transparan, hanya untuk seleksi dan seret) */
+.studio-hit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.studio-hit rect {
+  fill: transparent;
+  cursor: move;
+}
+.ic-artboard .ic-selbox {
+  pointer-events: none;
+}
+/* langkah Builder bisa diklik: tombol polos di dalam .ic-step */
+.studio-steplink {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.studio-steplink:disabled {
+  cursor: default;
+}
+.studio-stretch {
+  align-self: stretch;
+}
+.studio-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ic-sp-2);
+}
+.studio-tree {
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+}
+/* panel studio yang tidak tumbuh dibatasi tingginya supaya panel utama (--grow) tetap terlihat */
+.ic-studio > .ic-panel:not(.ic-panel--grow) > .studio-panel-body {
+  max-height: 34vh;
+}
+.ic-studio > .ic-panel--grow {
+  min-height: 160px;
+}
+/* lencana flag di sel lembar kontak Tinjau */
+.studio-cellflag {
+  position: absolute;
+  top: var(--ic-sp-2);
+  right: var(--ic-sp-2);
+}
+.studio-review {
+  gap: var(--ic-sp-12);
+}
+/* kepala baris dan kolom matriks Kombinasi (tombol: klik memilih atau melewati seluruh baris/kolom) */
+.studio-mhead {
+  display: flex;
+  align-items: center;
+  gap: var(--ic-sp-3);
+  min-width: 0;
+  padding: var(--ic-sp-3);
+  border: 0;
+  border-radius: var(--ic-r-lg);
+  background: transparent;
+  color: var(--ic-text-2);
+  font: inherit;
+  font-size: var(--ic-fs-sm);
+  cursor: pointer;
+}
+.studio-mhead:hover {
+  background: var(--ic-bg-hover);
+}
+.studio-mhead svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.studio-mhead .ic-mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studio-mhead--col {
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.studio-mhead--row {
+  background: var(--ic-bg-card);
+}
+.studio-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* lapisan isi kanvas yang di-zoom (canvas-zoom.js); zoom memakai CSS zoom supaya gulir dan koordinat tetap konsisten */
+.studio-zoom {
+  min-height: 100%;
+}
+.ic-canvas[data-tool="hand"] {
+  cursor: grab;
+}
+.ic-canvas[data-tool="hand"] * {
+  cursor: inherit;
+}
+.ic-canvas[data-panning="true"],
+.ic-canvas[data-panning="true"] * {
+  cursor: grabbing;
+}
+.ic-canvas[data-tool="zoom"],
+.ic-canvas[data-tool="zoom"] * {
+  cursor: zoom-in;
+}
+/* kontrol zoom di bilah status */
+.studio-zoombar {
+  display: flex;
+  align-items: center;
+  gap: var(--ic-sp-1);
+}
+.studio-zoombtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 var(--ic-sp-2);
+  border: 0;
+  border-radius: var(--ic-r-sm);
+  background: transparent;
+  color: var(--ic-text-2);
+  font: inherit;
+  cursor: pointer;
+}
+.studio-zoombtn:hover {
+  background: var(--ic-bg-hover);
+  color: var(--ic-text-1);
+}
+.studio-zoombtn--label {
+  min-width: 48px;
+  font-family: var(--ic-font-mono);
 }

@@ -38,21 +38,24 @@ Status: `[ ]` belum · `[~]` berjalan · `[x]` selesai.
 
 Status 2026-10-18: **selesai, disetujui pemilik.** Golden (9 tes, termasuk Tabler, Hugeicons, Kustom, dan ZIP Composer) identik.
 
-## Fase 2b: UI terpadu Icon Studio
+## Fase 2b: UI terpadu Icon Studio ✅
 
-Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/ui-kit.html`, dan artifact Claude Design "Icon Studio · Affinity Redesign".
+Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/ui-kit.html`, dan artifact Claude Design "Icon Studio · Affinity Redesign". Rencana kerja rinci dan keputusan awal: `docs/plans/fase-2b.md` dan ADR-017.
 
 - [x] Bangun ulang `packages/ui/icons.js` dari `lucide-static@1.52.0` (versi terkunci).
 - [x] Tambah skrip `lint:ui` ke `package.json` root dan jalankan di CI lokal (`npm run lint`).
-- [~] Buat `apps/icon-studio`: kerangka `.ic-shell`, routing hash (`#/composer`, `#/composer/edit/<id>`, `#/builder`, `#/tinjau`, `#/kombinasi`), dan tab dokumen.
-- [ ] Persona Composer · Set dan Composer · Edit, memindahkan logika dari `apps/icon-composer` tanpa mengubah keluaran mesin.
-- [ ] Persona Builder, memindahkan logika dari `apps/template-icon-builder`.
-- [ ] Persona Tinjau (lembar kontak, pemeriksaan, metadata, isi ZIP).
-- [ ] Persona Kombinasi (pustaka lintas library + filter Bentuk, matriks, pool, hasil).
-- [ ] `tests/e2e/ui-shell.spec.js`: ukuran kerangka tepat sesuai `DESIGN-HANDOFF.md` bagian 9.
-- [ ] Migrasi localStorage dari kedua app lama ke `icon-studio-v1`.
+- [x] Fondasi state Icon Studio (`state/document.js`, `store.js`, `render.js`) dan golden render terhadap IC/TIB (langkah 1 di `docs/plans/fase-2b.md`).
+- [x] Buat `apps/icon-studio`: kerangka `.ic-shell`, routing hash (`#/composer`, `#/composer/edit/<id>`, `#/builder`, `#/tinjau`, `#/kombinasi`), dan tab dokumen (langkah 2).
+- [x] Persona Composer · Set dan Composer · Edit, memindahkan logika dari `apps/icon-composer` tanpa mengubah keluaran mesin (langkah 3–4).
+- [x] Persona Builder, memindahkan logika dari `apps/template-icon-builder` (langkah 5; ZIP identik dengan TIB 1.6.0).
+- [x] Persona Tinjau (lembar kontak, pemeriksaan, metadata, isi ZIP) (langkah 6; ZIP identik dengan IC 1.5.1).
+- [x] Persona Kombinasi (pustaka lintas library + filter Bentuk, matriks, pool, hasil) (langkah 7).
+- [x] `tests/e2e/ui-shell.spec.js`: ukuran kerangka tepat sesuai `DESIGN-HANDOFF.md` bagian 9.
+- [x] Migrasi localStorage dari kedua app lama ke `icon-studio-v1` (langkah 8, `state/migrations/001-from-legacy.js`).
 
 **Kriteria terima:** semua butir `DESIGN-HANDOFF.md` bagian 9 lulus, golden test mesin tetap identik, dan pemilik menyetujui tampilan tiap persona dibandingkan dengan artboard.
+
+Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affinity dan rich tooltip tool rail. Dikerjakan di branch `fase-2b-icon-studio`.
 
 ## Fase 3: Mesin offset
 

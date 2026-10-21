@@ -26,6 +26,9 @@ const SKIP_DIR = new Set([
 ]);
 // File yang boleh memuat warna data mesin (palet ikon), bukan warna UI.
 const DATA_COLOR_OK = [/packages\/engines\//, /palette/i, /\/data\//];
+// Template file ekspor (HTML di dalam ZIP, mis. resource-page.html) bukan UI Icon Studio:
+// font, ukuran huruf, dan radiusnya bagian dari keluaran yang dibandingkan golden dengan legacy.
+const EXPORT_TEMPLATE = [/apps\/icon-studio\/src\/state\/data\/export\//];
 // Port Fase 1 sengaja identik dengan legacy. Pengecualian ini dihapus saat
 // aplikasi lama diganti Icon Studio berbasis packages/ui pada Fase 2b.
 const GENERATED = [
@@ -68,17 +71,17 @@ const RULES = [
   {
     id: "font-literal",
     re: /font-family\s*:(?!\s*var\(--ic-font)/,
-    skip: (f) => f === TOKENS,
+    skip: (f) => f === TOKENS || EXPORT_TEMPLATE.some((r) => r.test(f)),
   },
   {
     id: "ukuran-huruf-literal",
     re: /font-size\s*:\s*\d/,
-    skip: (f) => f === TOKENS || f === COMPONENTS,
+    skip: (f) => f === TOKENS || f === COMPONENTS || EXPORT_TEMPLATE.some((r) => r.test(f)),
   },
   {
     id: "radius-literal",
     re: /border-radius\s*:\s*\d/,
-    skip: (f) => f === TOKENS || f === COMPONENTS,
+    skip: (f) => f === TOKENS || f === COMPONENTS || EXPORT_TEMPLATE.some((r) => r.test(f)),
   },
   {
     id: "outline-none",

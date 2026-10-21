@@ -74,3 +74,24 @@ Kedua app memakai mesin, planner, dan pipeline ekspor yang sama. Yang berbeda ha
 - State app disimpan di `localStorage`. Kuncinya didaftar di `DATA-MODEL.md`.
 - Mesin tidak menyimpan state. Cache analisis bentuk (`analyzeParts`) dan cache sidik jari dikelola di modulnya sendiri, dengan kunci = hash input.
 - Pengukuran bentuk butuh `getBBox`/`getTotalLength`. Semua pengukuran lewat satu `<svg id="meas">` tersembunyi yang disediakan app dan disuntikkan ke `packages/engines/shared` (`setMeasureHost(el)`), supaya modul tetap bisa diuji di Playwright.
+
+## 7. Struktur Icon Studio (`apps/icon-studio/src/`)
+
+Sejak Fase 2b, kedua app digabung di Icon Studio. Persona Composer memakai varian classic IC, persona Builder memakai classic 1.4.5 (ADR-017).
+
+| Path | Isi |
+|---|---|
+| `main.js` | titik masuk: kit UI, renderer, state app, kerangka, kait uji `window.__iconStudio` |
+| `shell.js` | kerangka, routing hash, tab dokumen, delegasi event ke persona (`actions`, `control`, `mount`, `canvasFoot`), toast |
+| `canvas-zoom.js` | zoom dan geser kanvas (CSS `zoom` pada `.studio-zoom`), tool Geser/Perbesar, pintasan |
+| `app-state.js` | dokumen, dokumen aktif, seleksi per dokumen, riwayat sesi, migrasi sekali, penyimpanan |
+| `ui.js` | pembantu markup kelas `.ic-*` (panel, segmented, dropdown, angka, peringatan) |
+| `personas/` | `composer.js` (Set), `composer-edit.js`, `builder.js`, `tinjau.js`, `kombinasi.js`, `library-panel.js`, `common.js` |
+| `state/document.js` | model item dan dokumen (`normItem`, `importManifest`, `useStyle`) |
+| `state/render.js` | satu pintu ke mesin: registry pustaka dan `ctx` per jenis dokumen |
+| `state/set-ops.js`, `edit-ops.js`, `combo-ops.js` | operasi Composer, Edit, dan Kombinasi |
+| `state/builder-ops.js`, `review-ops.js` | logika ekspor TIB 1.6.0 dan Tinjau pack IC 1.5.1 |
+| `state/store.js`, `state/migrations/` | `icon-studio-v1` dan migrasi dari kunci lama |
+| `state/data/` | data mesin dan pratinjau (warna), `data/export/` untuk template file ekspor |
+
+Keluaran Icon Studio dijaga oleh `tests/e2e/studio-golden.spec.js`: SVG, ZIP Builder, dan ZIP Composer dibandingkan langsung dengan app legacy.

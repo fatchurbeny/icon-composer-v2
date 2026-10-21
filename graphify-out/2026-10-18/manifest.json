@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "scripts/lint-ui.mjs": {
-    "mtime": 1792254010.567474,
-    "seen": 1792254035.995017,
-    "ast_hash": "c2b76d21d62221537b59604d1a7326ef",
+    "mtime": 1792339679.8842046,
+    "seen": 1792339998.697254,
+    "ast_hash": "08d6a52536ec838b5ef17e99e27fa664",
     "semantic_hash": ""
   },
   "scripts/render-artboards.py": {
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792326380.8258827,
-    "seen": 1792326382.268991,
-    "ast_hash": "aa61c41f8b59f5b36a0159ee5862ecea",
+    "mtime": 1792341541.7439969,
+    "seen": 1792341585.240282,
+    "ast_hash": "03f0ecb6704822457030e71974ae3268",
     "semantic_hash": ""
   },
   "README.md": {
@@ -180,21 +180,21 @@
     "semantic_hash": ""
   },
   "docs/ARCHITECTURE.md": {
-    "mtime": 1792228500.0,
-    "seen": 1792252182.9723608,
-    "ast_hash": "277aca9f859910d9927269a8c46282e6",
+    "mtime": 1792341583.1733365,
+    "seen": 1792341585.240287,
+    "ast_hash": "a548ddb92a2b125f34e63309e44cce7c",
     "semantic_hash": ""
   },
   "docs/DATA-MODEL.md": {
-    "mtime": 1792228660.0,
-    "seen": 1792252182.9723608,
-    "ast_hash": "637c7ab49f0b68e0cd8e1950a93574fa",
+    "mtime": 1792341541.744476,
+    "seen": 1792341585.240288,
+    "ast_hash": "e228494befe0061f5f5dba9f32e4a876",
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1792250975.0,
-    "seen": 1792252182.972362,
-    "ast_hash": "ac66999fd2f04242190b2171fd135fc3",
+    "mtime": 1792326654.295891,
+    "seen": 1792326655.743698,
+    "ast_hash": "e845dc6a0d53906f710771251dad3758",
     "semantic_hash": ""
   },
   "docs/ENGINE-CONTRACT.md": {
@@ -204,9 +204,9 @@
     "semantic_hash": ""
   },
   "docs/EXPORT-PIPELINE.md": {
-    "mtime": 1792229688.0,
-    "seen": 1792252182.972364,
-    "ast_hash": "d7ec293101fc87fccc50a0ee9c84d440",
+    "mtime": 1792326406.5496595,
+    "seen": 1792326413.444741,
+    "ast_hash": "a74447a74ace7db1dd72c22fc41cc992",
     "semantic_hash": ""
   },
   "docs/GLOSSARY.md": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docs/MIGRATION-PLAN.md": {
-    "mtime": 1792285638.1417954,
-    "seen": 1792321503.725415,
-    "ast_hash": "f9dac021817aff3bfbdf7cb9ebac5c41",
+    "mtime": 1792341541.7447288,
+    "seen": 1792341585.240293,
+    "ast_hash": "1cd6a5d0eda8a29891fec922854474b3",
     "semantic_hash": ""
   },
   "docs/PRODUCT.md": {
@@ -246,21 +246,21 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN-HANDOFF.md": {
-    "mtime": 1792251229.0,
-    "seen": 1792252182.97237,
-    "ast_hash": "33e596069d5935955c3a37781d74e464",
+    "mtime": 1792334152.5240521,
+    "seen": 1792334157.672012,
+    "ast_hash": "db7884e84e039f6fec8fc6616e450e17",
     "semantic_hash": ""
   },
   "docs/design/UI-RULES.md": {
-    "mtime": 1792250441.0,
-    "seen": 1792252182.9723709,
-    "ast_hash": "9ac891bcfe087f3ed281f907557b10c5",
+    "mtime": 1792339679.8846698,
+    "seen": 1792339998.697301,
+    "ast_hash": "a47bfb87c7750c4ea38605a50c502f62",
     "semantic_hash": ""
   },
   "docs/design/ui-kit.html": {
-    "mtime": 1792250335.0,
-    "seen": 1792252182.972373,
-    "ast_hash": "a803e63352a3f8ce764903edb66df27f",
+    "mtime": 1792334125.4605863,
+    "seen": 1792334157.6720152,
+    "ast_hash": "4db8ea381508633921948627448e122b",
     "semantic_hash": ""
   },
   "docs/engines/accent.md": {
@@ -420,9 +420,9 @@
     "semantic_hash": ""
   },
   "packages/export/package.json": {
-    "mtime": 1792254213.2840555,
-    "seen": 1792254394.593885,
-    "ast_hash": "a41a917932715ed92e36d23bd8d7f857",
+    "mtime": 1792330058.3833947,
+    "seen": 1792330277.7355871,
+    "ast_hash": "2953375d8c16ddcedda3abd5c0b81ce6",
     "semantic_hash": ""
   },
   "packages/export/pipeline.js": {
@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "apps/icon-studio/src/main.js": {
-    "mtime": 1792285246.1481962,
-    "seen": 1792285369.941043,
-    "ast_hash": "cd9bcfd12280cf6b59262ac04a6a9a06",
+    "mtime": 1792341504.641861,
+    "seen": 1792341585.240181,
+    "ast_hash": "e12e1c1acdb16c765bdbca2febca0e4b",
     "semantic_hash": ""
   },
   "apps/icon-studio/vite.config.js": {
@@ -468,15 +468,15 @@
     "semantic_hash": ""
   },
   "tests/e2e/ui-shell.spec.js": {
-    "mtime": 1792255438.7138457,
-    "seen": 1792284859.810497,
-    "ast_hash": "8e68a225b19fb838ef2a22b88910e2fd",
+    "mtime": 1792334778.732256,
+    "seen": 1792334818.913753,
+    "ast_hash": "9f78cb4e3a878b748471402e7e22536b",
     "semantic_hash": ""
   },
   "apps/icon-studio/index.html": {
-    "mtime": 1792255373.1929588,
-    "seen": 1792255428.4923148,
-    "ast_hash": "d38c6ca30316211441851dbe583ba853",
+    "mtime": 1792331178.0349576,
+    "seen": 1792331300.785651,
+    "ast_hash": "5bd6f97859067765249669fedea6c158",
     "semantic_hash": ""
   },
   "packages/engines/offset/index.js": {
@@ -591,6 +591,264 @@
     "mtime": 1792326374.909885,
     "seen": 1792326382.268988,
     "ast_hash": "65a0f7602e506fec9f9f5172afb544b0",
+    "semantic_hash": ""
+  },
+  "docs/plans/fase-2b.md": {
+    "mtime": 1792341541.7451208,
+    "seen": 1792341585.240306,
+    "ast_hash": "f08c27d61eb4778a1ce43acf81259a78",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/sample-manifest.js": {
+    "mtime": 1792329964.8397996,
+    "seen": 1792330277.7355561,
+    "ast_hash": "f8552a8d57a7c7454d6285bddf83900f",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/style-defaults.js": {
+    "mtime": 1792330093.6392949,
+    "seen": 1792330277.7355578,
+    "ast_hash": "347595b34fe9ed4c62f527023dad7f1f",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/document.js": {
+    "mtime": 1792330093.6393692,
+    "seen": 1792330277.7355578,
+    "ast_hash": "968b5b04b0c2ab59ce6049263dce3168",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/render.js": {
+    "mtime": 1792337437.1353085,
+    "seen": 1792337898.82689,
+    "ast_hash": "0574cafd63fed9baea2cbb790928945f",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/store.js": {
+    "mtime": 1792341421.483596,
+    "seen": 1792341585.240205,
+    "ast_hash": "88789182d03e05874bf582091e0e94c9",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-golden.spec.js": {
+    "mtime": 1792339847.6859303,
+    "seen": 1792339998.697263,
+    "ast_hash": "e1ec11a483af7883a33f82ea6b9e5c4f",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-state.test.js": {
+    "mtime": 1792330189.4972577,
+    "seen": 1792330277.735622,
+    "ast_hash": "22b41407241cde2638fd0add072f5c2f",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/app-state.js": {
+    "mtime": 1792341421.4838853,
+    "seen": 1792341585.24018,
+    "ast_hash": "a1d5bd856f93dc8299f02d902ad7dd08",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/builder.js": {
+    "mtime": 1792341541.743454,
+    "seen": 1792341585.240182,
+    "ast_hash": "f068a97d5b2a8401dcb47e792ab4c2a0",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/common.js": {
+    "mtime": 1792331128.1451118,
+    "seen": 1792331300.785572,
+    "ast_hash": "971aec6de9a69c634e00447710afdce7",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/composer.js": {
+    "mtime": 1792336811.2886872,
+    "seen": 1792337018.043978,
+    "ast_hash": "ea9b305be55dde052b0bc3197bcbeaf0",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/kombinasi.js": {
+    "mtime": 1792340195.5240698,
+    "seen": 1792340317.004307,
+    "ast_hash": "64bf9e44efedd051185db3373f935196",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/tinjau.js": {
+    "mtime": 1792339937.1411796,
+    "seen": 1792339998.697194,
+    "ast_hash": "1242cb5e2873ea9434dec2b0832f1122",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/shell.js": {
+    "mtime": 1792341491.153356,
+    "seen": 1792341585.2401888,
+    "ast_hash": "1113deed2ff1205b0f72ce763c997a08",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/preview-backgrounds.js": {
+    "mtime": 1792339711.0171692,
+    "seen": 1792339998.6972,
+    "ast_hash": "8b3a56c153b4c1b6d8b9659650ba1f3d",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/ui.js": {
+    "mtime": 1792331069.478492,
+    "seen": 1792331300.785582,
+    "ast_hash": "31dc5c3ce7c39020843c9f06ddc0f81a",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-app-state.test.js": {
+    "mtime": 1792341467.6402767,
+    "seen": 1792341585.2402718,
+    "ast_hash": "2e40389ac6d731ced05279555e06866a",
+    "semantic_hash": ""
+  },
+  "docs/design/proposals/komponen-fase-2b.html": {
+    "mtime": 1792334104.8030427,
+    "seen": 1792334157.672014,
+    "ast_hash": "c32d90d3e93d56f308013d9c93c01605",
+    "semantic_hash": ""
+  },
+  "docs/design/proposals/komponen-fase-2b.md": {
+    "mtime": 1792334152.5242772,
+    "seen": 1792334157.672014,
+    "ast_hash": "d544fc28f742cc4f13c6fe85657a6310",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/library-panel.js": {
+    "mtime": 1792340093.046347,
+    "seen": 1792340317.004308,
+    "ast_hash": "45c65346e235fc5d1f6995571429b7b4",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/palettes.js": {
+    "mtime": 1792336792.0846167,
+    "seen": 1792337018.043984,
+    "ast_hash": "c180e32250ff0d190f0611f3b99820d9",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/set-ops.js": {
+    "mtime": 1792340093.0460768,
+    "seen": 1792340317.004323,
+    "ast_hash": "372c1253f072fe932c97ad5d622926d5",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-composer.spec.js": {
+    "mtime": 1792334673.1315231,
+    "seen": 1792334818.9137511,
+    "ast_hash": "5d31c24044e21db79cecaa0bcbc5c651",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-set-ops.test.js": {
+    "mtime": 1792334673.14271,
+    "seen": 1792334818.913766,
+    "ast_hash": "37ad358b620dee5c0c74b67e85898152",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/personas/composer-edit.js": {
+    "mtime": 1792336936.879734,
+    "seen": 1792337018.043977,
+    "ast_hash": "cb829a99e29dc30f1b5d7bc1085c6e87",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/edit-ops.js": {
+    "mtime": 1792336792.0820932,
+    "seen": 1792337018.043989,
+    "ast_hash": "4d66a20cec4f08e03d514b16212e1f83",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-composer-edit.spec.js": {
+    "mtime": 1792336970.7571044,
+    "seen": 1792337018.0440419,
+    "ast_hash": "c76ee13edbb2408935d8ba6cdd558954",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-edit-ops.test.js": {
+    "mtime": 1792336970.743686,
+    "seen": 1792337018.044058,
+    "ast_hash": "fe87c4d499ccda349ca5f345eae651f1",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/builder-ops.js": {
+    "mtime": 1792337391.9406857,
+    "seen": 1792337898.826881,
+    "ast_hash": "be873f0ee208bfde0d6f5f011c630aca",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/export/resource-page.js": {
+    "mtime": 1792337369.2919443,
+    "seen": 1792337898.8268821,
+    "ast_hash": "b1306819df44e69bddfe581c8d6e8937",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-builder.spec.js": {
+    "mtime": 1792337792.9656565,
+    "seen": 1792337898.826942,
+    "ast_hash": "5dcb86eb62c6316b92f0c4aba054caf3",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-builder-ops.test.js": {
+    "mtime": 1792337809.9118407,
+    "seen": 1792337898.8269591,
+    "ast_hash": "185cd8dd252e09577089dec6f702212d",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/data/export/preview-sheet.js": {
+    "mtime": 1792339667.4844668,
+    "seen": 1792339998.697197,
+    "ast_hash": "c0449dcacca036d92ccee67bd4c57f87",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/review-ops.js": {
+    "mtime": 1792340257.6846645,
+    "seen": 1792340317.004322,
+    "ast_hash": "baa6b43dd8946d62f2f6dee5d1c0b2be",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-tinjau.spec.js": {
+    "mtime": 1792339937.487337,
+    "seen": 1792339998.6972642,
+    "ast_hash": "d019da04511a005af4ff43e2f5953a80",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-review-ops.test.js": {
+    "mtime": 1792340257.6848807,
+    "seen": 1792340317.004396,
+    "ast_hash": "a1d5bcddf3e1ec1f2d57644dc3c12399",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/combo-ops.js": {
+    "mtime": 1792340247.3207788,
+    "seen": 1792340317.004312,
+    "ast_hash": "84d8e2ff044b82231d23498f6bfbbde8",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-kombinasi.spec.js": {
+    "mtime": 1792340221.6829145,
+    "seen": 1792340317.0043771,
+    "ast_hash": "ca7936a19d7033a9f404bfe286001593",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-combo-ops.test.js": {
+    "mtime": 1792340257.685032,
+    "seen": 1792340317.004394,
+    "ast_hash": "1fbc015292fa482de66b6a6b17366d54",
+    "semantic_hash": ""
+  },
+  "apps/icon-studio/src/state/migrations/001-from-legacy.js": {
+    "mtime": 1792341402.8467886,
+    "seen": 1792341585.240201,
+    "ast_hash": "57c6508d56e6bc55b4a592336865f153",
+    "semantic_hash": ""
+  },
+  "tests/e2e/studio-migration.spec.js": {
+    "mtime": 1792341467.6483855,
+    "seen": 1792341585.240258,
+    "ast_hash": "1a358d9a7f30aac78758f87cf1a020c5",
+    "semantic_hash": ""
+  },
+  "tests/unit/studio-migration.test.js": {
+    "mtime": 1792341450.069918,
+    "seen": 1792341585.2402759,
+    "ast_hash": "a3704e42dd38cdfbb3c2dd920612eef2",
     "semantic_hash": ""
   }
 }

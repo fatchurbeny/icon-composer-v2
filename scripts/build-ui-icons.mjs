@@ -14,6 +14,8 @@ const NAMES = {
   eyedropper: "pipette",
   hand: "hand",
   zoom: "zoom-in",
+  "zoom-out": "zoom-out",
+  "zoom-fit": "scan",
   search: "search",
   eye: "eye",
   "eye-off": "eye-off",

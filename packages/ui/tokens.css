@@ -127,6 +127,16 @@
   --ic-r-group: 12px; /* wadah persona */
   --ic-r-round: 999px;
 
+  /* ---------- Kanvas edit, filmstrip, lembar kontak (usulan Fase 2b, disetujui 2026-10-18) ---------- */
+  --ic-artboard-size: 520px;            /* artboard Composer · Edit */
+  --ic-artboard-cells: 16;              /* garis grid artboard: 16 sel = tiap 3 unit kanvas 48 */
+  --ic-artboard-grid-line: #00000010;   /* garis grid di atas artboard putih */
+  --ic-bg-filmstrip: #1F1F1FEE;         /* filmstrip set di bawah kanvas edit */
+  --ic-h-filmstrip: 84px;
+  --ic-text-on-light-2: #5E6068;        /* nama file di lembar kontak (6,3:1 di putih) */
+  --ic-text-on-light-3: #6A6C74;        /* meta judul lembar kontak (5,3:1 di putih) */
+  --ic-line-on-light: #C9C9C9;          /* garis sel yang dikeluarkan di lembar kontak */
+
   /* ---------- Efek ---------- */
   --ic-focus: 0 0 0 2px var(--ic-bg-panel), 0 0 0 4px var(--ic-accent);
   --ic-select-ring: 0 0 0 2px var(--ic-accent);

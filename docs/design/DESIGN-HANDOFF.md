@@ -58,6 +58,13 @@ Render ulang PNG dari artboard: `python3 scripts/render-artboards.py` (butuh Pla
 - Di bawah lebar 1100 px, studio pindah ke bawah kanvas (sudah diatur di `components.css`).
 - Persona Kombinasi memakai `.ic-shell--left-studio`: studio pustaka 300 px di kiri menggantikan tool rail.
 - Hanya kanvas dan isi panel yang bergulir. Bilah atas, konteks, dan status tidak pernah ikut bergulir.
+- **Zoom dan geser kanvas (seperti Affinity), di semua persona:**
+  - Ctrl/⌘ + roda atau pinch trackpad: zoom di titik kursor, 10–800%. Roda biasa menggulir, Shift + roda menggulir mendatar.
+  - Spasi + seret, tool Geser tampilan (H), atau tombol tengah mouse: geser kanvas.
+  - Tool Perbesar (Z): klik untuk zoom in, Alt + klik untuk zoom out. Tool Pilih: V.
+  - ⌘/Ctrl + = zoom in, ⌘/Ctrl + − zoom out, ⌘/Ctrl + 0 sesuaikan ke layar, ⌘/Ctrl + 1 100%.
+  - Persentase zoom tampil di tab dokumen aktif ("@ 150%") dan di ujung kanan bilah status bersama tombol perkecil, 100%, perbesar, dan sesuaikan.
+  - Zoom diingat per dokumen dan persona selama sesi. Filmstrip Composer · Edit berada di bawah kanvas dan tidak ikut di-zoom.
 
 ## 2. Persona dan routing
 
@@ -104,7 +111,7 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 ### 3.2 Composer · Edit ikon
 
 - **Konteks:** jenis lapisan terpilih, kunci (`.ic-field--mono`) + tombol "Ganti…", `.ic-anchor` (2×2 untuk sticker, 3×3 untuk mesin lain), `.ic-number` Skala, swatch Isi, `.ic-check` Celah knockout, tombol "Acak ulang variasi" dan "Kunci variasi".
-- **Kanvas:** artboard 520×520 putih dengan grid 8 unit. Seleksi lapisan: bingkai biru 1,5 px + 8 handle 9 px. Tooltip koordinat (`.ic-tooltip`) dalam satuan 48. Filmstrip set 84 px di bawah kanvas.
+- **Kanvas:** `.ic-artboard` 520×520 putih dengan grid 16 sel (tiap 3 unit kanvas 48, sesuai artboard). Seleksi lapisan: `.ic-selbox` (bingkai biru 1,5 px + 8 handle 9 px). Tooltip koordinat (`.ic-tooltip`) dalam satuan 48. `.ic-filmstrip` 84 px di bawah kanvas.
 - **Studio:** Gaya (kartu mesin), Lapisan, dan **Transform | Variasi | Riwayat**.
   - Transform berisi X/Y/W/H.
   - Variasi berisi sumbu mesin aktif dari `engine.axes()`. Nilai yang diblokir tampil `disabled`. Seed planner ditampilkan, dan hasil cek kembaran tampil sebagai `.ic-alert[data-level=ok]`.
@@ -113,7 +120,7 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 ### 3.3 Builder · Periksa pack
 
 - **Konteks:** `.ic-steps` (Impor ✓ → Periksa → Ekspor), `.ic-chip` filter (Semua, Bermasalah, Slot deck, Ekstra), `.ic-select` Pratinjau (5 gaya), `.ic-check` Kelompokkan per slide.
-- **Kanvas:** grup per slide (judul slide + "n slot") dengan grid 4 kolom kartu ikon. Ikon terpilih bercincin biru. Ikon dobel bercincin merah dengan `.ic-flag[err]`. Ikon mirip diberi `.ic-flag[warn]`.
+- **Kanvas:** `.ic-slidegroup` per slide (judul slide + "n slot") dengan `.ic-cardgrid` 4 kolom `.ic-iconcard`. Ikon terpilih bercincin biru. Ikon dobel bercincin merah dengan `.ic-flag[err]`. Ikon mirip diberi `.ic-flag[warn]`.
 - **Studio:**
   - **Ikon** \| Manifest \| Pustaka: pratinjau besar, field id, Nama EN, Nama ID, Objek, Posisi, Pengubah, Isi, dan kata kunci (`.ic-tag`).
   - **Repetisi** \| Flag: `.ic-alert` per temuan, tombol Ratakan variasi dan Lewati bermasalah.
@@ -123,7 +130,7 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 ### 3.4 Tinjau · Lembar kontak & ekspor
 
 - **Konteks:** `.ic-swatches` latar (putih, abu, gelap, kuning, transparan), `.ic-seg--inline` ukuran 128/64/32, `.ic-check` Nama file dan Tanda flag, `.ic-seg` Bandingkan (SVG asli / Direct fill).
-- **Kanvas:** lembar kontak putih (judul set + meta), grid 6 kolom. Klik ikon mengeluarkan atau memasukkan kembali ikon ke unduhan (opasitas 35% + label "dikeluarkan"). Di bawahnya ada uji 32 px di latar terang dan gelap.
+- **Kanvas:** `.ic-sheet` (judul set + meta), grid 6 kolom. Klik ikon mengeluarkan atau memasukkan kembali ikon ke unduhan (`aria-pressed`, opasitas 35% + label "dikeluarkan"). Klik dua kali membuka ikon di Composer · Edit. Di bawahnya `.ic-sizetest`: uji 32 px di latar terang dan gelap.
 - **Studio:**
   - **Pemeriksaan**: checklist `.ic-row--sm` dengan bulatan ✓ atau !.
   - **Metadata Canva**: seg Artist hashtagben/chital, seg Bahasa, field Tema pack, `.ic-number` Kata kunci, dan contoh judul berpola "Icon-style".
@@ -195,8 +202,20 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Swatch | `.ic-swatches`, `.ic-swatch` `--round` | `single` | `aria-pressed` | palet tinta/isi/latar | |
 | Posisi pengubah | `.ic-anchor` (`--ic-anchor-cols: 2` untuk sticker) | `single` | `aria-pressed`, `disabled` | slot pengubah | |
 | Kosong | `.ic-empty` | | | daftar tanpa isi | |
-| Tooltip | `.ic-tooltip` | | | koordinat kanvas | penjelasan panjang |
+| Tooltip | `.ic-tooltip` | | | koordinat kanvas | penjelasan panjang (pakai `.ic-tip`) |
+| Rich tooltip | `.ic-tip`, `__head`, `__key`, `__desc`, `__list` | `data-tip` + `aria-describedby` pada pemicu | `hidden`, `role=tooltip` | penjelasan tool: judul + pintasan, deskripsi, gestur (kata kerja tebal) | tombol atau tautan di dalamnya (pakai dialog/popover) |
 | Toast | `.ic-toast` | | `hidden` | konfirmasi singkat (1,8 detik) | error yang butuh tindakan |
+| Artboard edit | `.ic-artboard-wrap`, `.ic-artboard`, `__label`, `__art` | | `data-grid="off"` | kanvas Composer · Edit 520 px bergrid 16 sel | pratinjau kecil (pakai `.ic-page`) |
+| Kotak seleksi | `.ic-selbox`, `.ic-selbox__h[data-at]` | | posisi inline (geometri) | lapisan terpilih di artboard, 8 handle | |
+| Filmstrip | `.ic-filmstrip`, `.ic-filmstrip__item` (`role=option`) | | `aria-selected` | strip set di bawah kanvas edit | |
+| Grup slide | `.ic-slidegrid`, `.ic-slidegroup`, `__head`, `__no`, `__title` | | `--ic-cols` | pengelompokan ikon per slide (Builder) | |
+| Kartu ikon | `.ic-cardgrid`, `.ic-iconcard`, `__art`, `__id` | | `aria-selected`, `data-level="err"` | kartu ikon Builder (id mono di bawah) | halaman set (pakai `.ic-page`) |
+| Lembar kontak | `.ic-sheet`, `__head`, `__title`, `__meta`, `__grid`, `__cell`, `__file`, `__badge` | | `aria-pressed` (ikut diunduh), `data-names="off"`, `--ic-sheet-bg`, `--ic-sheet-icon` | lembar kontak Tinjau di atas latar terang | |
+| Uji ukuran kecil | `.ic-sizetest`, `__panel`, `__row` | | `--ic-sizetest-bg` | uji 32 px di latar terang/gelap | |
+| Area drop | `.ic-dropzone`, `__title`, `__actions` | | `data-dragover="true"` | impor manifest (Builder) | daftar kosong (pakai `.ic-empty`) |
+| Field banyak baris | `.ic-field--area` + `<textarea>` | | `:focus-within` | tempel JSON manifest | teks satu baris |
+
+Komponen artboard edit sampai field banyak baris ditambahkan lewat usulan `docs/design/proposals/komponen-fase-2b.md` (disetujui 2026-10-18).
 
 **Warna data** (warna isi ikon, warna pool, swatch palet mesin) adalah data mesin, bukan warna UI. Warna ini boleh ditulis inline (`style="background: #E5484D"`) dan harus berasal dari palet di `packages/engines/<id>`.
 
@@ -232,7 +251,7 @@ Rendering semua komponen ada di `ui-kit.html`. Perilaku diaktifkan lewat `data-i
 | Pustaka sedang dimuat | `.ic-meta` "Memuat pustaka…" di tempat jumlah hasil; tile berupa kotak `--ic-bg-card` kosong |
 | Pustaka gagal dimuat | `.ic-alert[err]` "Gagal memuat pustaka. Periksa koneksi internet." + tombol "Coba lagi" |
 | Set kosong | `.ic-page--new` saja + `.ic-empty` di panel Halaman: "Belum ada ikon. Pilih objek dari Pustaka atau buka Kombinasi." |
-| Manifest belum diimpor | Builder di langkah Impor: area drop dengan border putus `--ic-line-5` |
+| Manifest belum diimpor | Builder di langkah Impor: `.ic-dropzone` (border putus `--ic-line-5`) dengan tombol pilih file, Muat contoh, dan `.ic-field--area` untuk menempel JSON |
 | Ekspor gagal validasi Canva | `.ic-alert[err]` di Tinjau → Pemeriksaan, tombol unduh `disabled` |
 
 ## 8. Aksesibilitas (wajib)
