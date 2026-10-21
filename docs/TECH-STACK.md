@@ -33,9 +33,7 @@ Icon-Composer-v2/
 │  ├─ repetition/      signature, fingerprint, planner variasi, flag
 │  └─ export/          outline, direct fill, ZIP, metadata.csv, gaya.json
 ├─ apps/
-│  ├─ icon-studio/             aplikasi terpadu (Fase 2b): index.html + src/personas/*
-│  ├─ icon-composer/           port legacy untuk golden test (Fase 1–2), dihapus setelah Fase 2b
-│  └─ template-icon-builder/   port legacy untuk golden test (Fase 1–2), dihapus setelah Fase 2b
+│  └─ icon-studio/             aplikasi terpadu (Fase 2b): index.html + src/personas/*
 ├─ legacy/             file final lama, read-only (rujukan golden test)
 │  └─ style/           offset, coret (hand-writing), sticker
 ├─ tests/

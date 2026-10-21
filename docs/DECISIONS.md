@@ -91,6 +91,12 @@ Rencana kerja: `docs/plans/fase-2b.md`.
 
 Catatan penomoran: Fase 4 dan Fase 5 dikerjakan paralel dan sama-sama memakai nomor ADR-018. Saat digabung (2026-10-21), ADR Fase 4 tetap ADR-018 dan ADR Fase 5 menjadi ADR-019.
 
+### ADR-020 · 2026-10-21 · Port app lama dihapus, golden hanya lewat Icon Studio
+**Keputusan Beny.** `apps/icon-composer` (port IC 1.5.1) dan `apps/template-icon-builder` (port TIB 1.6.0) dihapus, karena Icon Studio sudah menggantikan keduanya (Fase 2b) dan tidak ada kode yang mengimpor dari sana.
+1. Jaring pengaman paritas tetap terhadap `legacy/`, bukan terhadap port. Semua pemeriksaan `tests/e2e/golden.spec.js` sudah punya padanan di `tests/e2e/studio-golden.spec.js` dengan baseline yang sama (`tests/golden/`, dan ZIP dari file legacy yang dibuka langsung). Satu celah, tile pengubah panel Bentuk IC (`modBin`), dipindah lebih dulu tanpa mengubah keluaran.
+2. `npm run build` hanya membangun Icon Studio ke `dist/icon-studio/index.html`; `scripts/collect-builds.mjs` dan `scripts/port-phase1.mjs` dihapus. `npm run test:golden` tetap membangun lalu menjalankan semua tes `@golden`.
+3. `legacy/`, `tests/golden/`, `scripts/golden-capture.mjs`, dan `releases/` tetap utuh. Nama folder baseline `tests/golden/icon-composer/` dan `tests/golden/template-icon-builder/` menunjuk app legacy asal, bukan app di `apps/`.
+
 ---
 
 ## Dibatalkan (jangan dipasang lagi tanpa diminta)

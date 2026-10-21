@@ -35,8 +35,8 @@ CDN dicegat dengan `page.route("**/cdn.jsdelivr.net/**", …)` dan `cdnjs`, lalu
 
 ## 3. Golden test
 
-1. `npm run golden:capture` membuka file `legacy/*.html`, menyuntikkan fixture lewat localStorage atau fungsi global, lalu menyimpan keluaran `compose` per item.
-2. `npm run test:golden` membangun app baru, merender fixture yang sama, dan membandingkan hasilnya.
+1. `npm run golden:capture` membuka file `legacy/*.html`, menyuntikkan fixture lewat localStorage atau fungsi global, lalu menyimpan keluaran `compose` per item ke `tests/golden/icon-composer/` dan `tests/golden/template-icon-builder/` (nama folder = app legacy asal baseline).
+2. `npm run test:golden` membangun Icon Studio, lalu menjalankan semua tes `@golden`: `studio-golden.spec.js` (render set Composer dan dokumen Builder classic/accent, set lintas pustaka Tabler/Hugeicons/Lucide dengan tile objek utama dan pengubah panel Bentuk, SVG dan ZIP Builder, ZIP Composer) serta uji paritas piksel offset, hand-writing, dan sticker. ZIP dibandingkan langsung dengan app legacy yang dibuka di Playwright.
 3. classic/accent: harus identik string. Mesin baru: dibandingkan per piksel (rasterisasi 256 px). Ambang ada di `docs/engines/<id>.md`.
 4. Kalau perubahan visual memang disengaja, perbarui golden dengan `npm run golden:update -- --engine <id>` dan **tulis alasannya** di CHANGELOG.
 

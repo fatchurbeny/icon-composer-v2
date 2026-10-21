@@ -26,6 +26,8 @@ Status: `[ ]` belum · `[~]` berjalan · `[x]` selesai.
 
 **Kriteria terima:** golden identik untuk classic dan accent di kedua app. ZIP ekspor TIB sama isinya, kecuali timestamp `exported_at`.
 
+Catatan 2026-10-21: kedua port Fase 1 sudah dihapus setelah Icon Studio menggantikannya (lihat status Fase 2b dan ADR-020).
+
 ## Fase 2: Ekstrak paket bersama ✅
 
 - [x] `packages/core`: `rng`, `hash`, `partStr`, `dedupeAttrs`, pembulatan.
@@ -56,6 +58,8 @@ Acuan: `docs/design/DESIGN-HANDOFF.md`, `docs/design/UI-RULES.md`, `docs/design/
 **Kriteria terima:** semua butir `DESIGN-HANDOFF.md` bagian 9 lulus, golden test mesin tetap identik, dan pemilik menyetujui tampilan tiap persona dibandingkan dengan artboard.
 
 Status 2026-10-19: **selesai, disetujui pemilik.** Termasuk zoom kanvas ala Affinity dan rich tooltip tool rail. Dikerjakan di branch `fase-2b-icon-studio`.
+
+Status 2026-10-21: **app lama dihapus** (keputusan Beny, ADR-020). `apps/icon-composer` dan `apps/template-icon-builder` beserta `tests/e2e/golden.spec.js`, `scripts/collect-builds.mjs`, dan `scripts/port-phase1.mjs` dihapus. Semua pemeriksaan golden yang tadinya lewat app lama kini berjalan di `tests/e2e/studio-golden.spec.js` terhadap baseline yang sama dari `legacy/`; tile pengubah panel Bentuk IC (`modBin` di `mixed.html`) dipindah lebih dulu. `npm run build` hanya menghasilkan Icon Studio.
 
 Fitur Icon Studio sesudahnya (2026-10-20, disetujui pemilik): urungkan dan ulangi maks 10 langkah per dokumen di semua persona, hanya di memori (`apps/icon-studio/src/state/undo.js`, DATA-MODEL bagian 4.4). Butir backlog "Undo/redo di Composer" selesai lewat fitur ini.
 

@@ -29,12 +29,8 @@ const DATA_COLOR_OK = [/packages\/engines\//, /palette/i, /\/data\//];
 // Template file ekspor (HTML di dalam ZIP, mis. resource-page.html) bukan UI Icon Studio:
 // font, ukuran huruf, dan radiusnya bagian dari keluaran yang dibandingkan golden dengan legacy.
 const EXPORT_TEMPLATE = [/apps\/icon-studio\/src\/state\/data\/export\//];
-// Port Fase 1 sengaja identik dengan legacy. Pengecualian ini dihapus saat
-// aplikasi lama diganti Icon Studio berbasis packages/ui pada Fase 2b.
-const GENERATED = [
-  /packages\/ui\/icons\.js$/,
-  /apps\/(icon-composer|template-icon-builder)\/(index\.html|src\/.*)$/,
-];
+// Ikon UI hasil generate (scripts/build-ui-icons.mjs).
+const GENERATED = [/packages\/ui\/icons\.js$/];
 
 const walk = (dir, out = []) => {
   if (!fs.existsSync(dir)) return out;
