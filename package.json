@@ -17,7 +17,8 @@
     "legacy:verify": "shasum -a 256 -c docs/legacy/legacy.sha256",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:golden": "playwright test --grep @golden --pass-with-no-tests",
+    "golden:capture": "node scripts/golden-capture.mjs",
+    "test:golden": "npm run build && playwright test --grep @golden",
     "lint": "eslint . && npm run lint:ui",
     "lint:ui": "node scripts/lint-ui.mjs",
     "format:check": "prettier --check ."
@@ -28,6 +29,7 @@
     "eslint": "9.37.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "16.4.0",
+    "lucide-static": "^1.52.0",
     "prettier": "3.6.2",
     "vite": "6.4.4",
     "vite-plugin-singlefile": "2.3.3",

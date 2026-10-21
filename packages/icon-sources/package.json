@@ -1,0 +1,11 @@
+{
+  "name": "@icon-studio/icon-sources",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./catalog": "./catalog.js",
+    "./custom": "./custom.js"
+  }
+}

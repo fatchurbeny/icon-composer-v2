@@ -60,6 +60,9 @@ Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5, JSZip 3.10.1. Alasannya, sidik ja
 ### ADR-015 · 2026-10-17 · Filter Bentuk "Isi" = bentuk tertutup
 **Keputusan pemilik.** Di panel Pustaka, "Isi" berarti ikon yang punya bentuk tertutup (body) yang bisa diwarnai, dihitung per ikon untuk semua library (Lucide, Tabler, Hugeicons, Kustom) oleh `engines/shared.analyzeParts`. "Garis" berarti ikon tanpa bentuk tertutup. Varian "filled" bawaan Tabler tidak dipakai.
 
+### ADR-016 · 2026-10-18 · Header metadata.csv Composer dikutip
+**Keputusan pemilik.** `metadata.csv` Icon Composer dibuat oleh `metadataCsv` di `packages/export`, sehingga header ikut dikutip (`"filename","title",...`), sama seperti baris data. Legacy 1.5.1 menulis header tanpa kutip. Isi nilai tidak berubah, dan pembaca CSV standar membaca keduanya sama. Golden ZIP Composer membandingkan dengan legacy setelah header legacy dikutip. Header `metadata.csv` dan `metadata-internal.csv` Builder belum diubah (tetap seperti legacy 1.6.0).
+
 ---
 
 ## Dibatalkan (jangan dipasang lagi tanpa diminta)

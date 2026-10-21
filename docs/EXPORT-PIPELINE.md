@@ -99,7 +99,9 @@ Kata kunci gaya yang ditambahkan: `offset style`, `hand-writing style` + `hand d
 
 Judul classic dan accent **tidak berubah** (`Accent Line`, `Two Tone`, `Solid Two Tone`), supaya pack yang sudah terbit tetap konsisten.
 
-Konstanta `STYLE_WORDS` di `packages/export` menjadi satu-satunya sumber kata gaya. Composer (metadata.csv untuk extension) dan Builder (metadata.csv Canva) sama-sama membacanya.
+Konstanta `STYLE_WORDS` di `packages/export` menjadi satu-satunya sumber kata gaya judul. Composer (metadata.csv untuk extension) dan Builder (metadata.csv Canva) sama-sama membacanya lewat `styleWord(family, mode)`. Daftar kata kunci gaya masih berbeda per app (lihat `docs/legacy/INVENTORY.md`).
+
+Format `metadata.csv`: BOM UTF-8, baris CRLF, semua sel data dikutip. Header Composer dikutip (ADR-016). Header Builder tetap tanpa kutip seperti legacy 1.6.0.
 
 ## 5. Manifest dari Claude Design
 

@@ -1,0 +1,14 @@
+{
+  "name": "@icon-studio/engines",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./classic": "./classic/index.js",
+    "./accent": "./accent/index.js",
+    "./offset": "./offset/index.js",
+    "./hand-writing": "./hand-writing/index.js",
+    "./shared": "./shared/index.js"
+  }
+}
