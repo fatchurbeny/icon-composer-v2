@@ -64,6 +64,9 @@ export { createClassicData } from "./data.js";
 export {
   CLASSIC_ENGINE_VERSION,
   anchoredModifierGeometry,
+  bodyBox,
+  modifierBox,
+  rotatedBoxSize,
   solidLineDiagnostic,
   solidLineFit,
   solidMainDetails,
