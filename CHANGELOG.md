@@ -63,6 +63,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 - Icon Studio: zoom dan geser kanvas ala Affinity di semua persona (`src/canvas-zoom.js`). Ctrl/⌘ + roda atau pinch untuk zoom di titik kursor (10–800%); Spasi + seret, tool Geser tampilan (H), atau tombol tengah untuk geser; tool Perbesar (Z) klik/Alt + klik; ⌘/Ctrl + = − 0 1. Zoom tampil di tab dokumen dan kontrol bilah status (perkecil, persen/100%, perbesar, sesuaikan), dan diingat per dokumen dan persona. Filmstrip Edit dipindah ke bawah kanvas, di luar area zoom. Ikon UI baru `zoom-out` dan `zoom-fit` (Lucide `zoom-out`, `scan`).
 
 ### Diperbaiki
+- Tinjau: klik dua kali sel lembar kontak tidak lagi meninggalkan langkah urungkan kosong; klik pertama dibatalkan lewat `undo.discard` sehingga tombol Urungkan, riwayat ulangi, dan Riwayat sesi tetap seperti sebelum klik.
 - `AGENTS.md`: Beny dicatat sebagai penanggung jawab pekerjaan sejak 2026-10-20, Ika tetap pemilik produk.
 - Tabel kata gaya di `EXPORT-PIPELINE.md` memakai "garis aksen", sama dengan kode dan legacy.
 - Icon Studio: toast tidak lagi hilang saat kerangka dirender ulang.

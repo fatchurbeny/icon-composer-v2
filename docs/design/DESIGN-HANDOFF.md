@@ -149,7 +149,7 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 ### 3.4 Tinjau · Lembar kontak & ekspor
 
 - **Konteks:** `.ic-swatches` latar (putih, abu, gelap, kuning, transparan), `.ic-seg--inline` ukuran 128/64/32, `.ic-check` Nama file dan Tanda flag, `.ic-seg` Bandingkan (SVG asli / Direct fill).
-- **Kanvas:** `.ic-sheet` (judul set + meta), grid 6 kolom. Klik ikon mengeluarkan atau memasukkan kembali ikon ke unduhan (`aria-pressed`, opasitas 35% + label "dikeluarkan"). Klik dua kali membuka ikon di Composer · Edit. Di bawahnya `.ic-sizetest`: uji 32 px di latar terang dan gelap.
+- **Kanvas:** `.ic-sheet` (judul set + meta), grid 6 kolom. Klik ikon mengeluarkan atau memasukkan kembali ikon ke unduhan (`aria-pressed`, opasitas 35% + label "dikeluarkan"). Klik dua kali membuka ikon di Composer · Edit tanpa mengubah status unduhan dan tanpa meninggalkan langkah urungkan (klik pertama dibatalkan lewat `app.discard`). Di bawahnya `.ic-sizetest`: uji 32 px di latar terang dan gelap.
 - **Studio:**
   - **Pemeriksaan**: checklist `.ic-row--sm` dengan bulatan ✓ atau !.
   - **Metadata Canva**: seg Artist hashtagben/chital, seg Bahasa, field Tema pack, `.ic-number` Kata kunci, dan contoh judul berpola "Icon-style".

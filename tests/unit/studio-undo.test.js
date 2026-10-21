@@ -142,4 +142,47 @@ describe("undo Icon Studio", () => {
     expect(u.canRedo(doc.id)).toBe(false);
     expect(u.has(doc.id)).toBe(false);
   });
+
+  test("discard membatalkan langkah terakhir tanpa jejak dan memulihkan riwayat ulangi", () => {
+    const u = createUndo();
+    const doc = /** @type {any} */ (makeDoc());
+    u.sync(doc.id, doc);
+    const start = JSON.stringify(snapshot(doc));
+    doc.name = "A";
+    u.commit(doc.id, doc, "Nama");
+    u.undo(doc.id, doc);
+    expect(u.canRedo(doc.id)).toBe(true);
+    doc.items[0].mx = 5;
+    u.commit(doc.id, doc, "Geser");
+    expect(u.canRedo(doc.id)).toBe(false);
+    /* render ulang tanpa perubahan isi tidak menghalangi discard */
+    u.sync(doc.id, doc);
+    expect(u.discard(doc.id, doc, "Geser")).toBe(true);
+    expect(JSON.stringify(snapshot(doc))).toBe(start);
+    expect(u.canUndo(doc.id)).toBe(false);
+    expect(u.peek(doc.id)).toEqual({ undo: null, redo: "Nama" });
+    expect(u.redo(doc.id, doc)).toBe("Nama");
+    expect(doc.name).toBe("A");
+  });
+
+  test("discard ditolak bila label beda, isi sudah berubah, atau setelah urungkan", () => {
+    const u = createUndo();
+    const doc = /** @type {any} */ (makeDoc());
+    u.sync(doc.id, doc);
+    expect(u.discard(doc.id, doc, "Geser")).toBe(false);
+    doc.items[0].mx = 5;
+    u.commit(doc.id, doc, "Geser");
+    expect(u.discard(doc.id, doc, "Nama")).toBe(false);
+    doc.items[0].mx = 6;
+    expect(u.discard(doc.id, doc, "Geser")).toBe(false);
+    u.sync(doc.id, doc);
+    expect(u.discard(doc.id, doc, "Geser")).toBe(false);
+    expect(u.canUndo(doc.id)).toBe(true);
+    doc.name = "B";
+    u.commit(doc.id, doc, "Nama");
+    u.undo(doc.id, doc);
+    u.redo(doc.id, doc);
+    expect(u.discard(doc.id, doc, "Nama")).toBe(false);
+    expect(u.peek(doc.id).undo).toBe("Nama");
+  });
 });

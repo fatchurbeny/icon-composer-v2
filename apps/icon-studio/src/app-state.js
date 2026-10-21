@@ -265,6 +265,23 @@ export function createAppState(options) {
       save();
       notify();
     },
+    /**
+     * Batalkan langkah terakhir berlabel `label` tanpa jejak: isi kembali seperti sebelum langkah itu, tidak
+     * ada langkah ulangi baru, dan catatan Riwayat sesi untuk langkah itu dihapus. Untuk klik pertama dari
+     * klik dua kali yang ternyata bukan perubahan (mis. lembar kontak Tinjau).
+     * @param {string} docId
+     * @param {string} label
+     * @returns {boolean} false bila langkah terakhir bukan `label` atau isi sudah berubah lagi
+     */
+    discard(docId, label) {
+      const doc = byId(docId);
+      if (!doc || !undo.discard(docId, doc, label)) return false;
+      if (history[docId]?.[0]?.label === label) history[docId].shift();
+      afterRestore(doc);
+      save();
+      notify();
+      return true;
+    },
     /** Urungkan satu langkah. @param {string} docId @returns {string | null} label langkah */
     undo: (docId) => step(docId, "undo"),
     /** Ulangi satu langkah. @param {string} docId @returns {string | null} label langkah */
