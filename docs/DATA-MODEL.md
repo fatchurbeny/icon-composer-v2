@@ -174,6 +174,7 @@ Aturan di `app-state.js`:
 - `mutate` dengan label: bila isi berbeda dari `base`, `base` lama menjadi satu langkah berlabel. Perubahan langsung sejak pencatatan terakhir (seret posisi, ukuran, atau putar di Composer · Edit) ikut dalam langkah itu, jadi satu seret = satu langkah.
 - `mutate` tanpa label (render ulang, perubahan tampilan): `base` disamakan tanpa membuat langkah. Karena itu setiap perubahan isi wajib memakai label.
 - Impor manifest, impor set offset, dan dokumen baru menjadi titik awal. `loadPreset` dan `close` mengosongkan riwayat dokumennya.
+- `discard(docId, label)`: membatalkan langkah terakhir tanpa jejak. Isi kembali seperti sebelum langkah itu, tidak ada langkah ulangi baru, riwayat ulangi yang dikosongkan langkah itu dipulihkan, dan catatan Riwayat sesinya dihapus. Hanya berlaku bila langkah terakhir berlabel `label` dan isi belum berubah sejak langkah itu (render ulang tanpa perubahan isi tidak menghalangi; urungkan, ulangi, atau perubahan isi lain menghalangi). Dipakai lembar kontak Tinjau: klik dua kali pada sel membatalkan langkah "Ubah isi unduhan" dari klik pertama, jadi tidak tertinggal langkah urungkan kosong.
 - Setelah urungkan atau ulangi: ikon pustaka didaftarkan ulang (`renderer.lib.ensure`, `ensureManifestItem`), dokumen manifest divalidasi ulang, seleksi dipertahankan atau pindah ke item pertama bila itemnya hilang, dan Riwayat sesi mencatat "Urungkan: …" atau "Ulangi: …".
 
 ### 4.5 Migrasi 003 (`apps/icon-studio/src/state/migrations/003-from-hand-writing.js`)

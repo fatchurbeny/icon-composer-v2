@@ -223,6 +223,11 @@ function saveFile(filename, data) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
+/** Label langkah urungkan saat ikon set dikeluarkan atau dimasukkan. */
+const TOGGLE_LABEL = "Ubah isi unduhan";
+/** @param {string} id */
+const toggleOff = (id) => (/** @type {any} */ doc) => (doc.review.off[id] ? delete doc.review.off[id] : (doc.review.off[id] = true));
+
 const actions = {
   /** @param {import("./common.js").Ctx} ctx @param {HTMLElement} el */
   "t-toggle"(ctx, el, /** @type {any} */ { go }) {
@@ -230,13 +235,13 @@ const actions = {
     const now = Date.now();
     if (isSet(ctx) && lastClick.id === id && now - lastClick.at < 450) {
       lastClick = { id: "", at: 0 };
-      /* klik dua kali: kembalikan status klik pertama, lalu buka di Composer · Edit */
-      mutate(ctx, (doc) => (doc.review.off[id] ? delete doc.review.off[id] : (doc.review.off[id] = true)));
+      /* klik dua kali: batalkan langkah klik pertama tanpa jejak di urungkan, lalu buka di Composer · Edit */
+      if (!ctx.app.discard(ctx.doc.id, TOGGLE_LABEL)) mutate(ctx, toggleOff(id));
       ctx.app.select(ctx.doc.id, id);
       return go({ persona: "composer", edit: id });
     }
     lastClick = { id, at: now };
-    if (isSet(ctx)) mutate(ctx, (doc) => (doc.review.off[id] ? delete doc.review.off[id] : (doc.review.off[id] = true)), "Ubah isi unduhan");
+    if (isSet(ctx)) mutate(ctx, toggleOff(id), TOGGLE_LABEL);
     else {
       const it = ctx.doc.items.find((/** @type {any} */ x) => x.uid === id);
       if (it) mutate(ctx, () => (it.on = !it.on), `${it.id} ${it.on ? "dikeluarkan" : "dimasukkan"}`);
