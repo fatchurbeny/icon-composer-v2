@@ -69,6 +69,7 @@ function baseNameEN(it, noMod){ return [libWords(it.main, "main"), it.mod !== "n
 function styleMeta(doc, it, PREFS){
   if (doc.style.family === "accent") return {...styleWord("accent"), ken:["accent icon", "line icon", "two tone icon"], kid:["ikon aksen", "ikon garis", "ikon dua warna"]};
   if (doc.style.family === "offset") return {...styleWord("offset"), ken:["offset style", "line icon", "two tone icon"], kid:["gaya offset", "ikon garis", "ikon dua warna"]};
+  if (doc.style.family === "hand-writing") return {...styleWord("hand-writing"), ken:["hand-writing style", "hand drawn icon", "doodle icon"], kid:["gaya hand-writing", "ikon gambar tangan", "ikon doodle"]};
   const m = modeOfClassic(it, /** @type {any} */ ({ style: doc.style, PREFS }));
   if (m === "B") return {...styleWord("classic", "B"), ken:["solid icon", "two tone icon"], kid:["ikon solid", "ikon dua warna"]};
   if (m === "C") return {...styleWord("classic", "C"), ken:["outline icon", "line icon"], kid:["ikon garis", "ikon outline"]};
@@ -143,11 +144,16 @@ export function reviewChecks(doc, inc, renderer){
   const out = [];
   const pc = packColors(inc, (it) => renderer.renderSetItem(it, style, { idp: "cc" }, doc.customs));
   out.push({ ok: pc.size <= 5, text: "Maksimal 5 warna di seluruh pack", meta: `${pc.size} warna` });
-  const offset = style.family === "offset";
-  if (offset) {
+  const offset = style.family === "offset", hw = style.family === "hand-writing";
+  if (offset || hw) {
     const bad = inc.filter(it => renderer.flagsOf(it, style).some((/** @type {any} */ f) => f[0] === "err")).length;
-    out.push({ ok: bad === 0, text: "Objek didukung gaya Offset (bukan objek bawaan)", meta: `${inc.length - bad}/${inc.length}` });
-  } else {
+    out.push({ ok: bad === 0, text: `Objek didukung gaya ${offset ? "Offset" : "Hand-writing"} (bukan objek bawaan)`, meta: `${inc.length - bad}/${inc.length}` });
+  }
+  if (hw) {
+    const bad = inc.filter(it => renderer.flagsOf(it, style).some((/** @type {any} */ f) => f[1].startsWith("Pengubah bawaan"))).length;
+    out.push({ ok: bad === 0, text: "Pengubah dari pustaka (pengubah bawaan tidak dirender)", meta: `${inc.length - bad}/${inc.length}` });
+  }
+  if (!offset) {
     const noMod = inc.filter(it => it.mod === "none").length;
     out.push({ ok: noMod === 0, text: "Setiap ikon punya pengubah", meta: `${inc.length - noMod}/${inc.length}` });
   }
@@ -155,7 +161,7 @@ export function reviewChecks(doc, inc, renderer){
     const dual = inc.filter(it => modeOfClassic(it, /** @type {any} */ ({ style, PREFS })) !== style.pref).length;
     out.push({ ok: dual === 0, text: "Semua ikon mengikuti mode warna set", meta: dual ? `${dual} beda` : "" });
   }
-  const edge = inc.filter(it => { const b = offset ? renderer.boxesOf(it, style) : layerBoxes(it, style, renderer.data); return ["main","mod","deco"].some(k => /** @type {any} */ (b)[k].w && (/** @type {any} */ (b)[k].x < 0.5 || /** @type {any} */ (b)[k].y < 0.5 || /** @type {any} */ (b)[k].x + /** @type {any} */ (b)[k].w > 47.5 || /** @type {any} */ (b)[k].y + /** @type {any} */ (b)[k].h > 47.5)); });
+  const edge = inc.filter(it => { const b = offset || hw ? renderer.boxesOf(it, style) : layerBoxes(it, style, renderer.data); return ["main","mod","deco"].some(k => /** @type {any} */ (b)[k].w && (/** @type {any} */ (b)[k].x < 0.5 || /** @type {any} */ (b)[k].y < 0.5 || /** @type {any} */ (b)[k].x + /** @type {any} */ (b)[k].w > 47.5 || /** @type {any} */ (b)[k].y + /** @type {any} */ (b)[k].h > 47.5)); });
   out.push({ ok: edge.length === 0, text: "Elemen di dalam viewBox 0–48", meta: edge.length ? `${edge.length} ikon menyentuh tepi` : `${inc.length}/${inc.length}` });
   const renamed = fileNames(inc, renderer.lib, style.family).filter(({it, file}) => file !== slug(nameOf(it, renderer.lib, style.family)) + ".svg").length;
   out.push({ ok: renamed === 0, text: "Nama file unik", meta: renamed ? `${renamed} diberi akhiran` : `${inc.length}/${inc.length}` });

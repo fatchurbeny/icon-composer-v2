@@ -4,6 +4,7 @@
  * Dipindah dari Icon Composer 1.5.1 (`boxes`, `getXY`, `setXY`, `cycleRole`, handler slot dan reset).
  */
 import { fillOfClassic, geomClassic, lineOfClassic, modeOfClassic } from "@icon-studio/engines/classic";
+import { handWritingParams } from "@icon-studio/engines/hand-writing";
 import { offsetParams } from "@icon-studio/engines/offset";
 import { ROLES } from "@icon-studio/engines/shared";
 import { STYLE_RANGES } from "./set-ops.js";
@@ -380,6 +381,14 @@ export function sizeRange(layer, s0, size0) {
  */
 export function layerPaints(it, layer, style, lib) {
   const ctx = /** @type {any} */ ({ style, PREFS: lib.PREFS });
+  if (style.family === "hand-writing") {
+    const p = handWritingParams(style);
+    if (layer === "deco" || (layer === "mod" && it.mod === "none")) return [];
+    return [
+      { slot: "line", label: "Tinta", color: p.ink },
+      { slot: "fill", label: "Blob", color: p.acc },
+    ];
+  }
   if (style.family === "offset") {
     const p = offsetParams(style);
     const line = /** @type {LayerPaint} */ ({ slot: "line", label: "Garis", color: p.ink });

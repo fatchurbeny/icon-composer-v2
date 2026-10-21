@@ -9,6 +9,7 @@
 import { get } from "@icon-studio/engines";
 import { createClassicData, decoMarkupClassic, solidLineDiagnostic as solidLineDiagnosticClassic } from "@icon-studio/engines/classic";
 import { modPreviewAccent as modPreviewAccentEngine } from "@icon-studio/engines/accent";
+import { boxesHandWriting } from "@icon-studio/engines/hand-writing";
 import { boxesOffset } from "@icon-studio/engines/offset";
 import {
   ROLES,
@@ -20,7 +21,7 @@ import {
 } from "@icon-studio/engines/shared";
 import { createIconSources } from "@icon-studio/icon-sources";
 import { CUSTOM_ICONS } from "@icon-studio/icon-sources/custom";
-import { MODES, OFFSET_MODE, manifestOffsetStyle, useStyle } from "./document.js";
+import { HAND_WRITING_MODE, MODES, OFFSET_MODE, manifestHandWritingStyle, manifestOffsetStyle, useStyle } from "./document.js";
 import { layerBoxes } from "./edit-ops.js";
 
 /**
@@ -94,7 +95,7 @@ export function createRenderer(options) {
   }
 
   /**
-   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset).
+   * Node mentah ikon pustaka untuk mesin yang membaca bagian ikon langsung (offset, hand-writing).
    * Objek bawaan dan ikon yang belum termuat menghasilkan null.
    * @param {string} key
    */
@@ -112,11 +113,13 @@ export function createRenderer(options) {
    * @param {any} style
    */
   function boxesOf(it, style) {
-    return style.family === "offset" ? boxesOffset(it, style, offsetCtx) : layerBoxes(it, style, data);
+    if (style.family === "offset") return boxesOffset(it, style, offsetCtx);
+    if (style.family === "hand-writing") return boxesHandWriting(it, style, offsetCtx);
+    return layerBoxes(it, style, data);
   }
 
   /**
-   * Flag khusus mesin untuk satu ikon set (offset: objek bawaan, tanpa bidang tertutup, pengubah).
+   * Flag khusus mesin untuk satu ikon set (offset dan hand-writing: objek bawaan, bidang tertutup, pengubah).
    * @param {any} it
    * @param {any} style
    * @returns {[string, string][]}
@@ -134,8 +137,8 @@ export function createRenderer(options) {
    * @param {any[]} [customs]
    */
   function renderSetItem(it, style, opt, customs = []) {
-    if (style.family === "offset") {
-      const engine = get("offset");
+    if (style.family === "offset" || style.family === "hand-writing") {
+      const engine = get(style.family);
       return engine.compose(engine.adapt(it, style), style, { ...(opt || {}), ctx: offsetCtx });
     }
     if (style.family === "accent")
@@ -147,7 +150,8 @@ export function createRenderer(options) {
    * Render ikon Builder untuk satu mode (render TIB). Gaya dokumen tidak diubah.
    * Mode O memakai mesin offset: pengubah tidak dirender, dekorasi dari `offsetDeco` (bawaan kilat + tanah).
    * @param {any} it
-   * @param {string} mode X | A | B | C | O
+   * Mode H memakai mesin hand-writing: pengubah pustaka di anchor item, tinta dan aksen dari gaya manifest.
+   * @param {string} mode X | A | B | C | O | H
    * @param {any} style
    * @param {{size?: number | string, idp?: string}} [opt]
    */
@@ -155,6 +159,10 @@ export function createRenderer(options) {
     opt = opt || {};
     if (!MAINS[it.main])
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="${opt.size || 48}" height="${opt.size || 48}"></svg>`;
+    if (mode === HAND_WRITING_MODE) {
+      const engine = get("hand-writing");
+      return engine.compose(engine.adapt(it), manifestHandWritingStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });
+    }
     if (mode === OFFSET_MODE) {
       const engine = get("offset");
       return engine.compose(engine.adapt(it, style), manifestOffsetStyle(style), { size: opt.size || 48, idp: opt.idp, ctx: offsetCtx });

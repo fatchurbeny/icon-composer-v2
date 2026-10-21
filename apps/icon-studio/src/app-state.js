@@ -4,12 +4,13 @@
  * Disimpan ke `icon-studio-v1` lewat `state/store.js`. Seleksi, rute, dan riwayat urungkan tidak disimpan.
  * Pindah persona tidak menghapus seleksi atau state dokumen (DESIGN-HANDOFF bagian 2).
  */
-import { PRESET, createManifestDocument, createSetDocument, importManifest, normItem, offsetComposerSource, offsetSetFromComposer } from "./state/document.js";
+import { PRESET, createManifestDocument, createSetDocument, handWritingComposerSource, handWritingSetFromComposer, importManifest, normItem, offsetComposerSource, offsetSetFromComposer } from "./state/document.js";
 import { createVocabulary, defaultExportOptions, validateManifest } from "./state/builder-ops.js";
 import { ensureReviewFields } from "./state/review-ops.js";
 import { ensureSetFields } from "./state/set-ops.js";
 import { migrateFromLegacy } from "./state/migrations/001-from-legacy.js";
 import { MIGRATION_ID as OFFSET_MIGRATION, migrateFromOffset } from "./state/migrations/002-from-offset.js";
+import { MIGRATION_ID as HAND_WRITING_MIGRATION, migrateFromHandWriting } from "./state/migrations/003-from-hand-writing.js";
 import { PRESET_LIMIT, hasState, loadState, normColorPresets, normSwatchSource, saveState } from "./state/store.js";
 import { UNDO_LIMIT, createUndo } from "./state/undo.js";
 
@@ -76,6 +77,22 @@ export function createAppState(options) {
       loaded.activeId = loaded.activeId || offset.documents[0].id;
       migratedFrom = [...migratedFrom, ...offset.sources];
       migrationWarnings.push(...offset.warnings);
+    }
+  }
+  /* migrasi sekali dari coret-composer 1.0.0 (gaya hand-writing), dengan aturan yang sama */
+  if (!migrations.includes(HAND_WRITING_MIGRATION)) {
+    let hw = null;
+    try {
+      hw = migrateFromHandWriting(options.storage || globalThis.localStorage, { lib: renderer.lib });
+    } catch {
+      hw = null;
+    }
+    migrations.push(HAND_WRITING_MIGRATION);
+    if (hw) {
+      loaded.documents.push(...hw.documents);
+      loaded.activeId = loaded.activeId || hw.documents[0].id;
+      migratedFrom = [...migratedFrom, ...hw.sources];
+      migrationWarnings.push(...hw.warnings);
     }
   }
   /** @type {any[]} */
@@ -339,6 +356,41 @@ export function createAppState(options) {
         renderer.dropMissing("tb");
       }
       const res = offsetSetFromComposer(data, renderer.lib);
+      if (!res || "fatal" in res) return res;
+      const doc = ensureReviewFields(ensureSetFields(res.doc));
+      documents.push(doc);
+      undo.sync(doc.id, doc);
+      activeId = doc.id;
+      selection[doc.id] = doc.items[0] ? doc.items[0].id : null;
+      save();
+      notify();
+      return { doc, warnings: res.warnings };
+    },
+    /**
+     * Impor set coret-composer 1.0.0 (`gaya.json` dengan `family: "coret"` dari ZIP atau isi `coret-composer-v1`)
+     * menjadi dokumen set bergaya Hand-writing.
+     * @param {string} text
+     * @returns {Promise<{fatal?: string, doc?: any, warnings?: string[]} | null>} null bila teks bukan data coret-composer
+     */
+    async importHandWritingSet(text) {
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return null;
+      }
+      const src = handWritingComposerSource(data);
+      if (!src) return null;
+      const keys = src.payload.icons.flatMap((/** @type {any} */ o) => [String(o && o.main), String(o && o.mod)]);
+      if (keys.some((k) => k.startsWith("tb:"))) {
+        await renderer.loadTabler();
+        renderer.dropMissing("tb");
+      }
+      if (keys.some((k) => k.startsWith("hg:"))) {
+        await renderer.loadHugeicons();
+        renderer.dropMissing("hg");
+      }
+      const res = handWritingSetFromComposer(data, renderer.lib);
       if (!res || "fatal" in res) return res;
       const doc = ensureReviewFields(ensureSetFields(res.doc));
       documents.push(doc);

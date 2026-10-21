@@ -4,6 +4,7 @@
  * Perilaku mengikuti Icon Composer 1.5.1 (tambah, duplikat, hapus, ganti isi lapisan, gaya set).
  */
 import { ensureComboFields } from "./combo-ops.js";
+import { BLOB_MODES, HAND_WRITING_RANGES, handWritingItem, handWritingParams } from "@icon-studio/engines/hand-writing";
 import { OFFSET_RANGES, offsetDeco, offsetParams } from "@icon-studio/engines/offset";
 import { SET_FAMILIES, applyFamily, blankItem, normItem } from "./document.js";
 
@@ -141,13 +142,24 @@ export const STYLE_RANGES = {
   "offset.dx": OFFSET_RANGES.dx,
   "offset.dy": OFFSET_RANGES.dy,
   "offset.sw": OFFSET_RANGES.sw,
+  "hand-writing.sw": HAND_WRITING_RANGES.sw,
+  "hand-writing.puff": HAND_WRITING_RANGES.puff,
+  "hand-writing.off": HAND_WRITING_RANGES.off,
+  "hand-writing.gap": HAND_WRITING_RANGES.gap,
+  "hand-writing.rot": HAND_WRITING_RANGES.rot,
+  "hand-writing.ko": HAND_WRITING_RANGES.ko,
 };
+
+/** Field gaya hand-writing yang berlaku untuk seluruh set (docs/engines/hand-writing.md). */
+const HW_FIELDS = ["acc", "ink", "sw", "puff", "off", "gap", "rot", "ko"];
 
 /**
  * Ubah satu nilai gaya set. Nilai angka dibatasi rentang slider.
  * @param {any} style
  * @param {string} key sw, gap, cap, pref, fx, ink, accent, family, scale.main, scale.mod, scale.deco,
- *   offset.mode, offset.acc, offset.ink, offset.dx, offset.dy, offset.sw
+ *   offset.mode, offset.acc, offset.ink, offset.dx, offset.dy, offset.sw,
+ *   hand-writing.acc, hand-writing.ink, hand-writing.sw, hand-writing.puff, hand-writing.off,
+ *   hand-writing.gap, hand-writing.rot, hand-writing.ko
  * @param {any} value
  */
 export function setStyleValue(style, key, value) {
@@ -158,6 +170,14 @@ export function setStyleValue(style, key, value) {
     const cur = offsetParams(style);
     if (name in OFFSET_RANGES && !Number.isFinite(Number(value))) return style;
     style.engine = { ...(style.engine || {}), offset: offsetParams({ ...cur, [name]: value }) };
+    return style;
+  }
+  if (key.startsWith("hand-writing.")) {
+    const name = key.slice(13);
+    if (!HW_FIELDS.includes(name)) return style;
+    if (name !== "acc" && name !== "ink" && !Number.isFinite(Number(value))) return style;
+    const cur = handWritingParams(style);
+    style.engine = { ...(style.engine || {}), "hand-writing": handWritingParams({ ...cur, [name]: value }) };
     return style;
   }
   if (key in STYLE_RANGES) {
@@ -180,7 +200,7 @@ export function setStyleValue(style, key, value) {
 /**
  * Terapkan palet (kurasi atau harmoni) ke gaya set atau gaya manifest Builder.
  * - Klasik/Aksen: `ink` → `style.ink`, `accent` → `style.accent`, `fill` → `style.colors.main.fill` (isi objek utama).
- * - Offset: `ink` → `style.engine.offset.ink`, `accent` → `style.engine.offset.acc`; isi tidak dipakai.
+ * - Offset dan hand-writing: `ink` → `style.engine.<id>.ink`, `accent` → `style.engine.<id>.acc`; isi tidak dipakai.
  * - Manifest (tanpa `style.colors`): hanya tinta dan aksen.
  * Peran yang tidak diisi tidak diubah. Warna yang bukan hex diabaikan.
  * @param {any} style
@@ -192,9 +212,9 @@ export function applyStyleColors(style, colors) {
   const ink = hex(colors.ink),
     accent = hex(colors.accent),
     fill = hex(colors.fill);
-  if (style.family === "offset") {
-    if (ink) setStyleValue(style, "offset.ink", ink);
-    if (accent) setStyleValue(style, "offset.acc", accent);
+  if (style.family === "offset" || style.family === "hand-writing") {
+    if (ink) setStyleValue(style, `${style.family}.ink`, ink);
+    if (accent) setStyleValue(style, `${style.family}.acc`, accent);
     return { fill: false };
   }
   if (ink) style.ink = ink;
@@ -204,6 +224,27 @@ export function applyStyleColors(style, colors) {
     return { fill: true };
   }
   return { fill: false };
+}
+
+/**
+ * Ubah parameter hand-writing satu ikon (`item.engine["hand-writing"]`): skala pengubah `ms`,
+ * mode blob, atau `seed` goresan. Field mesin lain tidak disentuh.
+ * @param {any} it
+ * @param {"ms" | "blob" | "seed"} key
+ * @param {any} value
+ */
+export function setHandWritingItem(it, key, value) {
+  const cur = handWritingItem(it);
+  const e = (it.engine && it.engine["hand-writing"]) || {};
+  const [min, max] = HAND_WRITING_RANGES.ms;
+  /** @type {Record<string, any>} */
+  const next = { ms: cur.ms, blob: cur.blob, seed: cur.seed, ...(e.var ? { var: e.var } : {}) };
+  if (key === "ms" && Number.isFinite(Number(value))) next.ms = Math.max(min, Math.min(max, Number(value)));
+  else if (key === "blob" && BLOB_MODES.includes(value)) next.blob = value;
+  else if (key === "seed" && Number.isFinite(Number(value))) next.seed = Math.trunc(Number(value));
+  else return it;
+  it.engine = { ...(it.engine || {}), "hand-writing": next };
+  return it;
 }
 
 /**

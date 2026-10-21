@@ -72,6 +72,13 @@ Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5, JSZip 3.10.1. Alasannya, sidik ja
 
 Rencana kerja: `docs/plans/fase-2b.md`.
 
+### ADR-018 · 2026-10-20 · Keputusan teknis Fase 4 (hand-writing)
+**Keputusan teknis (penanggung jawab: Beny), mengikuti pola Fase 3.**
+1. **Skala `pathLength` versi Skia.** Dash dipanggang (ADR-007) dengan pola `pathLength="100"` yang diskalakan memakai panjang path versi Skia (`SkContourMeasure`, toleransi 0,5, busur sebagai conic), bukan panjang geometri sebenarnya, karena begitulah Chromium merender legacy. Celah jatuh di posisi yang sama dengan coret-composer 1.0.0 (paritas 32 ikon maks 0,18%; dengan panjang geometris 0,84%). Rincian: `docs/engines/hand-writing.md`.
+2. **Migrasi otomatis `003-from-hand-writing`.** Set di `coret-composer-v1` diimpor sekali saat boot, seperti `002-from-offset` (menggantikan catatan "impor opsional lewat menu" untuk coret di `DATA-MODEL.md`). `gaya.json` `family:"coret"` bisa ditempel atau diseret di area impor.
+3. **Builder mode `H`.** Folder `hand-writing/`, kata gaya "Hand-writing Style" (ADR-010). Tanpa pengubah tidak diberi flag `err`, sama dengan offset (ADR-009): goresan tangan sudah membedakan ikon dari ikon pustaka. Tabrakan nama objek + pengubah dengan ikon pustaka tetap `err`, karena pengubah dirender.
+4. **Objek bawaan IC/TIB tidak didukung** (`builtinMains:false`): SVG kosong + flag `err`; pengubah bawaan `warn` dan tidak dirender.
+
 ---
 
 ## Dibatalkan (jangan dipasang lagi tanpa diminta)

@@ -88,6 +88,11 @@ const ENGLISH = [
  * @type {{pattern: RegExp, where?: RegExp, why: string}[]}
  */
 const ALLOWED = [
+  /* sebelum pola kebab-case, supaya "hand-writing style" terhapus utuh */
+  {
+    pattern: /\bHand-writing Style\b/gi,
+    why: "kata gaya metadata Hand-writing (judul dan tag Canva, ADR-010 dan ADR-018)",
+  },
   /* kunci ikon */
   {
     pattern: /\b(?:Lucide|Tabler|Hugeicons|Huge) [a-z0-9]+(?:-[a-z0-9]+)*/g,
@@ -307,7 +312,7 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
   test("tidak ada kata Inggris umum di semua persona dan tab panel", async ({
     page,
   }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
     await route(page);
     /** @type {Map<string, Set<string>>} */
     const found = new Map();
@@ -357,6 +362,29 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     await rendered(page, "tinjau");
     await sweep(page, "tinjau offset", found);
 
+    /* Gaya Hand-writing di Composer, Edit, Kombinasi, dan Tinjau */
+    await page.goto(`${APP}#/composer`);
+    await rendered(page, "composer");
+    await page
+      .locator('[data-panel="composer-style"] [role="tab"][data-value="gaya"]')
+      .click();
+    await page.locator('.ic-engine[data-value="hand-writing"]').click();
+    await expect(
+      page.locator('.ic-engine[data-value="hand-writing"]'),
+    ).toHaveAttribute("aria-pressed", "true");
+    await page.click('[aria-label="Tambah ikon baru"]');
+    await sweep(page, "composer hand-writing", found);
+    await page.locator(".ic-page__card[data-open]").last().dblclick();
+    await expect(page).toHaveURL(/#\/composer\/edit\//);
+    await rendered(page, "composer", true);
+    await sweep(page, "composer edit hand-writing", found);
+    await page.goto(`${APP}#/kombinasi`);
+    await rendered(page, "kombinasi");
+    await sweep(page, "kombinasi hand-writing", found);
+    await page.goto(`${APP}#/tinjau`);
+    await rendered(page, "tinjau");
+    await sweep(page, "tinjau hand-writing", found);
+
     /* Builder: kosong, manifest contoh, lalu setiap langkah */
     await page.goto(`${APP}#/builder`);
     await page.evaluate(() => localStorage.clear());
@@ -373,6 +401,13 @@ test.describe("Icon Studio · teks UI berbahasa Indonesia", () => {
     await page.goto(`${APP}#/tinjau`);
     await rendered(page, "tinjau");
     await sweep(page, "tinjau manifest", found);
+    /* Builder dengan pratinjau Hand-writing */
+    await page.goto(`${APP}#/builder`);
+    await page.locator('[data-name="b-preview"] .ic-select__trigger').click();
+    await page.locator('[data-name="b-preview"] [role="option"][data-value="H"]').click();
+    await page.locator('.ic-steps [data-action="b-step"][data-step="check"]').click();
+    await page.locator(".ic-iconcard[data-select]").first().click();
+    await sweep(page, "builder hand-writing", found);
 
     const report = [...found].map(
       ([key, where]) =>

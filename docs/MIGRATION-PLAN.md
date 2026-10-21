@@ -76,12 +76,16 @@ Status 2026-10-20: **selesai.** Semua butir dan kriteria terima lolos. `npm test
 
 ## Fase 4: Mesin hand-writing
 
-- [~] Port mesin, ganti nama di semua tempat.
-- [x] **Panggang dash jadi geometri** (wajib, lihat `docs/engines/hand-writing.md`).
-- [~] Samakan versi pustaka (Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5).
-- [~] Impor set dari coret-composer lama, termasuk `family:"coret"` di `gaya.json`.
+- [x] Port mesin, ganti nama di semua tempat. `packages/engines/hand-writing` 2.0.0: port setia `coret`/`compose` legacy (pengubah 8 anchor, knockout mask, blob, rotasi, urutan `rng` identik), `coret()` → `strokeSet()`, id mask lewat `opt.idp`, SVG kosong + flag untuk objek bawaan. Gaya Hand-writing di Composer (Set, Edit, Kombinasi, Tinjau) dan Builder (mode `H`, folder `hand-writing/`). Kode dan UI baru tidak memakai kata "coret"; `family:"coret"` dibaca sebagai `hand-writing` di registry, `normSetStyle`, impor set, dan manifest Builder.
+- [x] **Panggang dash jadi geometri** (wajib, lihat `docs/engines/hand-writing.md`). Skala `pathLength` meniru panjang Skia (ADR-018).
+- [x] Samakan versi pustaka (Lucide 1.52.0, Tabler 3.49.0, Hugeicons 4.3.5). Mesin membaca node lewat renderer Icon Studio (`sources.json`), bukan lewat CDN legacy (Lucide 0.460.0, Tabler 3.31.0, Hugeicons `@1`).
+- [x] Impor set dari coret-composer lama, termasuk `family:"coret"` di `gaya.json`. Migrasi sekali `003-from-hand-writing` (kunci `coret-composer-v1`) dan impor `gaya.json` lewat area impor (`DATA-MODEL.md` bagian 4.5).
 
 **Kriteria terima:** celah terlihat di file direct fill. Selisih piksel terhadap legacy < 1% pada fixture yang ikonnya ada di kedua versi pustaka.
+
+Status kriteria: selisih piksel lolos lewat `tests/e2e/hand-writing-parity.spec.js` (`@golden`, 32 ikon Lucide, Tabler, dan Hugeicons dengan dan tanpa pengubah, node ikon yang sama disuntik ke `compose` legacy asli; maks 0,18% pada ambang warna 48). Celah di direct fill lolos lewat `tests/e2e/export-canva.spec.js` (19 dari 20 ikon kehilangan tinta di posisi celah dibanding set tanpa celah; direct fill valid, ≤3 warna, hanya fill, selisih mask vs direct fill < 1,5%). Builder mode H lolos lewat `tests/e2e/studio-builder.spec.js`; Composer lewat `tests/e2e/studio-hand-writing.spec.js`; migrasi lewat `tests/e2e/studio-migration.spec.js`.
+
+Status 2026-10-20: **selesai.** Semua butir dan kriteria terima lolos. `npm test` (181), `npm run test:e2e` (123), `npm run test:golden` (21), `npm run lint`, dan `npm run lint:ui` lulus di branch `claude/fase-4-hand-writing-331e40`. Menunggu tinjauan Beny untuk ADR-018.
 
 ## Fase 5: Mesin sticker
 

@@ -36,8 +36,8 @@ Garis yang tebalnya 0 setelah outline (misalnya titik `h.01` di Lucide) harus te
 |---|---|---|
 | classic, accent | sudah teruji di TIB 1.6.0 | golden test |
 | offset | stroke + fill biasa, tanpa mask | uji fixture |
-| hand-writing | `stroke-dasharray` diabaikan IconOutline (garis jadi utuh) | **dash dipanggang** di mesin (lihat `engines/hand-writing.md`) |
-| hand-writing | rotasi + mask knockout | uji fixture; rotasi harus ikut diratakan |
+| hand-writing | `stroke-dasharray` diabaikan IconOutline (garis jadi utuh) | **dash dipanggang** di mesin (lihat `engines/hand-writing.md`); `export-canva.spec.js` memastikan celah tetap terlihat di direct fill |
+| hand-writing | rotasi + mask knockout | lulus uji fixture 20 ikon (selisih mask vs direct fill < 1,5%). Warna mask wajib `#fff`/`#000` persis: `flattenSvgMasks` mencari bidang potong dengan warna `"#000"`, jadi mask `#000000` tidak memotong apa pun |
 | sticker | halo putih = warna ke-4; stroke halo sangat tebal | uji fixture; pastikan halo tidak menutup isi saat diratakan |
 
 Tes wajib: `tests/e2e/export-canva.spec.js` merender 20 ikon per mesin, menjalankan `directFillSvgFile`, dan memeriksa:
@@ -70,6 +70,12 @@ Opsi `exSplit` (`slot-deck/` dan `ekstra/`) tetap berlaku di setiap folder gaya.
 - `submission-profile.json` mendapat `offset_engine`, dan `LICENSES.txt` mendapat satu baris `offset/`.
 - `manifest-final.json` menulis `style.family: "offset"` dan `style.mode` isi warna bila pratinjau aktif Offset.
 Tanpa folder `offset/`, isi ZIP classic/accent tetap identik dengan TIB 1.6.0 (golden).
+
+**Hand-writing di Builder (Fase 4).** Mode Builder `H` (`MODE_INFO.H`, folder `hand-writing/`) merender ikon manifest dengan mesin hand-writing lewat `renderManifestItem`, lalu `directFillSvgFile`. Pengubah pustaka dirender di anchor item. Tinta dan aksen diambil dari gaya manifest, parameter goresan dari `style.engine["hand-writing"]` (bawaan mesin bila kosong, `manifestHandWritingStyle`). Manifest dengan `style.family` `"hand-writing"` atau `"coret"` (lama) memilih mode H. Flag mode H: objek bawaan `err` (ikon dilewati bila "Lewati ikon bermasalah"), pengubah bawaan `warn`, tabrakan nama dengan ikon pustaka dan dobel `err`; tanpa pengubah bukan masalah (sama dengan offset). Bila folder `hand-writing/` ikut diekspor:
+- `metadata.csv` memakai kata gaya `Hand-writing Style` / `gaya hand-writing` dan kata kunci gaya `hand-writing style, hand drawn icon, doodle icon` / `gaya hand-writing, ikon gambar tangan, ikon doodle`; tag pengubah ikut.
+- `submission-profile.json` mendapat `hand_writing_engine`, dan `LICENSES.txt` mendapat satu baris `hand-writing/`.
+- `manifest-final.json` menulis `style.family: "hand-writing"`, `style.engine["hand-writing"]`, dan `icons[].engine["hand-writing"] = {ms, blob, seed}` bila pratinjau aktif Hand-writing.
+Tanpa folder `hand-writing/`, isi ZIP classic/accent tetap identik dengan TIB 1.6.0 (golden).
 
 ```
 <nama-pack>.zip

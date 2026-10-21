@@ -37,7 +37,8 @@ Basisnya model item IC 1.5.1, ditambah blok `engine` untuk data khusus mesin.
 Di TIB, item juga punya field Builder: `uid, idRaw, name:{en,id}, slides, role, keywords, on`.
 
 Aturan:
-- `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada. Pengecualian offset: `engine.offset` tidak ditulis oleh `normItem`; bawaannya (kilat kanan atas + garis tanah) diisi `offsetDeco` saat `adapt`, dan field baru ditulis hanya saat pengguna mengubah dekorasi. Alasannya, `gaya.json` set classic/accent harus tetap sama dengan IC 1.5.1 (golden).
+- `normItem` mengisi `engine.<id>` dengan bawaan mesin bila belum ada. Pengecualian offset dan hand-writing: `engine.offset` dan `engine["hand-writing"]` tidak ditulis oleh `normItem`; bawaannya diisi saat `adapt` (`offsetDeco`: kilat kanan atas + garis tanah; `handWritingItem`: `ms` 0,5, `blob` auto, `seed` 1), dan field ditulis hanya saat pengguna mengubahnya atau saat impor set lama. Alasannya, `gaya.json` set classic/accent harus tetap sama dengan IC 1.5.1 (golden).
+- `engine["hand-writing"].ms` adalah skala pengubah hand-writing (0,36–0,7), terpisah dari `item.ms` IC (persen, tidak dibaca mesin baru).
 - Rotasi per ikon: `mr` (objek utama, di pusat objek), `nr` (pengubah, di pusat kotaknya), dan `deco.r` (dekorasi, di titik `deco.x/y`). Rentang −180..180 derajat. `mr` dan `nr` hanya disimpan bila tidak 0 (`normItem` menghapus nilai 0 atau tidak valid), sehingga item tanpa rotasi tetap sama dengan IC 1.5.1. Skala tetap di tingkat set (`style.scale`). Dibaca mesin classic dan accent. Offset mengabaikannya.
 - Pindah gaya tidak menghapus `engine.<id>` milik gaya lain.
 - `engine.<id>` hanya dibaca oleh mesin `<id>`, lewat `adapt`.
@@ -53,7 +54,7 @@ style = {
 }
 ```
 
-Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `style.engine.offset` (`mode, acc, ink, dx, dy, sw, size`) hanya ditulis bila set pernah memakai offset, dan pindah ke offset tidak mengubah field classic/accent (`sw`, `gap`, `scale`, dst.), sehingga kembali ke Klasik atau Aksen memulihkan patokan lama.
+Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, `offset`, dan `hand-writing` (`"coret"` dibaca sebagai `hand-writing`). `style.engine.offset` (`mode, acc, ink, dx, dy, sw, size`) dan `style.engine["hand-writing"]` (`acc, ink, sw, puff, off, gap, rot, ko`) hanya ditulis bila set pernah memakai gaya itu, dan pindah ke offset atau hand-writing tidak mengubah field classic/accent (`sw`, `gap`, `scale`, dst.), sehingga kembali ke Klasik atau Aksen memulihkan patokan lama (`ENGINE_FAMILIES` di `state/document.js`).
 
 `normStyle` lama hanya menerima `classic` dan `accent`. Fungsi ini diganti `registry.normStyle(style)` yang memanggil `engine.normStyle` milik mesin aktif dan mempertahankan `saved` untuk semua keluarga.
 
@@ -67,14 +68,15 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, dan `offset`. `styl
 | `icon-studio-v1` | Icon Studio (set Composer dan dokumen Builder) | aktif (ADR-017) |
 | `tib-canva-brand-id` | TIB | tetap, tidak pernah masuk manifest |
 | `offset-composer-v1` | offset-composer 1.0.1 | dibaca sekali oleh migrasi 002, juga bila `icon-studio-v1` sudah ada (bagian 4.3) |
-| `coret-composer-v1`, `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
+| `coret-composer-v1` | coret-composer 1.0.0 (gaya hand-writing) | dibaca sekali oleh migrasi 003, juga bila `icon-studio-v1` sudah ada (bagian 4.5) |
+| `sticker-composer-v1` | composer gaya lama | **impor opsional** lewat menu "Impor set dari composer gaya lama" |
 
 `icon-studio-v1` menyimpan `schemaVersion` dan `migrations` (daftar id migrasi yang sudah dijalankan pada state ini). Migrasi berjalan berurutan (`migrations/001-…`, `002-…`), dan setiap langkah punya tes. Migrasi 001 hanya berjalan bila `icon-studio-v1` belum ada. Migrasi berikutnya berjalan bila id-nya belum tercatat di `migrations`, lalu dokumennya ditambahkan tanpa menimpa dokumen yang ada.
 
 ### 4.1 Isi `icon-studio-v1`
 
 ```js
-{ schemaVersion: 1, activeId, migrations: ["002-from-offset"],
+{ schemaVersion: 1, activeId, migrations: ["002-from-offset", "003-from-hand-writing"],
   colorPresets: ["#3A7BFF", …], swatchSource: "bawaan" | "preset",
   documents: [
   { id, kind: "set", name, style, items, customs,
@@ -166,6 +168,33 @@ Aturan di `app-state.js`:
 - `mutate` tanpa label (render ulang, perubahan tampilan): `base` disamakan tanpa membuat langkah. Karena itu setiap perubahan isi wajib memakai label.
 - Impor manifest, impor set offset, dan dokumen baru menjadi titik awal. `loadPreset` dan `close` mengosongkan riwayat dokumennya.
 - Setelah urungkan atau ulangi: ikon pustaka didaftarkan ulang (`renderer.lib.ensure`, `ensureManifestItem`), dokumen manifest divalidasi ulang, seleksi dipertahankan atau pindah ke item pertama bila itemnya hilang, dan Riwayat sesi mencatat "Urungkan: …" atau "Ulangi: …".
+
+### 4.5 Migrasi 003 (`apps/icon-studio/src/state/migrations/003-from-hand-writing.js`)
+
+Aturannya sama dengan migrasi 002 (bagian 4.3): sekali per state, ditandai `"003-from-hand-writing"`, dokumen ditambahkan di akhir, dokumen aktif tidak diganti kecuali state masih kosong, kunci lama tidak diubah atau dihapus. Konversinya `handWritingSetFromComposer` di `state/document.js`, dipakai bersama oleh migrasi dan impor file; pemetaan field memakai `migrateLegacy` milik mesin hand-writing.
+
+**Format sumber coret-composer 1.0.0** (`legacy/style/coret-composer-v1.0.0.html`):
+
+| Sumber | Bentuk |
+|---|---|
+| localStorage `coret-composer-v1` | `{ S, set: [ikon], cur }`. `cur` tidak ikut diimpor. |
+| `gaya.json` di ZIP "Unduh ZIP" | `{ family: "coret", version: "1.0.0", style: S, icons: [ikon] }`. `family: "hand-writing"` juga diterima. |
+| ikon | `{ name, main, mod, anchor, ms, blob, seed }` (localStorage juga punya `id`, `nameEdited`). `main` dan `mod` berprefiks `lu:`, `tb:`, atau `hg:`; `mod` boleh `null`. |
+
+**Pemetaan field** (hasilnya satu dokumen set "Set Hand-writing"):
+
+| Field lama | Menjadi |
+|---|---|
+| `main`, `name` | `item.main`, `item.name` |
+| `mod` (`null` = tanpa) | `item.mod` (`"none"` bila kosong atau bukan ikon pustaka) |
+| `anchor` | `item.slot` (`mx`, `my` diisi `SHIFT` slot itu untuk gaya classic) |
+| `ms`, `blob`, `seed` | `item.engine["hand-writing"] = { ms, blob, seed }` |
+| `S` / `style` | `style.engine["hand-writing"]`, `style.family = "hand-writing"` |
+| (asal data) | `meta.import = { format: "coret-composer", version, source: "coret-composer-v1" \| "gaya.json", warnings }` |
+
+Ikon dengan `main` di luar `lu:`/`tb:`/`hg:` dilewati dengan peringatan "N ikon dilewati: bukan ikon pustaka". Gaya coret-composer berlaku untuk seluruh set, jadi tidak ada peringatan penyeragaman.
+
+**Impor file:** di area impor, `app.importHandWritingSet` dicek setelah `importOffsetSet` dan sebelum manifest Builder. Tabler dan Hugeicons dimuat lebih dulu bila set memakainya.
 
 ## 5. Migrasi dari composer gaya lama
 

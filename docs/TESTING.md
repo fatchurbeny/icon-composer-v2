@@ -10,6 +10,8 @@
 | Render | Playwright | `tests/e2e/render.spec.js` | semua mesin × fixture menghasilkan SVG valid (`DOMParser`) |
 | Ekspor Canva | Playwright | `tests/e2e/export-canva.spec.js` | outline + direct fill lolos, ≤5 warna, selisih piksel kecil |
 | Paritas offset | Playwright | `tests/e2e/offset-parity.spec.js` (`@golden`) | objek offset < 1% piksel dari legacy setelah diskalakan ke 84% |
+| Paritas hand-writing | Playwright | `tests/e2e/hand-writing-parity.spec.js` (`@golden`) | 32 ikon Lucide/Tabler/Hugeicons: render 2.0.0 (dash dipanggang) < 1% piksel dari `compose` legacy coret-composer dengan dasharray |
+| Mesin hand-writing | Vitest | `tests/unit/engines-hand-writing.test.js` | `compose` legacy dijalankan di `vm`: rotasi, blob, transform, siluet mask, dan pola dash per bagian sama; bentuk dasar → path, skala pathLength versi Skia |
 | Sidik jari | Playwright | `tests/e2e/fingerprint.spec.js` | pasangan fixture "kembar/mirip/beda" diklasifikasi benar |
 | UI | Playwright | `tests/e2e/ic-*.spec.js`, `tib-*.spec.js` | alur utama: tambah ke set, ganti gaya, impor manifest, ekspor ZIP, reload |
 
