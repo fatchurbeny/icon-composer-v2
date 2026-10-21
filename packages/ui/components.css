@@ -127,6 +127,8 @@
 .ic-field--mono { font-family: var(--ic-font-mono); }
 .ic-formrow { display: flex; align-items: center; gap: var(--ic-sp-5); min-height: 28px; }
 .ic-formrow > .ic-label:first-child { width: 86px; flex: none; }
+/* di badan panel yang penuh, baris yang terbungkus (mis. swatch dua baris) tidak boleh menyusut sampai tertindih */
+.ic-panel__body > .ic-formrow { flex-shrink: 0; }
 
 /* Angka dengan stepper */
 .ic-number { display: inline-flex; align-items: stretch; height: var(--ic-h-control); border-radius: var(--ic-r-sm); border: 1px solid var(--ic-line-4); background: var(--ic-bg-input); overflow: hidden; }

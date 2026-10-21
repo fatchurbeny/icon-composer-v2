@@ -81,13 +81,15 @@ Rencana kerja: `docs/plans/fase-2b.md`.
 
 ### ADR-019 · 2026-10-20 · Mesin sticker dan direct fill di ZIP Composer (Fase 5)
 **Konteks:** Fase 5 memindahkan sticker-composer ke kontrak mesin dan menyalakan direct fill IC (ADR-011).
-**Keputusan teknis Fase 5** (menunggu tinjauan Beny; butir 5 menunggu keputusan pemilik):
+**Keputusan teknis Fase 5** (menunggu tinjauan Beny; butir 2 dan 5 sudah diputuskan Beny 2026-10-21):
 1. Mesin `sticker` 1.1.0 menghitung di kanvas 64 legacy dan mengeluarkan viewBox 48. Mode `mask` memotong setiap bagian dengan siluet bagian di atasnya, supaya direct fill satu path per warna tidak bergantung urutan tumpukan.
 2. Bentuk isi dibangun `scripts/build-icon-data.mjs` ke `fill-shapes.json`. **Keputusan tetap (2026-10-21, diputuskan Beny):** Lucide dan fallback Tabler memakai deteksi titik ujung yang sama (`closedMarkupEndpoint`: path yang titik awal dan akhirnya berimpit < 0,6 dihitung tertutup dan diberi `z`), karena Lucide 1.52.0 dan Tabler 3.4x tidak lagi menulis `z` di banyak path tertutup. Akibatnya Lucide berbentuk isi naik 1.293 → 1.359: 30 ikon pulih seperti legacy (contoh heart, apple, egg), 10 ikon yang sebelumnya identik legacy ikut berubah karena badan luarnya kini terisi (contoh eye, map-pin), dan 36 ikon baru mendapat bentuk isi (contoh bell, cookie). Rincian di `engines/sticker.md`.
 3. Ikon tanpa bentuk isi memakai `plate` (lingkaran), sesuai spesifikasi.
 4. SVG di akar ZIP Composer selalu direct fill; SVG asli ke `svg-asli/` (opsional). `stroke-dasharray` objek bawaan (`ticket`) dipanggang jadi geometri di jalur ekspor (`outlineSvgFile`), bukan di mesin, supaya golden render classic tetap identik. Ikon yang tetap gagal direct fill dilewati dari SVG Canva dan disebut di status unduhan.
-5. Builder mode `S`: isi objek = aksen manifest, isi pengubah kuning. Usulan sementara, menunggu persetujuan pemilik.
+5. Builder mode `S`. **Keputusan tetap (2026-10-21, diputuskan Beny):** warna sticker di Builder memakai pemilih warna yang sama dengan Composer (`.ic-colorpicker`: swatch palet sticker, hex, Preset saya, palet kurasi, harmoni, "Ikuti warna set"). Tab Manifest punya Isi objek dan Isi pengubah untuk seluruh pack (`style.engine.sticker.main.c`/`mod.c`), tab Ikon punya warna yang sama per ikon (`item.engine.sticker.main.c`/`mod.c`), setara warna isi per ikon di Composer · Edit. Bawaan tetap isi objek = aksen manifest dan isi pengubah kuning (digeser +3 di palet bila sama dengan isi objek), jadi manifest lama tidak berubah. Warna ikut `manifest-final.json` hanya bila dipilih, ikut urungkan, dan dihormati ekspor `sticker/` (direct fill, maks 4 warna per file). Palet dan harmoni di pratinjau Sticker: aksen jadi isi objek, isi palet atau warna harmoni kedua jadi isi pengubah.
 6. Migrasi `004-from-sticker`. Id 003 dipakai migrasi coret-composer (Fase 4, ADR-018); app menjalankan 002, 003, lalu 004 berurutan.
+
+**Selisih karena versi pustaka (diterima Beny, 2026-10-21):** selisih render sticker yang berasal dari versi pustaka terkunci (Lucide 1.52.0, Tabler 3.49.0) dibanding data legacy, dengan angka di `engines/sticker.md` bagian "Hasil golden visual" (mis. lu:sailboat 11,2%, lu:minus 21,7%, heart tanpa isi 7,4%, house + plus 3,4%), diterima apa adanya dan tidak dikejar ke 0%. Akibatnya set sticker lama yang dibuka ulang di Icon Studio bisa sedikit berbeda dari tampilan di sticker-composer.
 
 Catatan penomoran: Fase 4 dan Fase 5 dikerjakan paralel dan sama-sama memakai nomor ADR-018. Saat digabung (2026-10-21), ADR Fase 4 tetap ADR-018 dan ADR Fase 5 menjadi ADR-019.
 
