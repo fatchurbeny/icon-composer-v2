@@ -2,12 +2,14 @@
 
 File di `legacy/` adalah versi final sebelum migrasi. **Read-only.** Dipakai sebagai rujukan golden test dan sebagai sumber port kode.
 
+Port Fase 1 `apps/icon-composer` dan `apps/template-icon-builder` dihapus pada 2026-10-21 (ADR-020). Kode IC 1.5.1 dan TIB 1.6.0 kini hidup di `packages/*` dan `apps/icon-studio`; `legacy/` tetap rujukan emas dan dibandingkan langsung oleh `tests/e2e/studio-golden.spec.js`.
+
 Isi kolom SHA-256 di Fase 0 dengan `shasum -a 256 legacy/**/*.html`.
 
 | File | Versi | Ukuran | SHA-256 | Dipindah ke |
 |---|---|---|---|---|
-| `legacy/icon-composer-aksen-v1.5.1.html` | IC 1.5.1 | 272 KB | `208d35852ccfd3f14afdc348b32b1fb42ef031e8e7306f88c7828b158d4b654b` | `apps/icon-composer`, mesin classic/accent |
-| `legacy/template-icon-builder-aksen-v1.6.0.html` | TIB 1.6.0, mesin classic 1.4.5 | 408 KB | `c0f1823f8a2b65e4611cde6e944a994087763bacdae45dc7c8c1cc23ad152643` | `apps/template-icon-builder`, `packages/export` |
+| `legacy/icon-composer-aksen-v1.5.1.html` | IC 1.5.1 | 272 KB | `208d35852ccfd3f14afdc348b32b1fb42ef031e8e7306f88c7828b158d4b654b` | `apps/icon-studio` (dulu `apps/icon-composer`, dihapus), mesin classic/accent |
+| `legacy/template-icon-builder-aksen-v1.6.0.html` | TIB 1.6.0, mesin classic 1.4.5 | 408 KB | `c0f1823f8a2b65e4611cde6e944a994087763bacdae45dc7c8c1cc23ad152643` | `apps/icon-studio` persona Builder (dulu `apps/template-icon-builder`, dihapus), `packages/export` |
 | `legacy/style/offset-composer-v1.0.1.html` | 1.0.1 | 14 KB | `dc69f33eebcdcd21e0b2738fd3aa136b1312df7423bbca54ddc3878fbea4f53a` | `packages/engines/offset` |
 | `legacy/style/coret-composer-v1.0.0.html` | 1.0.0 | 20 KB | `4c034c1cb550c322e0ee8fa81a1839942c23eb5dde38cf407b549721c8bf39b3` | `packages/engines/hand-writing` |
 | `legacy/style/sticker-composer.html` | (1.0.0) | 2 MB, termasuk data ikon tertanam | `89cb974c6fe7b4f85f71a76d3ef5e2d624c699049935fa76354cf4d0e16f72ee` | `packages/engines/sticker`, `scripts/build-icon-data.mjs` |

@@ -2,12 +2,12 @@
 
 Rangkaian alat untuk membuat paket ikon unik yang dijual sebagai element Canva dan dipasangkan dengan template presentasi.
 
-Repo ini menyatukan dua aplikasi dan lima gaya ikon dalam satu basis kode:
+Repo ini menyatukan dua aplikasi lama dan lima gaya ikon dalam satu aplikasi, **Icon Studio** (`apps/icon-studio`):
 
-| Aplikasi | Fungsi | Basis |
+| Persona | Fungsi | Basis legacy |
 |---|---|---|
-| **Icon Composer** | Editor ikon manual: set, kombinasi massal, tinjau pack, ekspor ZIP | `legacy/icon-composer-aksen-v1.5.1.html` |
-| **Template Icon Builder** | Manifest dari deck Claude Design → pack ikon + metadata Canva | `legacy/template-icon-builder-aksen-v1.6.0.html` |
+| **Composer** (Set, Edit, Kombinasi, Tinjau) | Editor ikon manual: set, kombinasi massal, tinjau pack, ekspor ZIP | `legacy/icon-composer-aksen-v1.5.1.html` |
+| **Builder** | Manifest dari deck Claude Design → pack ikon + metadata Canva | `legacy/template-icon-builder-aksen-v1.6.0.html` |
 
 | Gaya (mesin) | id | Asal |
 |---|---|---|
@@ -17,14 +17,14 @@ Repo ini menyatukan dua aplikasi dan lima gaya ikon dalam satu basis kode:
 | Hand-writing | `hand-writing` | `legacy/style/coret-composer-v1.0.0.html` (dulu "Coret") |
 | Sticker | `sticker` | `legacy/style/sticker-composer.html` |
 
-Hasil build tetap **satu file HTML per aplikasi**, dibuka langsung di Chrome tanpa server.
+Hasil build tetap **satu file HTML**, dibuka langsung di Chrome tanpa server.
 
 ## Mulai
 
 ```bash
 npm install
-npm run dev -w apps/icon-composer
-npm run build        # → dist/icon-composer.html, dist/template-icon-builder.html
+npm run dev -w apps/icon-studio
+npm run build        # → dist/icon-studio/index.html
 ```
 
 ## Peta dokumentasi

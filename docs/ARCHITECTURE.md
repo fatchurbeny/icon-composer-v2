@@ -3,9 +3,8 @@
 ## 1. Lapisan dan arah ketergantungan
 
 ```
-apps/icon-composer        apps/template-icon-builder
-        │                          │
-        └────────────┬─────────────┘
+              apps/icon-studio
+                     │
                      ▼
    packages/export   packages/repetition
           │                 │
@@ -95,3 +94,5 @@ Sejak Fase 2b, kedua app digabung di Icon Studio. Persona Composer memakai varia
 | `state/data/` | data mesin dan pratinjau (warna), `data/export/` untuk template file ekspor |
 
 Keluaran Icon Studio dijaga oleh `tests/e2e/studio-golden.spec.js`: SVG, ZIP Builder, dan ZIP Composer dibandingkan langsung dengan app legacy.
+
+Port Fase 1 `apps/icon-composer` (IC 1.5.1) dan `apps/template-icon-builder` (TIB 1.6.0) dihapus pada 2026-10-21 (ADR-020). Icon Studio adalah satu-satunya app; `legacy/` tetap rujukan emas.
