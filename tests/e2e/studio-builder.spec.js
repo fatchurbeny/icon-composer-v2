@@ -579,4 +579,109 @@ test.describe("Icon Studio · Builder", () => {
     expect(JSON.parse(zip["submission-profile.json"]).hand_writing_engine).toBe("2.0.0");
     expect(zip["LICENSES.txt"]).toContain("hand-writing/");
   });
+
+  test("Klasik Solid·garis: pengubah yang diputar (nr) tetap di dalam viewBox dan lolos direct fill", async ({ page }) => {
+    test.setTimeout(90_000);
+    await open(page);
+    const cases = [
+      { id: "kirim", main: "truck", mod: "parcel", anchor: "BR", nr: 45 },
+      { id: "wajah", main: "face", mod: "card", anchor: "TL", nr: 90 },
+      { id: "suka", main: "heart", mod: "parcel", anchor: "TR", nr: -30, mr: 20 },
+      { id: "tiket", main: "ticket", mod: "star", anchor: "BL", nr: 135 },
+    ];
+    const manifest = {
+      format: "tib-manifest",
+      version: 2,
+      deck: { title: "Uji rotasi", slides: 1 },
+      pack: { en: "Finance", id: "Keuangan" },
+      style: { family: "classic", mode: "B" },
+      icons: cases.map((c) => ({ id: c.id, name: { en: c.id, id: c.id }, main: c.main, mod: c.mod, anchor: c.anchor, slides: [1] })),
+    };
+    await page.locator('[data-name="manifest-text"]').fill(JSON.stringify(manifest));
+    await page.locator('[data-action="import-text"]').click();
+    await expect(page.locator(".ic-iconcard[data-select]")).toHaveCount(cases.length);
+    /* manifest belum membawa rotasi: nr dan mr ditulis ke dokumen tersimpan, lalu app dibuka ulang */
+    await page.evaluate((rot) => {
+      const st = JSON.parse(localStorage.getItem("icon-studio-v1") || "{}");
+      const doc = st.documents.find((/** @type {any} */ d) => d.kind === "manifest");
+      for (const it of doc.items) Object.assign(it, rot[it.id]);
+      localStorage.setItem("icon-studio-v1", JSON.stringify(st));
+    }, Object.fromEntries(cases.map((c) => [c.id, c.mr ? { nr: c.nr, mr: c.mr } : { nr: c.nr }])));
+    await page.reload();
+    await expect(page.locator(".ic-iconcard[data-select]")).toHaveCount(cases.length);
+    await expect(page.locator('[data-name="b-preview"] .ic-select__trigger')).toContainText("solid-garis");
+    const card = await page.locator(".ic-iconcard[data-select]").first().locator("svg").first().evaluate((el) => el.outerHTML);
+    expect(card).toMatch(/transform="rotate\(45 /);
+
+    await page.locator('.ic-topbar [data-action="export"]').click();
+    await expect(page.locator('[data-panel="builder-export"] [data-name="b-mode:B"] input')).toBeChecked();
+    await page.evaluate(() => {
+      window.__zip = null;
+      URL.createObjectURL = (blob) => {
+        window.__zip = blob;
+        return "blob:uji";
+      };
+      HTMLAnchorElement.prototype.click = () => {};
+    });
+    await openPanel(page, "builder-export");
+    await page.locator('[data-action="b-export"]').click();
+    await page.waitForFunction(() => window.__zip instanceof Blob, null, { timeout: 30000 }).catch(async () => {
+      throw new Error("ZIP tidak terbuat: " + (await page.locator('[data-role="export-status"]').textContent()));
+    });
+    const zip = await page.evaluate(async () => {
+      const z = await window.JSZip.loadAsync(window.__zip);
+      /** @type {Record<string, string>} */
+      const out = {};
+      for (const n of Object.keys(z.files)) if (!z.files[n].dir) out[n] = await z.files[n].async("string");
+      return out;
+    });
+    const svgs = Object.keys(zip).filter((n) => n.endsWith(".svg"));
+    expect(svgs.sort()).toEqual(cases.map((c) => `solid-garis/slot-deck/${c.id}-solid-garis.svg`).sort());
+    const checks = await page.evaluate(
+      (files) =>
+        files.map(([name, svg]) => {
+          const S = /** @type {any} */ (window).__iconStudio;
+          let again = null;
+          try {
+            S.directFillSvgFile(svg);
+          } catch (e) {
+            again = /** @type {Error} */ (e).message;
+          }
+          const body = svg.replace(/^<\?xml[^>]*>\s*/, "");
+          const host = document.createElement("div");
+          host.style.cssText = "position:absolute;left:-9999px;top:0;width:48px;height:48px";
+          host.innerHTML = body;
+          document.body.appendChild(host);
+          const root = /** @type {SVGSVGElement} */ (host.querySelector("svg"));
+          const box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+          for (const el of root.querySelectorAll("path")) {
+            const b = /** @type {SVGGraphicsElement} */ (el).getBBox();
+            box.x0 = Math.min(box.x0, b.x);
+            box.y0 = Math.min(box.y0, b.y);
+            box.x1 = Math.max(box.x1, b.x + b.width);
+            box.y1 = Math.max(box.y1, b.y + b.height);
+          }
+          host.remove();
+          return {
+            name,
+            again,
+            viewBox: root.getAttribute("viewBox"),
+            box,
+            stroke: /\sstroke(?:-|=)/.test(body),
+            colors: new Set([...body.matchAll(/fill="(#[0-9A-Fa-f]{6})"/g)].map((m) => m[1].toUpperCase())).size,
+          };
+        }),
+      svgs.map((n) => [n, zip[n]]),
+    );
+    for (const r of checks) {
+      expect(r.again, r.name).toBeNull();
+      expect(r.viewBox, r.name).toBe("0 0 48 48");
+      expect(r.stroke, r.name).toBe(false);
+      expect(r.colors, r.name).toBeLessThanOrEqual(5);
+      expect(r.box.x0, r.name).toBeGreaterThanOrEqual(0);
+      expect(r.box.y0, r.name).toBeGreaterThanOrEqual(0);
+      expect(r.box.x1, r.name).toBeLessThanOrEqual(48);
+      expect(r.box.y1, r.name).toBeLessThanOrEqual(48);
+    }
+  });
 });

@@ -67,6 +67,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/). Ve
 
 ### Diperbaiki
 - Tinjau: klik dua kali sel lembar kontak tidak lagi meninggalkan langkah urungkan kosong; klik pertama dibatalkan lewat `undo.discard` sehingga tombol Urungkan, riwayat ulangi, dan Riwayat sesi tetap seperti sebelum klik.
+- Builder gaya Klasik (Solid·garis 1.4.5): pengubah yang diputar (`nr`) kini dipas dengan kotak setelah rotasi dan ditambatkan ulang ke tepi slot, sehingga tidak melebihi 18 satuan dan tidak keluar dari viewBox; overlap badan juga memakai kotak setelah rotasi `mr`. Item tanpa rotasi tetap identik dengan TIB 1.6.0.
 - `AGENTS.md`: Beny dicatat sebagai penanggung jawab pekerjaan sejak 2026-10-20, Ika tetap pemilik produk.
 - Tabel kata gaya di `EXPORT-PIPELINE.md` memakai "garis aksen", sama dengan kode dan legacy.
 - Icon Studio: toast tidak lagi hilang saat kerangka dirender ulang.

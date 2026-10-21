@@ -14,18 +14,44 @@ import { inBB, intersectionRatio, touchBB } from "../shared/shapes.js";
 export const CLASSIC_ENGINE_VERSION = "1.4.5";
 
 /**
+ * Ukuran kotak sejajar sumbu dari kotak W×H yang diputar `deg` derajat di pusatnya.
+ * @param {number} W
+ * @param {number} H
+ * @param {number} deg
+ * @returns {{w: number, h: number}}
+ */
+export function rotatedBoxSize(W, H, deg) {
+  const a = (deg * Math.PI) / 180,
+    c = Math.abs(Math.cos(a)),
+    s = Math.abs(Math.sin(a));
+  return { w: W * c + H * s, h: W * s + H * c };
+}
+
+/**
  * Kotak pengubah yang ditambatkan ke slot, dengan skala `sc`.
+ * Bawaan (Composer, IC 1.5.1): kotak yang belum diputar ditambatkan ke tepi slot, lalu diputar `nr` di pusatnya.
+ * `opts.rotated` (aturan Solid·garis 1.4.5 di Builder): kotak setelah rotasi yang ditambatkan ke tepi slot,
+ * sehingga pengubah yang diputar tetap di dalam slot. Tanpa `nr` kedua cara memberi hasil yang sama.
  * @param {any} it
  * @param {{w:number, h:number}} md
  * @param {number} sc
+ * @param {{rotated?: boolean}} [opts]
  */
-export function anchoredModifierGeometry(it, md, sc) {
+export function anchoredModifierGeometry(it, md, sc, opts = {}) {
   const W = md.w * sc,
     H = md.h * sc,
     row = it.slot[0],
     col = it.slot[1];
-  let L = col === "L" ? 2 : col === "R" ? 46 - W : 24 - W / 2;
-  let T = row === "T" ? 2 : row === "B" ? 46 - H : 24 - H / 2;
+  let L, T;
+  if (opts.rotated && it.nr) {
+    /* pusat kotak terputar ditempatkan sehingga tepinya menempel di tepi slot (2..46) */
+    const R = rotatedBoxSize(W, H, it.nr);
+    L = (col === "L" ? 2 + R.w / 2 : col === "R" ? 46 - R.w / 2 : 24) - W / 2;
+    T = (row === "T" ? 2 + R.h / 2 : row === "B" ? 46 - R.h / 2 : 24) - H / 2;
+  } else {
+    L = col === "L" ? 2 : col === "R" ? 46 - W : 24 - W / 2;
+    T = row === "T" ? 2 : row === "B" ? 46 - H : 24 - H / 2;
+  }
   L += it.nx;
   T += it.ny;
   return {
@@ -37,6 +63,18 @@ export function anchoredModifierGeometry(it, md, sc) {
     /* rotasi per ikon (`nr`) di pusat kotak pengubah; tanpa rotasi string sama dengan mesin 1.4.5 */
     modT: `${it.nr ? `rotate(${r3(it.nr)} ${r3(L + W / 2)} ${r3(T + H / 2)}) ` : ""}translate(${r3(L)} ${r3(T)}) scale(${r3(sc)})`,
   };
+}
+
+/**
+ * Kotak sejajar sumbu pengubah setelah rotasi `nr` (sama dengan kotaknya bila tanpa rotasi).
+ * @param {any} it
+ * @param {{L:number, T:number, W:number, H:number}} g
+ * @returns {{x:number, y:number, w:number, h:number}}
+ */
+export function modifierBox(it, g) {
+  if (!it.nr) return { x: g.L, y: g.T, w: g.W, h: g.H };
+  const R = rotatedBoxSize(g.W, g.H, it.nr);
+  return { x: g.L + g.W / 2 - R.w / 2, y: g.T + g.H / 2 - R.h / 2, w: R.w, h: R.h };
 }
 
 /**
@@ -57,25 +95,17 @@ export function solidLineFit(it, g, P, ctx) {
   if (!g.md || P.main !== "solid" || P.mod !== "outline")
     return { g, adjusted: false, overlap: 0, gap: style.gap };
   const maxSide = 18;
-  const factor = Math.min(1, maxSide / Math.max(g.W, g.H));
+  /* pengubah yang diputar (`nr`) dipas dengan kotak setelah rotasi dan ditambatkan ulang ke slot */
+  const box = it.nr ? rotatedBoxSize(g.W, g.H, it.nr) : { w: g.W, h: g.H };
+  const factor = Math.min(1, maxSide / Math.max(box.w, box.h));
   const fitted =
-    factor < 0.999
-      ? { ...g, ...anchoredModifierGeometry(it, g.md, g.sc * factor) }
+    factor < 0.999 || it.nr
+      ? { ...g, ...anchoredModifierGeometry(it, g.md, factor < 0.999 ? g.sc * factor : g.sc, { rotated: true }) }
       : g;
   const info = ctx.infoOf(it.main),
     U = info && info.U;
-  const body = U
-    ? {
-        x: 24 + it.mx + fitted.ms * (U.x - 24),
-        y: 24 + it.my + fitted.ms * (U.y - 24),
-        w: fitted.ms * U.w,
-        h: fitted.ms * U.h,
-      }
-    : null;
-  const overlap = intersectionRatio(
-    { x: fitted.L, y: fitted.T, w: fitted.W, h: fitted.H },
-    body,
-  );
+  const body = U ? bodyBox(it, U, fitted.ms) : null;
+  const overlap = intersectionRatio(modifierBox(it, fitted), body);
   const gap = r3(
     style.gap * (overlap > 0.35 ? 0.55 : overlap > 0.2 ? 0.7 : 0.85),
   );
@@ -86,6 +116,30 @@ export function solidLineFit(it, g, P, ctx) {
     gap,
     factor: r3(factor),
   };
+}
+
+/**
+ * Kotak sejajar sumbu badan objek utama di kanvas 48, setelah geser, skala, dan rotasi `mr`
+ * (mainT: rotasi di pusat objek). Tanpa `mr` rumusnya sama dengan mesin 1.4.5.
+ * @param {any} it
+ * @param {{x:number, y:number, w:number, h:number}} U badan dalam satuan sumber 48
+ * @param {number} ms skala objek utama
+ */
+export function bodyBox(it, U, ms) {
+  if (!it.mr)
+    return {
+      x: 24 + it.mx + ms * (U.x - 24),
+      y: 24 + it.my + ms * (U.y - 24),
+      w: ms * U.w,
+      h: ms * U.h,
+    };
+  const a = (it.mr * Math.PI) / 180,
+    dx = U.x + U.w / 2 - 24,
+    dy = U.y + U.h / 2 - 24;
+  const cx = 24 + it.mx + ms * (dx * Math.cos(a) - dy * Math.sin(a)),
+    cy = 24 + it.my + ms * (dx * Math.sin(a) + dy * Math.cos(a));
+  const R = rotatedBoxSize(ms * U.w, ms * U.h, it.mr);
+  return { x: cx - R.w / 2, y: cy - R.h / 2, w: R.w, h: R.h };
 }
 
 /**
