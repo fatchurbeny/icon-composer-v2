@@ -133,6 +133,14 @@ describe("mesin sticker: slot, warna, posisi", () => {
       "Tanpa bentuk isi: isi memakai lingkaran",
     ]);
   });
+
+  test("lu:heart memakai bentuk isinya sendiri, bukan lingkaran (ADR-019 butir 2)", () => {
+    const it = item({ main: "lu:heart", mod: "none" });
+    const svg = sticker.compose(it, style(), { ctx, mode: "white" });
+    expect(svg).toContain(fillShapeOf("lu:heart"));
+    expect(svg).not.toContain('<circle cx="12" cy="12" r="10.5"/>');
+    expect(sticker.flags(it, style(), ctx).map(([, m]) => m)).not.toContain("Tanpa bentuk isi: isi memakai lingkaran");
+  });
 });
 
 describe("mesin sticker: batas warna Canva", () => {

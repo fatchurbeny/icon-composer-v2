@@ -73,15 +73,15 @@ Sticker legacy menanam ±2 MB data (`lu`, `luf`, `tb`, `tbf`) di HTML. Di repo b
 - `icon-sources.fillShapeOf(key)` menyediakannya;
 - ikon tanpa bentuk isi otomatis memakai `plate`.
 
-Data legacy dibangun dari **`lucide-static@0.460.0`** dan **`@tabler/icons@3.31.0`** (sumber: handoff Sticker Composer, 9 Oktober 2026). Aturan pembentukan bentuk isi yang harus dipertahankan `scripts/build-icon-data.mjs`:
+Data legacy dibangun dari **`lucide-static@0.460.0`** dan **`@tabler/icons@3.31.0`** (sumber: handoff Sticker Composer, 9 Oktober 2026). Aturan pembentukan bentuk isi di legacy:
 
 - `luf`: hanya bentuk tertutup ikon Lucide (circle/rect/ellipse/polygon, atau path yang diakhiri `z`).
 - `tbf`: versi **filled resmi Tabler** (`tabler-nodes-filled.json`) kalau ada. Kalau tidak ada, dipakai bentuk tertutup dari outline-nya, dan data legacy menandainya dengan prefiks `~`.
 - Path kosong Tabler `M0 0h24v24H0z` dibuang. Kategori `Brand` dan nama `brand-*` dikecualikan.
 - Jumlah di data legacy: Lucide 1.539 ikon (973 punya isi), Tabler 4.568 ikon (1.801 punya isi).
-- Jumlah di `fill-shapes.json` (Lucide 1.52.0, Tabler 3.49.0): Lucide 2.122 ikon (1.293 punya isi), Tabler 4.808 ikon (2.811 punya isi, 1.019 filled resmi). Dicek ulang oleh `tests/unit/fill-shapes.test.js` (skrip harus menghasilkan file yang sama persis).
+- Jumlah di `fill-shapes.json` (Lucide 1.52.0, Tabler 3.49.0): Lucide 2.122 ikon (1.359 punya isi; 1.293 sebelum ADR-019 butir 2), Tabler 4.808 ikon (2.811 punya isi, 1.019 filled resmi). Dicek ulang oleh `tests/unit/fill-shapes.test.js` (skrip harus menghasilkan file yang sama persis).
 
-Penyesuaian aturan karena versi: Tabler 3.4x tidak lagi menulis `z` di path outline, sehingga aturan legacy hanya menghasilkan 0 bentuk fallback. Untuk `tbf` fallback, path yang titik awal dan akhirnya berimpit (< 0,6, aturan `isClosedPart` offset) ikut dihitung tertutup dan diberi `z`. Lucide tetap memakai aturan legacy (hanya path ber-`z`).
+Penyesuaian aturan karena versi (ADR-019 butir 2, diputuskan Beny 2026-10-21): Tabler 3.4x tidak lagi menulis `z` di path outline, dan di Lucide 1.52.0 banyak path tertutup juga tidak lagi diakhiri `z`. Karena itu Lucide dan fallback Tabler memakai satu aturan yang sama (`closedMarkupEndpoint`): circle/rect/ellipse/polygon, path berakhiran `z`, atau path yang titik awal dan akhirnya berimpit (< 0,6, aturan `isClosedPart` offset), yang lalu diberi `z`.
 
 Catatan: varian filled Tabler hanya dipakai sebagai **bentuk lapisan isi warna** di mesin sticker. Filter Bentuk di panel Pustaka tetap memakai deteksi bentuk tertutup per ikon (ADR-015).
 
@@ -91,7 +91,11 @@ Karena versinya naik ke Lucide 1.52.0 dan Tabler 3.49.0, bandingkan hasilnya di 
 
 - **Paritas mesin** (bentuk Icon Studio disuntikkan ke `compose` legacy asli, 14 rakitan × 4 gaya): selisih maks **0,047%** piksel di mode `mask` dan **0,000%** di mode `white`. Batas kriteria 1,5%.
 - **Selisih versi pustaka** (legacy dengan datanya sendiri, gaya bawaan): 0% untuk luggage, map, camera, tent-tree, caravan, mountain-snow, cable-car, bus, umbrella, mail; house + plus 3,4%; heart (isi Tanpa) 7,4%; sailboat 11,2%; minus 21,7% (aturan `plate` baru, legacy mengisi garisnya sendiri). Angka lengkap tercatat sebagai anotasi tes.
-- **Pertanyaan terbuka untuk pemilik:** di Lucide 1.52.0 sebagian path tertutup tidak lagi diakhiri `z`. Dengan aturan Lucide legacy, 30 ikon yang dulu punya bentuk isi kini memakai lingkaran (contoh `heart`). Memakai deteksi titik ujung seperti Tabler akan memulihkan 30 ikon itu, tetapi mengubah bentuk isi 10 ikon yang sekarang sama dengan legacy (contoh badan `luggage` ikut terisi) dan menambah 43 ikon baru. Belum diubah, menunggu keputusan.
+- **Bentuk isi Lucide dengan deteksi titik ujung** (diputuskan Beny 2026-10-21, ADR-019 butir 2). Dibanding aturan legacy (hanya path ber-`z`), jumlah ikon Lucide berbentuk isi naik dari 1.293 menjadi 1.359. Bagian Tabler tidak berubah.
+  - **30 ikon pulih** seperti legacy (sebelumnya jatuh ke lingkaran): apple, candy, carrot, croissant, egg, flame, heart, heart-pulse, infinity, leaf, moon, nut, paint-bucket, satellite-dish, spade, sprout, message-circle dan 7 variannya, phone dan 5 variannya. Tes kedua di `sticker-parity.spec.js` membandingkannya dengan legacy yang memakai bentuk isinya sendiri (hanya outline disuntikkan): 18 ikon di bawah 1,5% (maks moon 1,1%). 12 ikon digambar ulang di Lucide 1.x (message-circle dan variannya 2,1%, croissant 7,3%, nut 5,5%, paint-bucket 9,3%, sprout 1,5%) dan hanya dicatat sebagai anotasi.
+  - **10 ikon berubah** yang sebelumnya identik legacy, karena badan luarnya kini ikut terisi: anvil, donut, eye, flower, globe, map-pin, map-pinned, ribbon, scan-eye, view. Dicatat sebagai selisih aturan (anotasi), bukan kegagalan. 13 ikon lain yang memang sudah berbeda dari legacy juga ikut berubah (contoh beef, rocket, settings).
+  - **36 ikon baru** mendapat bentuk isi, yang di legacy pun tidak punya (contoh bell, cookie, clover, balloon, store, triangle-alert).
+  - Koper (`luggage`) tidak berubah: badannya path terbuka, jadi tetap hanya roda.
 
 ## Sumbu variasi (`axes`)
 

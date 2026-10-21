@@ -9,11 +9,13 @@
  * - `lucide.min.js` (Lucide, node ikon sama dengan yang dipakai app);
  * - `tabler-nodes-outline.json`, `tabler-nodes-filled.json`, `tabler-icons.json` (Tabler).
  *
- * Aturan pembentukan (sama dengan data legacy sticker-composer):
- * - `lu`: hanya bentuk tertutup ikon Lucide (circle, rect, ellipse, polygon, atau path berakhiran z).
+ * Aturan pembentukan (ADR-019 butir 2, diputuskan Beny 2026-10-21):
+ * - Bentuk tertutup = circle, rect, ellipse, polygon, path berakhiran z, atau path yang titik awal dan
+ *   akhirnya berimpit (< 0,6, aturan `isClosedPart` offset; path itu diberi `z`). Deteksi titik ujung
+ *   dipakai karena sejak Lucide 1.x dan Tabler 3.4x banyak path tertutup tidak lagi diakhiri `z`.
+ * - `lu`: bentuk tertutup ikon Lucide.
  * - `tb`: varian filled resmi Tabler kalau ada. Kalau tidak ada, bentuk tertutup dari outline-nya,
- *   ditandai prefiks `~`. Sejak Tabler 3.4x path outline tidak lagi diakhiri `z`, jadi path yang titik
- *   awal dan akhirnya berimpit (< 0,6, aturan `isClosedPart` offset) juga dihitung tertutup dan diberi `z`.
+ *   ditandai prefiks `~`.
  * - Path kosong Tabler `M0 0h24v24H0z` dibuang. Kategori `Brand` dan nama `brand-*` dikecualikan.
  *
  * Pemakaian: `node scripts/build-icon-data.mjs` (atau `npm run icon-data`).
@@ -68,14 +70,12 @@ const isClosed = ([tag, a]) =>
   a.d !== EMPTY &&
   (CLOSED_TAGS.has(tag) || (tag === "path" && /z\s*$/i.test(String(a.d || ""))));
 
-/** @param {[string, Record<string, any>][]} node */
-const closedMarkup = (node) => node.filter(isClosed).map(markup).join("");
-
 /**
- * Bentuk tertutup outline Tabler: aturan `isClosed`, ditambah path yang titik ujungnya berimpit (diberi `z`).
+ * Bentuk tertutup sebuah node ikon (Lucide dan outline Tabler): aturan `isClosed`, ditambah path
+ * yang titik awal dan akhirnya berimpit (< 0,6, aturan `isClosedPart` offset) dan diberi `z`.
  * @param {[string, Record<string, any>][]} node
  */
-const closedMarkupTabler = (node) =>
+const closedMarkupEndpoint = (node) =>
   node
     .map((part) => {
       if (isClosed(part)) return markup(part);
@@ -108,7 +108,7 @@ for (const [pn, node] of Object.entries(lucideCtx.lucide.icons)) {
 /** @type {Record<string, string>} */
 const lu = {};
 for (const name of [...LU.keys()].sort()) {
-  const m = closedMarkup(LU.get(name));
+  const m = closedMarkupEndpoint(LU.get(name));
   if (m) lu[name] = m;
 }
 
@@ -131,7 +131,7 @@ for (const name of Object.keys(tbOutline).sort()) {
     tb[name] = filled.map(markup).join("");
     continue;
   }
-  const m = closedMarkupTabler(
+  const m = closedMarkupEndpoint(
     tbOutline[name].filter((/** @type {any} */ [, a]) => a && a.stroke !== "none"),
   );
   if (m) tb[name] = "~" + m;

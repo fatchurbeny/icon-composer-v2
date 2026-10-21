@@ -81,9 +81,9 @@ Rencana kerja: `docs/plans/fase-2b.md`.
 
 ### ADR-019 · 2026-10-20 · Mesin sticker dan direct fill di ZIP Composer (Fase 5)
 **Konteks:** Fase 5 memindahkan sticker-composer ke kontrak mesin dan menyalakan direct fill IC (ADR-011).
-**Keputusan teknis Fase 5** (menunggu tinjauan Beny; butir 2 dan 5 menunggu keputusan pemilik):
+**Keputusan teknis Fase 5** (menunggu tinjauan Beny; butir 5 menunggu keputusan pemilik):
 1. Mesin `sticker` 1.1.0 menghitung di kanvas 64 legacy dan mengeluarkan viewBox 48. Mode `mask` memotong setiap bagian dengan siluet bagian di atasnya, supaya direct fill satu path per warna tidak bergantung urutan tumpukan.
-2. Bentuk isi dibangun `scripts/build-icon-data.mjs` ke `fill-shapes.json`. Fallback Tabler memakai deteksi titik ujung karena Tabler 3.4x tidak lagi menulis `z`; Lucide tetap aturan legacy (hanya path ber-`z`) sampai pemilik memutuskan (pertanyaan terbuka di `engines/sticker.md`).
+2. Bentuk isi dibangun `scripts/build-icon-data.mjs` ke `fill-shapes.json`. **Keputusan tetap (2026-10-21, diputuskan Beny):** Lucide dan fallback Tabler memakai deteksi titik ujung yang sama (`closedMarkupEndpoint`: path yang titik awal dan akhirnya berimpit < 0,6 dihitung tertutup dan diberi `z`), karena Lucide 1.52.0 dan Tabler 3.4x tidak lagi menulis `z` di banyak path tertutup. Akibatnya Lucide berbentuk isi naik 1.293 → 1.359: 30 ikon pulih seperti legacy (contoh heart, apple, egg), 10 ikon yang sebelumnya identik legacy ikut berubah karena badan luarnya kini terisi (contoh eye, map-pin), dan 36 ikon baru mendapat bentuk isi (contoh bell, cookie). Rincian di `engines/sticker.md`.
 3. Ikon tanpa bentuk isi memakai `plate` (lingkaran), sesuai spesifikasi.
 4. SVG di akar ZIP Composer selalu direct fill; SVG asli ke `svg-asli/` (opsional). `stroke-dasharray` objek bawaan (`ticket`) dipanggang jadi geometri di jalur ekspor (`outlineSvgFile`), bukan di mesin, supaya golden render classic tetap identik. Ikon yang tetap gagal direct fill dilewati dari SVG Canva dan disebut di status unduhan.
 5. Builder mode `S`: isi objek = aksen manifest, isi pengubah kuning. Usulan sementara, menunggu persetujuan pemilik.
