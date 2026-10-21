@@ -96,7 +96,7 @@ Di Icon Studio, `normSetStyle` menerima `classic`, `accent`, `offset`, `hand-wri
 
 Dokumen manifest bergaya offset (Fase 3): `pv = "O"`, `export.modes.O`, dan isi warna di `style.engine.offset.mode` (`solid`, `white`, `line`).
 
-Dokumen manifest bergaya sticker (Fase 5): `pv = "S"`, `export.modes.S`, dan mode warna di `style.engine.sticker.mode` (`sticker`, `fill`, `line`). Manifest dengan `style.family: "sticker"` diimpor langsung ke mode `S`. Tinta memakai `style.ink`, isi objek `style.accent`, isi pengubah kuning (`manifestStickerStyle`, `manifestStickerItem`); posisi manifest diabaikan, slot dipetakan ke 4 sudut. Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
+Dokumen manifest bergaya sticker (Fase 5): `pv = "S"`, `export.modes.S`, dan mode warna di `style.engine.sticker.mode` (`sticker`, `fill`, `line`). Manifest dengan `style.family: "sticker"` diimpor langsung ke mode `S`. Tinta memakai `style.ink` (`manifestStickerStyle`). Warna isi (`manifestStickerItem`, ADR-019 butir 5): pilihan per ikon `item.engine.sticker.main.c`/`mod.c`, lalu pilihan pack `style.engine.sticker.main.c`/`mod.c`, lalu bawaan (isi objek `style.accent`, isi pengubah kuning, digeser +3 di palet bila sama dengan isi objek). Field warna hanya ada bila dipilih, dan "Ikuti warna set" menghapusnya lagi (`setStickerColor`), jadi dokumen lama tidak berubah. Di `manifest-final.json` warna yang dipilih ditulis sebagai `style.engine.sticker` dan `icons[].engine.sticker` (bentuk `{main:{c}, mod:{c}}`, hanya bagian yang dipilih) untuk pratinjau apa pun, dan dibaca lagi saat impor (`manifestStyle`, `toItem`); warna sticker lama di blok `style.engine` manifest asal diganti pilihan dokumen. Posisi manifest diabaikan, slot dipetakan ke 4 sudut. Manifest dengan `style.family: "offset"` diimpor langsung ke mode `O`, dan `style.mode` dibaca sebagai isi warna. Tinta dan aksen offset memakai `style.ink` dan `style.accent` dokumen (`manifestOffsetStyle`). Dokumen lama tanpa `modes.O` tetap terbaca (Offset tidak dicentang).
 
 ### 4.1.1 Preset saya dan sumber swatch (app-level)
 
@@ -115,7 +115,9 @@ Warna yang dipilih lewat pemilih warna ditulis ke field gaya yang sudah ada, jad
 | Composer, Warna: Tinta, Aksen (offset) | `style.engine.offset.ink`, `style.engine.offset.acc` |
 | Composer · Edit: Garis/Tinta, Isian per lapisan | `style.colors[layer].line`, `style.colors[layer].fill` (`null` = ikuti warna set) |
 | Builder, tab Manifest: Tinta, Aksen | `style.ink`, `style.accent` dokumen manifest (juga dipakai mode Offset lewat `manifestOffsetStyle`) |
-| Palet kurasi dan harmoni (`applyStyleColors`) | tinta → `ink`, aksen → `accent`, isi → `style.colors.main.fill` (klasik/aksen); offset dan Builder hanya tinta dan aksen. Peran latar palet hanya contoh dan tidak ditulis. |
+| Builder, tab Manifest: Warna sticker Isi objek, Isi pengubah | `style.engine.sticker.main.c`, `style.engine.sticker.mod.c` dokumen manifest (kosong = bawaan aksen dan kuning) |
+| Builder, tab Ikon (Sticker): Isi objek, Isi pengubah | `item.engine.sticker.main.c`, `item.engine.sticker.mod.c` (kosong = ikuti warna pack) |
+| Palet kurasi dan harmoni (`applyStyleColors`) | tinta → `ink`, aksen → `accent`, isi → `style.colors.main.fill` (klasik/aksen); offset dan Builder hanya tinta dan aksen, kecuali Builder pratinjau Sticker: isi objek sticker pack dikosongkan (ikut aksen) dan isi → `style.engine.sticker.mod.c`. Peran latar palet hanya contoh dan tidak ditulis. |
 
 Setiap perubahan warna dokumen memakai `mutate` berlabel (mis. "Warna aksen #E2552D", "Palet Laut Dalam", "Harmoni komplementer"), jadi satu langkah urungkan.
 

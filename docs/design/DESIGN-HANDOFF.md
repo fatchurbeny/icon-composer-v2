@@ -141,7 +141,8 @@ Setiap layar di bawah ini punya artboard dengan nama yang sama di Claude Design.
 - **Konteks:** `.ic-steps` (Impor ✓ → Periksa → Ekspor), `.ic-chip` filter (Semua, Bermasalah, Slot deck, Ekstra), `.ic-select` Pratinjau (5 gaya), `.ic-check` Kelompokkan per slide.
 - **Kanvas:** `.ic-slidegroup` per slide (judul slide + "n slot") dengan `.ic-cardgrid` 4 kolom `.ic-iconcard`. Ikon terpilih bercincin biru. Ikon dobel bercincin merah dengan `.ic-flag[err]`. Ikon mirip diberi `.ic-flag[warn]`.
 - **Studio:**
-  - **Ikon** \| Manifest \| Pustaka: pratinjau besar, field id, Nama EN, Nama ID, Objek, Posisi, Pengubah, Isi, dan kata kunci (`.ic-tag`).
+  - **Ikon** \| Manifest \| Pustaka: pratinjau besar, field id, Nama EN, Nama ID, Objek, Posisi, Pengubah, Isi, dan kata kunci (`.ic-tag`). Pratinjau Sticker: Gaya Sticker berisi Mode warna dan baris warna per ikon Isi objek dan Isi pengubah (baris swatch palet sticker dengan "Ikuti warna set" + pemicu `.ic-colorpicker`, sama dengan Composer · Edit).
+  - Tab Manifest: Warna pack (Tinta, Aksen) untuk semua gaya; bila pratinjau atau centang ekspor Sticker aktif, ditambah "Warna sticker · seluruh pack" (Isi objek, Isi pengubah) dengan pemilih warna yang sama. Catatan batas Canva di bawahnya menghitung per ikon untuk Sticker.
   - **Repetisi** \| Flag: `.ic-alert` per temuan, tombol Ratakan variasi dan Lewati bermasalah.
   - **Gaya ekspor** \| Metadata: baris checkbox per gaya dengan thumb dan nama folder, footer `.ic-alert[ok]` tentang direct fill.
 - Data dari `toItem`/`normAcc` TIB, `signatureMap`, dan `flagsOf`.

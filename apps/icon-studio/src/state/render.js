@@ -155,7 +155,7 @@ export function createRenderer(options) {
    * Render ikon Builder untuk satu mode (render TIB). Gaya dokumen tidak diubah.
    * Mode O memakai mesin offset: pengubah tidak dirender, dekorasi dari `offsetDeco` (bawaan kilat + tanah).
    * Mode H memakai mesin hand-writing: pengubah pustaka di anchor item, tinta dan aksen dari gaya manifest.
-   * Mode S memakai mesin sticker: isi objek = aksen manifest (`manifestStickerItem`), slot dipetakan ke 4 sudut.
+   * Mode S memakai mesin sticker: warna isi dari pilihan ikon, pack, atau bawaan aksen + kuning (`manifestStickerItem`), slot dipetakan ke 4 sudut.
    * @param {any} it
    * @param {string} mode X | A | B | C | O | H | S
    * @param {any} style

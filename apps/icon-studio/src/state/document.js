@@ -152,17 +152,90 @@ export function manifestStickerStyle(style){
   return {family:"sticker", engine:{sticker:stickerParams({mode:STICKER_FILLS.includes(e.mode) ? e.mode : "sticker", ink:style.ink})}};
 }
 
+/** Bagian sticker yang warna isinya bisa dipilih di Builder: objek utama dan pengubah. */
+export const STICKER_COLOR_PARTS = ["main", "mod"];
+
+/** @param {unknown} v @returns {string | null} */
+const hexOrNull = (v) => (typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v.toUpperCase() : null);
+
 /**
- * Item Builder untuk mesin sticker: isi objek = aksen manifest, isi pengubah kuning sticker
- * (digeser +3 di palet bila sama dengan aksen, aturan legacy). Seed dekorasi dari id ikon (stabil per ikon).
+ * Warna isi sticker yang dipilih pengguna dari blok `engine.sticker` (gaya dokumen Builder, item Builder,
+ * atau manifest). Struktur sama dengan `item.engine.sticker` Composer: `main.c` dan `mod.c`. `null` = belum dipilih.
+ * @param {any} holder objek yang punya `engine.sticker` (gaya atau item)
+ * @returns {{main: string | null, mod: string | null}}
+ */
+export function stickerColorsOf(holder){
+  const e = (holder && holder.engine && holder.engine.sticker) || {};
+  return {main:hexOrNull(e.main && e.main.c), mod:hexOrNull(e.mod && e.mod.c)};
+}
+
+/**
+ * Blok `{main:{c}, mod:{c}}` untuk manifest-final.json, hanya bagian yang dipilih. `null` bila tidak ada pilihan,
+ * supaya manifest lama tetap sama persis.
+ * @param {any} holder
+ */
+export function stickerColorBlock(holder){
+  const c = stickerColorsOf(holder);
+  if (!c.main && !c.mod) return null;
+  return {...(c.main ? {main:{c:c.main}} : {}), ...(c.mod ? {mod:{c:c.mod}} : {})};
+}
+
+/**
+ * Tulis atau hapus warna isi sticker di `holder.engine.sticker[part].c`. `value` kosong atau tidak sah
+ * menghapus pilihan (kembali ke bawaan). Blok kosong dihapus, supaya dokumen tanpa pilihan tetap sama dengan
+ * sebelum fitur ini. Field lain di `engine.sticker` (mis. `mode`) tidak disentuh.
+ * @param {any} holder gaya dokumen Builder (warna pack) atau item Builder (warna per ikon)
+ * @param {string} part "main" atau "mod"
+ * @param {unknown} value `#RRGGBB` atau kosong
+ */
+export function setStickerColor(holder, part, value){
+  if (!STICKER_COLOR_PARTS.includes(part)) return holder;
+  const c = hexOrNull(value);
+  const engine = {...(holder.engine || {})};
+  const sticker = {...(engine.sticker || {})};
+  if (c) sticker[part] = {...(sticker[part] || {}), c};
+  else if (sticker[part]){
+    const rest = {...sticker[part]}; delete rest.c;
+    if (Object.keys(rest).length) sticker[part] = rest; else delete sticker[part];
+  }
+  if (Object.keys(sticker).length) engine.sticker = sticker; else delete engine.sticker;
+  if (Object.keys(engine).length) holder.engine = engine; else delete holder.engine;
+  return holder;
+}
+
+/**
+ * Isi pengubah bawaan: kuning sticker, digeser +3 di palet bila sama dengan isi objek (aturan legacy).
+ * @param {string} main isi objek
+ */
+const defaultModFill = (main) => {
+  const i = STICKER_PALETTE.indexOf(main);
+  return main === STICKER_MOD_FILL ? STICKER_PALETTE[((i < 0 ? 3 : i) + 3) % 8] : STICKER_MOD_FILL;
+};
+
+/**
+ * Warna isi sticker seluruh pack Builder: pilihan di `style.engine.sticker` atau bawaan
+ * (isi objek = aksen manifest, isi pengubah kuning).
+ * @param {any} style gaya dokumen Builder
+ * @returns {{main: string, mod: string}}
+ */
+export function manifestStickerFills(style){
+  const pick = stickerColorsOf(style);
+  const main = pick.main || hexOrNull(style && style.accent) || STICKER_PALETTE[0];
+  return {main, mod:pick.mod || defaultModFill(main)};
+}
+
+/**
+ * Item Builder untuk mesin sticker. Isi objek dan pengubah: pilihan per ikon (`it.engine.sticker`), lalu pilihan
+ * pack (`style.engine.sticker`), lalu bawaan (aksen manifest dan kuning sticker, digeser +3 di palet bila sama
+ * dengan isi objek). Seed dekorasi dari id ikon (stabil per ikon).
  * @param {any} it item Builder
  * @param {any} style gaya dokumen Builder
  */
 export function manifestStickerItem(it, style){
-  const acc = /^#[0-9a-f]{6}$/i.test(style.accent || "") ? String(style.accent).toUpperCase() : STICKER_PALETTE[0];
-  const i = STICKER_PALETTE.indexOf(acc);
-  const mod = acc === STICKER_MOD_FILL ? STICKER_PALETTE[((i < 0 ? 3 : i) + 3) % 8] : STICKER_MOD_FILL;
-  return {...it, mx:0, my:0, nx:0, ny:0, vis:{main:true, mod:true, deco:true}, engine:{...(it.engine || {}), sticker:{main:{c:acc}, mod:{c:mod}}}};
+  const own = stickerColorsOf(it), pack = stickerColorsOf(style);
+  const main = own.main || manifestStickerFills(style).main;
+  const mod = own.mod || pack.mod || defaultModFill(main);
+  return {...it, mx:0, my:0, nx:0, ny:0, vis:{main:true, mod:true, deco:true}, engine:{...(it.engine || {}), sticker:{main:{c:main}, mod:{c:mod}}}};
 }
 
 /**
@@ -252,7 +325,9 @@ export function toItem(o, i, SHIFT, rand = () => Math.random().toString(36).slic
     slides: Array.isArray(o.slides) ? o.slides.filter(n => Number.isFinite(+n)).map(Number) : [],
     role: o.role === "extra" ? "extra" : "slot",
     keywords: {en: (kw.en || []).map(String).slice(0, 20), id: (kw.id || []).map(String).slice(0, 20)},
-    on: true, vis:{main:true, mod:true, deco:true}, deco:{type:"none"}, _acc:o.accent
+    on: true, vis:{main:true, mod:true, deco:true}, deco:{type:"none"}, _acc:o.accent,
+    /* warna isi sticker per ikon dari manifest-final.json, hanya bila ada */
+    ...(stickerColorBlock(o) ? {engine:{sticker:stickerColorBlock(o)}} : {})
   };
 }
 
@@ -269,6 +344,8 @@ export function manifestStyle(man, style){
   const st = (man && man.style) || {};
   if (/^#[0-9a-f]{6}$/i.test(st.ink || "")) style.ink = st.ink.toUpperCase();
   if (/^#[0-9a-f]{6}$/i.test(st.accent || "")) style.accent = st.accent.toUpperCase();
+  /* warna isi sticker pack (manifest-final.json dari Builder), dibaca untuk family apa pun */
+  for (const part of STICKER_COLOR_PARTS) setStickerColor(style, part, stickerColorsOf(st)[part]);
   if (st.family === "offset"){
     style.engine = {...(style.engine || {}), offset:{mode:OFFSET_FILLS.includes(st.mode) ? st.mode : "solid"}};
     return {pv:OFFSET_MODE, exportModes:{X:false, A:false, B:false, O:true, H:false, S:false}};
@@ -278,7 +355,7 @@ export function manifestStyle(man, style){
     return {pv:HAND_WRITING_MODE, exportModes:{X:false, A:false, B:false, O:false, H:true, S:false}};
   }
   if (st.family === "sticker"){
-    style.engine = {...(style.engine || {}), sticker:{mode:STICKER_FILLS.includes(st.mode) ? st.mode : "sticker"}};
+    style.engine = {...(style.engine || {}), sticker:{...((style.engine || {}).sticker || {}), mode:STICKER_FILLS.includes(st.mode) ? st.mode : "sticker"}};
     return {pv:STICKER_MODE, exportModes:{X:false, A:false, B:false, O:false, H:false, S:true}};
   }
   const fam = st.family === "classic" ? "classic" : "accent";

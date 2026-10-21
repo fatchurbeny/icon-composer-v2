@@ -5,6 +5,7 @@
  * - Isi popover: Preset saya (global, di luar urungkan), palet kurasi, dan harmoni dari warna aktif.
  * - Perubahan warna dokumen selalu lewat mutate berlabel, jadi bisa diurungkan.
  */
+import { STICKER_MODE, setStickerColor } from "../state/document.js";
 import { applyStyleColors } from "../state/set-ops.js";
 import { HARMONIES, harmony, normHex } from "../state/color-harmony.js";
 import { CURATED_PALETTES } from "../state/data/palettes.js";
@@ -68,8 +69,9 @@ const chips = (colors, label) =>
  * Isi popover pemilih warna (dipanggil `components.js` lewat `ICUI.colorpickerExtra`).
  * @param {{colorPresets: string[], swatchSource: string}} app
  * @param {{name: string, value: string}} info value: warna aktif di pemilih ("" = ikuti warna set)
+ * @param {{stickerPack?: boolean}} [hint] stickerPack: dokumen aktif dokumen Builder dengan pratinjau Sticker
  */
-export function pickerExtra(app, info) {
+export function pickerExtra(app, info, hint = {}) {
   const value = normHex(info.value);
   const presets = app.colorPresets;
   const at = value ? presets.indexOf(value) : -1;
@@ -91,12 +93,18 @@ export function pickerExtra(app, info) {
   const paletteBody = CURATED_PALETTES.map(
     (p) =>
       `<button type="button" class="ic-colorpicker__row" data-action="cp-palette" data-id="${p.id}" aria-label="Terapkan palet ${esc(p.name)}: tinta ${p.ink}, aksen ${p.accent}, isi ${p.fill}">${chips([p.ink, p.accent, p.fill, p.bg], p.name)}${esc(p.name)}</button>`,
-  ).join("") + `<span class="ic-meta">Tinta, aksen, dan isi objek utama untuk seluruh set. Kolom terakhir hanya contoh latar.</span>`;
+  ).join("") +
+    (hint.stickerPack
+      ? `<span class="ic-meta">Tinta dan aksen untuk seluruh pack. Isi objek sticker ikut aksen, isi palet jadi isi pengubah. Kolom terakhir hanya contoh latar.</span>`
+      : `<span class="ic-meta">Tinta, aksen, dan isi objek utama untuk seluruh set. Kolom terakhir hanya contoh latar.</span>`);
   const harmonyBody = value
     ? HARMONIES.map(([kind, label]) => {
         const cols = harmony(value, kind);
         return `<div class="ic-colorpicker__group"><div class="ic-formrow"><span class="ic-label">${label}</span><span class="ic-spacer"></span>${btn("Terapkan", "cp-harmony", ` data-kind="${kind}" aria-label="Terapkan harmoni ${label.toLowerCase()} ke set"`)}</div><div class="ic-swatches" role="group" aria-label="Harmoni ${label.toLowerCase()}">${cols.map((c) => `<button type="button" class="ic-swatch" data-color="${c}" style="background: ${c}" ${aria("aria-pressed", c === value)} aria-label="${label} ${c}"></button>`).join("")}</div></div>`;
-      }).join("") + `<span class="ic-meta">Terapkan: warna pertama jadi aksen, warna kedua jadi isi objek utama.</span>`
+      }).join("") +
+      (hint.stickerPack
+        ? `<span class="ic-meta">Terapkan: warna pertama jadi aksen dan isi objek sticker, warna kedua jadi isi pengubah.</span>`
+        : `<span class="ic-meta">Terapkan: warna pertama jadi aksen, warna kedua jadi isi objek utama.</span>`)
     : `<span class="ic-meta">Pilih satu warna dulu untuk melihat harmoninya.</span>`;
   const tabs = [
     ["preset", "Preset saya", presetBody],
@@ -120,8 +128,19 @@ export function pickerExtra(app, info) {
 function applyColors(ctx, colors, label, toast) {
   if (!ctx.doc) return;
   const manifest = ctx.doc.kind === "manifest";
+  /* Builder pratinjau Sticker: isi objek ikut aksen (pilihan pack dilepas), isi palet atau warna harmoni kedua jadi isi pengubah */
+  const stickerPack = manifest && ctx.doc.pv === STICKER_MODE;
   let fill = false;
-  ctx.app.mutate(ctx.doc.id, (doc) => (fill = applyStyleColors(doc.style, manifest ? { ink: colors.ink, accent: colors.accent } : colors).fill), label);
+  ctx.app.mutate(ctx.doc.id, (doc) => {
+    fill = applyStyleColors(doc.style, manifest ? { ink: colors.ink, accent: colors.accent } : colors).fill;
+    if (stickerPack) {
+      if (colors.accent) setStickerColor(doc.style, "main", null);
+      if (colors.fill) {
+        setStickerColor(doc.style, "mod", colors.fill);
+        fill = true;
+      }
+    }
+  }, label);
   toast(colors.fill && !fill ? `${label} diterapkan. Isi tidak dipakai pada gaya ini.` : `${label} diterapkan.`);
 }
 
